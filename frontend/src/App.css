@@ -1,0 +1,53 @@
+.registration-ui {
+  background: white;
+  padding: 0.15em 0.5em 0.15em 1.55em;
+  font-weight: bold;
+  font-size: 2em;
+  border-radius: 5px;
+  border: 1px solid #000;
+  box-shadow: 1px 1px 1px #ddd;
+  position: relative;
+  font-family: helvetica, ariel, sans-serif;
+  text-transform: uppercase;
+}
+
+.unit:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 7px;
+  left: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 30px;
+  border: 1px dashed white;
+}
+
+.input-box {
+  position: relative;
+}
+
+input {
+  display: block;
+  border: 1px solid #d7d6d6;
+  background: #fff;
+  padding: 5px 5px 5px 5px;
+  width: 245px;
+}
+
+.unit {
+  content: "GB";
+  font-family: helvetica, ariel, sans-serif;
+  font-weight: bold;
+  display: block;
+  width: 30px;
+  height: 100%;
+  font-size: 1em;
+  background: #063298;
+  position: absolute;
+  top: 0;
+  border-radius: 5px 0 0 5px;
+  color: white;
+  line-height: 85px;
+  padding-left: 5px;
+}
