@@ -71,6 +71,12 @@ const headCells = [
     disablePadding: false,
     label: "Описание",
   },
+  {
+    id: "invoice",
+    numeric: false,
+    disablePadding: false,
+    label: "Фактура №",
+  },
 
   {
     id: "km",
@@ -97,7 +103,6 @@ function EnhancedTableHead(props) {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
-
   return (
     <TableHead>
       <TableRow sx={{ backgroundColor: "grey" }}>
@@ -136,18 +141,20 @@ EnhancedTableHead.propTypes = {
 };
 
 // test
-const Services = ({ vehicle, services }) => {
+const Services = ({ vehicle, services, fuels }) => {
   const [loading, setLoading] = useState(false);
 
   const [newServ, setNewServ] = useState({
-    desc: "",
     date: "",
+    desc: "",
+    invoice: "",
     km: "",
     cost: "",
-    vehicleId: vehicle,
+    vehicleId: vehicle._id,
   });
 
   const [add, setAdd] = useState(false);
+
   const handleLoading = () => {
     setTimeout(() => {
       setLoading(false);
@@ -159,15 +166,34 @@ const Services = ({ vehicle, services }) => {
   const handleSave = () => {
     setAdd(false);
     axios
-      .post("http://localhost:5555/services", newServ)
-      .then(() => {
-        // setLoading(false);
-      })
+      .post("http://192.168.0.145:5555/services", newServ)
+      .then(() => {})
       .catch((err) => {
         // setLoading(false);
         alert("Грешка, проверете конзолата");
         console.log(err);
       });
+    if (!vehicle.startKm || parseInt(vehicle.startKm) > parseInt(newServ.km)) {
+      vehicle.startKm = newServ.km;
+      axios
+        .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, vehicle)
+        .then(() => {})
+        .catch((err) => {
+          alert("Грешка, проверете конзолата");
+          console.log(err);
+        });
+    }
+    if (!vehicle.startDate || vehicle.startDate > newServ.date) {
+      vehicle.startDate = newServ.date;
+      axios
+        .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, vehicle)
+        .then(() => {})
+        .catch((err) => {
+          alert("Грешка, проверете конзолата");
+          console.log(err);
+        });
+    }
+
     window.location.reload();
   };
   const handleCancel = () => {
@@ -221,7 +247,6 @@ const Services = ({ vehicle, services }) => {
         : [],
     [order, orderBy, page, rowsPerPage]
   );
-  console.log(services);
   //test
 
   return (
@@ -259,10 +284,10 @@ const Services = ({ vehicle, services }) => {
                             key={row._id}
                           >
                             <TableCell component="th" id={labelId} scope="row">
-                              {`${row.date}`}
+                              {`${bgDate(row.date)}`}
                             </TableCell>
                             <TableCell>{row.desc}</TableCell>
-
+                            <TableCell>{row.invoice}</TableCell>
                             <TableCell align="right">{row.km} км.</TableCell>
                             <TableCell align="right">{row.cost} лв.</TableCell>
                           </TableRow>
@@ -289,6 +314,7 @@ const Services = ({ vehicle, services }) => {
                               />
                             </div>
                           </TableCell>
+
                           <TableCell align="left">
                             <div>
                               <input
@@ -306,13 +332,30 @@ const Services = ({ vehicle, services }) => {
                               />
                             </div>
                           </TableCell>
+                          <TableCell align="left">
+                            <div>
+                              <input
+                                value={newServ.invoice}
+                                id="invoice"
+                                onChange={handleChange}
+                                className=""
+                                style={{
+                                  width: "180px",
+                                  borderRadius: "5px",
+                                  backgroundColor: "rgb(100,100,100)",
+                                  color: "white",
+                                  textAlign: "center",
+                                }}
+                              />
+                            </div>
+                          </TableCell>
 
                           <TableCell align="right">
                             {" "}
                             <div className="flex justify-end">
                               {" "}
                               <input
-                                value={newServ.km ? newServ.km : vehicle.km}
+                                value={newServ.km}
                                 id="km"
                                 onChange={handleChange}
                                 className="w-fit"
@@ -527,7 +570,7 @@ const Services = ({ vehicle, services }) => {
           </div> */}
 
           <h1 className="text-center my-4 text-2xl">Справка МПС</h1>
-          <h1 className="text-center text-xl">Данни за покупка</h1>
+          <h1 className="text-center text-xl">Начални данни</h1>
           <div className="flex justify-center">
             <TableContainer
               sx={{ maxWidth: "400px", margin: "10px" }}
@@ -542,21 +585,34 @@ const Services = ({ vehicle, services }) => {
                     }}
                   >
                     <TableCell component="th" scope="row">
-                      Дата
+                      Дата покупка
                     </TableCell>
-                    <TableCell align="right">Километри</TableCell>
-                    <TableCell align="right">Цена</TableCell>
+                    <TableCell align="right">Начална Дата</TableCell>
+                    <TableCell align="right">Начални Километри</TableCell>
+                    <TableCell align="right">Цена на покупка</TableCell>
                   </TableRow>
                   <TableRow
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell component="th" scope="row">
+                      {vehicle.purchaseDate
+                        ? bgDate(vehicle.purchaseDate.slice(0, 10))
+                        : "Няма данни"}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
                       {vehicle.startDate
                         ? bgDate(vehicle.startDate.slice(0, 10))
-                        : ""}
+                        : "Няма данни"}
+                      {/* {vehicle.startDate
+                        ? bgDate(vehicle.startDate.slice(0, 10))
+                        : ""} */}
                     </TableCell>
-                    <TableCell align="right">{vehicle.startKm} км</TableCell>
-                    <TableCell align="right">{vehicle.price} лв</TableCell>
+                    <TableCell align="right">
+                      {vehicle.startKm ? vehicle.startKm + " км" : "Няма данни"}{" "}
+                    </TableCell>
+                    <TableCell align="right">
+                      {vehicle.price ? vehicle.price + " лв" : "Няма данни"}
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
@@ -569,6 +625,21 @@ const Services = ({ vehicle, services }) => {
             >
               <Table sx={{ minWidth: "200px" }} aria-label="simple table">
                 <TableBody>
+                  <TableRow
+                    sx={{
+                      "&:last-child td, &:last-child th": {
+                        border: 0,
+                      },
+                    }}
+                  >
+                    <TableCell
+                      sx={{ textAlign: "center" }}
+                      component="th"
+                      scope="row"
+                    >
+                      Общи
+                    </TableCell>
+                  </TableRow>
                   <TableRow
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
@@ -586,6 +657,21 @@ const Services = ({ vehicle, services }) => {
                       Общо месеци:
                     </TableCell>
                     <TableCell align="right">{months} м.</TableCell>
+                  </TableRow>
+                  <TableRow
+                    sx={{
+                      "&:last-child td, &:last-child th": {
+                        border: 0,
+                      },
+                    }}
+                  >
+                    <TableCell
+                      sx={{ textAlign: "center" }}
+                      component="th"
+                      scope="row"
+                    >
+                      Ремонти
+                    </TableCell>
                   </TableRow>
                   <TableRow
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -607,12 +693,16 @@ const Services = ({ vehicle, services }) => {
                       Обща стойност МПС:
                     </TableCell>
                     <TableCell align="right">
-                      {(
-                        parseFloat(
-                          services.data.reduce((acc, obj) => acc + obj.cost, 0)
-                        ) + parseFloat(vehicle.price)
-                      ).toLocaleString()}{" "}
-                      лв.
+                      {vehicle.price
+                        ? (
+                            parseFloat(
+                              services.data.reduce(
+                                (acc, obj) => acc + obj.cost,
+                                0
+                              )
+                            ) + parseFloat(vehicle.price)
+                          ).toLocaleString() + " лв."
+                        : "Няма данни"}
                     </TableCell>
                   </TableRow>
                   <TableRow
@@ -622,27 +712,93 @@ const Services = ({ vehicle, services }) => {
                       Среден месечен разход ремонти:
                     </TableCell>
                     <TableCell align="right">
-                      {(
-                        services.data.reduce((acc, obj) => acc + obj.cost, 0) /
-                        months
-                      ).toFixed(2)}{" "}
-                      лв.
+                      {months
+                        ? (
+                            services.data.reduce(
+                              (acc, obj) => acc + obj.cost,
+                              0
+                            ) / months
+                          ).toFixed(2) + " лв."
+                        : "Няма данни"}
                     </TableCell>
                   </TableRow>
                   <TableRow
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell component="th" scope="row">
-                      Разход на км:
+                      Среден разход на км (ремонти):
                     </TableCell>
                     <TableCell align="right">
-                      {(
-                        services.data.reduce((acc, obj) => acc + obj.cost, 0) /
-                        (vehicle.km - vehicle.startKm)
-                      ).toFixed(2)}{" "}
+                      {vehicle.km - vehicle.startKm
+                        ? (
+                            services.data.reduce(
+                              (acc, obj) => acc + obj.cost,
+                              0
+                            ) /
+                            (vehicle.km - vehicle.startKm)
+                          ).toFixed(2) + " лв."
+                        : "Няма данни"}
+                    </TableCell>
+                  </TableRow>
+                  {/* <TableRow
+                    sx={{
+                      "&:last-child td, &:last-child th": {
+                        border: 0,
+                      },
+                    }}
+                  > */}
+                  {/* <TableCell
+                      sx={{ textAlign: "center" }}
+                      component="th"
+                      scope="row"
+                    >
+                      Гориво
+                    </TableCell>
+                  </TableRow>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      Гориво общо:
+                    </TableCell>
+                    <TableCell align="right">
+                      {fuels.data
+                        .reduce((acc, obj) => acc + obj.cost, 0)
+                        .toLocaleString()}{" "}
                       лв.
                     </TableCell>
                   </TableRow>
+
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      Среден месечен разход гориво:
+                    </TableCell>
+                    <TableCell align="right">
+                      {months
+                        ? (
+                            fuels.data.reduce((acc, obj) => acc + obj.cost, 0) /
+                            months
+                          ).toFixed(2) + " лв."
+                        : "Няма данни"}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      Среден разход на км (гориво):
+                    </TableCell>
+                    <TableCell align="right">
+                      {vehicle.km - vehicle.startKm
+                        ? (
+                            fuels.data.reduce((acc, obj) => acc + obj.cost, 0) /
+                            (vehicle.km - vehicle.startKm)
+                          ).toFixed(2) + " лв."
+                        : "Няма данни"}
+                    </TableCell>
+                  </TableRow> */}
                 </TableBody>
               </Table>
             </TableContainer>

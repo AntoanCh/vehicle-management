@@ -7,6 +7,8 @@ import { Button, ButtonGroup } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import Services from "./Services";
+import Fuels from "./Fuels";
+import Problems from "./Problems";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CancelIcon from "@mui/icons-material/Cancel";
 import dayjs from "dayjs";
@@ -14,23 +16,30 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import { useNavigate } from "react-router-dom";
 
 const ShowVehicle = () => {
   const [vehicle, setVehicle] = useState({});
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState(false);
   const [services, setServices] = useState();
+  const [fuels, setFuels] = useState();
+  const [problems, setProblems] = useState();
   const [servLoading, setServLoading] = useState(true);
+  const [fuelLoading, setFuelLoading] = useState(true);
+  const [problemLoading, setProblemLoading] = useState(true);
   const { id } = useParams();
+  const navigate = useNavigate();
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`http://localhost:5555/vehicles/${id}`)
+      .get(`http://192.168.0.145:5555/vehicles/${id}`)
       .then((res) => {
         setVehicle(res.data);
         setLoading(false);
         axios
-          .get(`http://localhost:5555/services/${res.data._id}`)
+          .get(`http://192.168.0.145:5555/services/${res.data._id}`)
           .then((res) => {
             setServices(res.data);
             setServLoading(false);
@@ -39,6 +48,26 @@ const ShowVehicle = () => {
             console.log(err);
             setServLoading(false);
           });
+        axios
+          .get(`http://192.168.0.145:5555/fuels/${res.data._id}`)
+          .then((res) => {
+            setFuels(res.data);
+            setFuelLoading(false);
+          })
+          .catch((err) => {
+            console.log(err);
+            setFuelLoading(false);
+          });
+        axios
+          .get(`http://192.168.0.145:5555/problems/${res.data._id}`)
+          .then((res) => {
+            setProblems(res.data);
+            setProblemLoading(false);
+          })
+          .catch((err) => {
+            console.log(err);
+            setProblemLoading(false);
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -46,13 +75,20 @@ const ShowVehicle = () => {
       });
   }, []);
 
+  const handleDelete = () => {
+    axios
+      .delete(`http://192.168.0.145:5555/vehicles/${vehicle._id}`)
+      .then(() => {
+        navigate("/vehicles");
+      });
+  };
   const handleEdit = () => {
     setEdit(true);
   };
   const handleSave = () => {
     setEdit(false);
     axios
-      .put(`http://localhost:5555/vehicles/${vehicle._id}`, vehicle)
+      .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, vehicle)
       .then(() => {
         window.location.reload();
       })
@@ -119,7 +155,7 @@ const ShowVehicle = () => {
   const handleCheck = () => {
     vehicle.checked = dayjs();
     axios
-      .put(`http://localhost:5555/vehicles/${vehicle._id}`, vehicle)
+      .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, vehicle)
       .then(() => {
         window.location.reload();
       })
@@ -221,6 +257,12 @@ const ShowVehicle = () => {
                 <div className="my-4 flex justify-end">
                   <div className="w-56">
                     <span className="text-xl ml-4 mr-2 text-gray-500">
+                      Отговорник:
+                    </span>
+                    <span>{vehicle.user}</span>
+                  </div>
+                  <div className="w-56">
+                    <span className="text-xl ml-4 mr-2 text-gray-500">
                       Талон №:
                     </span>
                     <span>{vehicle.talonNum}</span>
@@ -265,7 +307,7 @@ const ShowVehicle = () => {
               <div className="my-4 flex justify-end my-2">
                 <div className={edit ? "flex" : "flex w-64"}>
                   <span className="text-xl mr-2 ml-4 text-gray-500">
-                    Масло/Ф-ри:
+                    Тех.Обс.:
                   </span>
                   {edit ? (
                     <input
@@ -588,12 +630,27 @@ const ShowVehicle = () => {
               </div>
             </div>
             <div>
+              {problemLoading ? (
+                <CircularProgress />
+              ) : (
+                <Problems vehicle={vehicle} problems={problems} />
+              )}
+            </div>
+            <div>
+              {fuelLoading ? (
+                <CircularProgress />
+              ) : (
+                <Fuels vehicle={vehicle} fuels={fuels} />
+              )}
+            </div>
+            <div>
               {servLoading ? (
                 <CircularProgress />
               ) : (
-                <Services vehicle={vehicle} services={services} />
+                <Services vehicle={vehicle} fuels={fuels} services={services} />
               )}
             </div>
+
             <div className="my-4">
               <span className="text-xl mr-4 text-gray-500">
                 Последна Промяна:
@@ -608,6 +665,12 @@ const ShowVehicle = () => {
             <div className="my-4">
               <span className="text-xl mr-4 text-gray-500">ID:</span>
               <span>{vehicle._id}</span>
+            </div>
+            <div>
+              <Button onClick={handleDelete} color="error" variant="contained">
+                ИзтриЙ
+                <DeleteForeverIcon />
+              </Button>
             </div>
           </div>
         </LocalizationProvider>

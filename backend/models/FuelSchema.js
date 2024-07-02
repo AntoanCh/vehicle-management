@@ -1,13 +1,17 @@
 import mongoose, { Schema } from "mongoose";
 import { Vehicle } from "./VehicleModel.js";
 
-export const serviceSchema = mongoose.Schema(
+export const fuelSchema = mongoose.Schema(
   {
     date: {
       type: String,
       required: true,
     },
-    desc: {
+    type: {
+      type: String,
+      required: true,
+    },
+    station: {
       type: String,
       required: true,
     },

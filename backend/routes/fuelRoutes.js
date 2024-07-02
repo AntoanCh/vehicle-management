@@ -1,14 +1,15 @@
 import express from "express";
-import { Service } from "../models/ServiceModel.js";
+import { Fuel } from "../models/FuelModel.js";
 
 const router = express.Router();
 
-//Route for saving a new Service
+//Route for saving a new Fuel
 router.post("/", async (req, res) => {
   try {
     if (
       !req.body.date ||
-      !req.body.desc ||
+      !req.body.type ||
+      !req.body.station ||
       !req.body.invoice ||
       !req.body.km ||
       !req.body.cost ||
@@ -18,29 +19,30 @@ router.post("/", async (req, res) => {
         message: "Send all required fields",
       });
     }
-    const newService = {
+    const newFuel = {
       date: req.body.date,
-      desc: req.body.desc,
+      type: req.body.type,
+      station: req.body.station,
       invoice: req.body.invoice,
       km: req.body.km,
       cost: req.body.cost,
       vehicleId: req.body.vehicleId,
     };
-    const service = await Service.create(newService);
-    return res.status(201).send(service);
+    const fuel = await Fuel.create(newFuel);
+    return res.status(201).send(fuel);
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });
   }
 });
 
-//Route to get all services
+//Route to get all fuels
 router.get("/", async (req, res) => {
   try {
-    const services = await Service.find({});
+    const fuels = await Fuel.find({});
     return res.status(200).json({
-      count: services.length,
-      data: services,
+      count: fuels.length,
+      data: fuels,
     });
   } catch (err) {
     console.log(err.message);
@@ -48,44 +50,44 @@ router.get("/", async (req, res) => {
   }
 });
 
-//Route to get All Services for a specific Asset
+//Route to get All Fuels for a specific Asset
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     // const vehicle = req.body.vehicleId;
-    const services = await Service.find({ vehicleId: id });
+    const fuels = await Fuel.find({ vehicleId: id });
     return res.status(200).json({
-      count: services.length,
-      data: services,
+      count: fuels.length,
+      data: fuels,
     });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });
   }
 });
-//Route for Get One Service from database by id
+//Route for Get One Fuel from database by id
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const service = await Service.findById(id);
+    const fuel = await Fuel.findById(id);
 
-    return res.status(200).json(service);
+    return res.status(200).json(fuel);
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });
   }
 });
 
-//Route for Deleting a Vehicle
+//Route for Deleting a Fuel
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await Service.findByIdAndDelete(id);
+    const result = await Fuel.findByIdAndDelete(id);
     if (!result) {
-      return res.status(404).json({ messga: "Service not found" });
+      return res.status(404).json({ messga: "Fuel not found" });
     }
 
-    return res.status(200).send({ message: "Service Deleted" });
+    return res.status(200).send({ message: "Fuel Deleted" });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });

@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import { Button } from "@mui/material";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -90,7 +91,7 @@ const headCells = [
   },
   {
     id: "oil",
-    numeric: true,
+    numeric: false,
     disablePadding: false,
     label: "Масло преди:",
   },
@@ -158,6 +159,7 @@ export default function VehiclesList({ data }) {
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [filter, setFilter] = React.useState("all");
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -165,12 +167,28 @@ export default function VehiclesList({ data }) {
     setOrderBy(property);
   };
 
+  React.useEffect(() => {
+    setFilter(filter.slice());
+  }, [filter]);
   const location = useLocation();
-  if (location.pathname === "/cars") {
-    data = data.filter((e) => e.type === "Car");
-  } else if (location.pathname === "/trucks") {
-    data = data.filter((e) => e.type === "Truck");
+  if (location.pathname === "/office") {
+    data = data.filter((e) => e.site === "office");
+  } else if (location.pathname === "/warehouse") {
+    data = data.filter((e) => e.site === "warehouse");
   }
+
+  // if (filters === "cars") {
+  //   console.log("carsss");
+  //   data = data.filter((e) => e.type === "Car");
+  //   console.log(data);
+  // } else if (filters === "trucks") {
+  //   console.log("tracksss");
+  //   data = data.filter((e) => e.type === "Truck");
+  //   console.log(data);
+  // }
+  React.useEffect(() => {
+    // window.location.reload();
+  }, [filter]);
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelected = data.map((n) => n.id);
@@ -321,9 +339,10 @@ export default function VehiclesList({ data }) {
                         ) : (
                           ""
                         )}
-                        {row.kaskoDate
-                          ? bgDate(row.kaskoDate.slice(0, 10))
-                          : "N/A"}
+                        {row.kaskoDate == "0000-01-01T00:00:00.000Z" ||
+                        row.kaskoDate == null
+                          ? "N/A"
+                          : bgDate(row.kaskoDate.slice(0, 10))}
                       </TableCell>
                       <TableCell
                         style={
@@ -360,7 +379,7 @@ export default function VehiclesList({ data }) {
                             : {}
                         }
                       >
-                        {row.km - row.oil}
+                        {row.km - row.oil + " km"}
                         {isDue(row.km - row.oil, "oil") ? (
                           <WarningAmberIcon />
                         ) : (

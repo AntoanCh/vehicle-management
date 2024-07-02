@@ -16,6 +16,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 const CreateVehicle = () => {
   const [data, setData] = useState({
     type: "",
+    site: "",
     make: "",
     model: "",
     reg: "",
@@ -35,6 +36,7 @@ const CreateVehicle = () => {
     cat: "",
     oil: "",
     tires: "",
+    purchaseDate: dayjs(),
     startDate: dayjs(),
     startKm: "",
     price: "",
@@ -42,6 +44,7 @@ const CreateVehicle = () => {
   const [loading, setLoading] = useState(false);
   const [regError, setRegError] = useState(false);
   const [modelError, setModelError] = useState(false);
+  const [error, setError] = useState(false);
   const navigate = useNavigate();
 
   const handleSaveVehicle = () => {
@@ -49,7 +52,7 @@ const CreateVehicle = () => {
 
     if (data.reg)
       axios
-        .post("http://localhost:5555/vehicles", data)
+        .post("http://192.168.0.145:5555/vehicles", data)
         .then(() => {
           setLoading(false);
           navigate(`/${data.type}`);
@@ -66,6 +69,12 @@ const CreateVehicle = () => {
   };
 
   const handleChange = (e) => {
+    if (!e.target.value) {
+      setError(true);
+    } else {
+      setError(false);
+    }
+    console.log(error);
     if (e.target.id === "tires") {
       if (e.target.value.match(/^[0-9]{3}$/)) {
         e.target.value = e.target.value + "/";
@@ -76,8 +85,9 @@ const CreateVehicle = () => {
     }
     if (e.target.id === "reg") {
       if (
-        !e.target.value.match(/[a-z,A-Z]{1,2}[1-9]{4}[a-z,A-Z]{2}$/) &&
-        e.target.value
+        (!e.target.value.match(/[a-z,A-Z]{1,2}[1-9]{4}[a-z,A-Z]{2}$/) &&
+          e.target.value) ||
+        !e.target.value
       ) {
         setRegError(true);
         console.log(regError);
@@ -137,9 +147,28 @@ const CreateVehicle = () => {
             <div className="flex justify-between">
               <div>
                 <div className="my-4">
+                  <TextField
+                    required
+                    name="site"
+                    select
+                    label="Отговорник:"
+                    value={data.site}
+                    onChange={handleChange}
+                    variant="filled"
+                  >
+                    <MenuItem key={1} value="office">
+                      Офис
+                    </MenuItem>
+                    <MenuItem key={2} value="warehouse">
+                      Склад
+                    </MenuItem>
+                  </TextField>
+                </div>
+                <div className="my-4">
                   {" "}
                   {/* <label className="text-xl mr-4 text-black-500">Вид</label> */}
                   <TextField
+                    required
                     name="type"
                     select
                     label="Вид:"
@@ -157,8 +186,10 @@ const CreateVehicle = () => {
                     </MenuItem>
                   </TextField>
                 </div>
+
                 <div className="my-4">
                   <TextField
+                    required
                     error={modelError}
                     id="make"
                     label="Марка:"
@@ -169,6 +200,7 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     error={modelError}
                     id="model"
                     label="Модел:"
@@ -184,6 +216,7 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     error={regError}
                     id="reg"
                     label="Рег. №:"
@@ -199,9 +232,10 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     name="year"
                     select
-                    label="Година:"
+                    label="Година на производство:"
                     value={data.year}
                     onChange={handleChange}
                     variant="filled"
@@ -214,6 +248,7 @@ const CreateVehicle = () => {
               <div>
                 <div className="my-4">
                   <TextField
+                    required
                     id="km"
                     label="Километри:"
                     variant="filled"
@@ -223,6 +258,7 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     name="fuel"
                     select
                     label="Гориво:"
@@ -241,6 +277,7 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     id="engNum"
                     label="Номер Двигател:"
                     variant="filled"
@@ -250,6 +287,7 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     id="bodyNum"
                     label="Номер Рама:"
                     variant="filled"
@@ -259,6 +297,7 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     id="talonNum"
                     label="Номер Талон:"
                     variant="filled"
@@ -300,6 +339,7 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     id="insNum"
                     label="ГО № Полица:"
                     variant="filled"
@@ -335,9 +375,10 @@ const CreateVehicle = () => {
               <div>
                 <div className="my-4">
                   <TextField
+                    required
                     name="tax"
                     select
-                    label="Данък за:"
+                    label="Данък за(год):"
                     value={data.tax}
                     onChange={handleChange}
                     variant="filled"
@@ -356,15 +397,25 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
-                    id="owner"
+                    required
+                    select
+                    name="owner"
                     label="Собственик:"
                     variant="filled"
                     value={data.owner}
                     onChange={handleChange}
-                  />
+                  >
+                    <MenuItem key={1} value="НИКОН-НК">
+                      НИКОН-НК
+                    </MenuItem>
+                    <MenuItem key={2} value="Николай Кънчев">
+                      Николай Кънчев
+                    </MenuItem>
+                  </TextField>
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     name="cat"
                     select
                     label="ЕКО Група:"
@@ -392,8 +443,9 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     id="oil"
-                    label="Масло/ф-ри:"
+                    label="Техн. Обслужване(км):"
                     variant="filled"
                     value={data.oil}
                     onChange={handleChange}
@@ -402,8 +454,9 @@ const CreateVehicle = () => {
                 </div>
                 <div className="my-4">
                   <TextField
+                    required
                     id="tires"
-                    label="Гуми размер:"
+                    label="Гуми размер(Ш/В/Д):"
                     variant="filled"
                     value={data.tires}
                     onChange={handleChange}
@@ -413,6 +466,11 @@ const CreateVehicle = () => {
             </div>
             <div>
               <h1 className="text-center text-xl">Данни за покупка</h1>
+              <p className="text-center bg-blue-400 border-blue-800 border-solid rounded-2xl">
+                При непопълнени данни за дата на първи ремонт и килемтраж, по
+                подразбиране ще се вземат датата и километрите от най-ранният
+                въведен ремонт на автомобила
+              </p>
               <div className="flex justify-center">
                 <div className="my-4 text flex justify-center">
                   <DemoContainer components={["DatePicker, DatePicker"]}>
@@ -420,6 +478,17 @@ const CreateVehicle = () => {
                       format="DD/MM/YYYY"
                       id="startDate"
                       label="Дата на покупка:"
+                      value={data.purchaseDate}
+                      onChange={(newValue) => {
+                        const newData = { ...data };
+                        newData.purchaseDate = newValue;
+                        setData({ ...newData });
+                      }}
+                    />
+                    <DatePicker
+                      format="DD/MM/YYYY"
+                      id="startDate"
+                      label="Дата първи ремонт:"
                       value={data.startDate}
                       onChange={(newValue) => {
                         const newData = { ...data };

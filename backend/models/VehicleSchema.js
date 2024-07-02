@@ -7,6 +7,10 @@ export const vehicleSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    site: {
+      type: String,
+      required: true,
+    },
     make: {
       type: String,
       required: true,
@@ -95,17 +99,21 @@ export const vehicleSchema = mongoose.Schema(
       type: Date,
       required: false,
     },
+    purchaseDate: {
+      type: Date,
+      required: false,
+    },
     startDate: {
       type: Date,
-      required: true,
+      required: false,
     },
     startKm: {
       type: String,
-      required: true,
+      required: false,
     },
     price: {
       type: String,
-      required: true,
+      required: false,
     },
     // services: [
     //   {

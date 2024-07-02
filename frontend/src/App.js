@@ -1,11 +1,13 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CreateVehicle from "./pages/CreateVehicle.jsx";
 import ShowVehicle from "./pages/ShowVehicle.jsx";
-import DeleteVehicle from "./pages/DeleteVehicle.jsx";
-import EditVehicle from "./pages/EditVehicle.jsx";
 import Home from "./pages/Home.jsx";
-import CarsHome from "./pages/CarsHome.jsx";
-import TrucksHome from "./pages/TrucksHome.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import Office from "./pages/Office.jsx";
+import Warehouse from "./pages/Warehouse.jsx";
+import VehiclesMain from "./pages/VehiclesMain.jsx";
+import Users from "./pages/Users.jsx";
 import "./App.css";
 import * as React from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -39,12 +41,16 @@ function App() {
           <Header />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/trucks" element={<TrucksHome />} />
-            <Route path="/cars" element={<CarsHome />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/warehouse" element={<Warehouse />} />
+            <Route path="/office" element={<Office />} />
+            <Route path="/vehicles" element={<VehiclesMain />} />
             <Route path="/vehicle/create" element={<CreateVehicle />} />
             <Route path="/vehicle/details/:id" element={<ShowVehicle />} />
-            <Route path="/vehicle/edit/:id" element={<EditVehicle />} />
-            <Route path="/vehicle/delete/:id" element={<DeleteVehicle />} />
+            {/* <Route path="/vehicle/edit/:id" element={<EditVehicle />} />
+            <Route path="/vehicle/delete/:id" element={<DeleteVehicle />} /> */}
           </Routes>
         </BrowserRouter>
       </LocalizationProvider>

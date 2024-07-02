@@ -9,6 +9,7 @@ router.post("/", async (req, res) => {
   try {
     if (
       !req.body.type ||
+      !req.body.site ||
       !req.body.make ||
       !req.body.model ||
       !req.body.reg ||
@@ -25,10 +26,7 @@ router.post("/", async (req, res) => {
       !req.body.owner ||
       !req.body.cat ||
       !req.body.oil ||
-      !req.body.tires ||
-      !req.body.startDate ||
-      !req.body.startKm ||
-      !req.body.price
+      !req.body.tires
     ) {
       return res.status(400).send({
         message: "Send all required fields",
@@ -36,6 +34,7 @@ router.post("/", async (req, res) => {
     }
     const newVehicle = {
       type: req.body.type,
+      site: req.body.site,
       make: req.body.make,
       model: req.body.model,
       reg: req.body.reg,
@@ -55,6 +54,7 @@ router.post("/", async (req, res) => {
       cat: req.body.cat,
       oil: req.body.oil,
       tires: req.body.tires,
+      purchaseDate: req.body.purchaseDate,
       startDate: req.body.startDate,
       startKm: req.body.startKm,
       price: req.body.price,
@@ -106,6 +106,7 @@ router.put("/:id", async (req, res) => {
   try {
     if (
       !req.body.type ||
+      !req.body.site ||
       !req.body.make ||
       !req.body.model ||
       !req.body.reg ||
@@ -122,14 +123,14 @@ router.put("/:id", async (req, res) => {
       !req.body.owner ||
       !req.body.cat ||
       !req.body.oil ||
-      !req.body.tires ||
-      !req.body.startDate ||
-      !req.body.startKm ||
-      !req.body.price
+      !req.body.tires
     ) {
       return res.status(400).send({
         message: "Send all required fields",
       });
+    }
+    if (!req.body.kaskoDate) {
+      req.body.kaskoDate = "00.00.0000";
     }
 
     const { id } = req.params;
@@ -151,7 +152,7 @@ router.delete("/:id", async (req, res) => {
     const { id } = req.params;
     const result = await Vehicle.findByIdAndDelete(id);
     if (!result) {
-      return res.status(404).json({ messga: "Vehicle not found" });
+      return res.status(404).json({ message: "Vehicle not found" });
     }
 
     return res.status(200).send({ message: "Vehicle Deleted" });

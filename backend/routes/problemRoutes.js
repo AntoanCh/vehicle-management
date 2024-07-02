@@ -1,46 +1,42 @@
 import express from "express";
-import { Service } from "../models/ServiceModel.js";
+import { Problem } from "../models/ProblemModel.js";
 
 const router = express.Router();
 
-//Route for saving a new Service
+//Route for saving a new Problem
 router.post("/", async (req, res) => {
   try {
     if (
       !req.body.date ||
       !req.body.desc ||
-      !req.body.invoice ||
       !req.body.km ||
-      !req.body.cost ||
       !req.body.vehicleId
     ) {
       return res.status(400).send({
         message: "Send all required fields",
       });
     }
-    const newService = {
+    const newProblem = {
       date: req.body.date,
       desc: req.body.desc,
-      invoice: req.body.invoice,
       km: req.body.km,
-      cost: req.body.cost,
       vehicleId: req.body.vehicleId,
     };
-    const service = await Service.create(newService);
-    return res.status(201).send(service);
+    const problem = await Problem.create(newProblem);
+    return res.status(201).send(problem);
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });
   }
 });
 
-//Route to get all services
+//Route to get all problems
 router.get("/", async (req, res) => {
   try {
-    const services = await Service.find({});
+    const problems = await Problem.find({});
     return res.status(200).json({
-      count: services.length,
-      data: services,
+      count: problems.length,
+      data: problems,
     });
   } catch (err) {
     console.log(err.message);
@@ -48,44 +44,44 @@ router.get("/", async (req, res) => {
   }
 });
 
-//Route to get All Services for a specific Asset
+//Route to get All Problems for a specific Asset
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     // const vehicle = req.body.vehicleId;
-    const services = await Service.find({ vehicleId: id });
+    const problems = await Problem.find({ vehicleId: id });
     return res.status(200).json({
-      count: services.length,
-      data: services,
+      count: problems.length,
+      data: problems,
     });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });
   }
 });
-//Route for Get One Service from database by id
+//Route for Get One Problem from database by id
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const service = await Service.findById(id);
+    const problem = await Problem.findById(id);
 
-    return res.status(200).json(service);
+    return res.status(200).json(fuel);
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });
   }
 });
 
-//Route for Deleting a Vehicle
+//Route for Deleting a Problem
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await Service.findByIdAndDelete(id);
+    const result = await Problem.findByIdAndDelete(id);
     if (!result) {
-      return res.status(404).json({ messga: "Service not found" });
+      return res.status(404).json({ messga: "Problem not found" });
     }
 
-    return res.status(200).send({ message: "Service Deleted" });
+    return res.status(200).send({ message: "Problem Deleted" });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });

@@ -6,15 +6,15 @@ import VehiclesList from "../components/VehiclesList.jsx";
 import { Button } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
-const Home = () => {
-  const [cars, setCars] = useState([]);
+const Warehouse = () => {
+  const [trucks, setTrucks] = useState([]);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://localhost:5555/vehicles")
+      .get("http://192.168.0.145:5555/vehicles")
       .then((res) => {
-        setCars(res.data.data);
+        setTrucks(res.data.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -24,12 +24,12 @@ const Home = () => {
   }, []);
   return (
     <div className="home">
-      <div className="flex justify-center">
-        <h1 className="text-center text-3xl">Леки Автомобили</h1>
+      <div className="home-top">
+        <h1 className="text-center text-3xl">СКЛАД</h1>
       </div>
-      {loading ? <CircularProgress /> : <VehiclesList data={cars} />}
+      {loading ? <CircularProgress /> : <VehiclesList data={trucks} />}
     </div>
   );
 };
 
-export default Home;
+export default Warehouse;
