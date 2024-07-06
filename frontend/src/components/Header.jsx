@@ -7,6 +7,8 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import PersonIcon from "@mui/icons-material/Person";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const Header = () => {
   const [tab, setTab] = useState("");
@@ -113,11 +115,15 @@ const Header = () => {
         </ButtonGroup>
       </div>
       <div className="px-2 py-2 flex">
-        <p className="px-2 py-2">{username}</p>
+        <p className="px-2 py-2">
+          <PersonIcon />
+          {username}
+        </p>
 
         {token ? (
           <Button onClick={Logout} variant="outlined">
-            Излез
+            Изход
+            <LogoutIcon />
           </Button>
         ) : (
           ""

@@ -96,10 +96,11 @@ const Register = () => {
   const [input, setInput] = useState({
     username: "",
     password: "",
+    role: "",
   });
-  const { username, password } = input;
+  const { username, password, role } = input;
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, role } = e.target;
     setInput({
       ...input,
       [name]: value,
@@ -116,17 +117,14 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("http://localhost:5555/login", {
+      const { data } = await axios.post("http://localhost:5555/register", {
         ...input,
       });
-      localStorage.setItem("token", data.token);
       const { status, message } = data;
       console.log(data);
       if (status) {
         handleSuccess(message);
-        setTimeout(() => {
-          navigate("/vehicles");
-        }, 1000);
+        window.location.reload();
       } else {
         handleError(message);
       }
@@ -137,6 +135,7 @@ const Register = () => {
       ...input,
       username: "",
       password: "",
+      role: "",
     });
   };
   return (
@@ -148,23 +147,33 @@ const Register = () => {
             <TextField
               fullWidth
               name="username"
-              select
               label="Потребител:"
               value={username}
               onChange={handleChange}
               variant="filled"
+            ></TextField>
+          </div>
+          <div className="my-4">
+            <TextField
+              fullWidth
+              select
+              name="role"
+              label="Права:"
+              value={role}
+              onChange={handleChange}
+              variant="filled"
             >
-              <MenuItem key={1} value="admin">
+              <MenuItem key={1} value="user">
+                USER
+              </MenuItem>
+              <MenuItem key={2} value="office">
+                ОФИС ОТГОВОРНИК
+              </MenuItem>
+              <MenuItem key={3} value="warehouse">
+                СКЛАД ОТГОВОРНИК
+              </MenuItem>
+              <MenuItem key={4} value="admin">
                 ADMIN
-              </MenuItem>
-              <MenuItem key={2} value="румен">
-                РУМЕН
-              </MenuItem>
-              <MenuItem key={3} value="любо">
-                ЛЮБО
-              </MenuItem>
-              <MenuItem key={4} value="гост">
-                ГОСТ
               </MenuItem>
             </TextField>
           </div>
@@ -181,7 +190,7 @@ const Register = () => {
           </div>
           <div className="my-4">
             <Button onClick={handleSubmit} fullWidth variant="outlined">
-              ВЛЕЗ
+              ЗАПИШИ
             </Button>
           </div>
         </div>

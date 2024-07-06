@@ -19,7 +19,7 @@ import Box from "@mui/material/Box";
 import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { visuallyHidden } from "@mui/utils";
 import CancelIcon from "@mui/icons-material/Cancel";
 import ButtonGroup from "@mui/material/ButtonGroup";
@@ -66,6 +66,12 @@ const headCells = [
     label: "Дата",
   },
   {
+    id: "type",
+    numeric: false,
+    disablePadding: false,
+    label: "Вид:",
+  },
+  {
     id: "desc",
     numeric: false,
     disablePadding: false,
@@ -90,6 +96,12 @@ const headCells = [
     disablePadding: false,
     label: "Стойност:",
   },
+  {
+    id: "delete",
+    numeric: false,
+    disablePadding: false,
+    label: "",
+  },
 ];
 
 function EnhancedTableHead(props) {
@@ -109,7 +121,11 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             align={
-              headCell.id === "cost" || headCell.id === "km" ? "right" : "left"
+              headCell.id === "delete" ||
+              headCell.id === "cost" ||
+              headCell.id === "km"
+                ? "right"
+                : "left"
             }
             key={headCell.id}
             padding={headCell.disablePadding ? "none" : "normal"}
@@ -141,11 +157,12 @@ EnhancedTableHead.propTypes = {
 };
 
 // test
-const Services = ({ vehicle, services, fuels }) => {
+const Services = ({ vehicle, services, fuels, userRole, username }) => {
   const [loading, setLoading] = useState(false);
 
   const [newServ, setNewServ] = useState({
     date: "",
+    type: "",
     desc: "",
     invoice: "",
     km: "",
@@ -167,7 +184,14 @@ const Services = ({ vehicle, services, fuels }) => {
     setAdd(false);
     axios
       .post("http://192.168.0.145:5555/services", newServ)
-      .then(() => {})
+      .then(() => {
+        axios.post(`http://192.168.0.145:5555/logs`, {
+          date: dayjs(),
+          user: username,
+          changed: { newServ: [newServ.invoice, newServ.desc] },
+          vehicleId: vehicle._id,
+        });
+      })
       .catch((err) => {
         // setLoading(false);
         alert("Грешка, проверете конзолата");
@@ -194,7 +218,9 @@ const Services = ({ vehicle, services, fuels }) => {
         });
     }
 
-    window.location.reload();
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
   const handleCancel = () => {
     setAdd(false);
@@ -210,7 +236,7 @@ const Services = ({ vehicle, services, fuels }) => {
     return newDate;
   };
   const months = dayjs().diff(vehicle.startDate, "month");
-  //test
+
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("model");
   const [page, setPage] = React.useState(0);
@@ -286,10 +312,49 @@ const Services = ({ vehicle, services, fuels }) => {
                             <TableCell component="th" id={labelId} scope="row">
                               {`${bgDate(row.date)}`}
                             </TableCell>
+                            <TableCell>{row.type}</TableCell>
                             <TableCell>{row.desc}</TableCell>
                             <TableCell>{row.invoice}</TableCell>
                             <TableCell align="right">{row.km} км.</TableCell>
                             <TableCell align="right">{row.cost} лв.</TableCell>
+                            {userRole === "admin" ||
+                            userRole === vehicle.site ? (
+                              <TableCell align="right">
+                                <Button
+                                  onClick={() => {
+                                    axios
+                                      .delete(
+                                        `http://192.168.0.145:5555/services/${row._id}`
+                                      )
+                                      .then(() => {
+                                        axios.post(
+                                          `http://192.168.0.145:5555/logs`,
+                                          {
+                                            date: dayjs(),
+                                            user: username,
+                                            changed: {
+                                              delServ: [row.invoice, row.desc],
+                                            },
+                                            vehicleId: vehicle._id,
+                                          }
+                                        );
+                                        setTimeout(() => {
+                                          window.location.reload();
+                                        }, 1000);
+                                      })
+                                      .catch((err) => {
+                                        console.log(err);
+                                      });
+                                  }}
+                                  color="error"
+                                  variant="contained"
+                                >
+                                  <DeleteForeverIcon />
+                                </Button>
+                              </TableCell>
+                            ) : (
+                              ""
+                            )}
                           </TableRow>
                         );
                       })}
@@ -315,6 +380,28 @@ const Services = ({ vehicle, services, fuels }) => {
                             </div>
                           </TableCell>
 
+                          <TableCell align="left">
+                            <div>
+                              <select
+                                style={{
+                                  height: "30px",
+                                  width: "300px",
+                                  borderRadius: "5px",
+                                  backgroundColor: "rgb(100,100,100)",
+                                  color: "white",
+                                  textAlign: "center",
+                                }}
+                                onChange={handleChange}
+                                value={newServ.type}
+                                name="type"
+                                id="type"
+                              >
+                                <option value="">ИЗБЕРИ</option>
+                                <option value="РЕМОНТ">РЕМОНТ</option>
+                                <option value="ДИАГНОСТИКА">ДИАГНОСТИКА</option>
+                              </select>
+                            </div>
+                          </TableCell>
                           <TableCell align="left">
                             <div>
                               <input
@@ -416,35 +503,39 @@ const Services = ({ vehicle, services, fuels }) => {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
               />
-              <div className="flex justify-end">
-                {add ? (
-                  <ButtonGroup fullWidth>
-                    <Button fullWidth variant="contained" onClick={handleSave}>
-                      Запиши Ремонт
-                      <SaveIcon />
+              {userRole === "admin" || userRole === vehicle.site ? (
+                <div className="flex justify-end">
+                  {add ? (
+                    <ButtonGroup fullWidth>
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        onClick={handleSave}
+                      >
+                        Запиши Ремонт
+                        <SaveIcon />
+                      </Button>
+                      <Button
+                        color="warning"
+                        fullWidth
+                        variant="contained"
+                        onClick={handleCancel}
+                      >
+                        Отказ
+                        <CancelIcon />
+                      </Button>
+                    </ButtonGroup>
+                  ) : (
+                    <Button fullWidth variant="contained" onClick={handleClick}>
+                      Добави Ремонт
+                      <AddCircleOutlineIcon />
                     </Button>
-                    <Button
-                      color="warning"
-                      fullWidth
-                      variant="contained"
-                      onClick={handleCancel}
-                    >
-                      Отказ
-                      <CancelIcon />
-                    </Button>
-                  </ButtonGroup>
-                ) : (
-                  <Button fullWidth variant="contained" onClick={handleClick}>
-                    Добави Ремонт
-                    <AddCircleOutlineIcon />
-                  </Button>
-                )}
-              </div>
+                  )}
+                </div>
+              ) : (
+                ""
+              )}
             </Paper>
-            {/* <FormControlLabel
-              control={<Switch checked={dense} onChange={handleChangeDense} />}
-              label="Dense padding"
-            /> */}
           </Box>
           {/* test */}
           {/* <TableContainer component={Paper}>
@@ -573,7 +664,7 @@ const Services = ({ vehicle, services, fuels }) => {
           <h1 className="text-center text-xl">Начални данни</h1>
           <div className="flex justify-center">
             <TableContainer
-              sx={{ maxWidth: "400px", margin: "10px" }}
+              sx={{ maxWidth: "550px", margin: "10px" }}
               component={Paper}
             >
               <Table sx={{ minWidth: "200px" }} aria-label="simple table">
@@ -633,7 +724,7 @@ const Services = ({ vehicle, services, fuels }) => {
                     }}
                   >
                     <TableCell
-                      sx={{ textAlign: "center" }}
+                      sx={{ textAlign: "center", fontWeight: "800" }}
                       component="th"
                       scope="row"
                     >
@@ -666,7 +757,7 @@ const Services = ({ vehicle, services, fuels }) => {
                     }}
                   >
                     <TableCell
-                      sx={{ textAlign: "center" }}
+                      sx={{ textAlign: "center", fontWeight: "800" }}
                       component="th"
                       scope="row"
                     >

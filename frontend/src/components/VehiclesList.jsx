@@ -177,15 +177,6 @@ export default function VehiclesList({ data }) {
     data = data.filter((e) => e.site === "warehouse");
   }
 
-  // if (filters === "cars") {
-  //   console.log("carsss");
-  //   data = data.filter((e) => e.type === "Car");
-  //   console.log(data);
-  // } else if (filters === "trucks") {
-  //   console.log("tracksss");
-  //   data = data.filter((e) => e.type === "Truck");
-  //   console.log(data);
-  // }
   React.useEffect(() => {
     // window.location.reload();
   }, [filter]);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -18,19 +18,40 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useNavigate } from "react-router-dom";
+import Log from "../components/Log";
 
 const ShowVehicle = () => {
   const [vehicle, setVehicle] = useState({});
+  const [oldVehicle, setOldVehicle] = useState({});
+  const [showLog, setShowLog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState(false);
   const [services, setServices] = useState();
   const [fuels, setFuels] = useState();
   const [problems, setProblems] = useState();
+  const [log, setLog] = useState();
   const [servLoading, setServLoading] = useState(true);
   const [fuelLoading, setFuelLoading] = useState(true);
+  const [logLoading, setLogLoading] = useState(true);
   const [problemLoading, setProblemLoading] = useState(true);
+  const [userRole, setUserRole] = useState();
+  const [username, setUsername] = useState();
+  const token = localStorage.getItem("token");
   const { id } = useParams();
   const navigate = useNavigate();
+  useEffect(() => {
+    const verifyUser = async () => {
+      if (!token) {
+        navigate("/login");
+      }
+      const { data } = await axios.post("http://localhost:5555/", { token });
+      const { status, user, role } = data;
+      setUsername(user);
+      setUserRole(role);
+    };
+    verifyUser();
+    console.log(userRole);
+  }, [token, navigate]);
   useEffect(() => {
     setLoading(true);
     axios
@@ -68,6 +89,16 @@ const ShowVehicle = () => {
             console.log(err);
             setProblemLoading(false);
           });
+        axios
+          .get(`http://192.168.0.145:5555/logs/${res.data._id}`)
+          .then((res) => {
+            setLog(res.data);
+            setLogLoading(false);
+          })
+          .catch((err) => {
+            console.log(err);
+            setLogLoading(false);
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -75,6 +106,9 @@ const ShowVehicle = () => {
       });
   }, []);
 
+  const handleShowLog = () => {
+    setShowLog(!showLog);
+  };
   const handleDelete = () => {
     axios
       .delete(`http://192.168.0.145:5555/vehicles/${vehicle._id}`)
@@ -83,20 +117,45 @@ const ShowVehicle = () => {
       });
   };
   const handleEdit = () => {
+    setOldVehicle({ ...vehicle });
     setEdit(true);
   };
+
   const handleSave = () => {
+    let updated;
+    if (vehicle.km < oldVehicle.km) {
+      updated = { ...vehicle, km: oldVehicle.km };
+    } else {
+      updated = { ...vehicle };
+    }
+    let diff = {};
+    for (const key in oldVehicle) {
+      if (vehicle[key] && oldVehicle[key] != vehicle[key]) {
+        diff[key] = [oldVehicle[key], vehicle[key]];
+      }
+    }
     setEdit(false);
+    console.log(updated);
     axios
-      .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, vehicle)
+      .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, updated)
       .then(() => {
-        window.location.reload();
+        axios.post(`http://192.168.0.145:5555/logs`, {
+          date: dayjs(),
+          user: username,
+          changed: diff,
+          vehicleId: vehicle._id,
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       })
       .catch((err) => {
         alert("Грешка, проверете конзолата");
         console.log(err);
         window.location.reload();
       });
+
+    console.log(diff);
   };
   const handleCancelEdit = () => {
     setEdit(false);
@@ -157,7 +216,16 @@ const ShowVehicle = () => {
     axios
       .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, vehicle)
       .then(() => {
-        window.location.reload();
+        axios.post(`http://192.168.0.145:5555/logs`, {
+          date: dayjs(),
+          user: username,
+          changed: { checked: [0, dayjs()] },
+          vehicleId: vehicle._id,
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+        // window.location.reload();
       })
       .catch((err) => {
         alert("Грешка, проверете конзолата");
@@ -214,24 +282,56 @@ const ShowVehicle = () => {
                 <div className="my-4 flex">
                   <div className="w-40">
                     <span className="text-xl mr-2 text-gray-500">Година:</span>
-                    <span className="text-xl">{vehicle.year}</span>
+                    {/* <span className="text-xl">{vehicle.year}</span> */}
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.year}
+                    />
                   </div>
 
-                  <div className="w-56">
+                  <div className="w-40">
                     <span className="text-xl ml-4 mr-2 text-gray-500">
                       Гориво:
                     </span>
-                    <span className="text-xl">{vehicle.fuel}</span>
+                    {/* <span className="text-xl">{vehicle.fuel}</span> */}
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.fuel}
+                    />
                   </div>
-                  <div className="w-64">
+                  <div className="w-40">
                     {" "}
                     <span className="text-xl mr-2 ml-4 text-gray-500">
                       № ДВГ:
                     </span>
-                    <span>{vehicle.engNum}</span>
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.engNum}
+                    />
                   </div>
 
-                  <div className={edit ? "flex" : "flex w-64"}>
+                  <div>
                     <span className="text-xl ml-4 mr-2 text-gray-500">
                       Гуми Размер:
                     </span>
@@ -250,48 +350,108 @@ const ShowVehicle = () => {
                         onChange={handleChange}
                       />
                     ) : (
-                      <span className="text-xl">{vehicle.tires}</span>
+                      <input
+                        disabled
+                        className="bg-gray-400"
+                        type="text"
+                        style={{
+                          borderRadius: "5px",
+                          textAlign: "center",
+                          maxWidth: "100px",
+                        }}
+                        value={vehicle.tires}
+                      />
                     )}
                   </div>
                 </div>
                 <div className="my-4 flex justify-end">
-                  <div className="w-56">
+                  <div className="w-40">
                     <span className="text-xl ml-4 mr-2 text-gray-500">
                       Отговорник:
                     </span>
-                    <span>{vehicle.user}</span>
+
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.site === "office" ? "ОФИС" : "СКЛАД"}
+                    />
                   </div>
-                  <div className="w-56">
+                  <div className="w-40">
                     <span className="text-xl ml-4 mr-2 text-gray-500">
                       Талон №:
                     </span>
-                    <span>{vehicle.talonNum}</span>
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.talonNum}
+                    />
                   </div>
-                  <div className="w-64">
+                  <div className="w-40">
                     <span className="text-xl mr-2 ml-4 text-gray-500">
                       № Рама:
                     </span>
-                    <span>{vehicle.bodyNum}</span>
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.bodyNum}
+                    />
                   </div>
-                  <div className={edit ? "flex" : "flex w-64"}>
+                  <div>
                     <span className="text-xl mr-2 ml-4 text-gray-500">
                       Собственик:
                     </span>
                     {edit ? (
+                      <div>
+                        <select
+                          // className="w-fit"
+                          style={{
+                            borderRadius: "5px",
+                            backgroundColor: "rgb(100,100,100)",
+                            color: "white",
+                            textAlign: "center",
+                            width: "160px",
+                            height: "35px",
+                          }}
+                          name="owner"
+                          value={vehicle.owner}
+                          id="owner"
+                          onChange={handleChange}
+                        >
+                          <option value="НИКОН-НК">НИКОН-НК</option>
+                          <option value="ЕКСПРЕС-ГАРАНТ">ЕКСПРЕС-ГАРАНТ</option>
+                          <option value="НИКОЛАЙ КЪНЧЕВ">НИКОЛАЙ КЪНЧЕВ</option>
+                        </select>
+                      </div>
+                    ) : (
                       <input
-                        className="w-fit"
+                        disabled
+                        className="bg-gray-400"
+                        type="text"
                         style={{
                           borderRadius: "5px",
-                          backgroundColor: "rgb(100,100,100)",
-                          color: "white",
                           textAlign: "center",
+                          maxWidth: "160px",
                         }}
                         value={vehicle.owner}
-                        id="owner"
-                        onChange={handleChange}
                       />
-                    ) : (
-                      <span>{vehicle.owner}</span>
                     )}
                   </div>
                 </div>
@@ -299,9 +459,13 @@ const ShowVehicle = () => {
             </div>
 
             <div className="flex justify-end">
-              <Button onClick={handleCheck} variant="outlined">
-                ПРОВЕРЕН
-              </Button>
+              {userRole === "admin" || userRole === vehicle.site ? (
+                <Button onClick={handleCheck} variant="outlined">
+                  ПРОВЕРЕН
+                </Button>
+              ) : (
+                ""
+              )}
             </div>
             <div className="my-4">
               <div className="my-4 flex justify-end my-2">
@@ -311,27 +475,69 @@ const ShowVehicle = () => {
                   </span>
                   {edit ? (
                     <input
-                      className="w-fit"
+                      // className="w-fit"
                       style={{
                         borderRadius: "5px",
                         backgroundColor: "rgb(100,100,100)",
                         color: "white",
                         textAlign: "center",
+                        maxWidth: "100px",
                       }}
                       value={vehicle.oil}
                       id="oil"
                       onChange={handleChange}
                     />
                   ) : (
-                    <>
-                      <span className="text-xl">{vehicle.oil} km</span>
-                    </>
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={`${vehicle.oil} km`}
+                    />
                   )}
                 </div>
                 <div className="flex w-56">
-                  <span className="text-xl mr-2 ml-4 text-gray-500">
-                    Преди:
+                  <span
+                    className={
+                      isDue(vehicle.km - vehicle.oil, "oil") === "warning"
+                        ? "text-red-600 text-xl mr-2 ml-4"
+                        : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
+                        ? "text-yellow-500 text-xl mr-2 ml-4"
+                        : "text-xl mr-2 ml-4"
+                    }
+                  >
+                    Преди:{" "}
+                    {isDue(vehicle.km - vehicle.oil, "oil") ? (
+                      <WarningAmberIcon />
+                    ) : (
+                      ""
+                    )}
                   </span>
+
+                  <input
+                    disabled
+                    className={
+                      isDue(vehicle.km - vehicle.oil, "oil") === "warning"
+                        ? "text-red-600 text-xl bg-gray-400"
+                        : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
+                        ? "text-yellow-500 text-xl bg-gray-400"
+                        : "text-xl"
+                    }
+                    type="text"
+                    style={{
+                      borderRadius: "5px",
+                      textAlign: "center",
+                      maxWidth: "100px",
+                    }}
+                    value={`${vehicle.km - vehicle.oil} km`}
+                  />
+                </div>
+                <div className="flex w-56">
                   <span
                     className={
                       isDue(vehicle.km - vehicle.oil, "oil") === "warning"
@@ -341,17 +547,40 @@ const ShowVehicle = () => {
                         : "text-xl"
                     }
                   >
+                    Остават:{" "}
                     {isDue(vehicle.km - vehicle.oil, "oil") ? (
                       <WarningAmberIcon />
                     ) : (
                       ""
                     )}
-                    {vehicle.km - vehicle.oil} km
                   </span>
+
+                  <input
+                    disabled
+                    className={
+                      isDue(vehicle.km - vehicle.oil, "oil") === "warning"
+                        ? "text-red-600 text-xl bg-gray-400"
+                        : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
+                        ? "text-yellow-500 text-xl bg-gray-400"
+                        : "text-xl"
+                    }
+                    type="text"
+                    style={{
+                      borderRadius: "5px",
+                      textAlign: "center",
+                      maxWidth: "110px",
+                    }}
+                    value={`${10000 - (vehicle.km - vehicle.oil)} km`}
+                  />
                 </div>
                 <div className={edit ? "flex" : "flex w-70"}>
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     Проверен на:
+                    {isDue(vehicle.checked, "checked") ? (
+                      <WarningAmberIcon />
+                    ) : (
+                      ""
+                    )}
                   </span>
                   {edit ? (
                     <input
@@ -371,30 +600,33 @@ const ShowVehicle = () => {
                     />
                   ) : (
                     <>
-                      <span
+                      <input
+                        disabled
                         className={
                           isDue(vehicle.checked, "checked") === "warning"
-                            ? "text-red-600 text-xl"
+                            ? "text-red-600 text-xl bg-gray-400 w-fit"
                             : isDue(vehicle.checked, "checked") === "caution"
-                            ? "text-yellow-500 text-xl"
-                            : "text-xl"
+                            ? "text-yellow-500 text-xl bg-gray-400 w-fit"
+                            : "text-xl bg-gray-400 w-fit"
                         }
-                      >
-                        {vehicle.checked
-                          ? bgDate(vehicle.checked.slice(0, 10))
-                          : "N/A"}
-                        {isDue(vehicle.checked, "checked") ? (
-                          <WarningAmberIcon />
-                        ) : (
-                          ""
-                        )}
-                      </span>
+                        type="text"
+                        style={{
+                          borderRadius: "5px",
+                          textAlign: "center",
+                          maxWidth: "120px",
+                        }}
+                        value={`${
+                          vehicle.checked
+                            ? bgDate(vehicle.checked.slice(0, 10))
+                            : "N/A"
+                        } km`}
+                      />
                     </>
                   )}
                 </div>
               </div>
               <div className="my-4 flex justify-end my-2">
-                <div className={edit ? "flex" : "flex w-64"}>
+                <div className={edit ? "flex" : "flex w-56"}>
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     Данък за:
                   </span>
@@ -408,7 +640,7 @@ const ShowVehicle = () => {
                         backgroundColor: "rgb(100,100,100)",
                         color: "white",
                         textAlign: "center",
-                        width: "150px",
+                        width: "100px",
                       }}
                     >
                       <option value={dayjs().year() - 1}>
@@ -420,12 +652,31 @@ const ShowVehicle = () => {
                       </option>
                     </select>
                   ) : (
-                    <span className="text-xl">{vehicle.tax}</span>
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.tax}
+                    />
                   )}
                 </div>
-                <div className={edit ? "flex" : "flex w-64"}>
-                  <span className="text-xl mr-2 ml-4 text-gray-500">
+                <div className={"flex"}>
+                  <span
+                    className={
+                      isDue(vehicle.gtp, "date") === "warning"
+                        ? "text-red-600 text-xl "
+                        : isDue(vehicle.gtp, "date") === "caution"
+                        ? "text-yellow-500 text-xl"
+                        : "text-xl mr-2 ml-2"
+                    }
+                  >
                     ГТП до:
+                    {isDue(vehicle.gtp, "date") ? <WarningAmberIcon /> : ""}
                   </span>
                   {edit ? (
                     <input
@@ -442,21 +693,28 @@ const ShowVehicle = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <span
+                    <input
+                      disabled
                       className={
                         isDue(vehicle.gtp, "date") === "warning"
-                          ? "text-red-600 text-xl"
+                          ? "text-red-600 text-xl bg-gray-400"
                           : isDue(vehicle.gtp, "date") === "caution"
-                          ? "text-yellow-500 text-xl"
-                          : "text-xl"
+                          ? "text-yellow-500 text-xl bg-gray-400"
+                          : "text-xl bg-gray-400"
                       }
-                    >
-                      {vehicle.gtp ? bgDate(vehicle.gtp.slice(0, 10)) : ""}
-                      {isDue(vehicle.gtp, "date") ? <WarningAmberIcon /> : ""}
-                    </span>
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "120px",
+                      }}
+                      value={
+                        vehicle.gtp ? bgDate(vehicle.gtp.slice(0, 10)) : ""
+                      }
+                    />
                   )}
                 </div>
-                <div className={edit ? "flex" : "flex w-64"}>
+                <div className={"flex"}>
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     ЕКО Група:
                   </span>
@@ -470,7 +728,7 @@ const ShowVehicle = () => {
                         backgroundColor: "rgb(100,100,100)",
                         color: "white",
                         textAlign: "center",
-                        width: "150px",
+                        width: "100px",
                       }}
                     >
                       <option value={1}>1</option>
@@ -480,14 +738,33 @@ const ShowVehicle = () => {
                       <option value={5}>5</option>
                     </select>
                   ) : (
-                    <span className="text-xl">{vehicle.cat}</span>
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.cat}
+                    />
                   )}
                 </div>
               </div>
               <div className="my-4 flex justify-end my-2">
-                <div className={edit ? "flex" : "flex w-64"}>
-                  <span className="text-xl mr-2 ml-4 text-gray-500">
+                <div className={"flex"}>
+                  <span
+                    className={
+                      isDue(vehicle.insDate, "date") === "warning"
+                        ? "text-red-600 text-xl mr-2 ml-4"
+                        : isDue(vehicle.insDate, "date") === "caution"
+                        ? "text-yellow-500 text-xl mr-2 ml-4"
+                        : "text-xl mr-2 ml-4"
+                    }
+                  >
                     ГО до:
+                    {isDue(vehicle.insDate, "date") ? <WarningAmberIcon /> : ""}
                   </span>
                   {edit ? (
                     <input
@@ -504,29 +781,45 @@ const ShowVehicle = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <span
+                    <input
+                      disabled
                       className={
                         isDue(vehicle.insDate, "date") === "warning"
-                          ? "text-red-600 text-xl"
+                          ? "text-red-600 text-xl bg-gray-400"
                           : isDue(vehicle.insDate, "date") === "caution"
-                          ? "text-yellow-500 text-xl"
-                          : "text-xl"
+                          ? "text-yellow-500 text-xl bg-gray-400"
+                          : "text-xl bg-gray-400"
                       }
-                    >
-                      {vehicle.insDate
-                        ? bgDate(vehicle.insDate.slice(0, 10))
-                        : "N/A"}
-                      {isDue(vehicle.insDate, "date") ? (
-                        <WarningAmberIcon />
-                      ) : (
-                        ""
-                      )}
-                    </span>
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "120px",
+                      }}
+                      value={
+                        vehicle.insDate
+                          ? bgDate(vehicle.insDate.slice(0, 10))
+                          : "N/A"
+                      }
+                    />
                   )}
                 </div>
-                <div className={edit ? "flex" : "flex w-64"}>
-                  <span className="text-xl mr-2 ml-4 text-gray-500">
+                <div className={"flex"}>
+                  <span
+                    className={
+                      isDue(vehicle.kaskoDate, "date") === "warning"
+                        ? "text-red-600 text-xl mr-2 ml-4"
+                        : isDue(vehicle.kaskoDate, "date") === "caution"
+                        ? "text-yellow-500 text-xl mr-2 ml-4"
+                        : "text-xl mr-2 ml-4"
+                    }
+                  >
                     Каско до:
+                    {isDue(vehicle.kaskoDate, "date") ? (
+                      <WarningAmberIcon />
+                    ) : (
+                      ""
+                    )}
                   </span>
                   {edit ? (
                     <input
@@ -545,29 +838,32 @@ const ShowVehicle = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <span
+                    <input
+                      disabled
                       className={
                         isDue(vehicle.kaskoDate, "date") === "warning"
-                          ? "text-red-600 text-xl"
+                          ? "text-red-600 text-xl bg-gray-400"
                           : isDue(vehicle.kaskoDate, "date") === "caution"
-                          ? "text-yellow-500 text-xl"
-                          : "text-xl"
+                          ? "text-yellow-500 text-xl bg-gray-400"
+                          : "text-xl bg-gray-400"
                       }
-                    >
-                      {vehicle.kaskoDate
-                        ? bgDate(vehicle.kaskoDate.slice(0, 10))
-                        : "N/A"}
-                      {isDue(vehicle.kaskoDate, "date") ? (
-                        <WarningAmberIcon />
-                      ) : (
-                        ""
-                      )}
-                    </span>
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "120px",
+                      }}
+                      value={
+                        vehicle.kaskoDate
+                          ? bgDate(vehicle.kaskoDate.slice(0, 10))
+                          : "N/A"
+                      }
+                    />
                   )}
                 </div>
               </div>
               <div className="my-4 flex justify-end my-2">
-                <div className={edit ? "flex" : "flex w-64"}>
+                <div className={"flex"}>
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     ГО № Полица:
                   </span>
@@ -585,11 +881,21 @@ const ShowVehicle = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <span>{vehicle.insNum}</span>
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "180px",
+                      }}
+                      value={vehicle.insNum}
+                    />
                   )}
                 </div>
 
-                <div className={edit ? "flex" : "flex w-64"}>
+                <div className={"flex"}>
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     Каско Полица:
                   </span>
@@ -607,47 +913,87 @@ const ShowVehicle = () => {
                       onChange={handleChange}
                     />
                   ) : (
-                    <span>{vehicle.kaskoNum ? vehicle.kaskoNum : "N/A"}</span>
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "180px",
+                      }}
+                      value={vehicle.kaskoNum ? vehicle.kaskoNum : "N/A"}
+                    />
                   )}
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                {edit ? (
-                  <ButtonGroup variant="contained">
-                    <Button onClick={handleSave}>
-                      <SaveIcon />
+              {userRole === "admin" || userRole === vehicle.site ? (
+                <div className="flex justify-end">
+                  {edit ? (
+                    <ButtonGroup variant="contained">
+                      <Button onClick={handleSave}>
+                        <SaveIcon />
+                      </Button>
+                      <Button color="warning" onClick={handleCancelEdit}>
+                        <CancelIcon />
+                      </Button>
+                    </ButtonGroup>
+                  ) : (
+                    <Button variant="contained" onClick={handleEdit}>
+                      <EditIcon />
                     </Button>
-                    <Button color="warning" onClick={handleCancelEdit}>
-                      <CancelIcon />
-                    </Button>
-                  </ButtonGroup>
-                ) : (
-                  <Button variant="contained" onClick={handleEdit}>
-                    <EditIcon />
-                  </Button>
-                )}
-              </div>
+                  )}
+                </div>
+              ) : (
+                ""
+              )}
             </div>
-            <div>
+            {/* <div>
               {problemLoading ? (
                 <CircularProgress />
               ) : (
                 <Problems vehicle={vehicle} problems={problems} />
               )}
-            </div>
-            <div>
+            </div> */}
+            {/* <div>
               {fuelLoading ? (
                 <CircularProgress />
               ) : (
                 <Fuels vehicle={vehicle} fuels={fuels} />
               )}
-            </div>
+            </div> */}
             <div>
               {servLoading ? (
                 <CircularProgress />
               ) : (
-                <Services vehicle={vehicle} fuels={fuels} services={services} />
+                <Services
+                  username={username}
+                  userRole={userRole}
+                  vehicle={vehicle}
+                  fuels={fuels}
+                  services={services}
+                />
+              )}
+            </div>
+
+            <div>
+              <Button
+                onClick={handleShowLog}
+                fullWidth
+                variant="contained"
+                style={{}}
+              >
+                {showLog ? "СКРИИ ЛОГ" : "ПОКАЖИ ЛОГ"}
+              </Button>
+              {showLog ? (
+                logLoading ? (
+                  <CircularProgress />
+                ) : (
+                  <Log log={log} />
+                )
+              ) : (
+                ""
               )}
             </div>
 
@@ -667,10 +1013,18 @@ const ShowVehicle = () => {
               <span>{vehicle._id}</span>
             </div>
             <div>
-              <Button onClick={handleDelete} color="error" variant="contained">
-                ИзтриЙ
-                <DeleteForeverIcon />
-              </Button>
+              {userRole === "admin" || userRole === vehicle.site ? (
+                <Button
+                  onClick={handleDelete}
+                  color="error"
+                  variant="contained"
+                >
+                  ИзтриЙ
+                  <DeleteForeverIcon />
+                </Button>
+              ) : (
+                ""
+              )}
             </div>
           </div>
         </LocalizationProvider>

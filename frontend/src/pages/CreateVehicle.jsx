@@ -408,6 +408,9 @@ const CreateVehicle = () => {
                     <MenuItem key={1} value="НИКОН-НК">
                       НИКОН-НК
                     </MenuItem>
+                    <MenuItem key={1} value="ЕКСПРЕС-ГАРАНТ">
+                      ЕКСПРЕС-ГАРАНТ
+                    </MenuItem>
                     <MenuItem key={2} value="Николай Кънчев">
                       Николай Кънчев
                     </MenuItem>

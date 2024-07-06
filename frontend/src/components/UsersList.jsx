@@ -12,20 +12,16 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Button } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SaveIcon from "@mui/icons-material/Save";
-import dayjs from "dayjs";
-//test
+import Register from "../pages/Register";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
 import { visuallyHidden } from "@mui/utils";
 import CancelIcon from "@mui/icons-material/Cancel";
 import ButtonGroup from "@mui/material/ButtonGroup";
-//test
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 
-// test
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -60,34 +56,34 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: "date",
+    id: "username",
     numeric: false,
     disablePadding: false,
-    label: "Дата",
+    label: "Потребител",
   },
   {
-    id: "desc",
+    id: "role",
     numeric: false,
     disablePadding: false,
-    label: "Описание",
+    label: "Права",
   },
 
   {
-    id: "km",
+    id: "id",
     numeric: true,
     disablePadding: false,
-    label: "Километри:",
+    label: "ID:",
+  },
+  {
+    id: "delete",
+    numeric: false,
+    disablePadding: false,
+    label: "Изтриване",
   },
 ];
 
 function EnhancedTableHead(props) {
-  const {
-    order,
-    orderBy,
-
-    rowCount,
-    onRequestSort,
-  } = props;
+  const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -97,7 +93,9 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             align={
-              headCell.id === "cost" || headCell.id === "km" ? "right" : "left"
+              headCell.id === "delete" || headCell.id === "id"
+                ? "right"
+                : "left"
             }
             key={headCell.id}
             padding={headCell.disablePadding ? "none" : "normal"}
@@ -111,7 +109,9 @@ function EnhancedTableHead(props) {
               {headCell.label}
               {orderBy === headCell.id ? (
                 <Box component="span" sx={visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
+                  {order === "username"
+                    ? "sorted descending"
+                    : "sorted ascending"}
                 </Box>
               ) : null}
             </TableSortLabel>
@@ -129,15 +129,8 @@ EnhancedTableHead.propTypes = {
 };
 
 // test
-const Problems = ({ vehicle, problems }) => {
+const Users = ({ users }) => {
   const [loading, setLoading] = useState(false);
-  console.log(problems);
-  const [newProblem, setNewProblem] = useState({
-    date: "",
-    desc: "",
-    km: "",
-    vehicleId: vehicle._id,
-  });
 
   const [add, setAdd] = useState(false);
 
@@ -149,34 +142,14 @@ const Problems = ({ vehicle, problems }) => {
   const handleClick = () => {
     setAdd(true);
   };
-  const handleSave = () => {
-    setAdd(false);
-    axios
-      .post("http://192.168.0.145:5555/problems", newProblem)
-      .then(() => {})
-      .catch((err) => {
-        // setLoading(false);
-        alert("Грешка, проверете конзолата");
-        console.log(err);
-      });
 
-    window.location.reload();
+  const handleDelete = () => {
+    // axios.delete(`http://192.168.0.145/users/${e}`)
   };
   const handleCancel = () => {
     setAdd(false);
   };
-  const handleChange = (e) => {
-    const newData = { ...newProblem };
-    newData[e.target.id] = e.target.value;
-    setNewProblem({ ...newData });
-  };
-  const bgDate = (date) => {
-    let [yyyy, mm, dd] = date.split("-");
-    let newDate = `${dd}.${mm}.${yyyy}`;
-    return newDate;
-  };
-  const months = dayjs().diff(vehicle.startDate, "month");
-  //test
+
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("model");
   const [page, setPage] = React.useState(0);
@@ -197,16 +170,13 @@ const Problems = ({ vehicle, problems }) => {
     setPage(0);
   };
 
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
-  };
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - problems.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
   setTimeout(() => {}, 1000);
   const visibleRows = React.useMemo(
     () =>
-      problems.data
-        ? stableSort(problems.data, getComparator(order, orderBy)).slice(
+      users.data
+        ? stableSort(users.data, getComparator(order, orderBy)).slice(
             page * rowsPerPage,
             page * rowsPerPage + rowsPerPage
           )
@@ -221,105 +191,56 @@ const Problems = ({ vehicle, problems }) => {
       {loading ? (
         <CircularProgress />
       ) : (
-        <div className="my-4">
-          <h1 className="text-center text-2xl">Проблеми</h1>
-          {/* test */}
-          <Box sx={{ width: "100%", margin: "5px" }}>
+        <div className="my-4 flex flex-col items-center">
+          <h1 className="text-center text-2xl">ПОТРЕБИТЕЛИ</h1>
+          <Box sx={{ width: "50%", margin: "5px" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
               <TableContainer>
                 <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
-                  {problems.data && (
+                  {users.data && (
                     <EnhancedTableHead
                       order={order}
                       orderBy={orderBy}
                       onRequestSort={handleRequestSort}
-                      rowCount={problems.data.length}
+                      rowCount={users.data.length}
                     />
                   )}
 
-                  {problems.data && (
+                  {users.data && (
                     <TableBody>
                       {visibleRows.map((row, index) => {
                         const labelId = `enhanced-table-checkbox-${index}`;
 
                         return (
-                          <TableRow
-                            hover
-                            // onClick={(event) => handleClick(event, row._id)}
-                            // tabIndex={-1}
-                            key={row._id}
-                          >
+                          <TableRow hover key={row._id}>
                             <TableCell component="th" id={labelId} scope="row">
-                              {`${bgDate(row.date)}`}
+                              {row.username}
                             </TableCell>
-                            <TableCell>{row.desc}</TableCell>
-                            <TableCell align="right">{row.km} км.</TableCell>
+                            <TableCell>{row.role}</TableCell>
+                            <TableCell align="right">{row._id}</TableCell>
+                            <TableCell align="right">
+                              <Button
+                                onClick={() => {
+                                  axios
+                                    .delete(
+                                      `http://192.168.0.145:5555/users/${row._id}`
+                                    )
+                                    .then(() => {
+                                      window.location.reload();
+                                    })
+                                    .catch((err) => {
+                                      console.log(err);
+                                    });
+                                }}
+                                color="error"
+                                variant="contained"
+                              >
+                                <DeleteForeverIcon />
+                              </Button>
+                            </TableCell>
                           </TableRow>
                         );
                       })}
-                      {add ? (
-                        <TableRow>
-                          <TableCell component="th" scope="row" align="left">
-                            {" "}
-                            <div className="flex justify-start">
-                              <input
-                                value={newProblem.date}
-                                id="date"
-                                onChange={handleChange}
-                                type="date"
-                                className="w-fit"
-                                style={{
-                                  width: "130px",
-                                  borderRadius: "5px",
-                                  backgroundColor: "rgb(100,100,100)",
-                                  color: "white",
-                                  textAlign: "center",
-                                }}
-                              />
-                            </div>
-                          </TableCell>
-
-                          <TableCell align="left">
-                            <div>
-                              <input
-                                value={newProblem.desc}
-                                id="desc"
-                                onChange={handleChange}
-                                className=""
-                                style={{
-                                  width: "500px",
-                                  borderRadius: "5px",
-                                  backgroundColor: "rgb(100,100,100)",
-                                  color: "white",
-                                  textAlign: "center",
-                                }}
-                              />
-                            </div>
-                          </TableCell>
-
-                          <TableCell align="right">
-                            {" "}
-                            <div className="flex justify-end">
-                              {" "}
-                              <input
-                                value={newProblem.km}
-                                id="km"
-                                onChange={handleChange}
-                                className="w-fit"
-                                style={{
-                                  width: "100px",
-                                  borderRadius: "5px",
-                                  backgroundColor: "rgb(100,100,100)",
-                                  color: "white",
-                                  textAlign: "center",
-                                }}
-                              />
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        ""
-                      )}
 
                       {emptyRows > 0 && (
                         <TableRow
@@ -339,7 +260,7 @@ const Problems = ({ vehicle, problems }) => {
                 labelRowsPerPage={"Покажи по:"}
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
-                count={problems.data.length}
+                count={users.data ? users.data.length : 0}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
@@ -347,21 +268,15 @@ const Problems = ({ vehicle, problems }) => {
               />
               <div className="flex justify-end">
                 {add ? (
-                  <ButtonGroup fullWidth>
-                    <Button fullWidth variant="contained" onClick={handleSave}>
-                      Запиши
-                      <SaveIcon />
-                    </Button>
-                    <Button
-                      color="warning"
-                      fullWidth
-                      variant="contained"
-                      onClick={handleCancel}
-                    >
-                      Отказ
-                      <CancelIcon />
-                    </Button>
-                  </ButtonGroup>
+                  <Button
+                    color="warning"
+                    fullWidth
+                    variant="contained"
+                    onClick={handleCancel}
+                  >
+                    Отказ
+                    <CancelIcon />
+                  </Button>
                 ) : (
                   <Button fullWidth variant="contained" onClick={handleClick}>
                     Добави
@@ -369,6 +284,7 @@ const Problems = ({ vehicle, problems }) => {
                   </Button>
                 )}
               </div>
+              {add ? <Register /> : ""}
             </Paper>
           </Box>
         </div>
@@ -377,4 +293,4 @@ const Problems = ({ vehicle, problems }) => {
   );
 };
 
-export default Problems;
+export default Users;

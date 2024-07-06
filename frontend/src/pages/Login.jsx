@@ -1,10 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { Button, MenuItem, TextField } from "@mui/material";
 
 const Login = () => {
+  const [users, setUsers] = useState();
+  useEffect(() => {
+    axios
+      .get("http://192.168.0.145:5555/users")
+      .then((res) => {
+        setUsers(res.data.data.map((entrie) => entrie.username));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
   const navigate = useNavigate();
   const [input, setInput] = useState({
     username: "",
@@ -39,7 +51,7 @@ const Login = () => {
         handleSuccess(message);
         setTimeout(() => {
           navigate("/vehicles");
-        }, 1000);
+        }, 400);
       } else {
         handleError(message);
       }
@@ -52,6 +64,7 @@ const Login = () => {
       password: "",
     });
   };
+
   return (
     <div className="flex justify-center">
       <div>
@@ -67,18 +80,13 @@ const Login = () => {
               onChange={handleChange}
               variant="filled"
             >
-              <MenuItem key={1} value="admin">
-                ADMIN
-              </MenuItem>
-              <MenuItem key={2} value="румен">
-                РУМЕН
-              </MenuItem>
-              <MenuItem key={3} value="любо">
-                ЛЮБО
-              </MenuItem>
-              <MenuItem key={4} value="гост">
-                ГОСТ
-              </MenuItem>
+              {users
+                ? users.map((e, index) => (
+                    <MenuItem key={index} value={e}>
+                      {e}
+                    </MenuItem>
+                  ))
+                : ""}
             </TextField>
           </div>
           <div className="my-4">
