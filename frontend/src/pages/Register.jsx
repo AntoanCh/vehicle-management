@@ -117,9 +117,12 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("http://localhost:5555/register", {
-        ...input,
-      });
+      const { data } = await axios.post(
+        "http://192.168.0.147:5555/auth/register",
+        {
+          ...input,
+        }
+      );
       const { status, message } = data;
       console.log(data);
       if (status) {

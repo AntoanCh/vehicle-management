@@ -4,7 +4,9 @@ export const verifyUser = async () => {
   if (!token) {
     return null;
   }
-  const { data } = await axios.post("http://localhost:5555/", { token });
+  const { data } = await axios.post("http://192.168.0.147:5555/auth", {
+    token,
+  });
   const { status, user } = data;
   return data;
 };

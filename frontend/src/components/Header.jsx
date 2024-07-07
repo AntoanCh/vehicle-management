@@ -22,7 +22,9 @@ const Header = () => {
       if (!token) {
         navigate("/login");
       }
-      const { data } = await axios.post("http://localhost:5555/", { token });
+      const { data } = await axios.post("http://192.168.0.147:5555/auth", {
+        token,
+      });
       const { status, user, role } = data;
       setUsername(user);
       setUserRole(role);
