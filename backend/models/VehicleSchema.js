@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { Service } from "./ServiceModel.js";
+import { Log } from "./LogModel.js";
 
 export const vehicleSchema = mongoose.Schema(
   {
@@ -115,15 +116,13 @@ export const vehicleSchema = mongoose.Schema(
       type: String,
       required: false,
     },
-    // services: [
-    //   {
-    //     type: Schema.Types.ObjectId,
-    //     // type: String,
-    //     ref: "Service",
-    //   },
-    // ],
   },
   {
     timestamps: true,
   }
 );
+
+vehicleSchema.pre(`deleteMany`, (vehicle) => {
+  Service.remove({ vehicleId: vehicle._id });
+  Log.remove({ vehicleId: vehicle._id });
+});

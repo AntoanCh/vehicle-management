@@ -183,9 +183,9 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
   const handleSave = () => {
     setAdd(false);
     axios
-      .post("http://192.168.0.145:5555/services", newServ)
+      .post("http://192.168.0.147:5555/services", newServ)
       .then(() => {
-        axios.post(`http://192.168.0.145:5555/logs`, {
+        axios.post(`http://192.168.0.147:5555/logs`, {
           date: dayjs(),
           user: username,
           changed: { newServ: [newServ.invoice, newServ.desc] },
@@ -200,7 +200,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
     if (!vehicle.startKm || parseInt(vehicle.startKm) > parseInt(newServ.km)) {
       vehicle.startKm = newServ.km;
       axios
-        .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, vehicle)
+        .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
         .then(() => {})
         .catch((err) => {
           alert("Грешка, проверете конзолата");
@@ -210,7 +210,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
     if (!vehicle.startDate || vehicle.startDate > newServ.date) {
       vehicle.startDate = newServ.date;
       axios
-        .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, vehicle)
+        .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
         .then(() => {})
         .catch((err) => {
           alert("Грешка, проверете конзолата");
@@ -324,11 +324,11 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
                                   onClick={() => {
                                     axios
                                       .delete(
-                                        `http://192.168.0.145:5555/services/${row._id}`
+                                        `http://192.168.0.147:5555/services/${row._id}`
                                       )
                                       .then(() => {
                                         axios.post(
-                                          `http://192.168.0.145:5555/logs`,
+                                          `http://192.168.0.147:5555/logs`,
                                           {
                                             date: dayjs(),
                                             user: username,

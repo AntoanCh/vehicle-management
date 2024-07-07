@@ -152,7 +152,7 @@ const Problems = ({ vehicle, problems }) => {
   const handleSave = () => {
     setAdd(false);
     axios
-      .post("http://192.168.0.145:5555/problems", newProblem)
+      .post("http://192.168.0.147:5555/problems", newProblem)
       .then(() => {})
       .catch((err) => {
         // setLoading(false);

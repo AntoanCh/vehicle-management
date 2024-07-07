@@ -44,7 +44,9 @@ const ShowVehicle = () => {
       if (!token) {
         navigate("/login");
       }
-      const { data } = await axios.post("http://localhost:5555/", { token });
+      const { data } = await axios.post("http://192.168.0.147:5555/auth", {
+        token,
+      });
       const { status, user, role } = data;
       setUsername(user);
       setUserRole(role);
@@ -55,12 +57,12 @@ const ShowVehicle = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`http://192.168.0.145:5555/vehicles/${id}`)
+      .get(`http://192.168.0.147:5555/vehicle/${id}`)
       .then((res) => {
         setVehicle(res.data);
         setLoading(false);
         axios
-          .get(`http://192.168.0.145:5555/services/${res.data._id}`)
+          .get(`http://192.168.0.147:5555/services/${res.data._id}`)
           .then((res) => {
             setServices(res.data);
             setServLoading(false);
@@ -70,7 +72,7 @@ const ShowVehicle = () => {
             setServLoading(false);
           });
         axios
-          .get(`http://192.168.0.145:5555/fuels/${res.data._id}`)
+          .get(`http://192.168.0.147:5555/fuels/${res.data._id}`)
           .then((res) => {
             setFuels(res.data);
             setFuelLoading(false);
@@ -80,7 +82,7 @@ const ShowVehicle = () => {
             setFuelLoading(false);
           });
         axios
-          .get(`http://192.168.0.145:5555/problems/${res.data._id}`)
+          .get(`http://192.168.0.147:5555/problems/${res.data._id}`)
           .then((res) => {
             setProblems(res.data);
             setProblemLoading(false);
@@ -90,7 +92,7 @@ const ShowVehicle = () => {
             setProblemLoading(false);
           });
         axios
-          .get(`http://192.168.0.145:5555/logs/${res.data._id}`)
+          .get(`http://192.168.0.147:5555/logs/${res.data._id}`)
           .then((res) => {
             setLog(res.data);
             setLogLoading(false);
@@ -111,7 +113,7 @@ const ShowVehicle = () => {
   };
   const handleDelete = () => {
     axios
-      .delete(`http://192.168.0.145:5555/vehicles/${vehicle._id}`)
+      .delete(`http://192.168.0.147:5555/vehicle/${vehicle._id}`)
       .then(() => {
         navigate("/vehicles");
       });
@@ -137,9 +139,9 @@ const ShowVehicle = () => {
     setEdit(false);
     console.log(updated);
     axios
-      .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, updated)
+      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, updated)
       .then(() => {
-        axios.post(`http://192.168.0.145:5555/logs`, {
+        axios.post(`http://192.168.0.147:5555/logs`, {
           date: dayjs(),
           user: username,
           changed: diff,
@@ -214,9 +216,9 @@ const ShowVehicle = () => {
   const handleCheck = () => {
     vehicle.checked = dayjs();
     axios
-      .put(`http://192.168.0.145:5555/vehicles/${vehicle._id}`, vehicle)
+      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
       .then(() => {
-        axios.post(`http://192.168.0.145:5555/logs`, {
+        axios.post(`http://192.168.0.147:5555/logs`, {
           date: dayjs(),
           user: username,
           changed: { checked: [0, dayjs()] },

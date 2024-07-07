@@ -174,7 +174,7 @@ const Fuels = ({ vehicle, fuels }) => {
   const handleSave = () => {
     setAdd(false);
     axios
-      .post("http://192.168.0.145:5555/fuels", newFuel)
+      .post("http://192.168.0.147:5555/fuels", newFuel)
       .then(() => {})
       .catch((err) => {
         // setLoading(false);

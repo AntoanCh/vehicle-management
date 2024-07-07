@@ -12,7 +12,7 @@ const Warehouse = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://192.168.0.145:5555/vehicles")
+      .get("http://192.168.0.147:5555/vehicle")
       .then((res) => {
         setTrucks(res.data.data);
         setLoading(false);

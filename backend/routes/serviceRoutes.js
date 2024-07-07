@@ -8,6 +8,7 @@ router.post("/", async (req, res) => {
   try {
     if (
       !req.body.date ||
+      !req.body.type ||
       !req.body.desc ||
       !req.body.invoice ||
       !req.body.km ||
@@ -20,6 +21,7 @@ router.post("/", async (req, res) => {
     }
     const newService = {
       date: req.body.date,
+      type: req.body.type,
       desc: req.body.desc,
       invoice: req.body.invoice,
       km: req.body.km,

@@ -9,7 +9,7 @@ const Users = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://192.168.0.145:5555/users")
+      .get("http://192.168.0.147:5555/users")
       .then((res) => {
         setUsers(res.data);
         setLoading(false);

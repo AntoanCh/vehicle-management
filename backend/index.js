@@ -9,8 +9,11 @@ import vehicleRoutes from "./routes/vehicleRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import fuelRoutes from "./routes/fuelRoutes.js";
 import problemRoutes from "./routes/problemRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import logRoutes from "./routes/logRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
+import path from "path";
 const { MONGO_URL, PORT } = process.env;
 const app = express();
 // import bodyParser from "body-parser";
@@ -27,16 +30,22 @@ app.use(cookieParser());
 app.use(express.json());
 
 //ROUTES
-app.get("/", (req, res) => {
-  return res.status(234).send("Welcome");
-});
-app.use("/", authRoutes);
+
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
+app.use("/logs", logRoutes);
 app.use("/services", serviceRoutes);
 app.use("/fuels", fuelRoutes);
 app.use("/problems", problemRoutes);
-app.use("/vehicles", vehicleRoutes);
+app.use("/vehicle", vehicleRoutes);
 app.use("/cars", carRoutes);
 app.use("/trucks", truckRoutes);
+
+//set static folder
+app.use(express.static("build"));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "build", "index.html"));
+});
 
 //MONGODB CONNECTION
 mongoose

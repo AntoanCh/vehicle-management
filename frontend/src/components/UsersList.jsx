@@ -144,7 +144,7 @@ const Users = ({ users }) => {
   };
 
   const handleDelete = () => {
-    // axios.delete(`http://192.168.0.145/users/${e}`)
+    // axios.delete(`http://192.168.0.147/users/${e}`)
   };
   const handleCancel = () => {
     setAdd(false);
@@ -223,7 +223,7 @@ const Users = ({ users }) => {
                                 onClick={() => {
                                   axios
                                     .delete(
-                                      `http://192.168.0.145:5555/users/${row._id}`
+                                      `http://192.168.0.147:5555/users/${row._id}`
                                     )
                                     .then(() => {
                                       window.location.reload();

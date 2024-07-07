@@ -52,7 +52,7 @@ const CreateVehicle = () => {
 
     if (data.reg)
       axios
-        .post("http://192.168.0.145:5555/vehicles", data)
+        .post("http://192.168.0.147:5555/vehicle", data)
         .then(() => {
           setLoading(false);
           navigate(`/${data.type}`);
