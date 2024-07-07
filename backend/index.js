@@ -14,6 +14,7 @@ import logRoutes from "./routes/logRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
 import path from "path";
+const __dirname = path.resolve();
 const { MONGO_URL, PORT } = process.env;
 const app = express();
 import bodyParser from "body-parser";
