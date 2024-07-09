@@ -139,7 +139,7 @@ const Users = ({ users }) => {
       setLoading(false);
     }, 2000);
   };
-  const handleClick = () => {
+  const handleAdd = () => {
     setAdd(true);
   };
 
@@ -165,6 +165,7 @@ const Users = ({ users }) => {
     setPage(newPage);
   };
 
+  const handleClick = (event, id) => {};
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
@@ -212,7 +213,21 @@ const Users = ({ users }) => {
                         const labelId = `enhanced-table-checkbox-${index}`;
 
                         return (
-                          <TableRow hover key={row._id}>
+                          <TableRow
+                            onClick={(event) => {
+                              handleClick(event, row._id);
+                            }}
+                            hover
+                            key={row._id}
+                            sx={{
+                              cursor: "pointer",
+                              backgroundColor: "#ccc",
+                              "&:hover": {
+                                backgroundColor: "#000000",
+                                boxShadow: "none",
+                              },
+                            }}
+                          >
                             <TableCell component="th" id={labelId} scope="row">
                               {row.username}
                             </TableCell>
@@ -278,7 +293,7 @@ const Users = ({ users }) => {
                     <CancelIcon />
                   </Button>
                 ) : (
-                  <Button fullWidth variant="contained" onClick={handleClick}>
+                  <Button fullWidth variant="contained" onClick={handleAdd}>
                     Добави
                     <AddCircleOutlineIcon />
                   </Button>

@@ -35,6 +35,8 @@ const CreateVehicle = () => {
     owner: "",
     cat: "",
     oil: "",
+    oilChange: "",
+    vignette: "",
     tires: "",
     purchaseDate: dayjs(),
     startDate: dayjs(),
@@ -448,9 +450,20 @@ const CreateVehicle = () => {
                   <TextField
                     required
                     id="oil"
-                    label="Техн. Обслужване(км):"
+                    label="Масла/ф-ри(км):"
                     variant="filled"
                     value={data.oil}
+                    onChange={handleChange}
+                    // helperText="Последна смяна на масла и ф-ри"
+                  />
+                </div>
+                <div className="my-4">
+                  <TextField
+                    required
+                    id="oilChange"
+                    label="Масло интервал(км):"
+                    variant="filled"
+                    value={data.oilChange}
                     onChange={handleChange}
                     // helperText="Последна смяна на масла и ф-ри"
                   />

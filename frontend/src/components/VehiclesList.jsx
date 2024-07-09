@@ -229,7 +229,7 @@ export default function VehiclesList({ data }) {
     return newDate;
   };
 
-  const isDue = (dueDate, type) => {
+  const isDue = (dueDate, type, oilChange) => {
     if (type === "date") {
       if (dueDate <= dayjs().add(1, "week").toISOString()) {
         return "warning";
@@ -247,9 +247,9 @@ export default function VehiclesList({ data }) {
         return "caution";
       }
     } else if (type === "oil") {
-      if (dueDate > 10000) {
+      if (dueDate > oilChange) {
         return "warning";
-      } else if (dueDate > 9000) {
+      } else if (dueDate > oilChange - 1000) {
         return "caution";
       }
     }
@@ -371,7 +371,7 @@ export default function VehiclesList({ data }) {
                         }
                       >
                         {row.km - row.oil + " km"}
-                        {isDue(row.km - row.oil, "oil") ? (
+                        {isDue(row.km - row.oil, "oil", row.oilChange) ? (
                           <WarningAmberIcon />
                         ) : (
                           ""

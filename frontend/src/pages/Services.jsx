@@ -385,7 +385,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
                               <select
                                 style={{
                                   height: "30px",
-                                  width: "300px",
+                                  width: "170px",
                                   borderRadius: "5px",
                                   backgroundColor: "rgb(100,100,100)",
                                   color: "white",
@@ -660,55 +660,8 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
             )}
           </div> */}
 
-          <h1 className="text-center my-4 text-2xl">Справка МПС</h1>
-          <h1 className="text-center text-xl">Начални данни</h1>
-          <div className="flex justify-center">
-            <TableContainer
-              sx={{ maxWidth: "550px", margin: "10px" }}
-              component={Paper}
-            >
-              <Table sx={{ minWidth: "200px" }} aria-label="simple table">
-                <TableBody>
-                  <TableRow
-                    sx={{
-                      backgroundColor: "grey",
-                      "&:last-child td, &:last-child th": { border: 0 },
-                    }}
-                  >
-                    <TableCell component="th" scope="row">
-                      Дата покупка
-                    </TableCell>
-                    <TableCell align="right">Начална Дата</TableCell>
-                    <TableCell align="right">Начални Километри</TableCell>
-                    <TableCell align="right">Цена на покупка</TableCell>
-                  </TableRow>
-                  <TableRow
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {vehicle.purchaseDate
-                        ? bgDate(vehicle.purchaseDate.slice(0, 10))
-                        : "Няма данни"}
-                    </TableCell>
-                    <TableCell component="th" scope="row">
-                      {vehicle.startDate
-                        ? bgDate(vehicle.startDate.slice(0, 10))
-                        : "Няма данни"}
-                      {/* {vehicle.startDate
-                        ? bgDate(vehicle.startDate.slice(0, 10))
-                        : ""} */}
-                    </TableCell>
-                    <TableCell align="right">
-                      {vehicle.startKm ? vehicle.startKm + " км" : "Няма данни"}{" "}
-                    </TableCell>
-                    <TableCell align="right">
-                      {vehicle.price ? vehicle.price + " лв" : "Няма данни"}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </div>
+          {/* <h1 className="text-center my-4 text-2xl">Справка МПС</h1>
+
           <div className="flex justify-center">
             <TableContainer
               sx={{ maxWidth: "600px", margin: "10px" }}
@@ -830,15 +783,15 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
                           ).toFixed(2) + " лв."
                         : "Няма данни"}
                     </TableCell>
-                  </TableRow>
-                  {/* <TableRow
+                  </TableRow> */}
+          {/* <TableRow
                     sx={{
                       "&:last-child td, &:last-child th": {
                         border: 0,
                       },
                     }}
                   > */}
-                  {/* <TableCell
+          {/* <TableCell
                       sx={{ textAlign: "center" }}
                       component="th"
                       scope="row"
@@ -890,10 +843,10 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
                         : "Няма данни"}
                     </TableCell>
                   </TableRow> */}
-                </TableBody>
+          {/* </TableBody>
               </Table>
             </TableContainer>
-          </div>
+          </div> */}
         </div>
       )}
     </div>

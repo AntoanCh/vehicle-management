@@ -55,15 +55,20 @@ const Header = () => {
   return (
     <div className="flex justify-between bg-gray-300">
       <div className="px-2 py-2">
-        <Button
-          sx={{ margin: "auto" }}
-          variant="outlined"
-          component={Link}
-          to="/vehicle/create"
-        >
-          {"НОВ"}
-          <AddCircleOutlineIcon />
-        </Button>
+        {userRole === "user" ? (
+          ""
+        ) : (
+          <Button
+            sx={{ margin: "auto" }}
+            variant="outlined"
+            component={Link}
+            to="/vehicle/create"
+          >
+            {"НОВ"}
+            <AddCircleOutlineIcon />
+          </Button>
+        )}
+
         {userRole === "admin" ? (
           <Button
             sx={{ marginLeft: "3px" }}

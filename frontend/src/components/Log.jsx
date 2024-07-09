@@ -136,7 +136,7 @@ const Log = ({ vehicle, log }) => {
         bgKey = "ЕКО";
         result = result + `${bgKey}(${obj[key][1]}); `;
       } else if (key === "oil") {
-        bgKey = "ТО";
+        bgKey = "Масло";
         result = result + `${bgKey}(${obj[key][1]} km); `;
       } else if (key === "tax") {
         bgKey = "Данък";
@@ -156,6 +156,21 @@ const Log = ({ vehicle, log }) => {
       } else if (key === "delServ") {
         bgKey = "Изтри ремонт";
         result = result + `${bgKey}(${obj[key][1]} - ${obj[key][0]}); `;
+      } else if (key === "km") {
+        bgKey = "КМ";
+        result = result + `${bgKey}(${obj[key][1]}); `;
+      } else if (key === "site") {
+        bgKey = "Отговорник";
+        result = result + `${bgKey}(${obj[key][1]}); `;
+      } else if (key === "engNum") {
+        bgKey = "ДВГ №";
+        result = result + `${bgKey}(${obj[key][1]}); `;
+      } else if (key === "oilChange") {
+        bgKey = "Интервал";
+        result = result + `${bgKey}(${obj[key][1]}); `;
+      } else if (key === "price") {
+        bgKey = "Цена пок.";
+        result = result + `${bgKey}(${obj[key][1]}) лв; `;
       }
       // result = result + `${key} ${obj[key][0]}-${obj[key][1]}; `;
     }
@@ -184,6 +199,38 @@ const Log = ({ vehicle, log }) => {
 
   const options = {
     filterType: "checkbox",
+    selectableRows: false,
+    download: false,
+    rowsPerPage: 20,
+    rowsPerPageOptions: [20, 50, 100],
+    // expandableRowsOnClick: true,
+    // expandableRows: true,
+    textLabels: {
+      pagination: {
+        next: "Следваща страница",
+        previous: "Предишна страница",
+        rowsPerPage: "Покажи по:",
+        displayRows: "от", // 1-10 of 30
+      },
+      toolbar: {
+        search: "Търсене",
+        downloadCsv: "Изтегли CSV",
+        print: "Принтирай",
+        viewColumns: "View Columns",
+        filterTable: "Филтри",
+      },
+      filter: {
+        title: "ФИЛТРИ",
+        reset: "изчисти",
+      },
+      viewColumns: {
+        title: "Покажи колони",
+      },
+      selectedRows: {
+        text: "rows(s) deleted",
+        delete: "Delete",
+      },
+    },
   };
   const [loading, setLoading] = useState(false);
 

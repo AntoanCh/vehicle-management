@@ -26,6 +26,7 @@ router.post("/", async (req, res) => {
       !req.body.owner ||
       !req.body.cat ||
       !req.body.oil ||
+      !req.body.oilChange ||
       !req.body.tires
     ) {
       return res.status(400).send({
@@ -53,6 +54,8 @@ router.post("/", async (req, res) => {
       owner: req.body.owner,
       cat: req.body.cat,
       oil: req.body.oil,
+      oilChange: req.body.oilChange,
+      vignette: req.body.vignettte,
       tires: req.body.tires,
       purchaseDate: req.body.purchaseDate,
       startDate: req.body.startDate,
@@ -123,6 +126,7 @@ router.put("/:id", async (req, res) => {
       !req.body.owner ||
       !req.body.cat ||
       !req.body.oil ||
+      !req.body.oilChange ||
       !req.body.tires
     ) {
       return res.status(400).send({

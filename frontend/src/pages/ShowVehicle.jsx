@@ -7,6 +7,7 @@ import { Button, ButtonGroup } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import Services from "./Services";
+import Ref from "../components/Ref";
 import Fuels from "./Fuels";
 import Problems from "./Problems";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
@@ -25,6 +26,7 @@ const ShowVehicle = () => {
   const [oldVehicle, setOldVehicle] = useState({});
   const [showLog, setShowLog] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState("");
   const [edit, setEdit] = useState(false);
   const [services, setServices] = useState();
   const [fuels, setFuels] = useState();
@@ -206,9 +208,9 @@ const ShowVehicle = () => {
         return "caution";
       }
     } else if (type === "oil") {
-      if (dueDate > 10000) {
+      if (dueDate > vehicle.oilChange) {
         return "warning";
-      } else if (dueDate > 9000) {
+      } else if (dueDate > vehicle.oilChange - 1000) {
         return "caution";
       }
     }
@@ -244,7 +246,7 @@ const ShowVehicle = () => {
         <CircularProgress />
       ) : (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-fit p-4">
+          <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-9/12 p-4">
             <div className="flex">
               <div>
                 <div className="w-fit input-box" style={{ width: "100%" }}>
@@ -320,17 +322,34 @@ const ShowVehicle = () => {
                     <span className="text-xl mr-2 ml-4 text-gray-500">
                       № ДВГ:
                     </span>
-                    <input
-                      disabled
-                      className="bg-gray-400"
-                      type="text"
-                      style={{
-                        borderRadius: "5px",
-                        textAlign: "center",
-                        maxWidth: "100px",
-                      }}
-                      value={vehicle.engNum}
-                    />
+                    {edit ? (
+                      <input
+                        className="bg-gray-400"
+                        type="text"
+                        style={{
+                          borderRadius: "5px",
+                          textAlign: "center",
+                          maxWidth: "100px",
+                          backgroundColor: "rgb(100, 100, 100)",
+                          color: "white",
+                        }}
+                        value={vehicle.engNum}
+                        id="engNum"
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      <input
+                        disabled
+                        className="bg-gray-400"
+                        type="text"
+                        style={{
+                          borderRadius: "5px",
+                          textAlign: "center",
+                          maxWidth: "100px",
+                        }}
+                        value={vehicle.engNum}
+                      />
+                    )}
                   </div>
 
                   <div>
@@ -372,17 +391,37 @@ const ShowVehicle = () => {
                       Отговорник:
                     </span>
 
-                    <input
-                      disabled
-                      className="bg-gray-400"
-                      type="text"
-                      style={{
-                        borderRadius: "5px",
-                        textAlign: "center",
-                        maxWidth: "100px",
-                      }}
-                      value={vehicle.site === "office" ? "ОФИС" : "СКЛАД"}
-                    />
+                    {edit ? (
+                      <select
+                        style={{
+                          borderRadius: "5px",
+                          backgroundColor: "rgb(100,100,100)",
+                          color: "white",
+                          textAlign: "center",
+                          width: "100px",
+                          height: "35px",
+                        }}
+                        name="site"
+                        value={vehicle.site}
+                        id="site"
+                        onChange={handleChange}
+                      >
+                        <option value="office">ОФИС</option>
+                        <option value="warehouse">СКЛАД</option>
+                      </select>
+                    ) : (
+                      <input
+                        disabled
+                        className="bg-gray-400"
+                        type="text"
+                        style={{
+                          borderRadius: "5px",
+                          textAlign: "center",
+                          maxWidth: "100px",
+                        }}
+                        value={vehicle.site === "office" ? "ОФИС" : "СКЛАД"}
+                      />
+                    )}
                   </div>
                   <div className="w-40">
                     <span className="text-xl ml-4 mr-2 text-gray-500">
@@ -470,10 +509,10 @@ const ShowVehicle = () => {
               )}
             </div>
             <div className="my-4">
-              <div className="my-4 flex justify-end my-2">
-                <div className={edit ? "flex" : "flex w-64"}>
+              <div className="my-4 flex justify-end my-2 border-t border-gray-500">
+                <div className="w-40">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
-                    Тех.Обс.:
+                    Масла/ф-ри:
                   </span>
                   {edit ? (
                     <input
@@ -503,7 +542,7 @@ const ShowVehicle = () => {
                     />
                   )}
                 </div>
-                <div className="flex w-56">
+                <div className="w-40">
                   <span
                     className={
                       isDue(vehicle.km - vehicle.oil, "oil") === "warning"
@@ -528,7 +567,7 @@ const ShowVehicle = () => {
                         ? "text-red-600 text-xl bg-gray-400"
                         : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
                         ? "text-yellow-500 text-xl bg-gray-400"
-                        : "text-xl"
+                        : "text-xl  bg-gray-400"
                     }
                     type="text"
                     style={{
@@ -539,14 +578,14 @@ const ShowVehicle = () => {
                     value={`${vehicle.km - vehicle.oil} km`}
                   />
                 </div>
-                <div className="flex w-56">
+                <div className="w-40">
                   <span
                     className={
                       isDue(vehicle.km - vehicle.oil, "oil") === "warning"
                         ? "text-red-600 text-xl"
                         : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
                         ? "text-yellow-500 text-xl"
-                        : "text-xl"
+                        : "text-xl  bg-gray-400"
                     }
                   >
                     Остават:{" "}
@@ -564,7 +603,7 @@ const ShowVehicle = () => {
                         ? "text-red-600 text-xl bg-gray-400"
                         : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
                         ? "text-yellow-500 text-xl bg-gray-400"
-                        : "text-xl"
+                        : "text-xl  bg-gray-400"
                     }
                     type="text"
                     style={{
@@ -572,10 +611,42 @@ const ShowVehicle = () => {
                       textAlign: "center",
                       maxWidth: "110px",
                     }}
-                    value={`${10000 - (vehicle.km - vehicle.oil)} km`}
+                    value={`${
+                      vehicle.oilChange - (vehicle.km - vehicle.oil)
+                    } km`}
                   />
                 </div>
-                <div className={edit ? "flex" : "flex w-70"}>
+                <div className="w-40">
+                  <span className={"text-xl bg-gray-400"}>Интервал: </span>
+
+                  {edit ? (
+                    <input
+                      style={{
+                        borderRadius: "5px",
+                        backgroundColor: "rgb(100,100,100)",
+                        color: "white",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.oilChange}
+                      id="oilChange"
+                      onChange={handleChange}
+                    />
+                  ) : (
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.oilChange}
+                    />
+                  )}
+                </div>
+                <div className="w-40">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     Проверен на:
                     {isDue(vehicle.checked, "checked") ? (
@@ -627,22 +698,23 @@ const ShowVehicle = () => {
                   )}
                 </div>
               </div>
-              <div className="my-4 flex justify-end my-2">
-                <div className={edit ? "flex" : "flex w-56"}>
+              <div className="my-4 flex justify-end my-2 border-t border-gray-500">
+                {/* <div className="w-40">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
-                    Данък за:
+                    Винетка до:
                   </span>
                   {edit ? (
                     <select
                       id="tax"
                       onChange={handleChange}
-                      value={vehicle.tax}
+                      value={vehicle.vignette}
                       style={{
                         borderRadius: "5px",
                         backgroundColor: "rgb(100,100,100)",
                         color: "white",
                         textAlign: "center",
                         width: "100px",
+                        height: "35px",
                       }}
                     >
                       <option value={dayjs().year() - 1}>
@@ -663,11 +735,51 @@ const ShowVehicle = () => {
                         textAlign: "center",
                         maxWidth: "100px",
                       }}
+                      value={bgDate(vehicle.vignette.slice(0, 10))}
+                    />
+                  )}
+                </div> */}
+                <div className="w-40">
+                  <span className="text-xl mr-2 ml-4 text-gray-500">
+                    Данък за:
+                  </span>
+                  {edit ? (
+                    <select
+                      id="tax"
+                      onChange={handleChange}
                       value={vehicle.tax}
+                      style={{
+                        borderRadius: "5px",
+                        backgroundColor: "rgb(100,100,100)",
+                        color: "white",
+                        textAlign: "center",
+                        width: "100px",
+                        height: "35px",
+                      }}
+                    >
+                      <option value={dayjs().year() - 1}>
+                        {dayjs().year() - 1}
+                      </option>
+                      <option value={dayjs().year()}>{dayjs().year()}</option>
+                      <option value={dayjs().year() + 1}>
+                        {dayjs().year() + 1}
+                      </option>
+                    </select>
+                  ) : (
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "100px",
+                      }}
+                      value={vehicle.tax + " г."}
                     />
                   )}
                 </div>
-                <div className={"flex"}>
+                <div className="w-40">
                   <span
                     className={
                       isDue(vehicle.gtp, "date") === "warning"
@@ -716,7 +828,7 @@ const ShowVehicle = () => {
                     />
                   )}
                 </div>
-                <div className={"flex"}>
+                <div className="w-40">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     ЕКО Група:
                   </span>
@@ -731,6 +843,7 @@ const ShowVehicle = () => {
                         color: "white",
                         textAlign: "center",
                         width: "100px",
+                        height: "35px",
                       }}
                     >
                       <option value={1}>1</option>
@@ -755,7 +868,7 @@ const ShowVehicle = () => {
                 </div>
               </div>
               <div className="my-4 flex justify-end my-2">
-                <div className={"flex"}>
+                <div className="w-56">
                   <span
                     className={
                       isDue(vehicle.insDate, "date") === "warning"
@@ -806,7 +919,7 @@ const ShowVehicle = () => {
                     />
                   )}
                 </div>
-                <div className={"flex"}>
+                <div className="w-56">
                   <span
                     className={
                       isDue(vehicle.kaskoDate, "date") === "warning"
@@ -865,7 +978,7 @@ const ShowVehicle = () => {
                 </div>
               </div>
               <div className="my-4 flex justify-end my-2">
-                <div className={"flex"}>
+                <div className="w-56">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     ГО № Полица:
                   </span>
@@ -897,7 +1010,7 @@ const ShowVehicle = () => {
                   )}
                 </div>
 
-                <div className={"flex"}>
+                <div className="w-56">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     Каско Полица:
                   </span>
@@ -929,6 +1042,105 @@ const ShowVehicle = () => {
                   )}
                 </div>
               </div>
+              <div className="my-4 flex justify-end my-2 border-t border-gray-500">
+                <div className="w-56">
+                  {" "}
+                  <span className="text-xl mr-2 ml-4 text-gray-500">
+                    Дата на покупка:
+                  </span>
+                  <input
+                    disabled
+                    className="bg-gray-400"
+                    type="text"
+                    style={{
+                      borderRadius: "5px",
+                      textAlign: "center",
+                      maxWidth: "180px",
+                    }}
+                    value={
+                      vehicle.purchaseDate
+                        ? bgDate(vehicle.purchaseDate.slice(0, 10))
+                        : "Няма данни"
+                    }
+                  />
+                </div>
+                <div className="w-56">
+                  {" "}
+                  <span className="text-xl mr-2 ml-4 text-gray-500">
+                    Първи ремонт:
+                  </span>
+                  <input
+                    disabled
+                    className="bg-gray-400"
+                    type="text"
+                    style={{
+                      borderRadius: "5px",
+                      textAlign: "center",
+                      maxWidth: "180px",
+                    }}
+                    value={
+                      vehicle.startDate
+                        ? bgDate(vehicle.startDate.slice(0, 10))
+                        : "Няма данни"
+                    }
+                  />
+                </div>
+                <div className="w-56">
+                  {" "}
+                  <span className="text-xl mr-2 ml-4 text-gray-500">
+                    Начални километри:
+                  </span>
+                  <input
+                    disabled
+                    className="bg-gray-400"
+                    type="text"
+                    style={{
+                      borderRadius: "5px",
+                      textAlign: "center",
+                      maxWidth: "180px",
+                    }}
+                    value={
+                      vehicle.startKm ? vehicle.startKm + " km" : "Няма данни"
+                    }
+                  />
+                </div>
+                <div className="w-56">
+                  {" "}
+                  <span className="text-xl mr-2 ml-4 text-gray-500">
+                    Цена покупка:
+                  </span>
+                  {edit ? (
+                    <input
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "180px",
+                        backgroundColor: "rgb(100, 100, 100)",
+                        color: "white",
+                      }}
+                      value={vehicle.price}
+                      id="price"
+                      onChange={handleChange}
+                    />
+                  ) : (
+                    <input
+                      disabled
+                      className="bg-gray-400"
+                      type="text"
+                      style={{
+                        borderRadius: "5px",
+                        textAlign: "center",
+                        maxWidth: "180px",
+                      }}
+                      value={
+                        vehicle.price ? `${vehicle.price} лв` : "Няма данни"
+                      }
+                    />
+                  )}
+                </div>
+              </div>
 
               {userRole === "admin" || userRole === vehicle.site ? (
                 <div className="flex justify-end">
@@ -951,6 +1163,60 @@ const ShowVehicle = () => {
                 ""
               )}
             </div>
+            <ButtonGroup sx={{ marginBottom: "10px" }} fullWidth>
+              <Button
+                variant="contained"
+                color={tab === "serv" ? "secondary" : "primary"}
+                onClick={() => {
+                  if (tab === "serv") {
+                    setTab("");
+                  } else {
+                    setTab("serv");
+                  }
+                }}
+              >
+                Сервизна История
+              </Button>
+              <Button
+                variant="contained"
+                color={tab === "fuel" ? "secondary" : "primary"}
+                onClick={() => {
+                  if (tab === "fuel") {
+                    setTab("");
+                  } else {
+                    setTab("fuel");
+                  }
+                }}
+              >
+                Гориво
+              </Button>
+              <Button
+                variant="contained"
+                color={tab === "ref" ? "secondary" : "primary"}
+                onClick={() => {
+                  if (tab === "ref") {
+                    setTab("");
+                  } else {
+                    setTab("ref");
+                  }
+                }}
+              >
+                Справки
+              </Button>
+              <Button
+                variant="contained"
+                color={tab === "log" ? "secondary" : "primary"}
+                onClick={() => {
+                  if (tab === "log") {
+                    setTab("");
+                  } else {
+                    setTab("log");
+                  }
+                }}
+              >
+                Лог
+              </Button>
+            </ButtonGroup>
             {/* <div>
               {problemLoading ? (
                 <CircularProgress />
@@ -966,29 +1232,42 @@ const ShowVehicle = () => {
               )}
             </div> */}
             <div>
-              {servLoading ? (
-                <CircularProgress />
+              {tab === "serv" ? (
+                servLoading ? (
+                  <CircularProgress />
+                ) : (
+                  <Services
+                    username={username}
+                    userRole={userRole}
+                    vehicle={vehicle}
+                    fuels={fuels}
+                    services={services}
+                  />
+                )
               ) : (
-                <Services
+                ""
+              )}
+              {tab === "fuel" ? <Fuels vehicle={vehicle} fuels={fuels} /> : ""}
+              {tab === "ref" ? (
+                <Ref
                   username={username}
                   userRole={userRole}
                   vehicle={vehicle}
                   fuels={fuels}
                   services={services}
                 />
+              ) : (
+                ""
               )}
-            </div>
-
-            <div>
-              <Button
+              {/* <Button
                 onClick={handleShowLog}
                 fullWidth
                 variant="contained"
                 style={{}}
               >
                 {showLog ? "СКРИИ ЛОГ" : "ПОКАЖИ ЛОГ"}
-              </Button>
-              {showLog ? (
+              </Button> */}
+              {tab === "log" ? (
                 logLoading ? (
                   <CircularProgress />
                 ) : (

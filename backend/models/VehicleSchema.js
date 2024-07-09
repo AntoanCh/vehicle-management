@@ -68,11 +68,11 @@ export const vehicleSchema = mongoose.Schema(
     },
     kaskoDate: {
       type: Date,
-      required: false,
+      required: true,
     },
     kaskoNum: {
       type: String,
-      required: false,
+      required: true,
       uppercase: true,
     },
     tax: {
@@ -115,6 +115,14 @@ export const vehicleSchema = mongoose.Schema(
     price: {
       type: String,
       required: false,
+    },
+    vignette: {
+      type: String,
+      required: false,
+    },
+    oilChange: {
+      type: String,
+      required: true,
     },
   },
   {
