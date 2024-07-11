@@ -14,6 +14,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Header from "./components/Header.jsx";
+import Footer from "./components/Footer.jsx";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
@@ -52,6 +53,7 @@ function App() {
             {/* <Route path="/vehicle/edit/:id" element={<EditVehicle />} />
             <Route path="/vehicle/delete/:id" element={<DeleteVehicle />} /> */}
           </Routes>
+          {/* <Footer /> */}
         </BrowserRouter>
       </LocalizationProvider>
       {/* </ThemeProvider> */}

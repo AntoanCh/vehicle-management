@@ -21,9 +21,17 @@ const Home = () => {
       setUsername(user);
       console.log(data);
       return status
-        ? toast(`Hello ${user}`, {
-            position: "top-right",
-          })
+        ? // toast(`${user}`, {
+          //     position: "top-right",
+          //     autoClose: 5000,
+          //     hideProgressBar: false,
+          //     closeOnClick: true,
+          //     pauseOnHover: true,
+          //     draggable: true,
+          //     progress: undefined,
+          //     theme: "dark",
+          //   })
+          ""
         : (localStorage.removeItem("token"), navigate("/login"));
     };
     verifyUser();

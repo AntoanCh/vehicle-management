@@ -20,6 +20,9 @@ router.post("/", async (req, res) => {
       !req.body.bodyNum ||
       !req.body.talonNum ||
       !req.body.gtp ||
+      !req.body.kasko ||
+      !req.body.kaskoDate ||
+      !req.body.kaskoNum ||
       !req.body.insDate ||
       !req.body.insNum ||
       !req.body.tax ||
@@ -48,6 +51,7 @@ router.post("/", async (req, res) => {
       gtp: req.body.gtp,
       insDate: req.body.insDate,
       insNum: req.body.insNum,
+      kasko: req.body.kasko,
       kaskoDate: req.body.kaskoDate,
       kaskoNum: req.body.kaskoNum,
       tax: req.body.tax,
@@ -119,6 +123,9 @@ router.put("/:id", async (req, res) => {
       !req.body.engNum ||
       !req.body.bodyNum ||
       !req.body.talonNum ||
+      !req.body.kasko ||
+      !req.body.kaskoDate ||
+      !req.body.kaskoNum ||
       !req.body.gtp ||
       !req.body.insDate ||
       !req.body.insNum ||
@@ -132,9 +139,6 @@ router.put("/:id", async (req, res) => {
       return res.status(400).send({
         message: "Send all required fields",
       });
-    }
-    if (!req.body.kaskoDate) {
-      req.body.kaskoDate = "00.00.0000";
     }
 
     const { id } = req.params;

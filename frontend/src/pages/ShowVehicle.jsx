@@ -56,6 +56,7 @@ const ShowVehicle = () => {
     verifyUser();
     console.log(userRole);
   }, [token, navigate]);
+  console.log(dayjs());
   useEffect(() => {
     setLoading(true);
     axios
@@ -1147,15 +1148,15 @@ const ShowVehicle = () => {
                   {edit ? (
                     <ButtonGroup variant="contained">
                       <Button onClick={handleSave}>
-                        <SaveIcon />
+                        <SaveIcon /> ЗАПИШИ
                       </Button>
                       <Button color="warning" onClick={handleCancelEdit}>
-                        <CancelIcon />
+                        <CancelIcon /> ОТКАЖИ
                       </Button>
                     </ButtonGroup>
                   ) : (
                     <Button variant="contained" onClick={handleEdit}>
-                      <EditIcon />
+                      <EditIcon /> РЕДАКТИРАНЕ
                     </Button>
                   )}
                 </div>

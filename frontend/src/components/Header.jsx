@@ -29,8 +29,15 @@ const Header = () => {
       setUsername(user);
       setUserRole(role);
       return status
-        ? toast(`Hello ${user}`, {
+        ? toast(`${user}`, {
             position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
           })
         : (localStorage.removeItem("token"), navigate("/login"));
     };
@@ -51,11 +58,10 @@ const Header = () => {
       setTab("warehouse");
     }
   }, []);
-
   return (
     <div className="flex justify-between bg-gray-300">
       <div className="px-2 py-2">
-        {userRole === "user" ? (
+        {userRole === "user" || !userRole ? (
           ""
         ) : (
           <Button

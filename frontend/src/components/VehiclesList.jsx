@@ -330,7 +330,7 @@ export default function VehiclesList({ data }) {
                         ) : (
                           ""
                         )}
-                        {row.kaskoDate == "0000-01-01T00:00:00.000Z" ||
+                        {row.kaskoDate == "2001-01-01T00:00:00.000Z" ||
                         row.kaskoDate == null
                           ? "N/A"
                           : bgDate(row.kaskoDate.slice(0, 10))}

@@ -12,6 +12,13 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import InputAdornment from "@mui/material/InputAdornment";
+import Checkbox from "@mui/material/Checkbox";
+import { ToastContainer, toast } from "react-toastify";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 const CreateVehicle = () => {
   const [data, setData] = useState({
@@ -29,14 +36,17 @@ const CreateVehicle = () => {
     gtp: dayjs(),
     insDate: dayjs(),
     insNum: "",
-    kaskoDate: dayjs(),
+    kasko: false,
+    kaskoDate: dayjs("01-01-2001"),
     kaskoNum: "",
+    vignette: false,
+    vignetteDate: dayjs("01-01-2001"),
     tax: "",
     owner: "",
     cat: "",
     oil: "",
     oilChange: "",
-    vignette: "",
+
     tires: "",
     purchaseDate: dayjs(),
     startDate: dayjs(),
@@ -45,14 +55,61 @@ const CreateVehicle = () => {
   });
   const [loading, setLoading] = useState(false);
   const [regError, setRegError] = useState(false);
+  const [makeError, setMakeError] = useState(false);
   const [modelError, setModelError] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState([false, ""]);
   const navigate = useNavigate();
 
+  const handleClose = () => {
+    setError([false, ""]);
+  };
   const handleSaveVehicle = () => {
     setLoading(true);
 
-    if (data.reg)
+    if (regError || makeError || modelError) {
+      setLoading(false);
+      toast.error("Има непоправени грешки", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+      setError([
+        true,
+        "Има неправилно въведени данни. Проверете за червени полета и поправете грешките",
+      ]);
+    } else if (
+      !data.type ||
+      !data.site ||
+      !data.make ||
+      !data.model ||
+      !data.reg ||
+      !data.year ||
+      !data.km ||
+      !data.fuel ||
+      !data.engNum ||
+      !data.bodyNum ||
+      !data.talonNum ||
+      !data.gtp ||
+      !data.insDate ||
+      !data.insNum ||
+      !data.tax ||
+      !data.owner ||
+      !data.cat ||
+      !data.oil ||
+      !data.oilChange ||
+      !data.tires
+    ) {
+      setLoading(false);
+      setError([
+        true,
+        "Има невъведени данни. Въведете всички задължителни данни, обелязани със ' * '",
+      ]);
+    } else {
       axios
         .post("http://192.168.0.147:5555/vehicle", data)
         .then(() => {
@@ -62,12 +119,14 @@ const CreateVehicle = () => {
         .catch((err) => {
           setLoading(false);
           if (err.response.data.message) {
-            alert(err.response.data.message);
+            setError([true, err.response.data.message]);
           } else {
             alert("Грешка, проверете конзолата");
+            setError([true, "Грешка, проверете конзолата"]);
             console.log(err);
           }
         });
+    }
   };
 
   const handleChange = (e) => {
@@ -96,6 +155,26 @@ const CreateVehicle = () => {
       } else {
         setRegError(false);
         console.log(regError);
+      }
+    }
+    if (e.target.id === "make") {
+      if (
+        (!e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) ||
+        !e.target.value
+      ) {
+        setMakeError(true);
+      } else {
+        setMakeError(false);
+      }
+    }
+    if (e.target.id === "model") {
+      if (
+        (!e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) ||
+        !e.target.value
+      ) {
+        setModelError(true);
+      } else {
+        setModelError(false);
       }
     }
 
@@ -132,10 +211,43 @@ const CreateVehicle = () => {
     );
   }
 
+  const handleKasko = (event) => {
+    setData({
+      ...data,
+      kasko: event.target.checked,
+      kaskoDate: event.target.checked ? dayjs() : dayjs("01-01-2001"),
+    });
+  };
+  const handleVignette = (event) => {
+    setData({
+      ...data,
+      vignette: event.target.checked,
+      vignetteDate: event.target.checked ? dayjs() : dayjs("01-01-2001"),
+    });
+  };
+
   return (
     <div className="p-4">
       <h1 className="text-center text-3xl my-4">НОВ АВТОМОБИЛ</h1>
-      {loading ? <CircularProgress /> : ""}
+      <Dialog
+        open={error[0]}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Грешка"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {error[1]}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={handleClose} autoFocus>
+            Добре
+          </Button>
+        </DialogActions>
+      </Dialog>
+      ;{loading ? <CircularProgress /> : ""}
       <div className="bg-gray-300 flex flex-col border-2 border-blue-400 rounded-xl w-[1200px] p-4 mx-auto">
         <Box
           component="form"
@@ -147,7 +259,7 @@ const CreateVehicle = () => {
         >
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <div className="flex justify-between">
-              <div>
+              <div className="mr-20">
                 <div className="my-4">
                   <TextField
                     required
@@ -192,12 +304,17 @@ const CreateVehicle = () => {
                 <div className="my-4">
                   <TextField
                     required
-                    error={modelError}
+                    error={makeError}
                     id="make"
                     label="Марка:"
                     variant="filled"
                     value={data.make}
                     onChange={handleChange}
+                    helperText={
+                      makeError
+                        ? "Марката/моделът се изписват на ангийски език \n и могат да съдържат само букви и цифри"
+                        : ""
+                    }
                   />
                 </div>
                 <div className="my-4">
@@ -211,7 +328,7 @@ const CreateVehicle = () => {
                     onChange={handleChange}
                     helperText={
                       modelError
-                        ? "Марката и моделът могат да съдържат само латински букви и цифри"
+                        ? "Марката/моделът се изписват на ангийски език \n и могат да съдържат само букви и цифри"
                         : ""
                     }
                   />
@@ -247,8 +364,8 @@ const CreateVehicle = () => {
                   </TextField>
                 </div>
               </div>
-              <div>
-                <div className="my-4">
+              <div className="mr-10">
+                <div className="mt-4">
                   <TextField
                     required
                     id="km"
@@ -258,7 +375,7 @@ const CreateVehicle = () => {
                     onChange={handleChange}
                   />
                 </div>
-                <div className="my-4">
+                <div className="">
                   <TextField
                     required
                     name="fuel"
@@ -275,9 +392,21 @@ const CreateVehicle = () => {
                     <MenuItem key={2} value="Бензин">
                       Бензин
                     </MenuItem>
+                    <MenuItem key={3} value="Хибрид">
+                      Хибрид
+                    </MenuItem>
+                    <MenuItem key={4} value="Електрически">
+                      Електрически
+                    </MenuItem>
+                    <MenuItem key={5} value="Plug-In">
+                      Plug-In
+                    </MenuItem>
+                    <MenuItem key={6} value="Газ">
+                      Газ
+                    </MenuItem>
                   </TextField>
                 </div>
-                <div className="my-4">
+                <div className="">
                   <TextField
                     required
                     id="engNum"
@@ -287,7 +416,7 @@ const CreateVehicle = () => {
                     onChange={handleChange}
                   />
                 </div>
-                <div className="my-4">
+                <div className="">
                   <TextField
                     required
                     id="bodyNum"
@@ -297,7 +426,7 @@ const CreateVehicle = () => {
                     onChange={handleChange}
                   />
                 </div>
-                <div className="my-4">
+                <div className="">
                   <TextField
                     required
                     id="talonNum"
@@ -307,9 +436,30 @@ const CreateVehicle = () => {
                     onChange={handleChange}
                   />
                 </div>
+                <div className="">
+                  {" "}
+                  <Checkbox checked={data.vignette} onChange={handleVignette} />
+                  <span>Автомобилът има винетен стикер</span>
+                </div>
+                <div className="my-2">
+                  <DemoContainer components={["DatePicker, DatePicker"]}>
+                    <DatePicker
+                      disabled={data.vignette ? false : true}
+                      format="DD/MM/YYYY"
+                      id="vignetteDate"
+                      label="Винетка до:"
+                      value={data.vignetteDate}
+                      onChange={(newValue) => {
+                        const newData = { ...data };
+                        newData.vignetteDate = newValue;
+                        setData({ ...newData });
+                      }}
+                    />
+                  </DemoContainer>
+                </div>
               </div>
-              <div>
-                <div className="my-4">
+              <div className="mr-10">
+                <div className="mt-2">
                   <DemoContainer components={["DatePicker, DatePicker"]}>
                     <DatePicker
                       format="DD/MM/YYYY"
@@ -349,9 +499,14 @@ const CreateVehicle = () => {
                     onChange={handleChange}
                   />
                 </div>
-                <div className="my-4">
+                <div>
+                  <Checkbox checked={data.kasko} onChange={handleKasko} />
+                  <span>Автомобилът има застраховка "Каско"</span>
+                </div>
+                <div className="mt-2">
                   <DemoContainer components={["DatePicker, DatePicker"]}>
                     <DatePicker
+                      disabled={data.kasko ? false : true}
                       format="DD/MM/YYYY"
                       id="kaskoDate"
                       label="Каско до:"
@@ -364,8 +519,9 @@ const CreateVehicle = () => {
                     />
                   </DemoContainer>
                 </div>
-                <div className="my-4">
+                <div className="mt-4">
                   <TextField
+                    disabled={data.kasko ? false : true}
                     id="kaskoNum"
                     label="Каско № Полица:"
                     variant="filled"
@@ -482,7 +638,7 @@ const CreateVehicle = () => {
             </div>
             <div>
               <h1 className="text-center text-xl">Данни за покупка</h1>
-              <p className="text-center bg-blue-400 border-blue-800 border-solid rounded-2xl">
+              <p className="text-center bg-blue-400 border-blue-800 border-solid rounded-xl">
                 При непопълнени данни за дата на първи ремонт и килемтраж, по
                 подразбиране ще се вземат датата и километрите от най-ранният
                 въведен ремонт на автомобила
@@ -514,7 +670,7 @@ const CreateVehicle = () => {
                     />
                   </DemoContainer>
                 </div>
-                <div className="my-4 text flex justify-center">
+                <div className="mt-6 text flex justify-center">
                   <TextField
                     id="startKm"
                     label="Километраж:"
@@ -523,7 +679,7 @@ const CreateVehicle = () => {
                     onChange={handleChange}
                   />
                 </div>
-                <div className="my-4 text flex justify-center">
+                <div className="mt-6 text flex justify-center">
                   <TextField
                     id="price"
                     label="Цена:"
@@ -545,6 +701,7 @@ const CreateVehicle = () => {
           ЗАПИШИ
         </Button>
       </div>
+      <ToastContainer />
     </div>
   );
 };
