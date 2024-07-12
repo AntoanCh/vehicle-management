@@ -45,7 +45,6 @@ export const Update = async (req, res, next) => {
       status: "success",
       message: "user updated successfully",
       success: true,
-      token,
       user: {
         _id: user._id,
         username: user.username,

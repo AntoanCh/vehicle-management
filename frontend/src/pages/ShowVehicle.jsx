@@ -21,6 +21,11 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useNavigate } from "react-router-dom";
 import Log from "../components/Log";
 import Checkbox from "@mui/material/Checkbox";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 const ShowVehicle = () => {
   const [vehicle, setVehicle] = useState({});
@@ -32,6 +37,7 @@ const ShowVehicle = () => {
   const [services, setServices] = useState();
   const [fuels, setFuels] = useState();
   const [problems, setProblems] = useState();
+  const [verDelete, setVerDelete] = useState(false);
   const [log, setLog] = useState();
   const [servLoading, setServLoading] = useState(true);
   const [fuelLoading, setFuelLoading] = useState(true);
@@ -112,6 +118,12 @@ const ShowVehicle = () => {
 
   const handleShowLog = () => {
     setShowLog(!showLog);
+  };
+  const handleClose = () => {
+    setVerDelete(false);
+  };
+  const verifyDelete = () => {
+    setVerDelete(true);
   };
   const handleDelete = () => {
     axios
@@ -259,6 +271,35 @@ const ShowVehicle = () => {
         <CircularProgress />
       ) : (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Dialog
+            open={verDelete}
+            onClose={handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">ИЗТРИВАНЕ</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description"></DialogContentText>
+              {`Сигурен ли сте, че искате да изтриете автомобил ${
+                vehicle.make + " " + vehicle.model
+              } с Номер ${
+                vehicle.reg
+              }\n Всички данни за автомобила, включително сервизната история ще бъдат премахнати завинаги`}
+            </DialogContent>
+            <DialogActions>
+              <Button
+                color="error"
+                variant="contained"
+                onClick={handleClose}
+                autoFocus
+              >
+                Отказ
+              </Button>
+              <Button variant="contained" onClick={handleDelete} autoFocus>
+                Добави
+              </Button>
+            </DialogActions>
+          </Dialog>
           <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-9/12 p-4">
             <div className="flex">
               <div>
@@ -1353,7 +1394,7 @@ const ShowVehicle = () => {
             <div>
               {userRole === "admin" || userRole === vehicle.site ? (
                 <Button
-                  onClick={handleDelete}
+                  onClick={verifyDelete}
                   color="error"
                   variant="contained"
                 >

@@ -146,7 +146,7 @@ const CreateVehicle = () => {
     }
     if (e.target.id === "reg") {
       if (
-        (!e.target.value.match(/[a-z,A-Z]{1,2}[1-9]{4}[a-z,A-Z]{2}$/) &&
+        (!e.target.value.match(/[a-z,A-Z]{1,2}[0-9]{4}[a-z,A-Z]{2}$/) &&
           e.target.value) ||
         !e.target.value
       ) {

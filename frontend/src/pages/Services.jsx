@@ -9,11 +9,14 @@ import Paper from "@mui/material/Paper";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Button } from "@mui/material";
+import { Button, MenuItem } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SaveIcon from "@mui/icons-material/Save";
 import dayjs from "dayjs";
-//test
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
 import TablePagination from "@mui/material/TablePagination";
@@ -23,6 +26,13 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { visuallyHidden } from "@mui/utils";
 import CancelIcon from "@mui/icons-material/Cancel";
 import ButtonGroup from "@mui/material/ButtonGroup";
+import MUIDataTable from "mui-datatables";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import TextField from "@mui/material/TextField";
 //test
 
 // test
@@ -161,7 +171,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
   const [loading, setLoading] = useState(false);
 
   const [newServ, setNewServ] = useState({
-    date: "",
+    date: dayjs(),
     type: "",
     desc: "",
     invoice: "",
@@ -219,15 +229,20 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
     }
 
     setTimeout(() => {
-      window.location.reload();
+      // window.location.reload();
     }, 1000);
   };
-  const handleCancel = () => {
+  const handleClose = () => {
     setAdd(false);
   };
   const handleChange = (e) => {
     const newData = { ...newServ };
-    newData[e.target.id] = e.target.value;
+    if (e.target.name === "type") {
+      newData[e.target.name] = e.target.value;
+    } else {
+      newData[e.target.id] = e.target.value;
+    }
+
     setNewServ({ ...newData });
   };
   const bgDate = (date) => {
@@ -274,17 +289,226 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
     [order, orderBy, page, rowsPerPage]
   );
   //test
+  console.log(services);
+  const data = services.data.map((obj) => {
+    return [
+      bgDate(obj.date.slice(0, 10)),
+      obj.type,
+      obj.desc,
+      obj.invoice,
+      obj.km + " км",
+      obj.cost + " лв",
+      <Button
+        onClick={() => {
+          axios
+            .delete(`http://192.168.0.147:5555/services/${obj._id}`)
+            .then(() => {
+              axios.post(`http://192.168.0.147:5555/logs`, {
+                date: dayjs(),
+                user: username,
+                changed: {
+                  delServ: [obj.invoice, obj.desc],
+                },
+                vehicleId: vehicle._id,
+              });
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }}
+        color="error"
+        variant="contained"
+      >
+        <DeleteForeverIcon />
+      </Button>,
+    ];
+  });
 
+  const columns = [
+    {
+      name: "Дата",
+      options: {
+        sortDirection: "desc",
+      },
+    },
+    { name: "Вид" },
+    { name: "Описание" },
+    { name: "Фактура №" },
+    { name: "Километри" },
+    { name: "Стойност" },
+    { name: "" },
+  ];
+  const options = {
+    filterType: "checkbox",
+    selectableRows: false,
+    download: false,
+    rowsPerPage: 20,
+    rowsPerPageOptions: [20, 50, 100],
+    // expandableRowsOnClick: true,
+    // expandableRows: true,
+    textLabels: {
+      body: {
+        noMatch: "Нищо не е намерено",
+      },
+      pagination: {
+        next: "Следваща страница",
+        previous: "Предишна страница",
+        rowsPerPage: "Покажи по:",
+        displayRows: "от", // 1-10 of 30
+      },
+      toolbar: {
+        search: "Търсене",
+        downloadCsv: "Изтегли CSV",
+        print: "Принтирай",
+        viewColumns: "Показване на колони",
+        filterTable: "Филтри",
+      },
+      filter: {
+        title: "ФИЛТРИ",
+        reset: "изчисти",
+      },
+      viewColumns: {
+        title: "Покажи колони",
+      },
+      selectedRows: {
+        text: "rows(s) deleted",
+        delete: "Delete",
+      },
+    },
+  };
   return (
     <div>
-      {handleLoading()}
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        <div className="my-4">
-          <h1 className="text-center text-2xl">Сервизна история</h1>
-          {/* test */}
-          <Box sx={{ width: "100%", margin: "5px" }}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Dialog
+          open={add}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Добави нов ремонт</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description"></DialogContentText>
+
+            <div className="my-4">
+              <DemoContainer components={["DatePicker, DatePicker"]}>
+                <DatePicker
+                  fullWidth
+                  format="DD/MM/YYYY"
+                  id="date"
+                  label="Дата:"
+                  value={newServ.date}
+                  onChange={(newValue) => {
+                    const newData = { ...newServ };
+                    newData.date = newValue;
+                    setNewServ({ ...newData });
+                  }}
+                />
+              </DemoContainer>
+            </div>
+            <div className="my-4">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                value={newServ.type}
+                name="type"
+                id="type"
+                select
+                label="Вид:"
+              >
+                <MenuItem key={1} value="РЕМОНТ">
+                  РЕМОНТ
+                </MenuItem>
+                <MenuItem key={2} value="ДИАГНОСТИКА">
+                  ДИАГНОСТИКА
+                </MenuItem>
+                <MenuItem key={3} value="office">
+                  ОФИС ОТГОВОРНИК
+                </MenuItem>
+                <MenuItem key={4} value="warehouse">
+                  СКЛАД ОТГОВОРНИК
+                </MenuItem>
+              </TextField>
+            </div>
+            <div className="my-4">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                value={newServ.desc}
+                name="desc"
+                id="desc"
+                label="Описание:"
+              />
+            </div>
+            <div className="my-4">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                value={newServ.invoice}
+                name="invoice"
+                id="invoice"
+                label="Фактура №:"
+              />
+            </div>
+            <div className="my-4">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                value={newServ.km}
+                name="km"
+                id="km"
+                label="Километри:"
+              />
+            </div>
+            <div className="my-4">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                value={newServ.cost}
+                name="cost"
+                id="cost"
+                label="Стойност:"
+              />
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={handleClose}
+              autoFocus
+            >
+              Отказ
+            </Button>
+            <Button variant="contained" onClick={handleSave} autoFocus>
+              Добави
+            </Button>
+          </DialogActions>
+        </Dialog>
+        {handleLoading()}
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <div className="my-4">
+            <Button
+              fullWidth
+              variant="contained"
+              color="secondary"
+              onClick={handleClick}
+            >
+              ДОБАВИ РЕМОНТ
+            </Button>
+            {/* <h1 className="text-center text-2xl">Сервизна история</h1> */}
+            <MUIDataTable
+              title={"СЕРВИЗНА ИСТОРИЯ"}
+              data={data}
+              columns={columns}
+              options={options}
+            />
+            {/* test */}
+            {/* <Box sx={{ width: "100%", margin: "5px" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
               <TableContainer>
                 <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
@@ -536,9 +760,9 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
                 ""
               )}
             </Paper>
-          </Box>
-          {/* test */}
-          {/* <TableContainer component={Paper}>
+          </Box> */}
+            {/* test */}
+            {/* <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow sx={{ backgroundColor: "grey" }}>
@@ -646,7 +870,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
               </TableBody>
             </Table>
           </TableContainer> */}
-          {/* <div className="flex justify-end">
+            {/* <div className="flex justify-end">
             {add ? (
               <Button fullWidth variant="contained" onClick={handleSave}>
                 Запиши Ремонт
@@ -660,7 +884,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
             )}
           </div> */}
 
-          {/* <h1 className="text-center my-4 text-2xl">Справка МПС</h1>
+            {/* <h1 className="text-center my-4 text-2xl">Справка МПС</h1>
 
           <div className="flex justify-center">
             <TableContainer
@@ -784,14 +1008,14 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
                         : "Няма данни"}
                     </TableCell>
                   </TableRow> */}
-          {/* <TableRow
+            {/* <TableRow
                     sx={{
                       "&:last-child td, &:last-child th": {
                         border: 0,
                       },
                     }}
                   > */}
-          {/* <TableCell
+            {/* <TableCell
                       sx={{ textAlign: "center" }}
                       component="th"
                       scope="row"
@@ -843,12 +1067,13 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
                         : "Няма данни"}
                     </TableCell>
                   </TableRow> */}
-          {/* </TableBody>
+            {/* </TableBody>
               </Table>
             </TableContainer>
           </div> */}
-        </div>
-      )}
+          </div>
+        )}
+      </LocalizationProvider>
     </div>
   );
 };

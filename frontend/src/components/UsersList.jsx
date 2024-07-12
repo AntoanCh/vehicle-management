@@ -175,6 +175,12 @@ const Users = ({ users }) => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
+      if (newData.role === "") {
+        setNewData({ newData, role: currentUser.role });
+      }
+      if (newData.password === "") {
+        setNewData({ newData, password: currentUser.password });
+      }
       const { data } = await axios.post(
         "http://192.168.0.147:5555/auth/update",
         {
@@ -222,8 +228,6 @@ const Users = ({ users }) => {
         password: e.target.value,
       });
     }
-
-    console.log(currentUser);
   };
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
@@ -241,7 +245,6 @@ const Users = ({ users }) => {
   const handleClose = () => {
     setEdit(false);
   };
-  console.log(users);
   return (
     <div>
       <Dialog
@@ -426,7 +429,36 @@ const Users = ({ users }) => {
                   </Button>
                 )}
               </div>
-              {add ? <Register /> : ""}
+              {/* {add ? <Register /> : ""} */}
+              <Dialog
+                open={add}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">
+                  {"Добави Потребител"}
+                </DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-description"></DialogContentText>
+                  <div className="">
+                    <Register />
+                  </div>
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    color="error"
+                    variant="contained"
+                    onClick={() => setAdd(false)}
+                    autoFocus
+                  >
+                    Отказ
+                  </Button>
+                  {/* <Button variant="contained" onClick={handleUpdate} autoFocus>
+                    Запази
+                  </Button> */}
+                </DialogActions>
+              </Dialog>
             </Paper>
           </Box>
         </div>
