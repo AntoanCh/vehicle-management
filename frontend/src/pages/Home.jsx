@@ -19,7 +19,7 @@ const Home = () => {
       });
       const { status, user } = data;
       setUsername(user);
-      console.log(data);
+
       return status
         ? // toast(`${user}`, {
           //     position: "top-right",

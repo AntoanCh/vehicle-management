@@ -20,6 +20,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useNavigate } from "react-router-dom";
 import Log from "../components/Log";
+import Checkbox from "@mui/material/Checkbox";
 
 const ShowVehicle = () => {
   const [vehicle, setVehicle] = useState({});
@@ -54,9 +55,7 @@ const ShowVehicle = () => {
       setUserRole(role);
     };
     verifyUser();
-    console.log(userRole);
   }, [token, navigate]);
-  console.log(dayjs());
   useEffect(() => {
     setLoading(true);
     axios
@@ -140,7 +139,7 @@ const ShowVehicle = () => {
       }
     }
     setEdit(false);
-    console.log(updated);
+
     axios
       .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, updated)
       .then(() => {
@@ -159,11 +158,23 @@ const ShowVehicle = () => {
         console.log(err);
         window.location.reload();
       });
-
-    console.log(diff);
   };
   const handleCancelEdit = () => {
     setEdit(false);
+  };
+  const handleKasko = (event) => {
+    setVehicle({
+      ...vehicle,
+      kasko: event.target.checked,
+      kaskoDate: event.target.checked ? dayjs() : dayjs("01-01-2001"),
+    });
+  };
+  const handleVignette = (event) => {
+    setVehicle({
+      ...vehicle,
+      vignette: event.target.checked,
+      vignetteDate: event.target.checked ? dayjs() : dayjs("01-01-2001"),
+    });
   };
   const handleChange = (e) => {
     if (e.target.id === "tires") {
@@ -238,6 +249,7 @@ const ShowVehicle = () => {
         window.location.reload();
       });
   };
+
   return (
     <div className="p-4">
       <h1 className="text-3xl m-auto text-center my-4">
@@ -318,7 +330,7 @@ const ShowVehicle = () => {
                       value={vehicle.fuel}
                     />
                   </div>
-                  <div className="w-40">
+                  <div className="w-56">
                     {" "}
                     <span className="text-xl mr-2 ml-4 text-gray-500">
                       № ДВГ:
@@ -330,7 +342,7 @@ const ShowVehicle = () => {
                         style={{
                           borderRadius: "5px",
                           textAlign: "center",
-                          maxWidth: "100px",
+                          maxWidth: "190px",
                           backgroundColor: "rgb(100, 100, 100)",
                           color: "white",
                         }}
@@ -346,7 +358,7 @@ const ShowVehicle = () => {
                         style={{
                           borderRadius: "5px",
                           textAlign: "center",
-                          maxWidth: "100px",
+                          maxWidth: "190px",
                         }}
                         value={vehicle.engNum}
                       />
@@ -440,7 +452,7 @@ const ShowVehicle = () => {
                       value={vehicle.talonNum}
                     />
                   </div>
-                  <div className="w-40">
+                  <div className="w-56">
                     <span className="text-xl mr-2 ml-4 text-gray-500">
                       № Рама:
                     </span>
@@ -451,7 +463,7 @@ const ShowVehicle = () => {
                       style={{
                         borderRadius: "5px",
                         textAlign: "center",
-                        maxWidth: "100px",
+                        maxWidth: "190px",
                       }}
                       value={vehicle.bodyNum}
                     />
@@ -550,7 +562,7 @@ const ShowVehicle = () => {
                         ? "text-red-600 text-xl mr-2 ml-4"
                         : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
                         ? "text-yellow-500 text-xl mr-2 ml-4"
-                        : "text-xl mr-2 ml-4"
+                        : "text-xl mr-2 ml-4  text-gray-500"
                     }
                   >
                     Преди:{" "}
@@ -586,7 +598,7 @@ const ShowVehicle = () => {
                         ? "text-red-600 text-xl"
                         : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
                         ? "text-yellow-500 text-xl"
-                        : "text-xl  bg-gray-400"
+                        : "text-xl  bg-gray-400  text-gray-500"
                     }
                   >
                     Остават:{" "}
@@ -618,7 +630,9 @@ const ShowVehicle = () => {
                   />
                 </div>
                 <div className="w-40">
-                  <span className={"text-xl bg-gray-400"}>Интервал: </span>
+                  <span className={"text-xl bg-gray-400  text-gray-500"}>
+                    Интервал:{" "}
+                  </span>
 
                   {edit ? (
                     <input
@@ -700,32 +714,39 @@ const ShowVehicle = () => {
                 </div>
               </div>
               <div className="my-4 flex justify-end my-2 border-t border-gray-500">
-                {/* <div className="w-40">
+                <div className="w-56">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     Винетка до:
                   </span>
                   {edit ? (
-                    <select
-                      id="tax"
-                      onChange={handleChange}
-                      value={vehicle.vignette}
+                    <Checkbox
+                      checked={vehicle.vignette}
+                      onChange={handleVignette}
+                    />
+                  ) : (
+                    ""
+                  )}
+                  {edit ? (
+                    <input
+                      disabled={!vehicle.vignette}
+                      className="bg-gray-400"
+                      type="date"
                       style={{
                         borderRadius: "5px",
-                        backgroundColor: "rgb(100,100,100)",
-                        color: "white",
+                        backgroundColor: vehicle.vignette
+                          ? "rgb(100,100,100)"
+                          : "rgb(156 163 175)",
+                        color: vehicle.vignette ? "white" : "black",
                         textAlign: "center",
-                        width: "100px",
-                        height: "35px",
+                        width: "150px",
                       }}
-                    >
-                      <option value={dayjs().year() - 1}>
-                        {dayjs().year() - 1}
-                      </option>
-                      <option value={dayjs().year()}>{dayjs().year()}</option>
-                      <option value={dayjs().year() + 1}>
-                        {dayjs().year() + 1}
-                      </option>
-                    </select>
+                      value={
+                        vehicle.vignetteDate
+                        // vehicle.vignetteDate
+                        //   ? bgDate(vehicle.vignetteDate.slice(0, 10))
+                        //   : ""
+                      }
+                    />
                   ) : (
                     <input
                       disabled
@@ -733,13 +754,20 @@ const ShowVehicle = () => {
                       type="text"
                       style={{
                         borderRadius: "5px",
+
                         textAlign: "center",
-                        maxWidth: "100px",
+                        width: "150px",
                       }}
-                      value={bgDate(vehicle.vignette.slice(0, 10))}
+                      value={
+                        vehicle.vignetteDate
+                          ? !vehicle.vignette
+                            ? "НЯМА"
+                            : bgDate(vehicle.vignetteDate.slice(0, 10))
+                          : "N/A"
+                      }
                     />
                   )}
-                </div> */}
+                </div>
                 <div className="w-40">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     Данък за:
@@ -923,32 +951,53 @@ const ShowVehicle = () => {
                 <div className="w-56">
                   <span
                     className={
-                      isDue(vehicle.kaskoDate, "date") === "warning"
+                      isDue(vehicle.kaskoDate, "date") === "warning" &&
+                      vehicle.kasko
                         ? "text-red-600 text-xl mr-2 ml-4"
-                        : isDue(vehicle.kaskoDate, "date") === "caution"
+                        : isDue(vehicle.kaskoDate, "date") === "caution" &&
+                          vehicle.kasko
                         ? "text-yellow-500 text-xl mr-2 ml-4"
-                        : "text-xl mr-2 ml-4"
+                        : "text-xl mr-2 ml-4 text-gray-500"
                     }
                   >
                     Каско до:
-                    {isDue(vehicle.kaskoDate, "date") ? (
+                    {isDue(vehicle.kaskoDate, "date") && vehicle.kasko ? (
                       <WarningAmberIcon />
+                    ) : (
+                      ""
+                    )}
+                    {edit ? (
+                      <Checkbox
+                        checked={vehicle.kasko}
+                        onChange={handleKasko}
+                      />
                     ) : (
                       ""
                     )}
                   </span>
                   {edit ? (
                     <input
+                      disabled={!vehicle.kasko}
                       type="date"
                       className="w-fit"
                       style={{
                         borderRadius: "5px",
-                        backgroundColor: "rgb(100,100,100)",
-                        color: "white",
+                        backgroundColor: vehicle.kasko
+                          ? "rgb(100,100,100)"
+                          : "rgb(156 163 175)",
+                        color: vehicle.kasko ? "white" : "black",
                         textAlign: "center",
                       }}
                       value={
-                        vehicle.kaskoDate ? vehicle.kaskoDate.slice(0, 10) : ""
+                        vehicle.kaskoDate
+                        // vehicle.kaskoDate
+                        //   ? bgDate(vehicle.kaskoDate.slice(0, 10)) ==
+                        //       "31.12.2000" ||
+                        //     bgDate(vehicle.kaskoDate.slice(0, 10)) ==
+                        //       "01.01.2001"
+                        //     ? ""
+                        //     : bgDate(vehicle.kaskoDate.slice(0, 10))
+                        //   : ""
                       }
                       id="kaskoDate"
                       onChange={handleChange}
@@ -957,9 +1006,11 @@ const ShowVehicle = () => {
                     <input
                       disabled
                       className={
-                        isDue(vehicle.kaskoDate, "date") === "warning"
+                        isDue(vehicle.kaskoDate, "date") === "warning" &&
+                        vehicle.kasko
                           ? "text-red-600 text-xl bg-gray-400"
-                          : isDue(vehicle.kaskoDate, "date") === "caution"
+                          : isDue(vehicle.kaskoDate, "date") === "caution" &&
+                            vehicle.kasko
                           ? "text-yellow-500 text-xl bg-gray-400"
                           : "text-xl bg-gray-400"
                       }
@@ -971,7 +1022,9 @@ const ShowVehicle = () => {
                       }}
                       value={
                         vehicle.kaskoDate
-                          ? bgDate(vehicle.kaskoDate.slice(0, 10))
+                          ? !vehicle.kasko
+                            ? "НЯМА"
+                            : bgDate(vehicle.kaskoDate.slice(0, 10))
                           : "N/A"
                       }
                     />
@@ -1017,10 +1070,13 @@ const ShowVehicle = () => {
                   </span>
                   {edit ? (
                     <input
+                      disabled={!vehicle.kasko}
                       className="w-fit"
                       style={{
                         borderRadius: "5px",
-                        backgroundColor: "rgb(100,100,100)",
+                        backgroundColor: vehicle.kasko
+                          ? "rgb(100,100,100)"
+                          : "rgb(156 163 175)",
                         color: "white",
                         textAlign: "center",
                       }}

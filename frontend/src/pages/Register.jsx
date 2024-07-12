@@ -1,89 +1,3 @@
-// import React from "react";
-// import { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import axios from "axios";
-// import { ToastContainer, toast } from "react-toastify";
-
-// const Register = () => {
-//   const navigate = useNavigate();
-//   const handleError = (err) =>
-//     toast.error(err, {
-//       position: "bottom-left",
-//     });
-//   const handleSuccess = (msg) =>
-//     toast.success(msg, {
-//       position: "bottom-left",
-//     });
-
-//   const handleRegister = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const { data } = await axios.post("http://localhost:5555/register", {
-//         ...inputValue,
-//       });
-//       const { success, message } = data;
-//       if (success) {
-//         handleSuccess(message);
-//         setTimeout(() => {
-//           navigate("/vehicles");
-//         }, 1000);
-//       } else {
-//         handleError(message);
-//       }
-//     } catch (error) {
-//       console.log(error);
-//     }
-//     setInputValue({
-//       ...inputValue,
-//       username: "",
-//       password: "",
-//       role: "",
-//     });
-//   };
-//   const [inputValue, setInputValue] = useState({
-//     username: "",
-//     password: "",
-//     role: "",
-//   });
-//   const { username, password } = inputValue;
-//   const handleOnChange = (e) => {
-//     const { name, value } = e.target;
-//     setInputValue({
-//       ...inputValue,
-//       [name]: value,
-//     });
-//   };
-//   return (
-//     <div>
-//       CREATE AN ACCOUNT
-//       <form onSubmit={handleRegister}>
-//         <div>
-//           <label htmlFor="username">Username</label>
-//           <input
-//             type="text"
-//             name="username"
-//             value={username}
-//             placeholder="Username"
-//             onChange={handleOnChange}
-//           />
-//         </div>
-//         <div>
-//           <label htmlFor="password"></label>
-//           <input
-//             type="password"
-//             name="password"
-//             value={password}
-//             placeholder="Password"
-//             onChange={handleOnChange}
-//           />
-//         </div>
-//         <button type="submit">SUBMIT</button>
-//         <span></span>
-//       </form>
-//     </div>
-//   );
-// };
-
 // export default Register;
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -124,7 +38,7 @@ const Register = () => {
         }
       );
       const { status, message } = data;
-      console.log(data);
+
       if (status) {
         handleSuccess(message);
         window.location.reload();

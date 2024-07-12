@@ -121,7 +121,7 @@ export const vehicleSchema = mongoose.Schema(
       required: false,
     },
     vignette: {
-      type: String,
+      type: Boolean,
       required: true,
     },
     vignetteDate: {

@@ -48,8 +48,8 @@ function App() {
             <Route path="/warehouse" element={<Warehouse />} />
             <Route path="/office" element={<Office />} />
             <Route path="/vehicles" element={<VehiclesMain />} />
-            <Route path="/vehicle/create" element={<CreateVehicle />} />
-            <Route path="/vehicle/details/:id" element={<ShowVehicle />} />
+            <Route path="/vehicles/create" element={<CreateVehicle />} />
+            <Route path="/vehicles/details/:id" element={<ShowVehicle />} />
             {/* <Route path="/vehicle/edit/:id" element={<EditVehicle />} />
             <Route path="/vehicle/delete/:id" element={<DeleteVehicle />} /> */}
           </Routes>

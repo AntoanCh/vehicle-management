@@ -49,7 +49,7 @@ const Login = () => {
       );
       localStorage.setItem("token", data.token);
       const { status, message } = data;
-      console.log(data);
+
       if (status) {
         handleSuccess(message);
         setTimeout(() => {

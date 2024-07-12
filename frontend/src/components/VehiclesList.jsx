@@ -191,7 +191,7 @@ export default function VehiclesList({ data }) {
 
   const navigate = useNavigate();
   const handleClick = (event, id) => {
-    navigate(`/vehicle/details/${id}`);
+    navigate(`/vehicles/details/${id}`);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -318,21 +318,24 @@ export default function VehiclesList({ data }) {
                       </TableCell>
                       <TableCell
                         style={
-                          isDue(row.kaskoDate, "date") === "warning"
+                          isDue(row.kaskoDate, "date") === "warning" &&
+                          row.kasko
                             ? { color: "red" }
-                            : isDue(row.kaskoDate, "date") === "caution"
+                            : isDue(row.kaskoDate, "date") === "caution" &&
+                              row.kasko
                             ? { color: "orange" }
                             : {}
                         }
                       >
-                        {isDue(row.kaskoDate, "date") ? (
+                        {isDue(row.kaskoDate, "date") && row.kasko ? (
                           <WarningAmberIcon />
                         ) : (
                           ""
                         )}
                         {row.kaskoDate == "2001-01-01T00:00:00.000Z" ||
-                        row.kaskoDate == null
-                          ? "N/A"
+                        row.kaskoDate == null ||
+                        bgDate(row.kaskoDate.slice(0, 10)) == "31.12.2000"
+                          ? "Няма"
                           : bgDate(row.kaskoDate.slice(0, 10))}
                       </TableCell>
                       <TableCell
@@ -363,9 +366,11 @@ export default function VehiclesList({ data }) {
                       </TableCell>
                       <TableCell
                         style={
-                          isDue(row.km - row.oil, "oil") === "warning"
+                          isDue(row.km - row.oil, "oil", row.oilChange) ===
+                          "warning"
                             ? { color: "red" }
-                            : isDue(row.km - row.oil, "oil") === "caution"
+                            : isDue(row.km - row.oil, "oil", row.oilChange) ===
+                              "caution"
                             ? { color: "orange" }
                             : {}
                         }

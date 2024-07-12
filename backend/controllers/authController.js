@@ -32,6 +32,32 @@ export const Register = async (req, res, next) => {
   }
 };
 
+//UPDATE USER
+export const Update = async (req, res, next) => {
+  try {
+    const { password, _id } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const user = await User.findByIdAndUpdate(_id, {
+      ...req.body,
+      passwod: hashedPassword,
+    });
+    res.status(201).json({
+      status: "success",
+      message: "user updated successfully",
+      success: true,
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        role: user.role,
+      },
+    });
+    next();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 //LOGGING USER
 export const Login = async (req, res, next) => {
   try {

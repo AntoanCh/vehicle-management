@@ -68,7 +68,7 @@ const Header = () => {
             sx={{ margin: "auto" }}
             variant="outlined"
             component={Link}
-            to="/vehicle/create"
+            to="/vehicles/create"
           >
             {"НОВ"}
             <AddCircleOutlineIcon />

@@ -20,11 +20,10 @@ router.post("/", async (req, res) => {
       !req.body.bodyNum ||
       !req.body.talonNum ||
       !req.body.gtp ||
-      !req.body.kasko ||
       !req.body.kaskoDate ||
-      !req.body.kaskoNum ||
       !req.body.insDate ||
       !req.body.insNum ||
+      !req.body.vignetteDate ||
       !req.body.tax ||
       !req.body.owner ||
       !req.body.cat ||
@@ -59,7 +58,8 @@ router.post("/", async (req, res) => {
       cat: req.body.cat,
       oil: req.body.oil,
       oilChange: req.body.oilChange,
-      vignette: req.body.vignettte,
+      vignette: req.body.vignette,
+      vignetteDate: req.body.vignetteDate,
       tires: req.body.tires,
       purchaseDate: req.body.purchaseDate,
       startDate: req.body.startDate,

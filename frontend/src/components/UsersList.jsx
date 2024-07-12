@@ -9,7 +9,7 @@ import Paper from "@mui/material/Paper";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Button } from "@mui/material";
+import { Button, MenuItem } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SaveIcon from "@mui/icons-material/Save";
 import Register from "../pages/Register";
@@ -21,6 +21,12 @@ import { visuallyHidden } from "@mui/utils";
 import CancelIcon from "@mui/icons-material/Cancel";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import TextField from "@mui/material/TextField";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -128,10 +134,9 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-// test
 const Users = ({ users }) => {
   const [loading, setLoading] = useState(false);
-
+  const [edit, setEdit] = useState([false, 0]);
   const [add, setAdd] = useState(false);
 
   const handleLoading = () => {
@@ -155,6 +160,8 @@ const Users = ({ users }) => {
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [currentUser, setCurrentUser] = useState();
+  const [newData, setNewData] = useState({ password: "", role: "" });
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -165,12 +172,59 @@ const Users = ({ users }) => {
     setPage(newPage);
   };
 
-  const handleClick = (event, id) => {};
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.post(
+        "http://192.168.0.147:5555/auth/update",
+        {
+          ...newData,
+        }
+      );
+      const { status, message } = data;
+
+      // if (status) {
+      //   handleSuccess(message);
+      //   window.location.reload();
+      // } else {
+      //   handleError(message);
+      // }
+    } catch (error) {
+      console.log(error);
+    }
+    setNewData({
+      ...newData,
+      username: "",
+      password: "",
+      role: "",
+    });
+  };
+  const handleClick = (event, id) => {
+    setEdit([true, id]);
+    setCurrentUser(users.data.filter((obj) => obj._id === id));
+  };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  const handleChange = (e) => {
+    if (e.target.name === "role") {
+      setNewData({
+        ...currentUser[0],
+        password: newData.password,
+        role: e.target.value,
+      });
+    }
+    if (e.target.name === "password") {
+      setNewData({
+        ...currentUser[0],
+        role: newData.role,
+        password: e.target.value,
+      });
+    }
 
+    console.log(currentUser);
+  };
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
   setTimeout(() => {}, 1000);
@@ -184,10 +238,83 @@ const Users = ({ users }) => {
         : [],
     [order, orderBy, page, rowsPerPage]
   );
-  //test
-
+  const handleClose = () => {
+    setEdit(false);
+  };
+  console.log(users);
   return (
     <div>
+      <Dialog
+        open={edit[0]}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {currentUser ? currentUser[0].username : ""}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description"></DialogContentText>
+          <div>
+            <span>Права: </span>
+            <span>{currentUser ? currentUser[0].role : ""}</span>
+          </div>
+          <div>
+            <span>ID: </span>
+            <span>{currentUser ? currentUser[0]._id : ""}</span>
+          </div>
+          <div className="my-2">
+            <TextField
+              fullWidth
+              type="password"
+              name="password"
+              id="password"
+              label="Нова Парола:"
+              variant="filled"
+              value={newData.password}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="my-2">
+            <TextField
+              fullWidth
+              name="role"
+              select
+              id="role"
+              label="Права:"
+              variant="filled"
+              value={newData.role}
+              onChange={handleChange}
+            >
+              <MenuItem key={1} value="admin">
+                ADMIN
+              </MenuItem>
+              <MenuItem key={2} value="user">
+                USER
+              </MenuItem>
+              <MenuItem key={3} value="office">
+                ОФИС ОТГОВОРНИК
+              </MenuItem>
+              <MenuItem key={4} value="warehouse">
+                СКЛАД ОТГОВОРНИК
+              </MenuItem>
+            </TextField>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleClose}
+            autoFocus
+          >
+            Отказ
+          </Button>
+          <Button variant="contained" onClick={handleUpdate} autoFocus>
+            Запази
+          </Button>
+        </DialogActions>
+      </Dialog>
       {handleLoading()}
       {loading ? (
         <CircularProgress />

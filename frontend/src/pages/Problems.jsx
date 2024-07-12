@@ -131,7 +131,7 @@ EnhancedTableHead.propTypes = {
 // test
 const Problems = ({ vehicle, problems }) => {
   const [loading, setLoading] = useState(false);
-  console.log(problems);
+
   const [newProblem, setNewProblem] = useState({
     date: "",
     desc: "",
