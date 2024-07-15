@@ -38,7 +38,8 @@ import TextField from "@mui/material/TextField";
 // test
 const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
   const [loading, setLoading] = useState(false);
-
+  const [error, setError] = useState([false, ""]);
+  const [verifyDelete, setVerifyDelete] = useState([false, {}]);
   const [newFuel, setNewFuel] = useState({
     date: dayjs(),
     type: "",
@@ -60,52 +61,88 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
     setAdd(true);
   };
   const handleSave = () => {
-    setAdd(false);
-    axios
-      .post("http://192.168.0.147:5555/fuels", newFuel)
-      .then(() => {
-        axios.post(`http://192.168.0.147:5555/logs`, {
-          date: dayjs(),
-          user: username,
-          changed: { newFuel: [newFuel.invoice, newFuel.desc] },
-          vehicleId: vehicle._id,
-        });
-      })
-      .catch((err) => {
-        // setLoading(false);
-        alert("Грешка, проверете конзолата");
-        console.log(err);
-      });
-    if (!vehicle.startKm || parseInt(vehicle.startKm) > parseInt(newFuel.km)) {
-      vehicle.startKm = newFuel.km;
+    if (
+      !newFuel.date ||
+      !newFuel.type ||
+      !newFuel.invoice ||
+      !newFuel.km ||
+      !newFuel.cost
+    ) {
+      setError([true, "Всички полета са задължителни"]);
+    } else {
+      setAdd(false);
       axios
-        .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-        .then(() => {})
+        .post("http://192.168.0.147:5555/fuels", newFuel)
+        .then(() => {
+          axios.post(`http://192.168.0.147:5555/logs`, {
+            date: dayjs(),
+            user: username,
+            changed: { newFuel: [newFuel.invoice, newFuel.desc] },
+            vehicleId: vehicle._id,
+          });
+        })
         .catch((err) => {
+          // setLoading(false);
           alert("Грешка, проверете конзолата");
           console.log(err);
         });
-    }
-    if (!vehicle.startDate || vehicle.startDate > newFuel.date) {
-      vehicle.startDate = newFuel.date;
-      axios
-        .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-        .then(() => {})
-        .catch((err) => {
-          alert("Грешка, проверете конзолата");
-          console.log(err);
-        });
-    }
+      if (
+        !vehicle.startKm ||
+        parseInt(vehicle.startKm) > parseInt(newFuel.km)
+      ) {
+        vehicle.startKm = newFuel.km;
+        axios
+          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
+          .then(() => {})
+          .catch((err) => {
+            alert("Грешка, проверете конзолата");
+            console.log(err);
+          });
+      }
+      if (!vehicle.startDate || vehicle.startDate > newFuel.date) {
+        vehicle.startDate = newFuel.date;
+        axios
+          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
+          .then(() => {})
+          .catch((err) => {
+            alert("Грешка, проверете конзолата");
+            console.log(err);
+          });
+      }
 
-    setTimeout(() => {
-      // window.location.reload();
-    }, 1000);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
   };
   const handleClose = () => {
     setAdd(false);
   };
   const handleChange = (e) => {
     const newData = { ...newFuel };
+    if (e.target.id === "km") {
+      e.target.value = parseInt(e.target.value);
+      if (e.target.value === "NaN") {
+        e.target.value = "";
+      }
+    } else if (e.target.id === "cost") {
+      if (e.target.value.endsWith(",")) {
+        e.target.value = parseFloat(e.target.value).toString() + ".";
+      } else if (e.target.value.endsWith(".")) {
+        e.target.value = parseFloat(e.target.value).toString() + ".";
+      } else if (e.target.value.endsWith(".0")) {
+        e.target.value = parseFloat(e.target.value).toString() + ".0";
+      } else if (/^[0-9]*\.[0-9]{2,3}$/.test(e.target.value)) {
+        e.target.value = Number(parseFloat(e.target.value).toFixed(2));
+      } else if (e.nativeEvent.inputType === "insertFromPaste") {
+        e.target.value = Number(parseFloat(e.target.value).toFixed(2));
+      } else {
+        e.target.value = parseFloat(e.target.value);
+        if (e.target.value === "NaN") {
+          e.target.value = "";
+        } //.toString();
+      }
+    }
     if (e.target.name === "type") {
       newData[e.target.name] = e.target.value;
     } else {
@@ -119,41 +156,33 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
     let newDate = `${dd}.${mm}.${yyyy}`;
     return newDate;
   };
+  const handleCloseError = () => {
+    setError([false, ""]);
+  };
+  const handleCloseDelete = () => {
+    setVerifyDelete([false, {}]);
+  };
 
   const data = fuels.data.map((obj) => {
     return [
       bgDate(obj.date.slice(0, 10)),
       obj.type,
-      obj.station,
       obj.invoice,
       obj.km + " км",
       obj.cost + " лв",
-      <Button
-        onClick={() => {
-          axios
-            .delete(`http://192.168.0.147:5555/fuels/${obj._id}`)
-            .then(() => {
-              axios.post(`http://192.168.0.147:5555/logs`, {
-                date: dayjs(),
-                user: username,
-                changed: {
-                  delFuel: [obj.invoice, obj.station],
-                },
-                vehicleId: vehicle._id,
-              });
-              setTimeout(() => {
-                window.location.reload();
-              }, 1000);
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        }}
-        color="error"
-        variant="contained"
-      >
-        <DeleteForeverIcon />
-      </Button>,
+      userRole === "admin" || userRole === vehicle.site ? (
+        <Button
+          onClick={() => {
+            setVerifyDelete([true, obj]);
+          }}
+          color="error"
+          variant="contained"
+        >
+          <DeleteForeverIcon />
+        </Button>
+      ) : (
+        ""
+      ),
     ];
   });
 
@@ -211,6 +240,85 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
   return (
     <div>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
+        <Dialog
+          open={verifyDelete[0]}
+          onClose={handleCloseDelete}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">ИЗТРИВАНЕ</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description"></DialogContentText>
+            {`Сигурен ли сте, че искате да изтриете записът ${
+              verifyDelete[1].type +
+              " \n с № на фактура: " +
+              verifyDelete[1].invoice +
+              " на стойност: " +
+              verifyDelete[1].cost +
+              " лв."
+            } Тази операция е необратима`}
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={handleCloseDelete}
+              autoFocus
+            >
+              ОТКАЗ
+            </Button>
+            <Button
+              color="success"
+              variant="contained"
+              onClick={() => {
+                axios
+                  .delete(
+                    `http://192.168.0.147:5555/fuels/${verifyDelete[1]._id}`
+                  )
+                  .then(() => {
+                    axios.post(`http://192.168.0.147:5555/logs`, {
+                      date: dayjs(),
+                      user: username,
+                      changed: {
+                        delFuel: [
+                          verifyDelete[1].invoice,
+                          verifyDelete[1].cost,
+                        ],
+                      },
+                      vehicleId: vehicle._id,
+                    });
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 1000);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              }}
+              autoFocus
+            >
+              ИЗТРИЙ
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={error[0]}
+          onClose={handleCloseError}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Грешка"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {error[1]}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" onClick={handleCloseError} autoFocus>
+              Добре
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Dialog
           open={add}
           onClose={handleClose}

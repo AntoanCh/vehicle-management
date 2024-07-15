@@ -171,6 +171,12 @@ const Log = ({ vehicle, log }) => {
       } else if (key === "price") {
         bgKey = "Цена пок.";
         result = result + `${bgKey}(${obj[key][1]}) лв; `;
+      } else if (key === "newFuel") {
+        bgKey = "Добави гориво";
+        result = result + `${bgKey}(${obj[key][1]} - ${obj[key][0]}) `;
+      } else if (key === "delFuel") {
+        bgKey = "Изтри гориво";
+        result = result + `${bgKey}(${obj[key][1]} - ${obj[key][0]}) `;
       }
       // result = result + `${key} ${obj[key][0]}-${obj[key][1]}; `;
     }

@@ -171,6 +171,7 @@ EnhancedTableHead.propTypes = {
 const Services = ({ vehicle, services, fuels, userRole, username }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState([false, ""]);
+  const [verifyDelete, setVerifyDelete] = useState([false, {}]);
   const [newServ, setNewServ] = useState({
     date: dayjs(),
     type: "",
@@ -295,46 +296,11 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
     let newDate = `${dd}.${mm}.${yyyy}`;
     return newDate;
   };
-  const months = dayjs().diff(vehicle.startDate, "month");
 
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("model");
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+  const handleCloseDelete = () => {
+    setVerifyDelete([false, {}]);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
-  };
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - services.length) : 0;
-  setTimeout(() => {}, 1000);
-  const visibleRows = React.useMemo(
-    () =>
-      services.data
-        ? stableSort(services.data, getComparator(order, orderBy)).slice(
-            page * rowsPerPage,
-            page * rowsPerPage + rowsPerPage
-          )
-        : [],
-    [order, orderBy, page, rowsPerPage]
-  );
-  //test
-  console.log(services);
   const data = services.data.map((obj) => {
     return [
       bgDate(obj.date.slice(0, 10)),
@@ -343,32 +309,19 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       obj.invoice,
       obj.km + " км",
       obj.cost + " лв",
-      <Button
-        onClick={() => {
-          axios
-            .delete(`http://192.168.0.147:5555/services/${obj._id}`)
-            .then(() => {
-              axios.post(`http://192.168.0.147:5555/logs`, {
-                date: dayjs(),
-                user: username,
-                changed: {
-                  delServ: [obj.invoice, obj.desc],
-                },
-                vehicleId: vehicle._id,
-              });
-              setTimeout(() => {
-                window.location.reload();
-              }, 1000);
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        }}
-        color="error"
-        variant="contained"
-      >
-        <DeleteForeverIcon />
-      </Button>,
+      userRole === "admin" || userRole === vehicle.site ? (
+        <Button
+          onClick={() => {
+            setVerifyDelete([true, obj]);
+          }}
+          color="error"
+          variant="contained"
+        >
+          <DeleteForeverIcon />
+        </Button>
+      ) : (
+        ""
+      ),
     ];
   });
 
@@ -427,6 +380,69 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
   return (
     <div>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
+        <Dialog
+          open={verifyDelete[0]}
+          onClose={handleCloseDelete}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">ИЗТРИВАНЕ</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description"></DialogContentText>
+            {`Сигурен ли сте, че искате да изтриете записът ${
+              verifyDelete[1].type +
+              " " +
+              verifyDelete[1].desc +
+              " \n с № на фактура: " +
+              verifyDelete[1].invoice +
+              " на стойност: " +
+              verifyDelete[1].cost +
+              " лв."
+            } Тази операция е необратима`}
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={handleCloseDelete}
+              autoFocus
+            >
+              ОТКАЗ
+            </Button>
+            <Button
+              color="success"
+              variant="contained"
+              onClick={() => {
+                axios
+                  .delete(
+                    `http://192.168.0.147:5555/services/${verifyDelete[1]._id}`
+                  )
+                  .then(() => {
+                    axios.post(`http://192.168.0.147:5555/logs`, {
+                      date: dayjs(),
+                      user: username,
+                      changed: {
+                        delServ: [
+                          verifyDelete[1].invoice,
+                          verifyDelete[1].desc,
+                        ],
+                      },
+                      vehicleId: vehicle._id,
+                    });
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 1000);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              }}
+              autoFocus
+            >
+              ИЗТРИЙ
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Dialog
           open={error[0]}
           onClose={handleCloseError}
