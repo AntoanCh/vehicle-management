@@ -11,10 +11,6 @@ export const fuelSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    station: {
-      type: String,
-      required: true,
-    },
     invoice: {
       type: String,
       required: true,

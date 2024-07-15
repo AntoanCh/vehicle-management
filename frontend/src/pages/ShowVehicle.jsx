@@ -261,7 +261,6 @@ const ShowVehicle = () => {
         window.location.reload();
       });
   };
-
   return (
     <div className="p-4">
       <h1 className="text-3xl m-auto text-center my-4">
@@ -1345,7 +1344,16 @@ const ShowVehicle = () => {
               ) : (
                 ""
               )}
-              {tab === "fuel" ? <Fuels vehicle={vehicle} fuels={fuels} /> : ""}
+              {tab === "fuel" ? (
+                <Fuels
+                  username={username}
+                  userRole={userRole}
+                  vehicle={vehicle}
+                  fuels={fuels}
+                />
+              ) : (
+                ""
+              )}
               {tab === "ref" ? (
                 <Ref
                   username={username}

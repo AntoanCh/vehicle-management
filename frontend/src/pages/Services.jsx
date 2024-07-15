@@ -13,6 +13,7 @@ import { Button, MenuItem } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SaveIcon from "@mui/icons-material/Save";
 import dayjs from "dayjs";
+import "dayjs/locale/bg";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -169,7 +170,7 @@ EnhancedTableHead.propTypes = {
 // test
 const Services = ({ vehicle, services, fuels, userRole, username }) => {
   const [loading, setLoading] = useState(false);
-
+  const [error, setError] = useState([false, ""]);
   const [newServ, setNewServ] = useState({
     date: dayjs(),
     type: "",
@@ -191,52 +192,96 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
     setAdd(true);
   };
   const handleSave = () => {
-    setAdd(false);
-    axios
-      .post("http://192.168.0.147:5555/services", newServ)
-      .then(() => {
-        axios.post(`http://192.168.0.147:5555/logs`, {
-          date: dayjs(),
-          user: username,
-          changed: { newServ: [newServ.invoice, newServ.desc] },
-          vehicleId: vehicle._id,
-        });
-      })
-      .catch((err) => {
-        // setLoading(false);
-        alert("Грешка, проверете конзолата");
-        console.log(err);
-      });
-    if (!vehicle.startKm || parseInt(vehicle.startKm) > parseInt(newServ.km)) {
-      vehicle.startKm = newServ.km;
+    if (
+      !newServ.date ||
+      !newServ.type ||
+      !newServ.desc ||
+      !newServ.invoice ||
+      !newServ.km ||
+      !newServ.cost
+    ) {
+      setError([true, "Всички полета са задължителни"]);
+    } else {
+      setAdd(false);
       axios
-        .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-        .then(() => {})
+        .post("http://192.168.0.147:5555/services", newServ)
+        .then(() => {
+          axios.post(`http://192.168.0.147:5555/logs`, {
+            date: dayjs(),
+            user: username,
+            changed: { newServ: [newServ.invoice, newServ.desc] },
+            vehicleId: vehicle._id,
+          });
+        })
         .catch((err) => {
-          alert("Грешка, проверете конзолата");
+          setLoading(false);
+          alert("Грешка, проверете конзолата 1");
           console.log(err);
         });
-    }
-    if (!vehicle.startDate || vehicle.startDate > newServ.date) {
-      vehicle.startDate = newServ.date;
-      axios
-        .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-        .then(() => {})
-        .catch((err) => {
-          alert("Грешка, проверете конзолата");
-          console.log(err);
-        });
-    }
+      if (
+        !vehicle.startKm ||
+        parseInt(vehicle.startKm) > parseInt(newServ.km)
+      ) {
+        vehicle.startKm = newServ.km.toString();
+        axios
+          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
+          .then(() => {
+            console.log(vehicle);
+          })
+          .catch((err) => {
+            alert("Грешка, проверете конзолата 2");
+            console.log(err);
+          });
+      }
+      if (!vehicle.startDate || vehicle.startDate > newServ.date) {
+        vehicle.startDate = newServ.date;
+        axios
+          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
+          .then(() => {
+            console.log(vehicle);
+          })
+          .catch((err) => {
+            alert("Грешка, проверете конзолата 3");
+            console.log(err);
+          });
+      }
 
-    setTimeout(() => {
-      // window.location.reload();
-    }, 1000);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
   };
   const handleClose = () => {
     setAdd(false);
   };
+  const handleCloseError = () => {
+    setError([false, ""]);
+  };
   const handleChange = (e) => {
     const newData = { ...newServ };
+    if (e.target.id === "km") {
+      e.target.value = parseInt(e.target.value);
+      if (e.target.value === "NaN") {
+        e.target.value = "";
+      }
+    } else if (e.target.id === "cost") {
+      if (e.target.value.endsWith(",")) {
+        e.target.value = parseFloat(e.target.value).toString() + ".";
+      } else if (e.target.value.endsWith(".")) {
+        e.target.value = parseFloat(e.target.value).toString() + ".";
+      } else if (e.target.value.endsWith(".0")) {
+        e.target.value = parseFloat(e.target.value).toString() + ".0";
+      } else if (/^[0-9]*\.[0-9]{2,3}$/.test(e.target.value)) {
+        e.target.value = Number(parseFloat(e.target.value).toFixed(2));
+      } else if (e.nativeEvent.inputType === "insertFromPaste") {
+        e.target.value = Number(parseFloat(e.target.value).toFixed(2));
+      } else {
+        e.target.value = parseFloat(e.target.value);
+        if (e.target.value === "NaN") {
+          e.target.value = "";
+        } //.toString();
+      }
+    }
     if (e.target.name === "type") {
       newData[e.target.name] = e.target.value;
     } else {
@@ -381,7 +426,25 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
   };
   return (
     <div>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
+        <Dialog
+          open={error[0]}
+          onClose={handleCloseError}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Грешка"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {error[1]}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" onClick={handleCloseError} autoFocus>
+              Добре
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Dialog
           open={add}
           onClose={handleClose}
@@ -423,12 +486,6 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
                 </MenuItem>
                 <MenuItem key={2} value="ДИАГНОСТИКА">
                   ДИАГНОСТИКА
-                </MenuItem>
-                <MenuItem key={3} value="office">
-                  ОФИС ОТГОВОРНИК
-                </MenuItem>
-                <MenuItem key={4} value="warehouse">
-                  СКЛАД ОТГОВОРНИК
                 </MenuItem>
               </TextField>
             </div>
@@ -492,14 +549,19 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
           <CircularProgress />
         ) : (
           <div className="my-4">
-            <Button
-              fullWidth
-              variant="contained"
-              color="secondary"
-              onClick={handleClick}
-            >
-              ДОБАВИ РЕМОНТ
-            </Button>
+            {userRole === "admin" || userRole === vehicle.site ? (
+              <Button
+                fullWidth
+                variant="contained"
+                color="secondary"
+                onClick={handleClick}
+              >
+                ДОБАВИ РЕМОНТ
+              </Button>
+            ) : (
+              ""
+            )}
+
             {/* <h1 className="text-center text-2xl">Сервизна история</h1> */}
             <MUIDataTable
               title={"СЕРВИЗНА ИСТОРИЯ"}

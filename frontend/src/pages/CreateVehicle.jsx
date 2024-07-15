@@ -7,6 +7,7 @@ import { Button } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import Box from "@mui/material/Box";
 import dayjs from "dayjs";
+import "dayjs/locale/bg";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -257,7 +258,7 @@ const CreateVehicle = () => {
           noValidate
           autoComplete="off"
         >
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
             <div className="flex justify-between">
               <div className="mr-20">
                 <div className="my-4">

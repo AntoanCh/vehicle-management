@@ -123,9 +123,6 @@ router.put("/:id", async (req, res) => {
       !req.body.engNum ||
       !req.body.bodyNum ||
       !req.body.talonNum ||
-      !req.body.kasko ||
-      !req.body.kaskoDate ||
-      !req.body.kaskoNum ||
       !req.body.gtp ||
       !req.body.insDate ||
       !req.body.insNum ||

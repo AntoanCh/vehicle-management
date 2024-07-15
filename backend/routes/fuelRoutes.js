@@ -9,7 +9,6 @@ router.post("/", async (req, res) => {
     if (
       !req.body.date ||
       !req.body.type ||
-      !req.body.station ||
       !req.body.invoice ||
       !req.body.km ||
       !req.body.cost ||
@@ -22,7 +21,6 @@ router.post("/", async (req, res) => {
     const newFuel = {
       date: req.body.date,
       type: req.body.type,
-      station: req.body.station,
       invoice: req.body.invoice,
       km: req.body.km,
       cost: req.body.cost,

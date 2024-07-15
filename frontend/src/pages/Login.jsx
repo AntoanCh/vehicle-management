@@ -72,43 +72,50 @@ const Login = () => {
     <div className="flex justify-center">
       <div>
         <h2 className="text-2xl text-center"> Вход Потребител</h2>
-        <div className="bg-gray-300 flex flex-col border-2 border-blue-400 rounded-xl w-[600px] p-4 mx-auto">
-          <div className="my-4">
-            <TextField
-              fullWidth
-              name="username"
-              select
-              label="Потребител:"
-              value={username}
-              onChange={handleChange}
-              variant="filled"
-            >
-              {users
-                ? users.map((e, index) => (
-                    <MenuItem key={index} value={e}>
-                      {e}
-                    </MenuItem>
-                  ))
-                : ""}
-            </TextField>
+        <form action="">
+          <div className="bg-gray-300 flex flex-col border-2 border-blue-400 rounded-xl w-[600px] p-4 mx-auto">
+            <div className="my-4">
+              <TextField
+                fullWidth
+                name="username"
+                select
+                label="Потребител:"
+                value={username}
+                onChange={handleChange}
+                variant="filled"
+              >
+                {users
+                  ? users.map((e, index) => (
+                      <MenuItem key={index} value={e}>
+                        {e}
+                      </MenuItem>
+                    ))
+                  : ""}
+              </TextField>
+            </div>
+            <div className="my-4">
+              <TextField
+                type="password"
+                fullWidth
+                name="password"
+                label="Парола:"
+                value={password}
+                onChange={handleChange}
+                variant="filled"
+              />
+            </div>
+            <div className="my-4">
+              <Button
+                type="submit"
+                onClick={handleSubmit}
+                fullWidth
+                variant="outlined"
+              >
+                ВЛЕЗ
+              </Button>
+            </div>
           </div>
-          <div className="my-4">
-            <TextField
-              type="password"
-              fullWidth
-              name="password"
-              label="Парола:"
-              value={password}
-              onChange={handleChange}
-              variant="filled"
-            />
-          </div>
-          <div className="my-4">
-            <Button onClick={handleSubmit} fullWidth variant="outlined">
-              ВЛЕЗ
-            </Button>
-          </div>
-        </div>
+        </form>
       </div>
     </div>
   );
