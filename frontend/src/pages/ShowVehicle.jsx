@@ -1447,7 +1447,7 @@ const ShowVehicle = () => {
                 logLoading ? (
                   <CircularProgress />
                 ) : (
-                  <Log log={log} />
+                  <Log log={log} vehicle={vehicle} />
                 )
               ) : (
                 ""

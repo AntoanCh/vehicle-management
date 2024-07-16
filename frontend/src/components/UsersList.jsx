@@ -27,6 +27,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
+import EditIcon from "@mui/icons-material/Edit";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -73,6 +74,12 @@ const headCells = [
     disablePadding: false,
     label: "Права",
   },
+  {
+    id: "password",
+    numeric: false,
+    disablePadding: false,
+    label: "",
+  },
 
   {
     id: "id",
@@ -84,7 +91,7 @@ const headCells = [
     id: "delete",
     numeric: false,
     disablePadding: false,
-    label: "Изтриване",
+    label: "",
   },
 ];
 
@@ -100,7 +107,7 @@ function EnhancedTableHead(props) {
           <TableCell
             align={
               headCell.id === "delete" || headCell.id === "id"
-                ? "right"
+                ? "center"
                 : "left"
             }
             key={headCell.id}
@@ -136,8 +143,10 @@ EnhancedTableHead.propTypes = {
 
 const Users = ({ users }) => {
   const [loading, setLoading] = useState(false);
-  const [edit, setEdit] = useState([false, 0]);
+  const [edit, setEdit] = useState([false, 0, ""]);
   const [add, setAdd] = useState(false);
+  const [editUser, setEditUser] = useState();
+  const [newData, setNewData] = useState({ password: "", role: "" });
 
   const handleLoading = () => {
     setTimeout(() => {
@@ -160,8 +169,6 @@ const Users = ({ users }) => {
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [currentUser, setCurrentUser] = useState();
-  const [newData, setNewData] = useState({ password: "", role: "" });
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -174,40 +181,75 @@ const Users = ({ users }) => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    try {
-      if (newData.role === "") {
-        setNewData({ newData, role: currentUser.role });
-      }
-      if (newData.password === "") {
-        setNewData({ newData, password: currentUser.password });
-      }
-      const { data } = await axios.post(
-        "http://192.168.0.147:5555/auth/update",
-        {
-          ...newData,
-        }
-      );
-      const { status, message } = data;
+    if (edit[2] === "role") {
+      try {
+        // if (newData.role === "") {
+        //   setNewData({ newData, role: editUser.role });
+        // }
+        // if (newData.password === "") {
+        //   setNewData({ newData, password: editUser.password });
+        // }
+        setNewData({ newData, password: editUser.password });
+        const { data } = await axios.post(
+          "http://192.168.0.147:5555/auth/updaterole",
+          {
+            ...newData,
+          }
+        );
+        const { status, message } = data;
 
-      // if (status) {
-      //   handleSuccess(message);
-      //   window.location.reload();
-      // } else {
-      //   handleError(message);
-      // }
-    } catch (error) {
-      console.log(error);
+        // if (status) {
+        //   handleSuccess(message);
+        //   window.location.reload();
+        // } else {
+        //   handleError(message);
+        // }
+      } catch (error) {
+        console.log(error);
+      }
+      setNewData({
+        ...newData,
+        username: "",
+        password: "",
+        role: "",
+      });
+    } else if (edit[2] === "password") {
+      try {
+        // if (newData.role === "") {
+        //   setNewData({ newData, role: editUser.role });
+        // }
+        // if (newData.password === "") {
+        //   setNewData({ newData, password: editUser.password });
+        // }
+        setNewData({ newData, role: editUser.role });
+        const { data } = await axios.post(
+          "http://192.168.0.147:5555/auth/updatepswrd",
+          {
+            ...newData,
+          }
+        );
+        const { status, message } = data;
+
+        // if (status) {
+        //   handleSuccess(message);
+        //   window.location.reload();
+        // } else {
+        //   handleError(message);
+        // }
+      } catch (error) {
+        console.log(error);
+      }
+      setNewData({
+        ...newData,
+        username: "",
+        password: "",
+        role: "",
+      });
     }
-    setNewData({
-      ...newData,
-      username: "",
-      password: "",
-      role: "",
-    });
   };
-  const handleClick = (event, id) => {
-    setEdit([true, id]);
-    setCurrentUser(users.data.filter((obj) => obj._id === id));
+  const handleEdit = (event, id, type) => {
+    setEdit([true, id, type]);
+    setEditUser(users.data.filter((obj) => obj._id === id));
   };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -216,14 +258,14 @@ const Users = ({ users }) => {
   const handleChange = (e) => {
     if (e.target.name === "role") {
       setNewData({
-        ...currentUser[0],
+        ...editUser[0],
         password: newData.password,
         role: e.target.value,
       });
     }
     if (e.target.name === "password") {
       setNewData({
-        ...currentUser[0],
+        ...editUser[0],
         role: newData.role,
         password: e.target.value,
       });
@@ -243,7 +285,7 @@ const Users = ({ users }) => {
     [order, orderBy, page, rowsPerPage]
   );
   const handleClose = () => {
-    setEdit(false);
+    setEdit([false, 0, ""]);
   };
   return (
     <div>
@@ -254,55 +296,66 @@ const Users = ({ users }) => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {currentUser ? currentUser[0].username : ""}
+          {editUser ? editUser[0].username : ""}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
           <div>
-            <span>Права: </span>
-            <span>{currentUser ? currentUser[0].role : ""}</span>
-          </div>
-          <div>
             <span>ID: </span>
-            <span>{currentUser ? currentUser[0]._id : ""}</span>
+            <span>{editUser ? editUser[0]._id : ""}</span>
           </div>
-          <div className="my-2">
-            <TextField
-              fullWidth
-              type="password"
-              name="password"
-              id="password"
-              label="Нова Парола:"
-              variant="filled"
-              value={newData.password}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="my-2">
-            <TextField
-              fullWidth
-              name="role"
-              select
-              id="role"
-              label="Права:"
-              variant="filled"
-              value={newData.role}
-              onChange={handleChange}
-            >
-              <MenuItem key={1} value="admin">
-                ADMIN
-              </MenuItem>
-              <MenuItem key={2} value="user">
-                USER
-              </MenuItem>
-              <MenuItem key={3} value="office">
-                ОФИС ОТГОВОРНИК
-              </MenuItem>
-              <MenuItem key={4} value="warehouse">
-                СКЛАД ОТГОВОРНИК
-              </MenuItem>
-            </TextField>
-          </div>
+
+          {edit[2] === "role" ? (
+            <>
+              <div>
+                <span>Права: </span>
+                <span>{editUser ? editUser[0].role : ""}</span>
+              </div>
+              <div className="my-2">
+                <TextField
+                  fullWidth
+                  name="role"
+                  select
+                  id="role"
+                  label="Нови Права:"
+                  variant="filled"
+                  value={newData.role}
+                  onChange={handleChange}
+                >
+                  <MenuItem key={1} value="admin">
+                    ADMIN
+                  </MenuItem>
+                  <MenuItem key={2} value="user">
+                    USER
+                  </MenuItem>
+                  <MenuItem key={3} value="office">
+                    ОФИС ОТГОВОРНИК
+                  </MenuItem>
+                  <MenuItem key={4} value="warehouse">
+                    СКЛАД ОТГОВОРНИК
+                  </MenuItem>
+                </TextField>
+              </div>
+            </>
+          ) : (
+            ""
+          )}
+          {edit[2] === "password" ? (
+            <div className="my-2">
+              <TextField
+                fullWidth
+                type="password"
+                name="password"
+                id="password"
+                label="Нова Парола:"
+                variant="filled"
+                value={newData.password}
+                onChange={handleChange}
+              />
+            </div>
+          ) : (
+            ""
+          )}
         </DialogContent>
         <DialogActions>
           <Button
@@ -314,7 +367,7 @@ const Users = ({ users }) => {
             Отказ
           </Button>
           <Button variant="contained" onClick={handleUpdate} autoFocus>
-            Запази
+            Обнови
           </Button>
         </DialogActions>
       </Dialog>
@@ -344,24 +397,39 @@ const Users = ({ users }) => {
 
                         return (
                           <TableRow
-                            onClick={(event) => {
-                              handleClick(event, row._id);
-                            }}
+                            // onClick={(event) => {
+                            //   handleClick(event, row._id);
+                            // }}
                             hover
                             key={row._id}
-                            sx={{
-                              cursor: "pointer",
-                              backgroundColor: "#ccc",
-                              "&:hover": {
-                                backgroundColor: "#000000",
-                                boxShadow: "none",
-                              },
-                            }}
+                            // sx={{
+                            //   cursor: "pointer",
+                            //   backgroundColor: "#ccc",
+                            //   "&:hover": {
+                            //     backgroundColor: "#000000",
+                            //     boxShadow: "none",
+                            //   },
+                            // }}
                           >
                             <TableCell component="th" id={labelId} scope="row">
                               {row.username}
                             </TableCell>
-                            <TableCell>{row.role}</TableCell>
+                            <TableCell>
+                              {row.role}
+                              <Button
+                                color="warning"
+                                onClick={(event) => {
+                                  handleEdit(event, row._id, "role");
+                                }}
+                              >
+                                <EditIcon />
+                              </Button>
+                            </TableCell>
+                            <TableCell align="right">
+                              <Button color="warning" variant="outlined">
+                                ПРОМЕНИ ПАРОЛА
+                              </Button>
+                            </TableCell>
                             <TableCell align="right">{row._id}</TableCell>
                             <TableCell align="right">
                               <Button
@@ -424,7 +492,7 @@ const Users = ({ users }) => {
                   </Button>
                 ) : (
                   <Button fullWidth variant="contained" onClick={handleAdd}>
-                    Добави
+                    Добави Потребител
                     <AddCircleOutlineIcon />
                   </Button>
                 )}

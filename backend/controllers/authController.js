@@ -17,7 +17,7 @@ export const Register = async (req, res, next) => {
 
     res.status(201).json({
       status: "success",
-      message: "user registered successfully",
+      message: "role registered successfully",
       success: true,
       token,
       user: {
@@ -32,8 +32,30 @@ export const Register = async (req, res, next) => {
   }
 };
 
-//UPDATE USER
-export const Update = async (req, res, next) => {
+//UPDATE USER ROLE
+export const UpdateRole = async (req, res, next) => {
+  try {
+    const { _id } = req.body;
+    const user = await User.findByIdAndUpdate(_id, {
+      ...req.body,
+    });
+    res.status(201).json({
+      status: "success",
+      message: "user updated successfully",
+      success: true,
+      user: {
+        _id: user._id,
+        username: user.username,
+        role: user.role,
+      },
+    });
+    next();
+  } catch (error) {
+    console.log(error);
+  }
+};
+//UPDATE USER PASSWORD
+export const UpdatePswrd = async (req, res, next) => {
   try {
     const { password, _id } = req.body;
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -43,7 +65,7 @@ export const Update = async (req, res, next) => {
     });
     res.status(201).json({
       status: "success",
-      message: "user updated successfully",
+      message: "password updated successfully",
       success: true,
       user: {
         _id: user._id,

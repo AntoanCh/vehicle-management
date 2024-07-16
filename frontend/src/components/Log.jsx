@@ -289,7 +289,7 @@ const Log = ({ vehicle, log }) => {
         <div className="my-4 ">
           {/* <h1 className="text-center text-2xl">ЛОГ</h1> */}
           <MUIDataTable
-            title={"ЛОГ"}
+            title={`ЛОГ за ${vehicle.reg} (${vehicle.make} ${vehicle.model})`}
             data={data}
             columns={columns}
             options={options}
