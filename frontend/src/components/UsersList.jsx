@@ -146,7 +146,7 @@ const Users = ({ users }) => {
   const [edit, setEdit] = useState([false, 0, ""]);
   const [add, setAdd] = useState(false);
   const [editUser, setEditUser] = useState();
-  const [newData, setNewData] = useState({ password: "", role: "" });
+  const [verifyDelete, setVerifyDelete] = useState([false, {}]);
 
   const handleLoading = () => {
     setTimeout(() => {
@@ -175,6 +175,9 @@ const Users = ({ users }) => {
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
+  const handleCloseDelete = () => {
+    setVerifyDelete([false, {}]);
+  };
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -183,17 +186,10 @@ const Users = ({ users }) => {
     e.preventDefault();
     if (edit[2] === "role") {
       try {
-        // if (newData.role === "") {
-        //   setNewData({ newData, role: editUser.role });
-        // }
-        // if (newData.password === "") {
-        //   setNewData({ newData, password: editUser.password });
-        // }
-        setNewData({ newData, password: editUser.password });
         const { data } = await axios.post(
           "http://192.168.0.147:5555/auth/updaterole",
           {
-            ...newData,
+            ...editUser,
           }
         );
         const { status, message } = data;
@@ -204,28 +200,17 @@ const Users = ({ users }) => {
         // } else {
         //   handleError(message);
         // }
+        setEdit([false, 0, ""]);
+        setEditUser({});
       } catch (error) {
         console.log(error);
       }
-      setNewData({
-        ...newData,
-        username: "",
-        password: "",
-        role: "",
-      });
     } else if (edit[2] === "password") {
       try {
-        // if (newData.role === "") {
-        //   setNewData({ newData, role: editUser.role });
-        // }
-        // if (newData.password === "") {
-        //   setNewData({ newData, password: editUser.password });
-        // }
-        setNewData({ newData, role: editUser.role });
         const { data } = await axios.post(
           "http://192.168.0.147:5555/auth/updatepswrd",
           {
-            ...newData,
+            ...editUser,
           }
         );
         const { status, message } = data;
@@ -236,20 +221,29 @@ const Users = ({ users }) => {
         // } else {
         //   handleError(message);
         // }
+        setEdit([false, 0, ""]);
+        setEditUser({});
       } catch (error) {
         console.log(error);
       }
-      setNewData({
-        ...newData,
-        username: "",
-        password: "",
-        role: "",
-      });
+      setEdit([false, 0, ""]);
+      setEditUser({});
     }
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
   const handleEdit = (event, id, type) => {
     setEdit([true, id, type]);
-    setEditUser(users.data.filter((obj) => obj._id === id));
+
+    if (type === "password") {
+      setEditUser({
+        ...users.data.filter((obj) => obj._id === id)[0],
+        password: "",
+      });
+    } else {
+      setEditUser(users.data.filter((obj) => obj._id === id)[0]);
+    }
   };
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -257,18 +251,10 @@ const Users = ({ users }) => {
   };
   const handleChange = (e) => {
     if (e.target.name === "role") {
-      setNewData({
-        ...editUser[0],
-        password: newData.password,
-        role: e.target.value,
-      });
+      setEditUser({ ...editUser, role: e.target.value });
     }
     if (e.target.name === "password") {
-      setNewData({
-        ...editUser[0],
-        role: newData.role,
-        password: e.target.value,
-      });
+      setEditUser({ ...editUser, password: e.target.value });
     }
   };
   const emptyRows =
@@ -290,26 +276,67 @@ const Users = ({ users }) => {
   return (
     <div>
       <Dialog
+        open={verifyDelete[0]}
+        onClose={handleCloseDelete}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">ИЗТРИВАНЕ</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description"></DialogContentText>
+          {`Сигурен ли сте, че искате да изтриете потребител ${verifyDelete[1].username} Тази операция е необратима`}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleCloseDelete}
+            autoFocus
+          >
+            ОТКАЗ
+          </Button>
+          <Button
+            color="success"
+            variant="contained"
+            onClick={() => {
+              axios
+                .delete(
+                  `http://192.168.0.147:5555/users/${verifyDelete[1]._id}`
+                )
+                .then(() => {
+                  window.location.reload();
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            }}
+            autoFocus
+          >
+            ИЗТРИЙ
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
         open={edit[0]}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {editUser ? editUser[0].username : ""}
+          {editUser ? editUser.username : ""}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
           <div>
             <span>ID: </span>
-            <span>{editUser ? editUser[0]._id : ""}</span>
+            <span>{editUser ? editUser._id : ""}</span>
           </div>
 
           {edit[2] === "role" ? (
             <>
               <div>
                 <span>Права: </span>
-                <span>{editUser ? editUser[0].role : ""}</span>
+                <span>{editUser ? editUser.role : ""}</span>
               </div>
               <div className="my-2">
                 <TextField
@@ -319,7 +346,7 @@ const Users = ({ users }) => {
                   id="role"
                   label="Нови Права:"
                   variant="filled"
-                  value={newData.role}
+                  value={editUser.role}
                   onChange={handleChange}
                 >
                   <MenuItem key={1} value="admin">
@@ -349,7 +376,7 @@ const Users = ({ users }) => {
                 id="password"
                 label="Нова Парола:"
                 variant="filled"
-                value={newData.password}
+                value={editUser.password}
                 onChange={handleChange}
               />
             </div>
@@ -396,21 +423,7 @@ const Users = ({ users }) => {
                         const labelId = `enhanced-table-checkbox-${index}`;
 
                         return (
-                          <TableRow
-                            // onClick={(event) => {
-                            //   handleClick(event, row._id);
-                            // }}
-                            hover
-                            key={row._id}
-                            // sx={{
-                            //   cursor: "pointer",
-                            //   backgroundColor: "#ccc",
-                            //   "&:hover": {
-                            //     backgroundColor: "#000000",
-                            //     boxShadow: "none",
-                            //   },
-                            // }}
-                          >
+                          <TableRow hover key={row._id}>
                             <TableCell component="th" id={labelId} scope="row">
                               {row.username}
                             </TableCell>
@@ -426,7 +439,13 @@ const Users = ({ users }) => {
                               </Button>
                             </TableCell>
                             <TableCell align="right">
-                              <Button color="warning" variant="outlined">
+                              <Button
+                                onClick={(event) => {
+                                  handleEdit(event, row._id, "password");
+                                }}
+                                color="warning"
+                                variant="outlined"
+                              >
                                 ПРОМЕНИ ПАРОЛА
                               </Button>
                             </TableCell>
@@ -434,16 +453,12 @@ const Users = ({ users }) => {
                             <TableCell align="right">
                               <Button
                                 onClick={() => {
-                                  axios
-                                    .delete(
-                                      `http://192.168.0.147:5555/users/${row._id}`
-                                    )
-                                    .then(() => {
-                                      window.location.reload();
-                                    })
-                                    .catch((err) => {
-                                      console.log(err);
-                                    });
+                                  setVerifyDelete([
+                                    true,
+                                    users.data.filter(
+                                      (obj) => obj._id === row._id
+                                    )[0],
+                                  ]);
                                 }}
                                 color="error"
                                 variant="contained"
