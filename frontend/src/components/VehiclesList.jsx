@@ -15,9 +15,14 @@ import Switch from "@mui/material/Switch";
 import { visuallyHidden } from "@mui/utils";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useState } from "react";
 import dayjs from "dayjs";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import { Button } from "@mui/material";
+import { Button, TextField } from "@mui/material";
+import MUIDataTable from "mui-datatables";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import SearchIcon from "@mui/icons-material/Search";
+import InputAdornment from "@mui/material/InputAdornment";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -160,6 +165,63 @@ export default function VehiclesList({ data }) {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [filter, setFilter] = React.useState("all");
+  const [searched, setSearched] = useState("");
+  const [rows, setRows] = useState(data);
+
+  // const requestSearch = (searchedVal) => {
+  //   const filteredRows = data.filter((row) => {
+  //     return row.name.toLowerCase().includes(searchedVal.toLowerCase());
+  //   });
+  //   setRows(filteredRows);
+  // };
+  // Search
+  const [copyList, setCopyList] = useState(data);
+  const bgToLatin = {
+    А: "A",
+    В: "B",
+    Н: "H",
+    Р: "P",
+    Т: "T",
+    Е: "E",
+    К: "K",
+    М: "M",
+    О: "O",
+    С: "C",
+    Х: "X",
+    У: "Y",
+  };
+  const requestSearch = (searched) => {
+    if (!searched.match(/[a-z,A-Z,0-9]{1,2}[0-9]{0,4}[a-z,A-Z]{0,2}$/)) {
+      searched = searched
+        .toUpperCase()
+        .split("")
+        .map((char) => bgToLatin[char])
+        .join("");
+    }
+
+    setCopyList(
+      data.filter((item) =>
+        // item.make.toUpperCase().includes(searched.toUpperCase()) ||
+        // item.model.toUpperCase().includes(searched.toUpperCase()) ||
+        item.reg.toUpperCase().includes(searched.toUpperCase())
+      )
+    );
+  };
+  // const handleSearch = (e) => {
+  //   setSearchedVal(e.target.value);
+  //   const filteredRows = data.filter((row) => {
+  //     return (
+  //       row.make.toLowerCase().includes(searchedVal.toLowerCase()) ||
+  //       row.model.toLowerCase().includes(searchedVal.toLowerCase()) ||
+  //       row.reg.toLowerCase().includes(searchedVal.toLowerCase())
+  //     );
+  //   });
+  //   setRows(filteredRows);
+  // };
+  // const cancelSearch = () => {
+  //   setSearched("");
+  //   requestSearch(searched);
+  // };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -254,11 +316,203 @@ export default function VehiclesList({ data }) {
       }
     }
   };
+  // const tableData = data.map((obj) => {
+  //   return [
+  //     obj.make + " " + obj.model,
+  //     obj.reg,
+  //     bgDate(obj.insDate.slice(0, 10)),
+  //     bgDate(obj.kaskoDate.slice(0, 10)),
+  //     bgDate(obj.gtp.slice(0, 10)),
+  //     obj.tax,
+  //     obj.km - obj.oil + "km",
+  //     bgDate(obj.checked.slice(0, 10)),
+  //     obj._id,
+  //   ];
+  // });
+
+  // const columns = [
+  //   {
+  //     name: "Марка/Модел",
+  //     options: {
+  //       sortDirection: "desc",
+  //     },
+  //   },
+  //   { name: "Рег №" },
+  //   {
+  //     name: "ГО:",
+  //     options: {
+  //       customBodyRender: (value, tableMeta, updateValue) => {
+  //         return (
+  //           <Box
+  //             style={
+  //               isDue(value, "date") === "warning"
+  //                 ? { color: "red" }
+  //                 : isDue(value, "date") === "caution"
+  //                 ? { color: "orange" }
+  //                 : {}
+  //             }
+  //           >
+  //             {isDue(value, "date") ? <WarningAmberIcon /> : ""}
+  //             {value}
+  //           </Box>
+  //         );
+  //       },
+  //     },
+  //   },
+  //   {
+  //     name: "Каско:",
+  //     options: {
+  //       customBodyRender: (value, tableMeta, updateValue) => {
+  //         return (
+  //           <Box
+  //             style={
+  //               isDue(value, "date") === "warning"
+  //                 ? // && row.kasko
+  //                   { color: "red" }
+  //                 : isDue(value, "date") === "caution"
+  //                 ? // && row.kasko
+  //                   { color: "orange" }
+  //                 : {}
+  //             }
+  //           >
+  //             {isDue(value, "date") ? (
+  //               // && row.kasko
+  //               <WarningAmberIcon />
+  //             ) : (
+  //               ""
+  //             )}
+  //             {value == "2001-01-01T00:00:00.000Z" ||
+  //             value == null ||
+  //             value == "31.12.2000"
+  //               ? "Няма"
+  //               : value}
+  //           </Box>
+  //         );
+  //       },
+  //     },
+  //   },
+  //   {
+  //     name: "ГТП:",
+  //     options: {
+  //       customBodyRender: (value, tableMeta, updateValue) => {
+  //         return (
+  //           <Box
+  //             style={
+  //               isDue(value, "date") === "warning"
+  //                 ? { color: "red" }
+  //                 : isDue(value, "date") === "caution"
+  //                 ? { color: "orange" }
+  //                 : {}
+  //             }
+  //           >
+  //             {isDue(value, "date") ? <WarningAmberIcon /> : ""}
+  //             {value}
+  //           </Box>
+  //         );
+  //       },
+  //     },
+  //   },
+  //   { name: "Данък:" },
+  //   { name: "Масло преди:" },
+  //   { name: "Проверен:" },
+  //   {
+  //     name: "ID",
+  //     options: {
+  //       display: false,
+  //     },
+  //   },
+  // ];
+  // const getMuiTheme = () =>
+  //   createTheme({
+  //     overrides: {
+  //       MuiChip: {
+  //         root: {
+  //           backgroundColor: "lightgrey",
+  //         },
+  //       },
+  //     },
+  //     component: {
+  //       MuiTableCell: {
+  //         root: {
+  //           backgroundColor: "green !important",
+  //         },
+  //       },
+  //     },
+  //   });
+  // const options = {
+  //   filterType: "checkbox",
+
+  //   selectableRows: false,
+  //   download: false,
+  //   onRowClick: (rowData, rowMeta) => handleClick(rowData[8]),
+  //   rowsPerPage: 20,
+  //   rowsPerPageOptions: [20, 50, 100],
+  //   // expandableRowsOnClick: true,
+  //   // expandableRows: true,
+  //   textLabels: {
+  //     body: {
+  //       noMatch: "Нищо не е намерено",
+  //     },
+  //     pagination: {
+  //       next: "Следваща страница",
+  //       previous: "Предишна страница",
+  //       rowsPerPage: "Покажи по:",
+  //       displayRows: "от", // 1-10 of 30
+  //     },
+  //     toolbar: {
+  //       search: "Търсене",
+  //       downloadCsv: "Изтегли CSV",
+  //       print: "Принтирай",
+  //       viewColumns: "Показване на колони",
+  //       filterTable: "Филтри",
+  //     },
+  //     filter: {
+  //       title: "ФИЛТРИ",
+  //       reset: "изчисти",
+  //     },
+  //     viewColumns: {
+  //       title: "Покажи колони",
+  //     },
+  //     selectedRows: {
+  //       text: "rows(s) deleted",
+  //       delete: "Delete",
+  //     },
+  //   },
+  // };
+  console.log(copyList);
   return (
     <div className="flex justify-center">
       <Box sx={{ width: "95%", margin: "5px" }}>
+        {/* <ThemeProvider theme={getMuiTheme()}> */}
+        {/* <MUIDataTable
+            title={""}
+            data={tableData}
+            columns={columns}
+            options={options}
+          /> */}
+        {/* <TextField
+          placeholder="search..."
+          value={searchedVal}
+          onChange={handleSearch}
+        ></TextField> */}
+
         <Paper sx={{ width: "100%", mb: 2 }}>
           <TableContainer>
+            <TextField
+              size="small"
+              fullWidth
+              variant="outlined"
+              placeholder="Регистрационен номер ..."
+              type="search"
+              onInput={(e) => requestSearch(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
             <Table
               sx={{ minWidth: 750 }}
               aria-labelledby="tableTitle"
@@ -272,8 +526,9 @@ export default function VehiclesList({ data }) {
                 onRequestSort={handleRequestSort}
                 rowCount={data.length}
               />
+
               <TableBody>
-                {visibleRows.map((row, index) => {
+                {(copyList ? copyList : visibleRows).map((row, index) => {
                   const isItemSelected = isSelected(row._id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -415,6 +670,9 @@ export default function VehiclesList({ data }) {
           </TableContainer>
           <TablePagination
             labelRowsPerPage={"Покажи по:"}
+            labelDisplayedRows={({ from, to, count }) =>
+              `${from}-${to} от ${count !== -1 ? count : `MORE THAN ${to}`}`
+            }
             rowsPerPageOptions={[10, 25]}
             component="div"
             count={data.length}
@@ -426,8 +684,9 @@ export default function VehiclesList({ data }) {
         </Paper>
         <FormControlLabel
           control={<Switch checked={dense} onChange={handleChangeDense} />}
-          label=""
+          label="Смали таблицата"
         />
+        {/* </ThemeProvider> */}
       </Box>
     </div>
   );

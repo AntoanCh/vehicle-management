@@ -259,6 +259,11 @@ const CreateVehicle = () => {
           autoComplete="off"
         >
           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
+            <p className="text-center bg-blue-400 border-blue-800 border-solid rounded-xl">
+              Програмата НЕ различава главни от малки букви (не е case
+              sensitive).Няма нужда данните да се изписват с главни букви, това
+              се случва автоматизирано
+            </p>
             <div className="flex justify-between">
               <div className="mr-20">
                 <div className="my-4">
@@ -345,7 +350,7 @@ const CreateVehicle = () => {
                     onChange={handleChange}
                     helperText={
                       regError
-                        ? "Неправилен формат на рег. № \n Номерът трябва да бъде във формат AB1234AB, изписан с латински букви"
+                        ? "Неправилен формат на рег. № \n Номерът трябва да бъде във формат AB1234XY, изписан с латински букви"
                         : ""
                     }
                   />
@@ -642,7 +647,7 @@ const CreateVehicle = () => {
               <p className="text-center bg-blue-400 border-blue-800 border-solid rounded-xl">
                 При непопълнени данни за дата на първи ремонт и килемтраж, по
                 подразбиране ще се вземат датата и километрите от най-ранният
-                въведен ремонт на автомобила
+                въведен ремонт на автомобила, след въвеждането му.
               </p>
               <div className="flex justify-center">
                 <div className="my-4 text flex justify-center">

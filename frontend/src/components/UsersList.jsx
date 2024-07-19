@@ -28,6 +28,9 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
+import IconButton from "@mui/material/IconButton";
+import LockResetIcon from "@mui/icons-material/LockReset";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -429,14 +432,14 @@ const Users = ({ users }) => {
                             </TableCell>
                             <TableCell>
                               {row.role}
-                              <Button
+                              <IconButton
                                 color="warning"
                                 onClick={(event) => {
                                   handleEdit(event, row._id, "role");
                                 }}
                               >
                                 <EditIcon />
-                              </Button>
+                              </IconButton>
                             </TableCell>
                             <TableCell align="right">
                               <Button
@@ -446,12 +449,13 @@ const Users = ({ users }) => {
                                 color="warning"
                                 variant="outlined"
                               >
+                                <LockResetIcon />
                                 ПРОМЕНИ ПАРОЛА
                               </Button>
                             </TableCell>
                             <TableCell align="right">{row._id}</TableCell>
                             <TableCell align="right">
-                              <Button
+                              <IconButton
                                 onClick={() => {
                                   setVerifyDelete([
                                     true,
@@ -464,7 +468,7 @@ const Users = ({ users }) => {
                                 variant="contained"
                               >
                                 <DeleteForeverIcon />
-                              </Button>
+                              </IconButton>
                             </TableCell>
                           </TableRow>
                         );
@@ -486,6 +490,9 @@ const Users = ({ users }) => {
 
               <TablePagination
                 labelRowsPerPage={"Покажи по:"}
+                labelDisplayedRows={({ from, to, count }) =>
+                  `${from}-${to} от ${count !== -1 ? count : `MORE THAN ${to}`}`
+                }
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
                 count={users.data ? users.data.length : 0}
@@ -508,7 +515,7 @@ const Users = ({ users }) => {
                 ) : (
                   <Button fullWidth variant="contained" onClick={handleAdd}>
                     Добави Потребител
-                    <AddCircleOutlineIcon />
+                    <PersonAddAlt1Icon />
                   </Button>
                 )}
               </div>

@@ -26,6 +26,10 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
+import CarRepairIcon from "@mui/icons-material/CarRepair";
+import QueryStatsIcon from "@mui/icons-material/QueryStats";
+import HistoryIcon from "@mui/icons-material/History";
 
 const ShowVehicle = () => {
   const [vehicle, setVehicle] = useState({});
@@ -1343,6 +1347,7 @@ const ShowVehicle = () => {
                 }}
               >
                 Сервизна История
+                <CarRepairIcon />
               </Button>
               <Button
                 variant="contained"
@@ -1356,6 +1361,7 @@ const ShowVehicle = () => {
                 }}
               >
                 Гориво
+                <LocalGasStationIcon />
               </Button>
               <Button
                 variant="contained"
@@ -1369,6 +1375,7 @@ const ShowVehicle = () => {
                 }}
               >
                 Справки
+                <QueryStatsIcon />
               </Button>
               <Button
                 variant="contained"
@@ -1382,6 +1389,7 @@ const ShowVehicle = () => {
                 }}
               >
                 Лог
+                <HistoryIcon />
               </Button>
             </ButtonGroup>
             {/* <div>

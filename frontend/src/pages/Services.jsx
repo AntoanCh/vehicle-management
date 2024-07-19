@@ -9,7 +9,7 @@ import Paper from "@mui/material/Paper";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Button, MenuItem } from "@mui/material";
+import { Button, IconButton, MenuItem } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SaveIcon from "@mui/icons-material/Save";
 import dayjs from "dayjs";
@@ -310,7 +310,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       obj.km + " км",
       obj.cost + " лв",
       userRole === "admin" || userRole === vehicle.site ? (
-        <Button
+        <IconButton
           onClick={() => {
             setVerifyDelete([true, obj]);
           }}
@@ -318,7 +318,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
           variant="contained"
         >
           <DeleteForeverIcon />
-        </Button>
+        </IconButton>
       ) : (
         ""
       ),

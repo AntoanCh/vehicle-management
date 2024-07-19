@@ -34,6 +34,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
 
 // test
 const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
@@ -171,7 +172,7 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
       obj.km + " км",
       obj.cost + " лв",
       userRole === "admin" || userRole === vehicle.site ? (
-        <Button
+        <IconButton
           onClick={() => {
             setVerifyDelete([true, obj]);
           }}
@@ -179,7 +180,7 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
           variant="contained"
         >
           <DeleteForeverIcon />
-        </Button>
+        </IconButton>
       ) : (
         ""
       ),

@@ -7,6 +7,8 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import dayjs from "dayjs";
+import IconButton from "@mui/material/IconButton";
+import PrintIcon from "@mui/icons-material/Print";
 
 const Ref = ({ vehicle, services, fuels, userRole, username }) => {
   const months = dayjs().diff(vehicle.startDate, "month");
@@ -20,6 +22,15 @@ const Ref = ({ vehicle, services, fuels, userRole, username }) => {
           component={Paper}
         >
           <Table sx={{ minWidth: "200px" }} aria-label="simple table">
+            {/* <div className="flex justify-between">
+              <IconButton>
+                <PrintIcon />
+              </IconButton>
+              <IconButton>
+                <PrintIcon />
+              </IconButton>
+            </div> */}
+
             <TableBody>
               <TableRow
                 sx={{

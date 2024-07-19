@@ -17,38 +17,6 @@ import { visuallyHidden } from "@mui/utils";
 import { TextField } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-// function getComparator(order, orderBy) {
-//   return order === "desc"
-//     ? (a, b) => descendingComparator(a, b, orderBy)
-//     : (a, b) => -descendingComparator(a, b, orderBy);
-// }
-
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
-// function stableSort(array, comparator) {
-//   const stabilizedThis = array.map((el, index) => [el, index]);
-//   stabilizedThis.sort((b, a) => {
-//     const order = comparator(a[0], b[0]);
-//     if (order !== 0) {
-//       return order;
-//     }
-//     return a[1] - b[1];
-//   });
-//   return stabilizedThis.map((el) => el[0]);
-// }
-
 const headCells = [
   {
     id: "date",
@@ -182,15 +150,19 @@ const Log = ({ vehicle, log }) => {
     }
     return result;
   };
+
   const bgDate = (date) => {
     let [yyyy, mm, dd] = date.split("-");
+    let hh = dd.slice(3, 11).split(":");
+    hh[0] = (parseInt(hh[0]) + 3).toString();
+    hh = hh.join(":");
     dd = dd.slice(0, 2);
-    let newDate = `${dd}.${mm}.${yyyy}`;
+    let newDate = `${dd}.${mm}.${yyyy} - ${hh}`;
     return newDate;
   };
   const columns = [
     {
-      name: "Дата",
+      name: "Дата - Час",
       options: {
         sortDirection: "desc",
       },
@@ -246,40 +218,6 @@ const Log = ({ vehicle, log }) => {
     }, 2000);
   };
 
-  const [order, setOrder] = React.useState("desc");
-  const [orderBy, setOrderBy] = React.useState("model");
-  // const [page, setPage] = React.useState(0);
-  // const [dense, setDense] = React.useState(false);
-  // const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
-  // const handleRequestSort = (event, property) => {
-  //   const isAsc = orderBy === property && order === "desc";
-  //   setOrder(isAsc ? "desc" : "asc");
-  //   setOrderBy(property);
-  // };
-  // const handleChangePage = (event, newPage) => {
-  //   setPage(newPage);
-  // };
-
-  // const handleChangeRowsPerPage = (event) => {
-  //   setRowsPerPage(parseInt(event.target.value, 10));
-  //   setPage(0);
-  // };
-
-  // const emptyRows =
-  //   page > 0 ? Math.max(0, (1 + page) * rowsPerPage - log.length) : 0;
-  // setTimeout(() => {}, 1000);
-  // const visibleRows = React.useMemo(
-  //   () =>
-  //     log.data
-  //       ? stableSort(log.data, getComparator(order, orderBy)).slice(
-  //           page * rowsPerPage,
-  //           page * rowsPerPage + rowsPerPage
-  //         )
-  //       : [],
-  //   [order, orderBy, page, rowsPerPage]
-  // );
-
   return (
     <div>
       {handleLoading()}
@@ -287,72 +225,12 @@ const Log = ({ vehicle, log }) => {
         <CircularProgress />
       ) : (
         <div className="my-4 ">
-          {/* <h1 className="text-center text-2xl">ЛОГ</h1> */}
           <MUIDataTable
             title={`ЛОГ за ${vehicle.reg} (${vehicle.make} ${vehicle.model})`}
             data={data}
             columns={columns}
             options={options}
           />
-
-          {/* <Box sx={{ width: "80%", margin: "5px" }}>
-            <Paper sx={{ width: "100%", mb: 2 }}>
-              <TableContainer>
-                <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
-                  {log.data && (
-                    <EnhancedTableHead
-                      order={order}
-                      orderBy={orderBy}
-                      onRequestSort={handleRequestSort}
-                      rowCount={log.data.length}
-                    />
-                  )}
-
-                  {log.data && (
-                    <TableBody>
-                      {visibleRows.map((row, index) => {
-                        const labelId = `enhanced-table-checkbox-${index}`;
-
-                        return (
-                          <TableRow hover key={row._id}>
-                            <TableCell component="th" id={labelId} scope="row">
-                              {`${bgDate(row.date)}`}
-                            </TableCell>
-                            <TableCell>{row.user}</TableCell>
-
-                            <TableCell align="right">
-                              {logChanges(row.changed)}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-
-                      {emptyRows > 0 && (
-                        <TableRow
-                          style={{
-                            height: (dense ? 33 : 53) * emptyRows,
-                          }}
-                        >
-                          <TableCell colSpan={6} />
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  )}
-                </Table>
-              </TableContainer>
-
-              <TablePagination
-                labelRowsPerPage={"Покажи по:"}
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={log.data.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            </Paper>
-          </Box> */}
         </div>
       )}
     </div>
