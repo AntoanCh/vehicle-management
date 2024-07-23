@@ -5,12 +5,10 @@ import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
-import AddIcon from "@mui/icons-material/Add";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -22,6 +20,12 @@ import CheckIcon from "@mui/icons-material/Check";
 import Collapse from "@mui/material/Collapse";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import CreateVehicle from "../pages/CreateVehicle";
+import Avatar from "@mui/material/Avatar";
+import Chip from "@mui/material/Chip";
+import LockResetIcon from "@mui/icons-material/LockReset";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 const Header = () => {
   const [tab, setTab] = useState("");
@@ -33,6 +37,17 @@ const Header = () => {
   const token = localStorage.getItem("token");
   const [showProfile, setShowProfile] = useState(false);
   const [alert, setAlert] = useState(false);
+  const [dialogAction, setDialogAction] = useState("");
+
+  //For Profile
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClickProfile = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseProfile = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
     const verifyUser = async () => {
@@ -68,6 +83,7 @@ const Header = () => {
     verifyUser();
   }, [token, navigate]);
   const Logout = () => {
+    handleCloseProfile();
     localStorage.removeItem("token");
     navigate("/login");
   };
@@ -79,11 +95,16 @@ const Header = () => {
   useEffect(() => {
     if (location === "/vehicles") {
       setTab("vehicles");
-    } else if (location === "/warehouse") {
-      setTab("warehouse");
+    } else if (location === "/vehicles/create") {
+      setTab("create");
+    } else if (location === "/users") {
+      setTab("users");
     }
-  }, []);
-  const handleProfile = () => {
+  }, [location]);
+  console.log(location);
+  console.log(tab);
+  const handleChangePass = () => {
+    handleCloseProfile();
     setShowProfile(true);
   };
   const handleClose = () => {
@@ -115,9 +136,36 @@ const Header = () => {
     setShowProfile(false);
     setEditUser({ ...editUser, password: "" });
   };
+  const handleDialog = (action) => {
+    setDialogAction(action);
+  };
   return (
     <>
       <div className="flex justify-between bg-gray-300">
+        {/* <Dialog
+          open={dialogAction}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          fullWidth
+          maxWidth={false}
+        >
+          <DialogTitle id="alert-dialog-title">{dialogAction}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description"></DialogContentText>
+            <CreateVehicle />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={handleClose}
+              autoFocus
+            >
+              Отказ
+            </Button>
+          </DialogActions>
+        </Dialog> */}
         <Dialog
           open={showProfile}
           onClose={handleClose}
@@ -161,40 +209,37 @@ const Header = () => {
         </Dialog>
 
         <div className="px-2 py-2">
-          {userRole === "user" || !userRole ? (
-            ""
-          ) : (
+          <ButtonGroup>
             <Button
-              sx={{ margin: "auto" }}
-              variant="outlined"
+              variant={tab === "vehicles" ? "contained" : "outlined"}
+              id="vehicles"
+              onClick={handleClick}
               component={Link}
-              to="/vehicles/create"
+              to={"/vehicles"}
             >
-              {"ДОБАВИ АВТОМОБИЛ"}
-              {/* <AddCircleOutlineIcon /> */}
+              АВТОМОБИЛИ
               <TimeToLeaveIcon />
-              {/* <AddIcon /> */}
             </Button>
-          )}
 
-          {userRole === "admin" ? (
-            <Button
-              sx={{ marginLeft: "3px" }}
-              variant="outlined"
-              component={Link}
-              to="/users"
-            >
-              {"ПОТРЕБИТЕЛИ"}
-              <PersonOutlineIcon />
-            </Button>
-          ) : (
-            ""
-          )}
+            {userRole === "admin" ? (
+              <Button
+                sx={{ marginLeft: "3px" }}
+                variant={tab === "users" ? "contained" : "outlined"}
+                component={Link}
+                to="/users"
+              >
+                {"ПОТРЕБИТЕЛИ"}
+                <PersonOutlineIcon />
+              </Button>
+            ) : (
+              ""
+            )}
+          </ButtonGroup>
         </div>
 
         <div>
           {" "}
-          <ButtonGroup
+          {/* <ButtonGroup
             className="mt-2"
             variant="outlined"
             aria-label="Basic button group"
@@ -226,27 +271,38 @@ const Header = () => {
             >
               СКЛАД
             </Button>
-            {/* <Button>Three</Button> */}
-          </ButtonGroup>
+           
+          </ButtonGroup> */}
         </div>
         <div className="px-2 py-2 flex">
-          <p
-            className="px-2 py-2"
+          <Chip
+            size="large"
+            variant="contained"
+            color="primary"
             style={{ cursor: "pointer" }}
-            onClick={handleProfile}
+            onClick={handleClickProfile}
+            label={username}
+            icon={<PersonIcon />}
+          />
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleCloseProfile}
+            MenuListProps={{
+              "aria-labelledby": "basic-button",
+            }}
           >
-            <PersonIcon />
-            {username}
-          </p>
-
-          {token ? (
-            <Button onClick={Logout} variant="outlined" size="small">
-              Изход
+            {/* <MenuItem onClick={handleCloseProfile}>Profile</MenuItem> */}
+            <MenuItem onClick={handleChangePass}>
+              <LockResetIcon />
+              Смяна парола
+            </MenuItem>
+            <MenuItem onClick={Logout}>
               <LogoutIcon />
-            </Button>
-          ) : (
-            ""
-          )}
+              Изход
+            </MenuItem>
+          </Menu>
         </div>
       </div>
       <Collapse in={alert}>

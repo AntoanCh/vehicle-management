@@ -234,7 +234,10 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
             console.log(err);
           });
       }
-      if (!vehicle.startDate || vehicle.startDate > newServ.date) {
+      if (
+        !vehicle.startDate ||
+        vehicle.startDate > newServ.date.$d.toISOString()
+      ) {
         vehicle.startDate = newServ.date;
         axios
           .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)

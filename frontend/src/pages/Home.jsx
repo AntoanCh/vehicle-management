@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import dar_logo from "../resources/dar_logo.jpg";
+import { Button } from "@mui/material";
+import { Box } from "@mui/material";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -42,16 +44,23 @@ const Home = () => {
   };
   return (
     <>
-      <div className="flex justify-center">
-        <div>
-          <h2 className="text-2xl text-center">АВТОМОБИЛЕН КОНТРОЛ</h2>
-          <div className="bg-white flex flex-col border-2 border-blue-400 rounded-xl w-[600px] p-4 mx-auto">
-            <div className="my-4">
-              <img src={dar_logo} alt="" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <Box className="flex justify-center">
+        <Box>
+          <h2 className="text-2xl text-center">УПРАВЛЕНИЕ НА АКТИВИТЕ</h2>
+          <Box className="bg-white flex flex justify-between border-2 border-blue-400 rounded-xl w-[600px] p-4 mx-auto">
+            <Box
+              sx={{ cursor: "pointer" }}
+              onClick={() => navigate("/vehicles")}
+              className="flex items-center bg-blue-400 my-4 border-2 border-purple-400 rounded-xl w-[220px] justify-center"
+            >
+              <p className="text-4xl font-bold">АВТОПАРК</p>
+            </Box>
+            <Box className="flex items-center bg-purple-400 my-4 border-2 border-blue-400 rounded-xl w-[220px] justify-center">
+              <p className="text-4xl font-bold">ЧОВЕШКИ РЕСУРСИ</p>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
       <ToastContainer />
     </>
   );

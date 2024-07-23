@@ -15,14 +15,19 @@ import Switch from "@mui/material/Switch";
 import { visuallyHidden } from "@mui/utils";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
 import dayjs from "dayjs";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, MenuItem } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { Link } from "react-router-dom";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -167,15 +172,28 @@ export default function VehiclesList({ data }) {
   const [filter, setFilter] = React.useState("all");
   const [searched, setSearched] = useState("");
   const [rows, setRows] = useState(data);
-
-  // const requestSearch = (searchedVal) => {
-  //   const filteredRows = data.filter((row) => {
-  //     return row.name.toLowerCase().includes(searchedVal.toLowerCase());
-  //   });
-  //   setRows(filteredRows);
-  // };
+  const [copyList, setCopyList] = useState();
+  const [userRole, setUserRole] = useState();
+  const [username, setUsername] = useState();
+  const token = localStorage.getItem("token");
+  const { id } = useParams();
+  const navigate = useNavigate();
   // Search
-  const [copyList, setCopyList] = useState(data);
+
+  useEffect(() => {
+    const verifyUser = async () => {
+      if (!token) {
+        navigate("/login");
+      }
+      const { data } = await axios.post("http://192.168.0.147:5555/auth", {
+        token,
+      });
+      const { status, user, role } = data;
+      setUsername(user);
+      setUserRole(role);
+    };
+    verifyUser();
+  }, [token, navigate]);
   const bgToLatin = {
     А: "A",
     В: "B",
@@ -198,14 +216,17 @@ export default function VehiclesList({ data }) {
         .map((char) => bgToLatin[char])
         .join("");
     }
-
-    setCopyList(
-      data.filter((item) =>
-        // item.make.toUpperCase().includes(searched.toUpperCase()) ||
-        // item.model.toUpperCase().includes(searched.toUpperCase()) ||
-        item.reg.toUpperCase().includes(searched.toUpperCase())
-      )
-    );
+    if (searched) {
+      setCopyList(
+        data.filter((item) =>
+          // item.make.toUpperCase().includes(searched.toUpperCase()) ||
+          // item.model.toUpperCase().includes(searched.toUpperCase()) ||
+          item.reg.toUpperCase().includes(searched.toUpperCase())
+        )
+      );
+    } else {
+      setCopyList();
+    }
   };
   // const handleSearch = (e) => {
   //   setSearchedVal(e.target.value);
@@ -233,15 +254,16 @@ export default function VehiclesList({ data }) {
     setFilter(filter.slice());
   }, [filter]);
   const location = useLocation();
-  if (location.pathname === "/office") {
-    data = data.filter((e) => e.site === "office");
-  } else if (location.pathname === "/warehouse") {
-    data = data.filter((e) => e.site === "warehouse");
-  }
 
-  React.useEffect(() => {
-    // window.location.reload();
-  }, [filter]);
+  const handleFilter = (e) => {
+    setFilter(e.target.value);
+    if (!e.target.value || e.target.value === "all") {
+      setCopyList();
+    } else {
+      setCopyList(data.filter((item) => item.site === e.target.value));
+    }
+  };
+
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelected = data.map((n) => n.id);
@@ -251,7 +273,6 @@ export default function VehiclesList({ data }) {
     setSelected([]);
   };
 
-  const navigate = useNavigate();
   const handleClick = (event, id) => {
     navigate(`/vehicles/details/${id}`);
   };
@@ -276,11 +297,24 @@ export default function VehiclesList({ data }) {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   const visibleRows = React.useMemo(
-    () =>
-      stableSort(data, getComparator(order, orderBy)).slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-      ),
+    () => {
+      if (copyList) {
+        return stableSort(copyList, getComparator(order, orderBy)).slice(
+          page * rowsPerPage,
+          page * rowsPerPage + rowsPerPage
+        );
+      } else {
+        return stableSort(data, getComparator(order, orderBy)).slice(
+          page * rowsPerPage,
+          page * rowsPerPage + rowsPerPage
+        );
+      }
+    },
+    // stableSort(data, getComparator(order, orderBy)).slice(
+    //   page * rowsPerPage,
+    //   page * rowsPerPage + rowsPerPage
+    // ),
+
     [order, orderBy, page, rowsPerPage]
   );
 
@@ -482,7 +516,7 @@ export default function VehiclesList({ data }) {
   console.log(copyList);
   return (
     <div className="flex justify-center">
-      <Box sx={{ width: "95%", margin: "5px" }}>
+      <Box sx={{ width: "95%", margin: "25px" }}>
         {/* <ThemeProvider theme={getMuiTheme()}> */}
         {/* <MUIDataTable
             title={""}
@@ -497,22 +531,70 @@ export default function VehiclesList({ data }) {
         ></TextField> */}
 
         <Paper sx={{ width: "100%", mb: 2 }}>
-          <TableContainer>
-            <TextField
-              size="small"
-              fullWidth
-              variant="outlined"
-              placeholder="Регистрационен номер ..."
-              type="search"
-              onInput={(e) => requestSearch(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
+          <TableContainer
+            sx={{ backgroundColor: "rgb(180, 180, 180)", borderRadius: "5px" }}
+          >
+            <div className="flex">
+              <TextField
+                select
+                size="small"
+                // fullWidth
+                sx={{ width: "46%" }}
+                variant="outlined"
+                placeholder="Регистрационен номер ..."
+                type="search"
+                value={filter}
+                onChange={handleFilter}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <FilterListIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              >
+                <MenuItem key={1} value="all">
+                  ВСИЧКИ
+                </MenuItem>
+                <MenuItem key={2} value="office">
+                  ОФИС
+                </MenuItem>
+                <MenuItem key={3} value="warehouse">
+                  СКЛАД
+                </MenuItem>
+              </TextField>
+              <TextField
+                size="small"
+                // fullWidth
+                sx={{ width: "46%" }}
+                variant="outlined"
+                placeholder="Регистрационен номер ..."
+                type="search"
+                onInput={(e) => requestSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <Button
+                disabled={userRole === "user" || !userRole ? true : false}
+                sx={{ width: "8%" }}
+                variant={"contained"}
+                component={Link}
+                to="/vehicles/create"
+                // onClick={() => handleDialog("create")}
+              >
+                {"ДОБАВИ"}
+                <AddCircleOutlineIcon />
+
+                {/* <AddIcon /> */}
+              </Button>
+            </div>
+
             <Table
               sx={{ minWidth: 750 }}
               aria-labelledby="tableTitle"

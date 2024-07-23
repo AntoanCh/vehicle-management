@@ -17,47 +17,44 @@ import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import Box from "@mui/material/Box";
+import HeaderMenu from "./components/HeaderMenu.jsx";
 
 function App() {
-  //functions for dark mode
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-
-  const theme = React.useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: prefersDarkMode ? "dark" : "light",
-        },
-      }),
-    [prefersDarkMode]
-  );
-
   return (
-    <div className="bg-gray-500">
-      {/* <ThemeProvider theme={theme}> */}
+    <Box sx={{ display: "flex" }} className="bg-gray-500">
       <CssBaseline />
 
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <BrowserRouter>
-          <Header />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/warehouse" element={<Warehouse />} />
-            <Route path="/office" element={<Office />} />
-            <Route path="/vehicles" element={<VehiclesMain />} />
-            <Route path="/vehicles/create" element={<CreateVehicle />} />
-            <Route path="/vehicles/details/:id" element={<ShowVehicle />} />
-            {/* <Route path="/vehicle/edit/:id" element={<EditVehicle />} />
-            <Route path="/vehicle/delete/:id" element={<DeleteVehicle />} /> */}
-          </Routes>
+          <HeaderMenu />
+          {/* <Header /> */}
+          <Box
+            sx={{
+              margin: "auto",
+              width: "100%",
+              marginTop: "4%",
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/sites" element={<Users />} />
+              <Route path="/warehouse" element={<Warehouse />} />
+              <Route path="/office" element={<Office />} />
+              <Route path="/vehicles" element={<VehiclesMain />} />
+              <Route path="/vehicles/create" element={<CreateVehicle />} />
+              <Route path="/vehicles/details/:id" element={<ShowVehicle />} />
+            </Routes>
+          </Box>
+
           {/* <Footer /> */}
         </BrowserRouter>
       </LocalizationProvider>
       {/* </ThemeProvider> */}
-    </div>
+    </Box>
   );
 }
 

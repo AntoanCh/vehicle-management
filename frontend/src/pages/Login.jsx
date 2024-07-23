@@ -113,13 +113,17 @@ const Login = () => {
                 onChange={handleChange}
                 variant="filled"
               >
-                {users
-                  ? users.map((e, index) => (
-                      <MenuItem key={index} value={e}>
-                        {e}
-                      </MenuItem>
-                    ))
-                  : ""}
+                {users ? (
+                  users.map((e, index) => (
+                    <MenuItem key={index} value={e}>
+                      {e}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem key={1} value={0}>
+                    0
+                  </MenuItem>
+                )}
               </TextField>
             </div>
             <div className="my-4">

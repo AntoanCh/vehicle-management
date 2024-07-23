@@ -30,6 +30,8 @@ import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import CarRepairIcon from "@mui/icons-material/CarRepair";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import HistoryIcon from "@mui/icons-material/History";
+import Fab from "@mui/material/Fab";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
 
 const ShowVehicle = () => {
   const [vehicle, setVehicle] = useState({});
@@ -158,7 +160,7 @@ const ShowVehicle = () => {
       case "Wed":
         weekday = "Сряда";
         break;
-      case "Thr":
+      case "Thu":
         weekday = "Четвъртък";
         break;
       case "Fri":
@@ -628,9 +630,18 @@ const ShowVehicle = () => {
 
             <div className="flex justify-end">
               {userRole === "admin" || userRole === vehicle.site ? (
-                <Button onClick={handleCheck} variant="outlined">
+                // <Button onClick={handleCheck} variant="outlined">
+                //   ПРОВЕРЕН
+                // </Button>
+                <Fab
+                  variant="extended"
+                  onClick={handleCheck}
+                  color="primary"
+                  aria-label="add"
+                >
+                  <DoneAllIcon />
                   ПРОВЕРЕН
-                </Button>
+                </Fab>
               ) : (
                 ""
               )}
