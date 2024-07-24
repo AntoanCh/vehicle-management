@@ -77,12 +77,6 @@ const headCells = [
     disablePadding: false,
     label: "Права",
   },
-  {
-    id: "password",
-    numeric: false,
-    disablePadding: false,
-    label: "",
-  },
 
   {
     id: "id",
@@ -91,10 +85,10 @@ const headCells = [
     label: "ID:",
   },
   {
-    id: "delete",
+    id: "actions",
     numeric: false,
     disablePadding: false,
-    label: "",
+    label: "Дейстия",
   },
 ];
 
@@ -109,8 +103,8 @@ function EnhancedTableHead(props) {
         {headCells.map((headCell) => (
           <TableCell
             align={
-              headCell.id === "delete" || headCell.id === "id"
-                ? "center"
+              headCell.id === "actions" || headCell.id === "id"
+                ? "right"
                 : "left"
             }
             key={headCell.id}
@@ -406,11 +400,20 @@ const Users = ({ users }) => {
         <CircularProgress />
       ) : (
         <div className="my-4 flex flex-col items-center">
-          <h1 className="text-center text-2xl">ПОТРЕБИТЕЛИ</h1>
           <Box sx={{ width: "50%", margin: "5px" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
-              <TableContainer>
+              <TableContainer sx={{ borderRadius: "3px" }}>
                 <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: "grey" }}>
+                      <TableCell sx={{ fontWeight: "800", fontSize: "20px" }}>
+                        ПОТРЕБИТЕЛИ
+                      </TableCell>
+                      <TableCell fullWidth></TableCell>
+                      <TableCell fullWidth></TableCell>
+                      <TableCell fullWidth></TableCell>
+                    </TableRow>
+                  </TableHead>
                   {users.data && (
                     <EnhancedTableHead
                       order={order}
@@ -441,7 +444,7 @@ const Users = ({ users }) => {
                                 <EditIcon />
                               </IconButton>
                             </TableCell>
-                            <TableCell align="right">
+                            {/* <TableCell align="right">
                               <Button
                                 onClick={(event) => {
                                   handleEdit(event, row._id, "password");
@@ -452,9 +455,18 @@ const Users = ({ users }) => {
                                 <LockResetIcon />
                                 ПРОМЕНИ ПАРОЛА
                               </Button>
-                            </TableCell>
+                            </TableCell> */}
                             <TableCell align="right">{row._id}</TableCell>
                             <TableCell align="right">
+                              <IconButton
+                                onClick={(event) => {
+                                  handleEdit(event, row._id, "password");
+                                }}
+                                color="warning"
+                                variant="outlined"
+                              >
+                                <LockResetIcon />
+                              </IconButton>
                               <IconButton
                                 onClick={() => {
                                   setVerifyDelete([
@@ -519,7 +531,6 @@ const Users = ({ users }) => {
                   </Button>
                 )}
               </div>
-              {/* {add ? <Register /> : ""} */}
               <Dialog
                 open={add}
                 onClose={handleClose}

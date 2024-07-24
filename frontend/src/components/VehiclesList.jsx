@@ -513,7 +513,7 @@ export default function VehiclesList({ data }) {
   //     },
   //   },
   // };
-  console.log(copyList);
+
   return (
     <div className="flex justify-center">
       <Box sx={{ width: "95%", margin: "25px" }}>

@@ -9,9 +9,9 @@ const Users = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://192.168.0.147:5555/sites")
+      .get("http://192.168.0.147:5555/api/sites")
       .then((res) => {
-        setUsers(res.data);
+        setSites(res.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -19,9 +19,10 @@ const Users = () => {
         setLoading(false);
       });
   }, []);
+
   return (
     <div className="home">
-      {loading ? <CircularProgress /> : <UsersList users={users} />}
+      {loading ? <CircularProgress /> : <SitesList sites={sites} />}
     </div>
   );
 };

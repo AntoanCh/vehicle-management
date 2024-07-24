@@ -8,6 +8,7 @@ import Office from "./pages/Office.jsx";
 import Warehouse from "./pages/Warehouse.jsx";
 import VehiclesMain from "./pages/VehiclesMain.jsx";
 import Users from "./pages/Users.jsx";
+import Sites from "./pages/Sites.jsx";
 import "./App.css";
 import * as React from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -41,7 +42,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/users" element={<Users />} />
-              <Route path="/sites" element={<Users />} />
+              <Route path="/sites" element={<Sites />} />
               <Route path="/warehouse" element={<Warehouse />} />
               <Route path="/office" element={<Office />} />
               <Route path="/vehicles" element={<VehiclesMain />} />

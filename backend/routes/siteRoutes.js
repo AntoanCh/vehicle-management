@@ -53,6 +53,27 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+//Route for Update a Site
+router.put("/:id", async (req, res) => {
+  try {
+    if (!req.body.name) {
+      return res.status(400).send({
+        message: "Send all required fields",
+      });
+    }
+
+    const { id } = req.params;
+
+    const result = await Site.findByIdAndUpdate(id, req.body);
+    if (!result) {
+      return res.status(404).json({ message: "Site not found" });
+    }
+    return res.status(200).send({ message: "Site Updated" });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send({ message: err.message });
+  }
+});
 //Route for Deleting a Site
 router.delete("/:id", async (req, res) => {
   try {

@@ -101,8 +101,7 @@ const Header = () => {
       setTab("users");
     }
   }, [location]);
-  console.log(location);
-  console.log(tab);
+
   const handleChangePass = () => {
     handleCloseProfile();
     setShowProfile(true);

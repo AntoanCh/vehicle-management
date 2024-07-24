@@ -152,10 +152,8 @@ const CreateVehicle = () => {
         !e.target.value
       ) {
         setRegError(true);
-        console.log(regError);
       } else {
         setRegError(false);
-        console.log(regError);
       }
     }
     if (e.target.id === "make") {

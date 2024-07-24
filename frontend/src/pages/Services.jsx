@@ -226,9 +226,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
         vehicle.startKm = newServ.km.toString();
         axios
           .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-          .then(() => {
-            console.log(vehicle);
-          })
+          .then(() => {})
           .catch((err) => {
             alert("Грешка, проверете конзолата 2");
             console.log(err);
@@ -241,9 +239,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
         vehicle.startDate = newServ.date;
         axios
           .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-          .then(() => {
-            console.log(vehicle);
-          })
+          .then(() => {})
           .catch((err) => {
             alert("Грешка, проверете конзолата 3");
             console.log(err);
