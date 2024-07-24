@@ -334,7 +334,7 @@ const Users = ({ users }) => {
             onClick={() => {
               axios
                 .delete(
-                  `http://192.168.0.147:5555/users/${verifyDelete[1]._id}`
+                  `http://192.168.0.147:5555/api/users/${verifyDelete[1]._id}`
                 )
                 .then(() => {
                   window.location.reload();

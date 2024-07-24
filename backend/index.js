@@ -10,6 +10,7 @@ import serviceRoutes from "./routes/serviceRoutes.js";
 import fuelRoutes from "./routes/fuelRoutes.js";
 import siteRoutes from "./routes/siteRoutes.js";
 import problemRoutes from "./routes/problemRoutes.js";
+import personRoutes from "./routes/personRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import logRoutes from "./routes/logRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -34,8 +35,8 @@ app.use(express.json());
 //ROUTES
 
 app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
-app.use("/sites", siteRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/sites", siteRoutes);
 app.use("/logs", logRoutes);
 app.use("/services", serviceRoutes);
 app.use("/fuels", fuelRoutes);
@@ -43,7 +44,7 @@ app.use("/problems", problemRoutes);
 app.use("/vehicle", vehicleRoutes);
 app.use("/cars", carRoutes);
 app.use("/trucks", truckRoutes);
-app.use("/person", personRoutes);
+app.use("/api/person", personRoutes);
 
 //set static folder
 app.use(express.static("build"));

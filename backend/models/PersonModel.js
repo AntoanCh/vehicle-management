@@ -23,7 +23,7 @@ export const personSchema = mongoose.Schema(
     },
     EGN: {
       type: String,
-      required: true,
+
       uppercase: true,
     },
     addressOfficial: {
@@ -42,33 +42,28 @@ export const personSchema = mongoose.Schema(
     },
     telk: {
       type: String,
-      required: true,
+
       uppercase: true,
     },
     education: {
       type: String,
-      required: true,
     },
     diploma: {
       type: Date,
-      required: true,
     },
     major: {
       type: Date,
-      required: true,
     },
     email: {
       type: String,
-      required: false,
+
       uppercase: true,
     },
     phone: {
       type: Number,
-      required: true,
     },
     phoneSecond: {
       type: Number,
-      required: true,
     },
     emplymentDate: {
       type: Date,

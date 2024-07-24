@@ -68,12 +68,10 @@ router.post("/", async (req, res) => {
       checked: new Date().toISOString(),
     };
 
-    const checkReg = await Vehicle.find({ reg: req.body.reg });
-    // if (checkReg) {
-    //   return res
-    //     .status(400)
-    //     .send({ message: "МПС с такъв Рег. Номер вече съществува" });
-    // }
+    const existingVehicle = await Vehicle.findOne({ reg: req.body.reg });
+    if (existingVehicle) {
+      return res.json({ status: "fail", message: "Vehicle already exists" });
+    }
     const vehicle = await Vehicle.create(newVehicle);
     return res.status(201).send(vehicle);
   } catch (err) {

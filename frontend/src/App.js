@@ -51,7 +51,7 @@ function App() {
             </Routes>
           </Box>
 
-          {/* <Footer /> */}
+          <Footer />
         </BrowserRouter>
       </LocalizationProvider>
       {/* </ThemeProvider> */}

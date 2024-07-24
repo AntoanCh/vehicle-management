@@ -238,7 +238,8 @@ const Sites = ({ sites }) => {
 
   const handleChangeEdit = (e) => {
     const { name, value } = e.target;
-    setEdit([true, { ...edit, [name]: value }]);
+    setEdit([true, { ...edit[1], [name]: value }]);
+    console.log(edit);
   };
 
   const handleCloseEdit = () => {
@@ -293,9 +294,12 @@ const Sites = ({ sites }) => {
     e.preventDefault();
 
     try {
-      const { data } = await axios.put("http://192.168.0.147:5555/api/sites", {
-        ...edit[1],
-      });
+      const { data } = await axios.put(
+        `http://192.168.0.147:5555/api/sites/${edit[1]._id}`,
+        {
+          ...edit[1],
+        }
+      );
       const { status, message } = data;
 
       // if (status) {
@@ -624,10 +628,9 @@ const Sites = ({ sites }) => {
                       <TableCell sx={{ fontWeight: "800", fontSize: "20px" }}>
                         ОБЕКТИ
                       </TableCell>
-                      <TableCell fullWidth>
+                      <TableCell>
                         <TextField
                           size="small"
-                          // fullWidth
                           sx={{
                             backgroundColor: "#bdbdbd",
                           }}
@@ -644,9 +647,9 @@ const Sites = ({ sites }) => {
                           }}
                         />
                       </TableCell>
-                      <TableCell fullWidth></TableCell>
-                      <TableCell fullWidth></TableCell>
-                      <TableCell fullWidth></TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
                   {sites.data && (

@@ -14,7 +14,7 @@ const Login = () => {
   const [error, setError] = useState([false, ""]);
   useEffect(() => {
     axios
-      .get("http://192.168.0.147:5555/users")
+      .get("http://192.168.0.147:5555/api/users")
       .then((res) => {
         setUsers(res.data.data.map((entrie) => entrie.username));
       })
