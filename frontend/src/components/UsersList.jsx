@@ -31,6 +31,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import SearchIcon from "@mui/icons-material/Search";
+import InputAdornment from "@mui/material/InputAdornment";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -144,7 +146,27 @@ const Users = ({ users }) => {
   const [add, setAdd] = useState(false);
   const [editUser, setEditUser] = useState();
   const [verifyDelete, setVerifyDelete] = useState([false, {}]);
+  const [copyList, setCopyList] = useState();
 
+  const requestSearch = (searched, name) => {
+    if (searched) {
+      if (name === "username") {
+        setCopyList(
+          users.data.filter((item) =>
+            item.username.toUpperCase().includes(searched.toUpperCase())
+          )
+        );
+      } else if (name === "id") {
+        setCopyList(
+          users.data.filter((item) =>
+            item._id.toUpperCase().includes(searched.toUpperCase())
+          )
+        );
+      }
+    } else {
+      setCopyList();
+    }
+  };
   const handleLoading = () => {
     setTimeout(() => {
       setLoading(false);
@@ -165,7 +187,7 @@ const Users = ({ users }) => {
   const [orderBy, setOrderBy] = React.useState("model");
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -258,13 +280,27 @@ const Users = ({ users }) => {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
   setTimeout(() => {}, 1000);
   const visibleRows = React.useMemo(
-    () =>
-      users.data
-        ? stableSort(users.data, getComparator(order, orderBy)).slice(
-            page * rowsPerPage,
-            page * rowsPerPage + rowsPerPage
-          )
-        : [],
+    () => {
+      if (copyList) {
+        return stableSort(copyList, getComparator(order, orderBy)).slice(
+          page * rowsPerPage,
+          page * rowsPerPage + rowsPerPage
+        );
+      } else {
+        return users.data
+          ? stableSort(users.data, getComparator(order, orderBy)).slice(
+              page * rowsPerPage,
+              page * rowsPerPage + rowsPerPage
+            )
+          : [];
+      }
+    },
+    // users.data
+    //   ? stableSort(users.data, getComparator(order, orderBy)).slice(
+    //       page * rowsPerPage,
+    //       page * rowsPerPage + rowsPerPage
+    //     )
+    //   : [],
     [order, orderBy, page, rowsPerPage]
   );
   const handleClose = () => {
@@ -349,13 +385,16 @@ const Users = ({ users }) => {
                   <MenuItem key={1} value="admin">
                     ADMIN
                   </MenuItem>
-                  <MenuItem key={2} value="user">
+                  <MenuItem key={2} value="hr">
+                    HR
+                  </MenuItem>
+                  <MenuItem key={3} value="user">
                     USER
                   </MenuItem>
-                  <MenuItem key={3} value="office">
+                  <MenuItem key={4} value="office">
                     ОФИС ОТГОВОРНИК
                   </MenuItem>
-                  <MenuItem key={4} value="warehouse">
+                  <MenuItem key={5} value="warehouse">
                     СКЛАД ОТГОВОРНИК
                   </MenuItem>
                 </TextField>
@@ -409,8 +448,50 @@ const Users = ({ users }) => {
                       <TableCell sx={{ fontWeight: "800", fontSize: "20px" }}>
                         ПОТРЕБИТЕЛИ
                       </TableCell>
-                      <TableCell fullWidth></TableCell>
-                      <TableCell fullWidth></TableCell>
+                      <TableCell fullWidth>
+                        <TextField
+                          size="small"
+                          name="username"
+                          sx={{
+                            backgroundColor: "#bdbdbd",
+                          }}
+                          variant="outlined"
+                          placeholder="Потребител..."
+                          type="search"
+                          onInput={(e) =>
+                            requestSearch(e.target.value, e.target.name)
+                          }
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <SearchIcon />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell fullWidth>
+                        <TextField
+                          size="small"
+                          name="id"
+                          sx={{
+                            backgroundColor: "#bdbdbd",
+                          }}
+                          variant="outlined"
+                          placeholder="ID..."
+                          type="search"
+                          onInput={(e) =>
+                            requestSearch(e.target.value, e.target.name)
+                          }
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <SearchIcon />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </TableCell>
                       <TableCell fullWidth></TableCell>
                     </TableRow>
                   </TableHead>
@@ -425,12 +506,17 @@ const Users = ({ users }) => {
 
                   {users.data && (
                     <TableBody>
-                      {visibleRows.map((row, index) => {
+                      {(copyList ? copyList : visibleRows).map((row, index) => {
                         const labelId = `enhanced-table-checkbox-${index}`;
 
                         return (
                           <TableRow hover key={row._id}>
-                            <TableCell component="th" id={labelId} scope="row">
+                            <TableCell
+                              sx={{ fontWeight: "800" }}
+                              component="th"
+                              id={labelId}
+                              scope="row"
+                            >
                               {row.username}
                             </TableCell>
                             <TableCell>
@@ -505,7 +591,7 @@ const Users = ({ users }) => {
                 labelDisplayedRows={({ from, to, count }) =>
                   `${from}-${to} от ${count !== -1 ? count : `MORE THAN ${to}`}`
                 }
-                rowsPerPageOptions={[5, 10, 25]}
+                rowsPerPageOptions={[10, 25, 50]}
                 component="div"
                 count={users.data ? users.data.length : 0}
                 rowsPerPage={rowsPerPage}

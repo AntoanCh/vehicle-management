@@ -46,6 +46,7 @@ import MenuItem from "@mui/material/MenuItem";
 import HomeIcon from "@mui/icons-material/Home";
 import BusinessIcon from "@mui/icons-material/Business";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
+import StoreMallDirectoryIcon from "@mui/icons-material/StoreMallDirectory";
 
 const drawerWidth = 240;
 
@@ -465,6 +466,9 @@ const HeaderMenu = () => {
                 justifyContent: open ? "initial" : "center",
                 px: 2.5,
               }}
+              disabled={
+                userRole === "admin" || userRole === "hr" ? false : true
+              }
               component={Link}
               to={"/hr"}
             >
@@ -493,6 +497,9 @@ const HeaderMenu = () => {
                 justifyContent: open ? "initial" : "center",
                 px: 2.5,
               }}
+              disabled={
+                userRole === "admin" || userRole === "hr" ? false : true
+              }
               component={Link}
               to={"/sites"}
             >
@@ -503,7 +510,7 @@ const HeaderMenu = () => {
                   justifyContent: "center",
                 }}
               >
-                {<BusinessIcon />}
+                {<StoreMallDirectoryIcon />}
               </ListItemIcon>
               <ListItemText primary={"Обекти"} sx={{ opacity: open ? 1 : 0 }} />
             </ListItemButton>

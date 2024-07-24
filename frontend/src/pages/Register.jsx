@@ -92,6 +92,9 @@ const Register = () => {
               <MenuItem key={4} value="admin">
                 ADMIN
               </MenuItem>
+              <MenuItem key={5} value="hr">
+                HR
+              </MenuItem>
             </TextField>
           </div>
           <div className="my-4">
