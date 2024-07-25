@@ -1,11 +1,13 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CreateVehicle from "./pages/CreateVehicle.jsx";
 import ShowVehicle from "./pages/ShowVehicle.jsx";
+import PersonCard from "./pages/PersonCard.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Office from "./pages/Office.jsx";
 import Warehouse from "./pages/Warehouse.jsx";
+import Hr from "./pages/Hr.jsx";
 import VehiclesMain from "./pages/VehiclesMain.jsx";
 import Users from "./pages/Users.jsx";
 import Sites from "./pages/Sites.jsx";
@@ -43,11 +45,13 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/users" element={<Users />} />
               <Route path="/sites" element={<Sites />} />
+              <Route path="/hr" element={<Hr />} />
               <Route path="/warehouse" element={<Warehouse />} />
               <Route path="/office" element={<Office />} />
               <Route path="/vehicles" element={<VehiclesMain />} />
               <Route path="/vehicles/create" element={<CreateVehicle />} />
               <Route path="/vehicles/details/:id" element={<ShowVehicle />} />
+              <Route path="/people/details/:id" element={<PersonCard />} />
             </Routes>
           </Box>
 
