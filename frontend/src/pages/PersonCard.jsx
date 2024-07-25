@@ -300,24 +300,24 @@ const PersonCard = () => {
                   </Item>
                   <Item sx={{ width: "50%", marginLeft: "5px" }}>
                     <span>Телефон:</span>
-                    <span>{person.firstName}</span>
+                    <span>{person.phone}</span>
                   </Item>
                 </Box>
                 <Box sx={{ display: "flex" }}>
                   <Item sx={{ width: "50%" }}>
                     <span>Презиме:</span>
-                    <span>{person.firstName}</span>
+                    <span>{person.middleName}</span>
                   </Item>
                   <Item sx={{ width: "50%", marginLeft: "5px" }}>
                     <span>Телефон Близък:</span>
-                    <span>{person.firstName}</span>
+                    <span>{person.phoneSecond}</span>
                   </Item>
                 </Box>
 
                 <Box sx={{ display: "flex" }}>
                   <Item sx={{ width: "50%" }}>
                     <span>Фамилия:</span>
-                    <span>{person.firstName}</span>
+                    <span>{person.lastName}</span>
                   </Item>
                   <Item sx={{ width: "50%", marginLeft: "5px" }}>
                     <span>Email:</span>
@@ -327,58 +327,58 @@ const PersonCard = () => {
 
                 <Item sx={{ width: "50%" }}>
                   <span>Лк №:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.IDNum}</span>
                 </Item>
                 <Item sx={{ width: "50%" }}>
                   <span>ЕГН:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.EGN}</span>
                 </Item>
                 <Item sx={{ width: "50%" }}>
                   <span>Адрес по ЛК:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.addressOfficial}</span>
                 </Item>
                 <Item sx={{ width: "50%" }}>
                   <span>Адрес по местопребиваване:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.AddressReal}</span>
                 </Item>
                 <Box sx={{ display: "flex" }}>
                   <Item sx={{ width: "50%" }}>
                     <span>Обект:</span>
-                    <span>{person.firstName}</span>
+                    <span>{person.site}</span>
                   </Item>
                   <Item sx={{ width: "50%", marginLeft: "5px" }}>
                     <span>Постъпил на:</span>
-                    <span>{person.firstName}</span>
+                    <span>{person.employmentDate}</span>
                   </Item>
                 </Box>
 
                 <Item sx={{ width: "50%" }}>
                   <span>Длъжност:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.job}</span>
                 </Item>
                 <Item sx={{ width: "50%" }}>
                   <span>Семейно положение:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.marital}</span>
                 </Item>
                 <Item sx={{ width: "50%" }}>
                   <span>Деца:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.children}</span>
                 </Item>
                 <Item sx={{ width: "50%" }}>
                   <span>ТЕЛК:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.telk}</span>
                 </Item>
                 <Item sx={{ width: "50%" }}>
                   <span>Образование:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.education}</span>
                 </Item>
                 <Item sx={{ width: "50%" }}>
                   <span>Диплома:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.diploma}</span>
                 </Item>
                 <Item sx={{ width: "50%" }}>
                   <span>Специалност:</span>
-                  <span>{person.firstName}</span>
+                  <span>{person.major}</span>
                 </Item>
               </Stack>
               {userRole === "admin" || userRole === person.site ? (
@@ -403,49 +403,7 @@ const PersonCard = () => {
               )}
             </Box>
 
-            <ButtonGroup sx={{ marginBottom: "10px" }} fullWidth>
-              <Button
-                variant="contained"
-                color={tab === "serv" ? "secondary" : "primary"}
-                onClick={() => {
-                  if (tab === "serv") {
-                    setTab("");
-                  } else {
-                    setTab("serv");
-                  }
-                }}
-              >
-                Сервизна История
-                <CarRepairIcon />
-              </Button>
-              <Button
-                variant="contained"
-                color={tab === "fuel" ? "secondary" : "primary"}
-                onClick={() => {
-                  if (tab === "fuel") {
-                    setTab("");
-                  } else {
-                    setTab("fuel");
-                  }
-                }}
-              >
-                Гориво
-                <LocalGasStationIcon />
-              </Button>
-              <Button
-                variant="contained"
-                color={tab === "ref" ? "secondary" : "primary"}
-                onClick={() => {
-                  if (tab === "ref") {
-                    setTab("");
-                  } else {
-                    setTab("ref");
-                  }
-                }}
-              >
-                Справки
-                <QueryStatsIcon />
-              </Button>
+            <ButtonGroup sx={{ marginBottom: "10px", width: "20%" }} fullWidth>
               <Button
                 variant="contained"
                 color={tab === "log" ? "secondary" : "primary"}
@@ -461,65 +419,8 @@ const PersonCard = () => {
                 <HistoryIcon />
               </Button>
             </ButtonGroup>
-            {/* <div>
-              {problemLoading ? (
-                <CircularProgress />
-              ) : (
-                <Problems person={person} problems={problems} />
-              )}
-            </div> */}
-            {/* <div>
-              {fuelLoading ? (
-                <CircularProgress />
-              ) : (
-                <Fuels person={person} fuels={fuels} />
-              )}
-            </div> */}
+
             <div>
-              {tab === "serv" ? (
-                servLoading ? (
-                  <CircularProgress />
-                ) : (
-                  <Services
-                    username={username}
-                    userRole={userRole}
-                    person={person}
-                    fuels={fuels}
-                    services={services}
-                  />
-                )
-              ) : (
-                ""
-              )}
-              {tab === "fuel" ? (
-                <Fuels
-                  username={username}
-                  userRole={userRole}
-                  person={person}
-                  fuels={fuels}
-                />
-              ) : (
-                ""
-              )}
-              {tab === "ref" ? (
-                <Ref
-                  username={username}
-                  userRole={userRole}
-                  person={person}
-                  fuels={fuels}
-                  services={services}
-                />
-              ) : (
-                ""
-              )}
-              {/* <Button
-                onClick={handleShowLog}
-                fullWidth
-                variant="contained"
-                style={{}}
-              >
-                {showLog ? "СКРИИ ЛОГ" : "ПОКАЖИ ЛОГ"}
-              </Button> */}
               {tab === "log" ? (
                 logLoading ? (
                   <CircularProgress />

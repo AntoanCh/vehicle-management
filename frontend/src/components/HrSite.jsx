@@ -4,7 +4,7 @@ import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Box } from "@mui/material";
 
-const HrSite = ({ siteId }) => {
+const HrSite = ({ siteId, siteName }) => {
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
   const handleLoading = () => {
@@ -15,7 +15,7 @@ const HrSite = ({ siteId }) => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://192.168.0.147:5555/api/person")
+      .get(`http://192.168.0.147:5555/api/person/site/${siteId}`)
       .then((res) => {
         setPeople(res.data);
         setLoading(false);
@@ -28,8 +28,11 @@ const HrSite = ({ siteId }) => {
   console.log(`parent: ${people}`);
   return (
     <Box>
-      {/* {handleLoading()} */}
-      {loading ? <CircularProgress /> : <PeopleList people={people} />}
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        <PeopleList people={people} siteName={siteName} />
+      )}
     </Box>
   );
 };

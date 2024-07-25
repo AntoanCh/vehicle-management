@@ -78,19 +78,9 @@ const Hr = () => {
   };
   const siteList = () => {
     return sites.map((obj, index) => {
-      //   axios
-      //     .get("http://192.168.0.147:5555/api/person")
-      //     .then((res) => {
-      //       setPersons(res.data);
-      //       setLoading(false);
-      //     })
-      //     .catch((err) => {
-      //       console.log(err);
-      //       setLoading(false);
-      //     });
       return (
         <TabPanel key={index} value={value} index={index}>
-          <HrSite siteId={obj._id} />
+          <HrSite siteId={obj._id} siteName={obj.name} />
         </TabPanel>
       );
     });
@@ -116,27 +106,6 @@ const Hr = () => {
         {siteNames()}
       </Tabs>
       {siteList()}
-      {/* <TabPanel value={value} index={0}>
-        Item One
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        Item Two
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        Item Three
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        Item Four
-      </TabPanel>
-      <TabPanel value={value} index={4}>
-        Item Five
-      </TabPanel>
-      <TabPanel value={value} index={5}>
-        Item Six
-      </TabPanel>
-      <TabPanel value={value} index={6}>
-        Item Seven
-      </TabPanel> */}
     </Box>
   );
   //   <Box>{loading ? <CircularProgress /> : ""}</Box>;

@@ -23,6 +23,7 @@ router.post("/", async (req, res) => {
       firstName: req.body.firstName,
       middleName: req.body.middleName,
       lastName: req.body.lastName,
+      IDNum: req.body.IDNum,
       EGN: req.body.EGN,
       addressOfficial: req.body.addressOfficial,
       addressReal: req.body.addressReal,
@@ -76,7 +77,20 @@ router.get("/:id", async (req, res) => {
     res.status(500).send({ message: err.message });
   }
 });
-
+//Route to get All People for a specific Site
+router.get("/site/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const people = await Person.find({ siteId: id });
+    return res.status(200).json({
+      count: people.length,
+      data: people,
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send({ message: err.message });
+  }
+});
 //Route for Update a Person
 router.put("/:id", async (req, res) => {
   try {

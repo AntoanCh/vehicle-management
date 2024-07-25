@@ -21,10 +21,11 @@ export const personSchema = mongoose.Schema(
       required: true,
       uppercase: true,
     },
+    IDNum: {
+      type: Number,
+    },
     EGN: {
-      type: String,
-
-      uppercase: true,
+      type: Number,
     },
     addressOfficial: {
       type: String,
@@ -41,22 +42,19 @@ export const personSchema = mongoose.Schema(
       type: String,
     },
     telk: {
-      type: String,
-
-      uppercase: true,
+      type: Boolean,
     },
     education: {
       type: String,
     },
     diploma: {
-      type: Date,
+      type: String,
     },
     major: {
-      type: Date,
+      type: String,
     },
     email: {
       type: String,
-
       uppercase: true,
     },
     phone: {
@@ -69,6 +67,9 @@ export const personSchema = mongoose.Schema(
       type: Date,
       required: false,
       uppercase: false,
+    },
+    children: {
+      type: String,
     },
     siteId: {
       type: mongoose.Schema.Types.ObjectId,

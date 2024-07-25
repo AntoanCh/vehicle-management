@@ -158,7 +158,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-const PeopleList = ({ people }) => {
+const PeopleList = ({ people, siteName }) => {
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState([false, {}]);
   const [add, setAdd] = useState(false);
@@ -531,7 +531,7 @@ const PeopleList = ({ people }) => {
                   <TableHead>
                     <TableRow sx={{ backgroundColor: "grey" }}>
                       <TableCell sx={{ fontWeight: "800", fontSize: "20px" }}>
-                        ПЕРСОНАЛ
+                        {`ПЕРСОНАЛ НА ${siteName}`}
                       </TableCell>
                       <TableCell>
                         <TextField
