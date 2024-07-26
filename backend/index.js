@@ -15,15 +15,18 @@ import userRoutes from "./routes/userRoutes.js";
 import logRoutes from "./routes/logRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
+import multer from "multer";
 import path from "path";
 const __dirname = path.resolve();
 const { MONGO_URL, PORT } = process.env;
 const app = express();
+const upload = multer();
 import bodyParser from "body-parser";
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+app.use(upload.array());
 //MIDDLEWARES
 //Middleware for handling CORS
 app.use(cors());
