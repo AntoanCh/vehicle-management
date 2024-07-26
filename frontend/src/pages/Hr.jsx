@@ -65,9 +65,30 @@ const Hr = () => {
         setLoading(false);
       });
   }, []);
-  console.log(sites);
+  const sortDataByName = (data) => {
+    let sortedData;
+    // sortedData = data.sort((a, b) => {
+    //   let x = a.name.toLowerCase();
+    //   let y = b.name.toLowerCase();
+    //   if (x > y) {
+    //     return 1;
+    //   }
+    //   if (x < y) {
+    //     return -1;
+    //   }
+    //   return 0;
+    // });
+    sortedData = data.sort((a, b) => {
+      return a.name.localeCompare(b.name, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
+    });
+
+    return sortedData;
+  };
   const siteNames = () => {
-    return sites.map((obj, index) => (
+    return sortDataByName(sites).map((obj, index) => (
       <Tab
         key={index}
         sx={{ fontWeight: "800" }}

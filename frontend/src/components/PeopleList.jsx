@@ -32,6 +32,8 @@ import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { Link } from "react-router-dom";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -158,7 +160,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-const PeopleList = ({ people, siteName }) => {
+const PeopleList = ({ people, siteName, siteId }) => {
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState([false, {}]);
   const [add, setAdd] = useState(false);
@@ -280,6 +282,7 @@ const PeopleList = ({ people, siteName }) => {
     setAdd(true);
   };
 
+  const handleSubmit = () => {};
   const handleDelete = () => {
     // axios.delete(`http://192.168.0.147/sites/${e}`)
   };
@@ -326,7 +329,7 @@ const PeopleList = ({ people, siteName }) => {
 
   return (
     <Box>
-      {/* <Dialog
+      <Dialog
         open={verifyDelete[0]}
         onClose={handleCloseDelete}
         aria-labelledby="alert-dialog-title"
@@ -450,7 +453,9 @@ const PeopleList = ({ people, siteName }) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Добавяне на обект"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">
+          {`Добавяне на нов служител към ${siteName}`}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
           <div className="">
@@ -497,12 +502,14 @@ const PeopleList = ({ people, siteName }) => {
                   variant="filled"
                 />
               </div>
-              {/* <div className="my-4">
+              {
+                <div className="my-4">
                   <Button onClick={handleSubmit} fullWidth variant="outlined">
                     ЗАПИШИ
                   </Button>
-                </div> */}
-      {/* </div>
+                </div>
+              }
+            </div>
           </div>
         </DialogContent>
         <DialogActions>
@@ -518,7 +525,7 @@ const PeopleList = ({ people, siteName }) => {
             Добави
           </Button>
         </DialogActions>
-      </Dialog> */}{" "}
+      </Dialog>{" "}
       {handleLoading()}
       {loading ? (
         <CircularProgress />
@@ -558,7 +565,16 @@ const PeopleList = ({ people, siteName }) => {
                       <TableCell></TableCell>
                       <TableCell>
                         {" "}
-                        <Button variant="contained">asdasd</Button>
+                        <Button
+                          onClick={() =>
+                            navigate("/hr/create", {
+                              state: { siteName, siteId },
+                            })
+                          }
+                          variant="contained"
+                        >
+                          ДОБАВИ <AddCircleOutlineIcon />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   </TableHead>

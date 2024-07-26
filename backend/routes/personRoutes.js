@@ -6,20 +6,28 @@ const router = express.Router();
 //Route for save a new Person
 router.post("/", async (req, res) => {
   try {
-    if (
-      !req.body.siteId ||
-      !req.body.firstName ||
-      !req.body.middleName ||
-      !req.body.lastName ||
-      !req.body.EGN ||
-      !req.body.job ||
-      !req.body.emplymentDate
-    ) {
+    if (!req.body.siteId) {
       return res.status(400).send({
-        message: "Send all required fields",
+        message: "Send all required fields(siteId)",
+      });
+    }
+    if (!req.body.firstName || !req.body.middleName || !req.body.lastName) {
+      return res.status(400).send({
+        message: "Send all required fields(names)",
+      });
+    }
+    if (!req.body.EGN) {
+      return res.status(400).send({
+        message: "Send all required fields(EGN)",
+      });
+    }
+    if (!req.body.job || !req.body.employmentDate) {
+      return res.status(400).send({
+        message: "Send all required fields(job and date)",
       });
     }
     const newPerson = {
+      photo: req.body.photo,
       firstName: req.body.firstName,
       middleName: req.body.middleName,
       lastName: req.body.lastName,
@@ -36,7 +44,7 @@ router.post("/", async (req, res) => {
       email: req.body.email,
       phone: req.body.phone,
       phoneSecond: req.body.phoneSecond,
-      emplymentDate: req.body.emplymentDate,
+      employmentDate: req.body.employmentDate,
       siteId: req.body.siteId,
     };
 
@@ -100,7 +108,7 @@ router.put("/:id", async (req, res) => {
       !req.body.middleName ||
       !req.body.lastName ||
       !req.body.job ||
-      !req.body.emplymentDate
+      !req.body.employmentDate
     ) {
       return res.status(400).send({
         message: "Send all required fields",

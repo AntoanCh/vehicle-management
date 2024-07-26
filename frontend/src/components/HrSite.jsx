@@ -31,7 +31,7 @@ const HrSite = ({ siteId, siteName }) => {
       {loading ? (
         <CircularProgress />
       ) : (
-        <PeopleList people={people} siteName={siteName} />
+        <PeopleList people={people} siteName={siteName} siteId={siteId} />
       )}
     </Box>
   );
