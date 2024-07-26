@@ -1,13 +1,41 @@
 import express from "express";
 import { Person } from "../models/PersonModel.js";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
 import multer from "multer";
-import path, { format } from "path";
-import { v4, uuidv4 } from "uuid";
 
 const router = express.Router();
 
+//Image upload function
+const uniqueId = uuidv4();
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, "../images"));
+  },
+  filename: function (req, file, cb) {
+    cb(null, uniqueId + file.originalname);
+  },
+});
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
+  fileFilter: fileFilter,
+});
 //Route for save a new Person
-router.post("/", async (req, res) => {
+router.post("/", upload.single("photo"), async (req, res) => {
   try {
     if (!req.body.siteId) {
       return res.status(400).send({
@@ -29,8 +57,9 @@ router.post("/", async (req, res) => {
         message: "Send all required fields(job and date)",
       });
     }
+    const file = req.file.filename;
     const newPerson = {
-      photo: req.body.photo,
+      photo: file,
       firstName: req.body.firstName,
       middleName: req.body.middleName,
       lastName: req.body.lastName,
