@@ -26,7 +26,8 @@ import bodyParser from "body-parser";
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(upload.array());
+app.use("/images", express.static("images"));
+// app.use(upload.array());
 //MIDDLEWARES
 //Middleware for handling CORS
 app.use(cors());

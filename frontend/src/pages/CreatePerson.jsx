@@ -25,6 +25,7 @@ import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#ccc",
@@ -46,9 +47,9 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-const CreatePerson = () => {
+const CreatePerson = ({ siteId, siteName }) => {
   const location = useLocation();
-  const { siteId, siteName } = location.state;
+  //   const { siteId, siteName } = location.state;
   const [data, setData] = useState({
     firstName: "",
     middleName: "",
@@ -69,13 +70,20 @@ const CreatePerson = () => {
     employmentDate: dayjs(),
     children: "",
     photo: "",
+    site: siteName,
     siteId: siteId,
   });
   const [loading, setLoading] = useState(false);
   const [regError, setRegError] = useState(false);
-  const [makeError, setMakeError] = useState(false);
-  const [modelError, setModelError] = useState(false);
+  const [firstNameError, setFirstNameError] = useState(false);
+  const [middleNameError, setMiddleNameError] = useState(false);
+  const [lastNameError, setLastNameError] = useState(false);
+  const [jobError, setJobError] = useState(false);
+  const [employmentDateError, setEmploymentDateError] = useState(false);
+  const [IDNumError, setIDNumError] = useState(false);
+  const [EGNError, setEGNError] = useState(false);
   const [error, setError] = useState([false, ""]);
+  const [imageFeedback, setImageFeedback] = useState(false);
 
   const navigate = useNavigate();
 
@@ -85,18 +93,10 @@ const CreatePerson = () => {
   const handleSavePerson = (e) => {
     setLoading(true);
 
-    if (regError || makeError || modelError) {
+    if (firstNameError || middleNameError || lastNameError) {
+      e.preventDefault();
       setLoading(false);
-      toast.error("Има непоправени грешки", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+
       setError([
         true,
         "Има неправилно въведени данни. Проверете за червени полета и поправете грешките",
@@ -110,10 +110,32 @@ const CreatePerson = () => {
       !data.job ||
       !data.employmentDate
     ) {
+      e.preventDefault();
       setLoading(false);
+      if (!data.firstName) {
+        setFirstNameError(true);
+      }
+      if (!data.middleName) {
+        setMiddleNameError(true);
+      }
+      if (!data.lastName) {
+        setLastNameError(true);
+      }
+      if (!data.job) {
+        setJobError(true);
+      }
+      if (!data.employmentDate) {
+        setEmploymentDateError(true);
+      }
+      if (!data.IDNum) {
+        setIDNumError(true);
+      }
+      if (!data.EGN) {
+        setEGNError(true);
+      }
       setError([
         true,
-        "Има невъведени данни. Въведете всички задължителни данни, обелязани със ' * '",
+        "Има невъведени данни. Въведете всички задължителни данни, отбелязани със ' * '",
       ]);
     } else {
       e.preventDefault();
@@ -137,12 +159,14 @@ const CreatePerson = () => {
       formData.append("phoneSecond", data.phoneSecond);
       formData.append("children", data.children);
       formData.append("photo", data.photo);
+      formData.append("site", data.site);
       formData.append("siteId", data.siteId);
-      console.log(formData);
+
       axios
         .post("http://192.168.0.147:5555/api/person", formData)
         .then(() => {
           setLoading(false);
+          window.location.reload();
         })
         .catch((err) => {
           setLoading(false);
@@ -158,6 +182,7 @@ const CreatePerson = () => {
   };
   const handlePhoto = (e) => {
     setData({ ...data, photo: e.target.files[0] });
+    setImageFeedback(true);
     // console.log(e.target.files);
     // console.log(data.photo);
   };
@@ -168,36 +193,48 @@ const CreatePerson = () => {
       setError(false);
     }
 
-    if (e.target.id === "make") {
-      if (
-        (!e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) ||
-        !e.target.value
-      ) {
-        setMakeError(true);
+    if (e.target.name === "firstName") {
+      if (e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) {
+        setFirstNameError(true);
       } else {
-        setMakeError(false);
+        setFirstNameError(false);
       }
     }
-    if (e.target.id === "model") {
-      if (
-        (!e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) ||
-        !e.target.value
-      ) {
-        setModelError(true);
+    if (e.target.name === "middleName") {
+      if (e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) {
+        setMiddleNameError(true);
       } else {
-        setModelError(false);
+        setMiddleNameError(false);
+      }
+    }
+    if (e.target.name === "lastName") {
+      if (e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) {
+        setLastNameError(true);
+      } else {
+        setLastNameError(false);
       }
     }
 
+    if (e.target.name === "phone" || e.target.name === "phoneSecond") {
+      e.target.value = parseInt(e.target.value).toString();
+      if (e.target.value === "NaN") {
+        e.target.value = "";
+      }
+    }
     if (
-      (e.target.id === "km" ||
-        e.target.id === "startKm" ||
-        e.target.id === "price" ||
-        e.target.id === "talonNum" ||
-        e.target.id === "oil") &&
+      (e.target.name === "IDNum" || e.target.name === "EGN") &&
       e.target.value
     ) {
-      e.target.value = parseInt(e.target.value);
+      if (e.target.value.startsWith("0") && e.target.value !== "0") {
+        if (e.target.value.startsWith("00") && e.target.value !== "00") {
+          e.target.value = `00${parseInt(e.target.value).toString()}`;
+        } else {
+          e.target.value = `0${parseInt(e.target.value).toString()}`;
+        }
+      } else {
+        e.target.value = parseInt(e.target.value).toString();
+      }
+
       if (e.target.value === "NaN") {
         e.target.value = "";
       }
@@ -219,6 +256,25 @@ const CreatePerson = () => {
       telk: event.target.checked,
     });
   };
+
+  const jobs = [
+    "Управител",
+    "Супервайзер магазин",
+    "Оператор въвеждане на данни",
+    "Обслужващ магазин мърчандайзер",
+    "Обслужващ магазин  мърчандайзер каси",
+    "Продавач консултант",
+    "Касиер",
+    "Обслужващ магазин мърчандайзер кулинарен щанд",
+    "Обслужващ магазин мърчандайзер кулинарен щанд помощник",
+    "Транжор старши",
+  ];
+  const jobsList = () =>
+    jobs.map((job, index) => (
+      <MenuItem key={index} value={job}>
+        {job}
+      </MenuItem>
+    ));
 
   return (
     <div className="p-4">
@@ -253,85 +309,90 @@ const CreatePerson = () => {
         >
           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
             <Box sx={{ flexGrow: 1 }}>
-              <Grid container spacing={1}>
-                <Grid item xs={3}>
+              <Grid columns={10} container spacing={1}>
+                <Grid item xs={2}>
                   <div>
                     <TextField
                       required
                       id="firstName"
+                      name="firstName"
                       label="Име:"
                       value={data.firstName}
                       onChange={handleChange}
                       variant="filled"
+                      error={firstNameError}
+                      helperText={
+                        firstNameError
+                          ? "Имената се изписват на кирилица  \n "
+                          : ""
+                      }
                     ></TextField>
                   </div>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
+                  <div>
+                    <TextField
+                      required
+                      id="middleName"
+                      name="middleName"
+                      label="Презиме:"
+                      value={data.middleName}
+                      onChange={handleChange}
+                      variant="filled"
+                      error={middleNameError}
+                      helperText={
+                        middleNameError
+                          ? "Имената се изписват на кирилица  \n "
+                          : ""
+                      }
+                    ></TextField>
+                  </div>
+                </Grid>
+                <Grid item xs={2}>
+                  <div>
+                    <TextField
+                      required
+                      id="lastName"
+                      name="lastName"
+                      label="Фамилия:"
+                      variant="filled"
+                      value={data.lastName}
+                      onChange={handleChange}
+                      error={lastNameError}
+                      helperText={
+                        lastNameError
+                          ? "Имената се изписват на кирилица  \n "
+                          : ""
+                      }
+                    />
+                  </div>
+                </Grid>
+                <Grid item xs={2}>
                   {" "}
                   <div>
                     <TextField
                       required
-                      error={modelError}
+                      error={jobError}
                       select
                       name="job"
                       label="Длъжност:"
                       variant="filled"
                       value={data.job}
                       onChange={handleChange}
-                      helperText={
-                        modelError
-                          ? "Марката/моделът се изписват на ангийски език \n и могат да съдържат само букви и цифри"
-                          : ""
-                      }
                     >
-                      <MenuItem key={1} value={"асд"}>
-                        асд
-                      </MenuItem>
+                      {jobsList()}
                     </TextField>
                   </div>
                 </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <TextField
-                      name="education"
-                      select
-                      label="Образование:"
-                      variant="filled"
-                      value={data.education}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <TextField
-                      id="phone"
-                      label="Телефон:"
-                      value={data.phone}
-                      onChange={handleChange}
-                      variant="filled"
-                    ></TextField>
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <TextField
-                      required
-                      id="middleName"
-                      label="Презиме:"
-                      value={data.middleName}
-                      onChange={handleChange}
-                      variant="filled"
-                    ></TextField>
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
                   <div>
                     <DemoContainer components={["DatePicker, DatePicker"]}>
                       <DatePicker
                         required
+                        error={employmentDateError}
                         format="DD/MM/YYYY"
                         id="employmentDate"
+                        name="employmentDate"
                         label="Дата на постъпване:"
                         value={data.employmentDate}
                         onChange={(newValue) => {
@@ -343,84 +404,13 @@ const CreatePerson = () => {
                     </DemoContainer>
                   </div>
                 </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <TextField
-                      id="diploma"
-                      label="Диплома:"
-                      variant="filled"
-                      value={data.diploma}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <TextField
-                      id="phoneSecond"
-                      label="Телфон Близък:"
-                      variant="filled"
-                      value={data.phoneSecond}
-                      onChange={handleChange}
-                    ></TextField>
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <TextField
-                      required
-                      error={makeError}
-                      id="lastName"
-                      label="Фамилия:"
-                      variant="filled"
-                      value={data.lastName}
-                      onChange={handleChange}
-                      helperText={
-                        makeError
-                          ? "Марката/моделът се изписват на ангийски език \n и могат да съдържат само букви и цифри"
-                          : ""
-                      }
-                    />
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <TextField
-                      id="addressOfficial"
-                      label="Адрес по ЛК:"
-                      variant="filled"
-                      value={data.addressOfficial}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <TextField
-                      id="major"
-                      label="Специалност:"
-                      variant="filled"
-                      value={data.major}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <TextField
-                      id="email"
-                      label="Email:"
-                      value={data.email}
-                      onChange={handleChange}
-                      variant="filled"
-                    ></TextField>
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
                   <div>
                     <TextField
                       required
                       id="IDNum"
+                      error={IDNumError}
+                      name="IDNum"
                       label="ЛК №:"
                       variant="filled"
                       value={data.IDNum}
@@ -428,10 +418,134 @@ const CreatePerson = () => {
                     />
                   </div>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
+                  <div>
+                    <TextField
+                      required
+                      id="EGN"
+                      error={EGNError}
+                      name="EGN"
+                      label="ЕГН:"
+                      value={data.EGN}
+                      onChange={handleChange}
+                      variant="filled"
+                    ></TextField>
+                  </div>
+                </Grid>
+                <Grid item xs={2}>
+                  <div>
+                    <TextField
+                      name="education"
+                      select
+                      label="Образование:"
+                      variant="filled"
+                      value={data.education}
+                      onChange={handleChange}
+                    >
+                      <MenuItem key={1} value={"НАЧАЛНО"}>
+                        НАЧАЛНО
+                      </MenuItem>
+                      <MenuItem key={2} value={"ОСНОВНО"}>
+                        ОСНОВНО
+                      </MenuItem>
+                      <MenuItem key={3} value={"СРЕДНО"}>
+                        СРЕДНО
+                      </MenuItem>
+                      <MenuItem key={4} value={"ВИСШЕ"}>
+                        ВИСШЕ
+                      </MenuItem>
+                    </TextField>
+                  </div>
+                </Grid>
+                <Grid item xs={2}>
+                  <div>
+                    <TextField
+                      id="diploma"
+                      name="diploma"
+                      label="Диплома:"
+                      variant="filled"
+                      value={data.diploma}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </Grid>
+                <Grid item xs={2}>
+                  <div>
+                    <TextField
+                      id="major"
+                      name="major"
+                      label="Специалност:"
+                      variant="filled"
+                      value={data.major}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </Grid>
+                <Grid item xs={2}>
+                  <div>
+                    <TextField
+                      id="phone"
+                      name="phone"
+                      label="Телефон:"
+                      value={data.phone}
+                      onChange={handleChange}
+                      variant="filled"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">+359</InputAdornment>
+                        ),
+                      }}
+                    ></TextField>
+                  </div>
+                </Grid>
+
+                <Grid item xs={2}>
+                  <div>
+                    <TextField
+                      id="phoneSecond"
+                      name="phoneSecond"
+                      label="Телфон Близък:"
+                      variant="filled"
+                      value={data.phoneSecond}
+                      onChange={handleChange}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">+359</InputAdornment>
+                        ),
+                      }}
+                    ></TextField>
+                  </div>
+                </Grid>
+                <Grid item xs={2}>
+                  <div>
+                    <TextField
+                      id="email"
+                      name="email"
+                      label="Email:"
+                      value={data.email}
+                      onChange={handleChange}
+                      variant="filled"
+                    ></TextField>
+                  </div>
+                </Grid>
+                <Grid item xs={2}>
+                  <div>
+                    <TextField
+                      id="addressOfficial"
+                      name="addressOfficial"
+                      label="Адрес по ЛК:"
+                      variant="filled"
+                      value={data.addressOfficial}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </Grid>
+
+                <Grid item xs={2}>
                   <div>
                     <TextField
                       id="addressReal"
+                      name="addressReal"
                       label="Адрес по местопребиваване:"
                       variant="filled"
                       value={data.addressReal}
@@ -439,7 +553,7 @@ const CreatePerson = () => {
                     />
                   </div>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
                   <div>
                     <TextField
                       name="marital"
@@ -448,40 +562,56 @@ const CreatePerson = () => {
                       variant="filled"
                       value={data.marital}
                       onChange={handleChange}
-                    />
+                    >
+                      <MenuItem key={1} value={"НЕЖЕНЕН/А"}>
+                        НЕЖЕНЕН/А
+                      </MenuItem>
+                      <MenuItem key={2} value={"ЖЕНЕН/А"}>
+                        ЖЕНЕН/А
+                      </MenuItem>
+                      <MenuItem key={3} value={"РАЗВЕДЕН/А"}>
+                        РАЗВЕДЕН/А
+                      </MenuItem>
+                      <MenuItem key={4} value={"ВДОВЕЦ/А"}>
+                        ВДОВЕЦ/А
+                      </MenuItem>
+                    </TextField>
                   </div>
                 </Grid>
-                <Grid item xs={3}></Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
                   <div>
                     <TextField
-                      required
-                      id="EGN"
-                      label="ЕГН:"
-                      value={data.EGN}
-                      onChange={handleChange}
-                      variant="filled"
-                    ></TextField>
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <Checkbox checked={data.telk} onChange={handleTelk} />
-                    <span>ТЕЛК</span>
-                  </div>
-                </Grid>
-                <Grid item xs={3}>
-                  <div>
-                    <TextField
+                      select
                       id="children"
+                      name="children"
                       label="Деца:"
                       variant="filled"
                       value={data.children}
                       onChange={handleChange}
-                    />
+                    >
+                      <MenuItem key={1} value={"1"}>
+                        1
+                      </MenuItem>
+                      <MenuItem key={2} value={"2"}>
+                        2
+                      </MenuItem>
+                      <MenuItem key={3} value={"3"}>
+                        3
+                      </MenuItem>
+                      <MenuItem key={4} value={"4"}>
+                        4
+                      </MenuItem>
+                    </TextField>
                   </div>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
+                  <Box sx={{ alignContent: "center" }}>
+                    <Checkbox checked={data.telk} onChange={handleTelk} />
+                    <span>ТЕЛК</span>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={2} sx={{ alignContent: "center" }}>
                   <Button
                     component="label"
                     role={undefined}
@@ -489,13 +619,29 @@ const CreatePerson = () => {
                     tabIndex={-1}
                     startIcon={<CloudUploadIcon />}
                   >
-                    Upload file
+                    КАЧИ СНИМКА
                     <VisuallyHiddenInput
                       type="file"
                       accept=".png, .jpg, .jpeg"
                       onChange={handlePhoto}
                     />
                   </Button>
+                </Grid>
+                <Grid item xs={2} sx={{ alignContent: "center" }}>
+                  {imageFeedback && (
+                    <Box>
+                      <span style={{ color: "green" }}>Снимката е качена</span>
+                      <Button
+                        color="error"
+                        onClick={() => {
+                          setData({ ...data, photo: "" });
+                          setImageFeedback(false);
+                        }}
+                      >
+                        <DeleteForeverIcon />
+                      </Button>
+                    </Box>
+                  )}
                 </Grid>
               </Grid>
             </Box>

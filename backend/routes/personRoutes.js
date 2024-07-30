@@ -4,13 +4,14 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import multer from "multer";
 
+const __dirname = path.resolve();
 const router = express.Router();
 
 //Image upload function
 const uniqueId = uuidv4();
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../images"));
+    cb(null, path.join(__dirname, "/images"));
   },
   filename: function (req, file, cb) {
     cb(null, uniqueId + file.originalname);
@@ -57,7 +58,7 @@ router.post("/", upload.single("photo"), async (req, res) => {
         message: "Send all required fields(job and date)",
       });
     }
-    const file = req.file.filename;
+    const file = req.file ? req.file.filename : "user.jpg";
     const newPerson = {
       photo: file,
       firstName: req.body.firstName,
@@ -77,6 +78,7 @@ router.post("/", upload.single("photo"), async (req, res) => {
       phone: req.body.phone,
       phoneSecond: req.body.phoneSecond,
       employmentDate: req.body.employmentDate,
+      site: req.body.site,
       siteId: req.body.siteId,
     };
 
@@ -132,7 +134,7 @@ router.get("/site/:id", async (req, res) => {
   }
 });
 //Route for Update a Person
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.single("photo"), async (req, res) => {
   try {
     if (
       !req.body.siteId ||
@@ -146,10 +148,32 @@ router.put("/:id", async (req, res) => {
         message: "Send all required fields",
       });
     }
-
+    const file = req.file ? req.file.filename : "user.jpg";
     const { id } = req.params;
+    const updatePerson = {
+      photo: file,
+      firstName: req.body.firstName,
+      middleName: req.body.middleName,
+      lastName: req.body.lastName,
+      IDNum: req.body.IDNum,
+      EGN: req.body.EGN,
+      addressOfficial: req.body.addressOfficial,
+      addressReal: req.body.addressReal,
+      job: req.body.job,
+      marital: req.body.marital,
+      telk: req.body.telk,
+      education: req.body.education,
+      diploma: req.body.diploma,
+      major: req.body.major,
+      email: req.body.email,
+      phone: req.body.phone,
+      phoneSecond: req.body.phoneSecond,
+      employmentDate: req.body.employmentDate,
+      site: req.body.site,
+      siteId: req.body.siteId,
+    };
 
-    const result = await Person.findByIdAndUpdate(id, req.body);
+    const result = await Person.findByIdAndUpdate(id, updatePerson);
     if (!result) {
       return res.status(404).json({ message: "Person not found" });
     }

@@ -106,6 +106,7 @@ const Hr = () => {
       );
     });
   };
+
   return (
     <Box
       sx={{
@@ -125,6 +126,12 @@ const Hr = () => {
         sx={{ borderRight: 1, borderColor: "divider" }}
       >
         {siteNames()}
+        <Tab
+          key={sites.length + 1}
+          sx={{ fontWeight: "800" }}
+          label={"ВСИЧКИ"}
+          {...a11yProps(sites.length + 1)}
+        />
       </Tabs>
       {siteList()}
     </Box>

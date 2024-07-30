@@ -1473,7 +1473,7 @@ const ShowVehicle = () => {
               )}
             </div>
 
-            <div className="my-4">
+            <div className="my-2">
               <span className="text-xl mr-4 text-gray-500">
                 Последна Промяна:
               </span>
@@ -1483,7 +1483,7 @@ const ShowVehicle = () => {
                 )}
               </span>
             </div>
-            <div className="my-4">
+            <div className="my-2">
               <span className="text-xl mr-4 text-gray-500">Добавен:</span>
               <span>
                 {localDateTime(
@@ -1492,7 +1492,7 @@ const ShowVehicle = () => {
               </span>
             </div>
 
-            <div className="my-4">
+            <div className="my-2">
               <span className="text-xl mr-4 text-gray-500">ID:</span>
               <span>{vehicle._id}</span>
             </div>

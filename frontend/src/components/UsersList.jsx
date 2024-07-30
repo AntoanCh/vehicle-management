@@ -33,6 +33,13 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import FilledInput from "@mui/material/FilledInput";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -147,7 +154,10 @@ const Users = ({ users }) => {
   const [editUser, setEditUser] = useState();
   const [verifyDelete, setVerifyDelete] = useState([false, {}]);
   const [copyList, setCopyList] = useState();
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [caps, setCaps] = useState(false);
 
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
   const requestSearch = (searched, name) => {
     if (searched) {
       if (name === "username") {
@@ -166,6 +176,13 @@ const Users = ({ users }) => {
     } else {
       setCopyList();
     }
+  };
+  const handleClickChip = () => {
+    console.info("You clicked the Chip.");
+  };
+
+  const handleDeleteChip = () => {
+    console.info("You clicked the delete icon.");
   };
   const handleLoading = () => {
     setTimeout(() => {
@@ -362,7 +379,10 @@ const Users = ({ users }) => {
           <DialogContentText id="alert-dialog-description"></DialogContentText>
           <div>
             <span>ID: </span>
-            <span>{editUser ? editUser._id : ""}</span>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <span>{editUser ? editUser._id : ""}</span>
+              <span style={{ color: "red" }}> {caps ? "CAPSLOCK ON" : ""}</span>
+            </Box>
           </div>
 
           {edit[2] === "role" ? (
@@ -372,6 +392,22 @@ const Users = ({ users }) => {
                 <span>{editUser ? editUser.role : ""}</span>
               </div>
               <div className="my-2">
+                <Stack direction="row" spacing={1}>
+                  <Chip
+                    color="secondary"
+                    label="Clickable Deletable"
+                    variant="outlined"
+                    onClick={handleClickChip}
+                  />
+                </Stack>
+                <Stack direction="row" spacing={1}>
+                  <Chip
+                    color="primary"
+                    label="Clickable Deletable"
+                    variant="outlined"
+                    onDelete={handleDeleteChip}
+                  />
+                </Stack>
                 <TextField
                   fullWidth
                   name="role"
@@ -405,7 +441,42 @@ const Users = ({ users }) => {
           )}
           {edit[2] === "password" ? (
             <div className="my-2">
-              <TextField
+              <FormControl
+                sx={{ minWidth: "400px" }}
+                fullWidth
+                variant="filled"
+              >
+                <InputLabel htmlFor="filled-adornment-password">
+                  Нова Парола
+                </InputLabel>
+                <FilledInput
+                  value={editUser.password}
+                  onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (e.getModifierState("CapsLock")) {
+                      setCaps(true);
+                    } else {
+                      setCaps(false);
+                    }
+                  }}
+                  name="password"
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        // onMouseDown={handleMouseDownPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+              {/* <TextField
                 fullWidth
                 type="password"
                 name="password"
@@ -414,7 +485,7 @@ const Users = ({ users }) => {
                 variant="filled"
                 value={editUser.password}
                 onChange={handleChange}
-              />
+              /> */}
             </div>
           ) : (
             ""

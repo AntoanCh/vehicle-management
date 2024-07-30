@@ -65,7 +65,7 @@ export const personSchema = mongoose.Schema(
     phoneSecond: {
       type: String,
     },
-    emplymentDate: {
+    employmentDate: {
       type: Date,
       required: false,
       uppercase: false,

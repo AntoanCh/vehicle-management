@@ -8,10 +8,22 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import Input from "@mui/material/Input";
+import FilledInput from "@mui/material/FilledInput";
+import InputLabel from "@mui/material/InputLabel";
+import { Box } from "@mui/material";
+import InputAdornment from "@mui/material/InputAdornment";
+import FormHelperText from "@mui/material/FormHelperText";
+import FormControl from "@mui/material/FormControl";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const Login = () => {
   const [users, setUsers] = useState();
   const [error, setError] = useState([false, ""]);
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [caps, setCaps] = useState(false);
   useEffect(() => {
     axios
       .get("http://192.168.0.147:5555/api/users")
@@ -36,7 +48,7 @@ const Login = () => {
       [name]: value,
     });
   };
-
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleError = () => {
     setError(false, "");
   };
@@ -126,8 +138,43 @@ const Login = () => {
                 )}
               </TextField>
             </div>
+            <Box sx={{ display: "flex", flexDirection: "row-reverse" }}>
+              <span style={{ color: "red" }}> {caps ? "CAPSLOCK ON" : ""}</span>
+            </Box>
+
             <div className="my-4">
-              <TextField
+              <FormControl fullWidth variant="filled">
+                <InputLabel htmlFor="filled-adornment-password">
+                  Парола:
+                </InputLabel>
+                <FilledInput
+                  id="filled-adornment-password"
+                  name="password"
+                  value={password}
+                  onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (e.getModifierState("CapsLock")) {
+                      setCaps(true);
+                    } else {
+                      setCaps(false);
+                    }
+                  }}
+                  type={showPassword ? "text" : "password"}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        // onMouseDown={handleMouseDownPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+              {/* <TextField
                 type="password"
                 fullWidth
                 name="password"
@@ -135,7 +182,7 @@ const Login = () => {
                 value={password}
                 onChange={handleChange}
                 variant="filled"
-              />
+              /> */}
             </div>
             <div className="my-4">
               <Button

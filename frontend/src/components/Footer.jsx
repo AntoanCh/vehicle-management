@@ -32,6 +32,8 @@ const Footer = () => {
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Version {process.env.REACT_APP_VERSION}
+            -Added fixes to Hr components -Added fixes to new person form -Added
+            fixes to Person card -Changes to password fields
           </DialogContentText>
         </DialogContent>
         <DialogActions>

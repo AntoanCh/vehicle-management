@@ -34,6 +34,8 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
+import Edit from "@mui/icons-material/Edit";
+import EditIcon from "@mui/icons-material/Edit";
 //test
 
 // test
@@ -309,15 +311,26 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       obj.km + " км",
       obj.cost + " лв",
       userRole === "admin" || userRole === vehicle.site ? (
-        <IconButton
-          onClick={() => {
-            setVerifyDelete([true, obj]);
-          }}
-          color="error"
-          variant="contained"
-        >
-          <DeleteForeverIcon />
-        </IconButton>
+        <Box>
+          <IconButton
+            onClick={() => {
+              setVerifyDelete([true, obj]);
+            }}
+            color="warning"
+            variant="contained"
+          >
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              setVerifyDelete([true, obj]);
+            }}
+            color="error"
+            variant="contained"
+          >
+            <DeleteForeverIcon />
+          </IconButton>
+        </Box>
       ) : (
         ""
       ),
@@ -336,7 +349,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
     { name: "Фактура №" },
     { name: "Километри" },
     { name: "Стойност" },
-    { name: "" },
+    { name: "Действия" },
   ];
   const options = {
     filterType: "checkbox",

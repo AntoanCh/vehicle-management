@@ -47,6 +47,13 @@ import HomeIcon from "@mui/icons-material/Home";
 import BusinessIcon from "@mui/icons-material/Business";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import StoreMallDirectoryIcon from "@mui/icons-material/StoreMallDirectory";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import InputAdornment from "@mui/material/InputAdornment";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
+import Input from "@mui/material/Input";
+import FilledInput from "@mui/material/FilledInput";
 
 const drawerWidth = 240;
 
@@ -136,7 +143,10 @@ const HeaderMenu = () => {
   const handleCloseProfile = () => {
     setAnchorEl(null);
   };
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [caps, setCaps] = useState(false);
 
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
   useEffect(() => {
     const verifyUser = async () => {
       if (!token) {
@@ -237,7 +247,7 @@ const HeaderMenu = () => {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  return (
+  return username && userId ? (
     <Box>
       <Collapse
         in={alert}
@@ -274,11 +284,47 @@ const HeaderMenu = () => {
           <div>
             <header>{username}</header>
             <span>ID: </span>
-            <span>{userId}</span>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <span>{userId}</span>
+              <span style={{ color: "red" }}> {caps ? "CAPSLOCK ON" : ""}</span>
+            </Box>
           </div>
 
           <div className="my-2">
-            <TextField
+            <FormControl sx={{ minWidth: "400px" }} fullWidth variant="filled">
+              <InputLabel htmlFor="filled-adornment-password">
+                Нова Парола
+              </InputLabel>
+
+              <FilledInput
+                value={editUser.password}
+                onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (e.getModifierState("CapsLock")) {
+                    setCaps(true);
+                  } else {
+                    setCaps(false);
+                  }
+                }}
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      // onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+
+            {/* <TextField
               fullWidth
               type="password"
               name="password"
@@ -287,8 +333,34 @@ const HeaderMenu = () => {
               variant="filled"
               value={editUser.password}
               onChange={handleChange}
-            />
+            /> */}
           </div>
+          {/* <div className="my-2">
+            <FormControl sx={{ m: 1 }} variant="filled" fullWidth>
+              <InputLabel htmlFor="standard-adornment-password">
+                Повтори Парола
+              </InputLabel>
+              <Input
+                fullWidth
+                value={editUser.password2}
+                onChange={handleChange}
+                id="password2"
+                name="password2"
+                type={showPassword ? "text" : "password"}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      // onMouseDown={handleMouseDownPassword}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+          </div> */}
         </DialogContent>
         <DialogActions>
           <Button
@@ -566,6 +638,8 @@ const HeaderMenu = () => {
         </List>
       </Drawer>
     </Box>
+  ) : (
+    ""
   );
 };
 

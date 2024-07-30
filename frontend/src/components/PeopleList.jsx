@@ -34,6 +34,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Link } from "react-router-dom";
+import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
+import CreatePerson from "../pages/CreatePerson";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -124,11 +126,7 @@ function EnhancedTableHead(props) {
       <TableRow sx={{ backgroundColor: "grey" }}>
         {headCells.map((headCell) => (
           <TableCell
-            align={
-              headCell.id === "actions" || headCell.id === "id"
-                ? "right"
-                : "left"
-            }
+            align={headCell.id === "actions" ? "right" : "left"}
             key={headCell.id}
             padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
@@ -141,7 +139,7 @@ function EnhancedTableHead(props) {
               {headCell.label}
               {orderBy === headCell.id ? (
                 <Box component="span" sx={visuallyHidden}>
-                  {order === "username"
+                  {order === "firstName"
                     ? "sorted descending"
                     : "sorted ascending"}
                 </Box>
@@ -326,7 +324,11 @@ const PeopleList = ({ people, siteName, siteId }) => {
   const handleClick = (event, id) => {
     navigate(`/people/details/${id}`);
   };
-
+  const bgDate = (date) => {
+    let [yyyy, mm, dd] = date.split("-");
+    let newDate = `${dd}.${mm}.${yyyy}`;
+    return newDate;
+  };
   return (
     <Box>
       <Dialog
@@ -355,7 +357,7 @@ const PeopleList = ({ people, siteName, siteId }) => {
             onClick={() => {
               axios
                 .delete(
-                  `http://192.168.0.147:5555/api/sites/${verifyDelete[1]._id}`
+                  `http://192.168.0.147:5555/api/people/${verifyDelete[1]._id}`
                 )
                 .then(() => {
                   window.location.reload();
@@ -448,6 +450,7 @@ const PeopleList = ({ people, siteName, siteId }) => {
         </DialogActions>
       </Dialog>
       <Dialog
+        maxWidth={"xl"}
         open={add}
         onClose={handleCloseAdd}
         aria-labelledby="alert-dialog-title"
@@ -458,59 +461,7 @@ const PeopleList = ({ people, siteName, siteId }) => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
-          <div className="">
-            <div className="bg-gray-300 flex flex-col border-2 border-blue-400 rounded-xl w-[400px] p-4 mx-auto">
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="name"
-                  label="Обект:"
-                  value={name}
-                  onChange={handleChangeAdd}
-                  variant="filled"
-                ></TextField>
-              </div>
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="address"
-                  label="Адрес:"
-                  value={address}
-                  onChange={handleChangeAdd}
-                  variant="filled"
-                ></TextField>
-              </div>
-              <div className="my-4">
-                <TextField
-                  type="phone"
-                  fullWidth
-                  name="phone"
-                  label="Tелефон:"
-                  value={phone}
-                  onChange={handleChangeAdd}
-                  variant="filled"
-                />
-              </div>
-              <div className="my-4">
-                <TextField
-                  type="email"
-                  fullWidth
-                  name="email"
-                  label="Еmail:"
-                  value={email}
-                  onChange={handleChangeAdd}
-                  variant="filled"
-                />
-              </div>
-              {
-                <div className="my-4">
-                  <Button onClick={handleSubmit} fullWidth variant="outlined">
-                    ЗАПИШИ
-                  </Button>
-                </div>
-              }
-            </div>
-          </div>
+          <CreatePerson siteId={siteId} siteName={siteName} />
         </DialogContent>
         <DialogActions>
           <Button
@@ -520,9 +471,6 @@ const PeopleList = ({ people, siteName, siteId }) => {
             autoFocus
           >
             Отказ
-          </Button>
-          <Button variant="contained" onClick={handleAddSubmit} autoFocus>
-            Добави
           </Button>
         </DialogActions>
       </Dialog>{" "}
@@ -566,11 +514,12 @@ const PeopleList = ({ people, siteName, siteId }) => {
                       <TableCell>
                         {" "}
                         <Button
-                          onClick={() =>
-                            navigate("/hr/create", {
-                              state: { siteName, siteId },
-                            })
-                          }
+                          onClick={() => setAdd(true)}
+                          // onClick={() =>
+                          //   navigate("/hr/create", {
+                          //     state: { siteName, siteId },
+                          //   })
+                          // }
                           variant="contained"
                         >
                           ДОБАВИ <AddCircleOutlineIcon />
@@ -615,24 +564,21 @@ const PeopleList = ({ people, siteName, siteId }) => {
                               {`${row.firstName} ${row.middleName} ${row.lastName}`}
                             </TableCell>
                             <TableCell>{row.job}</TableCell>
-                            <TableCell align="right">
-                              {row.employmentDate}
+                            <TableCell align="left">
+                              {
+                                bgDate(row.employmentDate.slice(0, 10))
+                                // row.employmentDate
+                              }
                             </TableCell>
-                            <TableCell align="right">{row.phone}</TableCell>
-                            <TableCell align="right">{row.email}</TableCell>
-                            <TableCell align="right">
+                            <TableCell align="left">{`+359 ${row.phone}`}</TableCell>
+                            <TableCell align="left">{row.email}</TableCell>
+                            <TableCell align="left">
                               {row.addressReal}
                             </TableCell>
 
                             <TableCell align="right">
-                              <IconButton
-                                onClick={() => {
-                                  setEdit([true, row]);
-                                }}
-                                color="warning"
-                                variant="outlined"
-                              >
-                                <EditIcon />
+                              <IconButton color="success" variant="contained">
+                                <TransferWithinAStationIcon />
                               </IconButton>
                               <IconButton
                                 onClick={() => {
