@@ -161,6 +161,7 @@ EnhancedTableHead.propTypes = {
 const PeopleList = ({ people, siteName, siteId }) => {
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState([false, {}]);
+  const [transfer, setTransfer] = useState([false, {}]);
   const [add, setAdd] = useState(false);
   const [verifyDelete, setVerifyDelete] = useState([false, {}]);
   const [copyList, setCopyList] = useState();
@@ -243,8 +244,8 @@ const PeopleList = ({ people, siteName, siteId }) => {
     console.log(edit);
   };
 
-  const handleCloseEdit = () => {
-    setEdit([false, {}]);
+  const handleCloseTransfer = () => {
+    setTransfer([false, {}]);
   };
   const handleAddSubmit = async (e) => {
     e.preventDefault();
@@ -340,7 +341,7 @@ const PeopleList = ({ people, siteName, siteId }) => {
         <DialogTitle id="alert-dialog-title">ИЗТРИВАНЕ</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
-          {`Сигурен ли сте, че искате да изтриете обект ${verifyDelete[1].name} Тази операция е необратима`}
+          {`Сигурен ли сте, че искате да изтриете ${verifyDelete[1].firstName} ${verifyDelete[1].middleName} ${verifyDelete[1].lastName} Тази операция е необратима`}
         </DialogContent>
         <DialogActions>
           <Button
@@ -357,7 +358,7 @@ const PeopleList = ({ people, siteName, siteId }) => {
             onClick={() => {
               axios
                 .delete(
-                  `http://192.168.0.147:5555/api/people/${verifyDelete[1]._id}`
+                  `http://192.168.0.147:5555/api/person/${verifyDelete[1]._id}`
                 )
                 .then(() => {
                   window.location.reload();
@@ -373,61 +374,30 @@ const PeopleList = ({ people, siteName, siteId }) => {
         </DialogActions>
       </Dialog>
       <Dialog
-        open={edit[0]}
-        onClose={handleCloseEdit}
+        open={transfer[0]}
+        onClose={handleCloseTransfer}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {`РЕДАКТИРАНЕ ${edit[1].name}`}
+          {`СМЯНА ОБЕКТ  ${edit[1].firstName} ${edit[1].middleName} ${edit[1].lastName}`}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
           <div>
             <span>ID: </span>
-            <span>{edit ? edit[1]._id : ""}</span>
+            <span>{transfer ? transfer[1]._id : ""}</span>
           </div>
 
           <div className="">
             <div className="bg-gray-300 flex flex-col border-2 border-blue-400 rounded-xl w-[400px] p-4 mx-auto">
               <div className="my-4">
                 <TextField
-                  fullWidth
-                  name="name"
-                  label="Обект:"
-                  value={edit[1].name}
-                  onChange={handleChangeEdit}
-                  variant="filled"
-                ></TextField>
-              </div>
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="address"
-                  label="Адрес:"
-                  value={edit[1].address}
-                  onChange={handleChangeEdit}
-                  variant="filled"
-                ></TextField>
-              </div>
-              <div className="my-4">
-                <TextField
-                  type="phone"
-                  fullWidth
-                  name="phone"
-                  label="Tелефон:"
-                  value={edit[1].phone}
-                  onChange={handleChangeEdit}
-                  variant="filled"
-                />
-              </div>
-              <div className="my-4">
-                <TextField
                   type="email"
                   fullWidth
                   name="email"
                   label="Еmail:"
-                  value={edit[1].email}
+                  value={transfer[1].email}
                   onChange={handleChangeEdit}
                   variant="filled"
                 />
@@ -439,7 +409,7 @@ const PeopleList = ({ people, siteName, siteId }) => {
           <Button
             color="error"
             variant="contained"
-            onClick={handleCloseEdit}
+            onClick={handleCloseTransfer}
             autoFocus
           >
             Отказ
@@ -577,11 +547,19 @@ const PeopleList = ({ people, siteName, siteId }) => {
                             </TableCell>
 
                             <TableCell align="right">
-                              <IconButton color="success" variant="contained">
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setTransfer([true, row]);
+                                }}
+                                color="success"
+                                variant="contained"
+                              >
                                 <TransferWithinAStationIcon />
                               </IconButton>
                               <IconButton
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setVerifyDelete([true, row]);
                                 }}
                                 color="error"

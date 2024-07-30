@@ -138,8 +138,11 @@ const PersonCard = () => {
   const handleShowLog = () => {
     setShowLog(!showLog);
   };
-  const handleClose = () => {
+  const handleCloseDel = () => {
     setVerDelete(false);
+  };
+  const handleClose = () => {
+    setError([false, ""]);
   };
   const verifyDelete = () => {
     setVerDelete(true);
@@ -297,7 +300,7 @@ const PersonCard = () => {
       formData.append("siteId", person.siteId);
 
       axios
-        .put(`http://192.168.0.147:5555/api/person/${person._id}`, person)
+        .put(`http://192.168.0.147:5555/api/person/${person._id}`, formData)
         .then(() => {
           // axios.post(`http://192.168.0.147:5555/logs`, {
           //   date: dayjs(),
@@ -446,7 +449,7 @@ const PersonCard = () => {
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
           <Dialog
             open={verDelete}
-            onClose={handleClose}
+            onClose={handleCloseDel}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
           >
@@ -461,13 +464,13 @@ const PersonCard = () => {
               <Button
                 color="error"
                 variant="contained"
-                onClick={handleClose}
+                onClick={handleCloseDel}
                 autoFocus
               >
                 Отказ
               </Button>
               <Button variant="contained" onClick={handleDelete} autoFocus>
-                Добави
+                ИзтриЙ
               </Button>
             </DialogActions>
           </Dialog>
@@ -490,21 +493,23 @@ const PersonCard = () => {
                   }
                 />
 
-                <Button
-                  sx={{ width: 250 }}
-                  component="label"
-                  role={undefined}
-                  variant="contained"
-                  tabIndex={-1}
-                  startIcon={<CloudUploadIcon />}
-                >
-                  КАЧИ СНИМКА
-                  <VisuallyHiddenInput
-                    type="file"
-                    accept=".png, .jpg, .jpeg"
-                    onChange={handlePhoto}
-                  />
-                </Button>
+                {edit && (
+                  <Button
+                    sx={{ width: 250 }}
+                    component="label"
+                    role={undefined}
+                    variant="contained"
+                    tabIndex={-1}
+                    startIcon={<CloudUploadIcon />}
+                  >
+                    КАЧИ СНИМКА
+                    <VisuallyHiddenInput
+                      type="file"
+                      accept=".png, .jpg, .jpeg"
+                      onChange={handlePhoto}
+                    />
+                  </Button>
+                )}
               </Box>
               <Box sx={{ alignItems: "end" }}>
                 <Fab
@@ -567,7 +572,7 @@ const PersonCard = () => {
                         },
                       }}
                       disabled={edit ? false : true}
-                      value={person.phone}
+                      value={person.phone ? person.phone : ""}
                       id="standard-basic"
                       variant="standard"
                       name="phone"
@@ -620,7 +625,7 @@ const PersonCard = () => {
                         },
                       }}
                       disabled={edit ? false : true}
-                      value={person.phoneSecond}
+                      value={person.phoneSecond ? person.phoneSecond : ""}
                       id="standard-basic"
                       variant="standard"
                       name="phoneSecond"
@@ -696,6 +701,7 @@ const PersonCard = () => {
                     variant="standard"
                     name="IDNum"
                     onChange={handleChange}
+                    error={IDNumError}
                   />
                 </Item>
                 <Item sx={{ width: "50%" }}>
@@ -716,6 +722,7 @@ const PersonCard = () => {
                     variant="standard"
                     name="EGN"
                     onChange={handleChange}
+                    error={EGNError}
                   />
                 </Item>
                 <Item sx={{ width: "50%" }}>
@@ -731,7 +738,7 @@ const PersonCard = () => {
                       },
                     }}
                     disabled={edit ? false : true}
-                    value={person.addressOfficial}
+                    value={person.addressOfficial ? person.addressOfficial : ""}
                     id="standard-basic"
                     variant="standard"
                     name="addressOfficial"
@@ -751,7 +758,7 @@ const PersonCard = () => {
                       },
                     }}
                     disabled={edit ? false : true}
-                    value={person.addressReal}
+                    value={person.addressReal ? person.addressReal : ""}
                     id="standard-basic"
                     variant="standard"
                     name="addressReal"
@@ -847,12 +854,13 @@ const PersonCard = () => {
                       },
                     }}
                     disabled={edit ? false : true}
-                    value={person.job}
+                    value={person.job ? person.job : ""}
                     id="standard-basic"
                     variant="standard"
                     select={edit ? true : false}
                     name="job"
                     onChange={handleChange}
+                    error={jobError}
                   >
                     {jobsList()}
                   </TextField>
@@ -871,7 +879,7 @@ const PersonCard = () => {
                       },
                     }}
                     disabled={edit ? false : true}
-                    value={person.marital}
+                    value={person.marital ? person.marital : ""}
                     id="standard-basic"
                     variant="standard"
                     select={edit ? true : false}
@@ -906,7 +914,7 @@ const PersonCard = () => {
                       },
                     }}
                     disabled={edit ? false : true}
-                    value={person.children}
+                    value={person.children ? person.children : ""}
                     id="standard-basic"
                     variant="standard"
                     select={edit ? true : false}
@@ -975,7 +983,7 @@ const PersonCard = () => {
                       },
                     }}
                     disabled={edit ? false : true}
-                    value={person.education}
+                    value={person.education ? person.education : ""}
                     id="standard-basic"
                     variant="standard"
                     select={edit ? true : false}
@@ -1009,7 +1017,7 @@ const PersonCard = () => {
                       },
                     }}
                     disabled={edit ? false : true}
-                    value={person.diploma}
+                    value={person.diploma ? person.diploma : ""}
                     id="standard-basic"
                     variant="standard"
                     name="diploma"
