@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -45,6 +45,7 @@ import AccordionActions from "@mui/material/AccordionActions";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useReactToPrint } from "react-to-print";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#ccc",
@@ -91,13 +92,16 @@ const PersonCard = () => {
   const [lastNameError, setLastNameError] = useState(false);
   const [jobError, setJobError] = useState(false);
   const [employmentDateError, setEmploymentDateError] = useState(false);
-  const [IDNumError, setIDNumError] = useState(false);
   const [EGNError, setEGNError] = useState(false);
   const [error, setError] = useState([false, ""]);
   const token = localStorage.getItem("token");
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const componentRef = useRef();
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+  });
   useEffect(() => {
     const verifyUser = async () => {
       if (!token) {
@@ -243,7 +247,6 @@ const PersonCard = () => {
       !person.middleName ||
       !person.lastName ||
       !person.EGN ||
-      !person.IDNum ||
       !person.job ||
       !person.employmentDate
     ) {
@@ -264,9 +267,7 @@ const PersonCard = () => {
       if (!person.employmentDate) {
         setEmploymentDateError(true);
       }
-      if (!person.IDNum) {
-        setIDNumError(true);
-      }
+
       if (!person.EGN) {
         setEGNError(true);
       }
@@ -281,7 +282,6 @@ const PersonCard = () => {
       formData.append("middleName", person.middleName);
       formData.append("lastName", person.lastName);
       formData.append("EGN", person.EGN);
-      formData.append("IDNum", person.IDNum);
       formData.append("job", person.job);
       formData.append("employmentDate", person.employmentDate);
       formData.append("addressOfficial", person.addressOfficial);
@@ -289,7 +289,6 @@ const PersonCard = () => {
       formData.append("marital", person.marital);
       formData.append("telk", person.telk);
       formData.append("education", person.education);
-      formData.append("diploma", person.diploma);
       formData.append("major", person.major);
       formData.append("email", person.email);
       formData.append("phone", person.phone);
@@ -334,21 +333,21 @@ const PersonCard = () => {
 
   const handleChange = (e) => {
     if (e.target.name === "firstName") {
-      if (e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) {
+      if (e.target.value.match(/^[A-Za-z0-9 \s]*$/) && e.target.value) {
         setFirstNameError(true);
       } else {
         setFirstNameError(false);
       }
     }
     if (e.target.name === "middleName") {
-      if (e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) {
+      if (e.target.value.match(/^[A-Za-z0-9 \s]*$/) && e.target.value) {
         setMiddleNameError(true);
       } else {
         setMiddleNameError(false);
       }
     }
     if (e.target.name === "lastName") {
-      if (e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) {
+      if (e.target.value.match(/^[A-Za-z0-9 \s]*$/) && e.target.value) {
         setLastNameError(true);
       } else {
         setLastNameError(false);
@@ -361,10 +360,7 @@ const PersonCard = () => {
         e.target.value = "";
       }
     }
-    if (
-      (e.target.name === "IDNum" || e.target.name === "EGN") &&
-      e.target.value
-    ) {
+    if (e.target.name === "EGN" && e.target.value) {
       if (e.target.value.startsWith("0") && e.target.value !== "0") {
         if (e.target.value.startsWith("00") && e.target.value !== "00") {
           e.target.value = `00${parseInt(e.target.value).toString()}`;
@@ -406,16 +402,16 @@ const PersonCard = () => {
       );
     });
   const jobs = [
-    "Управител",
-    "Супервайзер магазин",
-    "Оператор въвеждане на данни",
-    "Обслужващ магазин мърчандайзер",
-    "Обслужващ магазин  мърчандайзер каси",
-    "Продавач консултант",
-    "Касиер",
-    "Обслужващ магазин мърчандайзер кулинарен щанд",
-    "Обслужващ магазин мърчандайзер кулинарен щанд помощник",
-    "Транжор старши",
+    "УПРАВИТЕЛ",
+    "СУПЕРВАЙЗЕР МАГАЗИН",
+    "ОПЕРАТОР ВЪВЕЖДАНЕ НА ДАННИ",
+    "МЪРЧАНДАЙЗЕР",
+    "МЪРЧАНДАЙЗЕР КАСИ",
+    "ПРОДАВАЧ КОНСУЛТАНТ",
+    "КАСИЕР",
+    "МЪРЧАНДАЙЗЕР КУЛИНАРЕН ЩАНД",
+    "МЪРЧАНДАЙЗЕР КУЛИНАРЕН ЩАНД ПОМОЩНИК",
+    "ТРАНЖОР СТАРШИ",
   ];
   const jobsList = () =>
     jobs.map((job, index) => (
@@ -423,6 +419,7 @@ const PersonCard = () => {
         {job}
       </MenuItem>
     ));
+
   return (
     <div className="p-4">
       <Dialog
@@ -475,61 +472,219 @@ const PersonCard = () => {
             </DialogActions>
           </Dialog>
           <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-9/12 p-4">
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Box>
-                <Box
-                  component="img"
-                  sx={{
-                    height: 233,
-                    width: 350,
-                    maxHeight: { xs: 233, md: 167 },
-                    maxWidth: { xs: 350, md: 250 },
-                  }}
-                  onerror="Снимка"
-                  src={
-                    person.photo
-                      ? `http://192.168.0.147:5555/images/${person.photo}`
-                      : `http://192.168.0.147:5555/images/user.png`
-                  }
-                />
+            <Box ref={componentRef}>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Box>
+                  <Box
+                    component="img"
+                    sx={{
+                      height: 233,
+                      width: 350,
+                      maxHeight: { xs: 233, md: 167 },
+                      maxWidth: { xs: 350, md: 250 },
+                    }}
+                    onerror="Снимка"
+                    src={
+                      person.photo
+                        ? `http://192.168.0.147:5555/images/${person.photo}`
+                        : `http://192.168.0.147:5555/images/user.png`
+                    }
+                  />
 
-                {edit && (
-                  <Button
-                    sx={{ width: 250 }}
-                    component="label"
-                    role={undefined}
-                    variant="contained"
-                    tabIndex={-1}
-                    startIcon={<CloudUploadIcon />}
+                  {edit && (
+                    <Button
+                      sx={{ width: 250 }}
+                      component="label"
+                      role={undefined}
+                      variant="contained"
+                      tabIndex={-1}
+                      startIcon={<CloudUploadIcon />}
+                    >
+                      КАЧИ СНИМКА
+                      <VisuallyHiddenInput
+                        type="file"
+                        accept=".png, .jpg, .jpeg"
+                        onChange={handlePhoto}
+                      />
+                    </Button>
+                  )}
+                </Box>
+                <Box sx={{ alignItems: "end" }}>
+                  <Fab
+                    //   variant="extended"
+                    onClick={handlePrint}
+                    color="primary"
+                    aria-label="add"
                   >
-                    КАЧИ СНИМКА
-                    <VisuallyHiddenInput
-                      type="file"
-                      accept=".png, .jpg, .jpeg"
-                      onChange={handlePhoto}
-                    />
-                  </Button>
-                )}
+                    <PrintIcon />
+                  </Fab>
+                </Box>
               </Box>
-              <Box sx={{ alignItems: "end" }}>
-                <Fab
-                  //   variant="extended"
-                  onClick={() => {
-                    window.print();
-                  }}
-                  color="primary"
-                  aria-label="add"
-                >
-                  <PrintIcon />
-                </Fab>
-              </Box>
-            </Box>
 
-            <Box sx={{ width: "100%" }}>
-              <Stack spacing={1}>
-                <Box sx={{ display: "flex" }}>
+              <Box sx={{ width: "100%" }}>
+                <Stack spacing={1}>
+                  <Box sx={{ display: "flex" }}>
+                    <Item sx={{ width: "50%" }}>
+                      <span>Име:</span>
+                      <TextField
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 16,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "end",
+                          },
+                        }}
+                        disabled={edit ? false : true}
+                        value={person.firstName}
+                        id="standard-basic"
+                        variant="standard"
+                        name="firstName"
+                        onChange={handleChange}
+                        error={firstNameError}
+                        helperText={
+                          firstNameError
+                            ? "Имената се изписват на кирилица  \n "
+                            : ""
+                        }
+                      />
+                    </Item>
+                    <Item sx={{ width: "50%", marginLeft: "5px" }}>
+                      <span>Телефон:</span>
+                      <TextField
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              +359
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 16,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "start",
+                          },
+                        }}
+                        disabled={edit ? false : true}
+                        value={person.phone ? person.phone : ""}
+                        id="standard-basic"
+                        variant="standard"
+                        name="phone"
+                        onChange={handleChange}
+                      />
+                    </Item>
+                  </Box>
+                  <Box sx={{ display: "flex" }}>
+                    <Item sx={{ width: "50%" }}>
+                      <span>Презиме:</span>
+                      <TextField
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 16,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "end",
+                          },
+                        }}
+                        disabled={edit ? false : true}
+                        value={person.middleName}
+                        id="standard-basic"
+                        variant="standard"
+                        name="middleName"
+                        onChange={handleChange}
+                        error={middleNameError}
+                        helperText={
+                          middleNameError
+                            ? "Имената се изписват на кирилица  \n "
+                            : ""
+                        }
+                      />
+                    </Item>
+                    <Item sx={{ width: "50%", marginLeft: "5px" }}>
+                      <span>Телефон Близък:</span>
+                      <TextField
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              +359
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 16,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "start",
+                          },
+                        }}
+                        disabled={edit ? false : true}
+                        value={person.phoneSecond ? person.phoneSecond : ""}
+                        id="standard-basic"
+                        variant="standard"
+                        name="phoneSecond"
+                        onChange={handleChange}
+                      />
+                    </Item>
+                  </Box>
+
+                  <Box sx={{ display: "flex" }}>
+                    <Item sx={{ width: "50%" }}>
+                      <span>Фамилия:</span>
+                      <TextField
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 16,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "end",
+                          },
+                        }}
+                        disabled={edit ? false : true}
+                        value={person.lastName}
+                        id="standard-basic"
+                        variant="standard"
+                        name="lastName"
+                        onChange={handleChange}
+                        error={lastNameError}
+                        helperText={
+                          lastNameError
+                            ? "Имената се изписват на кирилица  \n "
+                            : ""
+                        }
+                      />
+                    </Item>
+                    <Item sx={{ width: "50%", marginLeft: "5px" }}>
+                      <span>Email:</span>
+                      <TextField
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 16,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "start",
+                          },
+                        }}
+                        disabled={edit ? false : true}
+                        value={person.email}
+                        id="standard-basic"
+                        variant="standard"
+                        name="email"
+                        onChange={handleChange}
+                      />
+                    </Item>
+                  </Box>
+
                   <Item sx={{ width: "50%" }}>
-                    <span>Име:</span>
+                    <span>ЕГН:</span>
                     <TextField
                       sx={{
                         "& .MuiInputBase-input": {
@@ -541,48 +696,16 @@ const PersonCard = () => {
                         },
                       }}
                       disabled={edit ? false : true}
-                      value={person.firstName}
+                      value={person.EGN}
                       id="standard-basic"
                       variant="standard"
-                      name="firstName"
+                      name="EGN"
                       onChange={handleChange}
-                      error={firstNameError}
-                      helperText={
-                        firstNameError
-                          ? "Имената се изписват на кирилица  \n "
-                          : ""
-                      }
+                      error={EGNError}
                     />
                   </Item>
-                  <Item sx={{ width: "50%", marginLeft: "5px" }}>
-                    <span>Телефон:</span>
-                    <TextField
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">+359</InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        "& .MuiInputBase-input": {
-                          fontSize: 16,
-                          height: 4,
-                          padding: 1,
-                          fontWeight: 800,
-                          textAlign: "start",
-                        },
-                      }}
-                      disabled={edit ? false : true}
-                      value={person.phone ? person.phone : ""}
-                      id="standard-basic"
-                      variant="standard"
-                      name="phone"
-                      onChange={handleChange}
-                    />
-                  </Item>
-                </Box>
-                <Box sx={{ display: "flex" }}>
                   <Item sx={{ width: "50%" }}>
-                    <span>Презиме:</span>
+                    <span>Адрес по ЛК:</span>
                     <TextField
                       sx={{
                         "& .MuiInputBase-input": {
@@ -594,49 +717,17 @@ const PersonCard = () => {
                         },
                       }}
                       disabled={edit ? false : true}
-                      value={person.middleName}
-                      id="standard-basic"
-                      variant="standard"
-                      name="middleName"
-                      onChange={handleChange}
-                      error={middleNameError}
-                      helperText={
-                        middleNameError
-                          ? "Имената се изписват на кирилица  \n "
-                          : ""
+                      value={
+                        person.addressOfficial ? person.addressOfficial : ""
                       }
-                    />
-                  </Item>
-                  <Item sx={{ width: "50%", marginLeft: "5px" }}>
-                    <span>Телефон Близък:</span>
-                    <TextField
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">+359</InputAdornment>
-                        ),
-                      }}
-                      sx={{
-                        "& .MuiInputBase-input": {
-                          fontSize: 16,
-                          height: 4,
-                          padding: 1,
-                          fontWeight: 800,
-                          textAlign: "start",
-                        },
-                      }}
-                      disabled={edit ? false : true}
-                      value={person.phoneSecond ? person.phoneSecond : ""}
                       id="standard-basic"
                       variant="standard"
-                      name="phoneSecond"
+                      name="addressOfficial"
                       onChange={handleChange}
                     />
                   </Item>
-                </Box>
-
-                <Box sx={{ display: "flex" }}>
                   <Item sx={{ width: "50%" }}>
-                    <span>Фамилия:</span>
+                    <span>Адрес по местопребиваване:</span>
                     <TextField
                       sx={{
                         "& .MuiInputBase-input": {
@@ -648,126 +739,90 @@ const PersonCard = () => {
                         },
                       }}
                       disabled={edit ? false : true}
-                      value={person.lastName}
+                      value={person.addressReal ? person.addressReal : ""}
                       id="standard-basic"
                       variant="standard"
-                      name="lastName"
-                      onChange={handleChange}
-                      error={lastNameError}
-                      helperText={
-                        lastNameError
-                          ? "Имената се изписват на кирилица  \n "
-                          : ""
-                      }
-                    />
-                  </Item>
-                  <Item sx={{ width: "50%", marginLeft: "5px" }}>
-                    <span>Email:</span>
-                    <TextField
-                      sx={{
-                        "& .MuiInputBase-input": {
-                          fontSize: 16,
-                          height: 4,
-                          padding: 1,
-                          fontWeight: 800,
-                          textAlign: "start",
-                        },
-                      }}
-                      disabled={edit ? false : true}
-                      value={person.email}
-                      id="standard-basic"
-                      variant="standard"
-                      name="email"
+                      name="addressReal"
                       onChange={handleChange}
                     />
                   </Item>
-                </Box>
+                  <Box sx={{ display: "flex" }}>
+                    <Item sx={{ width: "50%" }}>
+                      <span>Обект:</span>
+                      <TextField
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 16,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "end",
+                            padding: edit ? "0px" : "8px",
+                          },
+                        }}
+                        disabled={edit ? true : true}
+                        value={person.site}
+                        id="standard-basic"
+                        variant="standard"
+                        select={edit ? true : false}
+                        name="site"
+                        onChange={handleChange}
+                      >
+                        {siteNames()}
+                      </TextField>
+                    </Item>
+                    <Item sx={{ width: "50%", marginLeft: "5px" }}>
+                      <span>Постъпил на:</span>
 
-                <Item sx={{ width: "50%" }}>
-                  <span>Лк №:</span>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "end",
-                      },
-                    }}
-                    disabled={edit ? false : true}
-                    value={person.IDNum}
-                    id="standard-basic"
-                    variant="standard"
-                    name="IDNum"
-                    onChange={handleChange}
-                    error={IDNumError}
-                  />
-                </Item>
-                <Item sx={{ width: "50%" }}>
-                  <span>ЕГН:</span>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "end",
-                      },
-                    }}
-                    disabled={edit ? false : true}
-                    value={person.EGN}
-                    id="standard-basic"
-                    variant="standard"
-                    name="EGN"
-                    onChange={handleChange}
-                    error={EGNError}
-                  />
-                </Item>
-                <Item sx={{ width: "50%" }}>
-                  <span>Адрес по ЛК:</span>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "end",
-                      },
-                    }}
-                    disabled={edit ? false : true}
-                    value={person.addressOfficial ? person.addressOfficial : ""}
-                    id="standard-basic"
-                    variant="standard"
-                    name="addressOfficial"
-                    onChange={handleChange}
-                  />
-                </Item>
-                <Item sx={{ width: "50%" }}>
-                  <span>Адрес по местопребиваване:</span>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "end",
-                      },
-                    }}
-                    disabled={edit ? false : true}
-                    value={person.addressReal ? person.addressReal : ""}
-                    id="standard-basic"
-                    variant="standard"
-                    name="addressReal"
-                    onChange={handleChange}
-                  />
-                </Item>
-                <Box sx={{ display: "flex" }}>
+                      <DemoContainer components={["DatePicker, DatePicker"]}>
+                        <DatePicker
+                          slotProps={{
+                            textField: {
+                              width: "20%",
+                              size: "small",
+                              padding: "0px",
+                              variant: "standard",
+                            },
+                            inputAdornment: {
+                              padding: "0px",
+                              margin: "0px",
+                            },
+                          }}
+                          sx={{
+                            "& .MuiInputBase-input": {
+                              padding: "0px",
+                              margin: "0px",
+                              width: "70%",
+                              height: "15px",
+                              fontWeight: 800,
+                            },
+                            "& .MuiInputBase-root": {
+                              padding: 0,
+
+                              "& .MuiButtonBase-root": {
+                                padding: 0,
+                              },
+                            },
+                          }}
+                          disabled={edit ? false : true}
+                          format="DD/MM/YYYY"
+                          id="employmentDate"
+                          value={
+                            person.employmentDate
+                              ? dayjs(person.employmentDate)
+                              : dayjs()
+                          }
+                          name="employmentDate"
+                          onChange={(newValue) => {
+                            setPerson({ ...person, employmentDate: newValue });
+                          }}
+                        />
+                      </DemoContainer>
+                    </Item>
+                  </Box>
+
                   <Item sx={{ width: "50%" }}>
-                    <span>Обект:</span>
+                    <span>Длъжност:</span>
                     <TextField
                       sx={{
                         "& .MuiInputBase-input": {
@@ -779,300 +834,209 @@ const PersonCard = () => {
                           padding: edit ? "0px" : "8px",
                         },
                       }}
-                      disabled={edit ? true : true}
-                      value={person.site}
+                      disabled={edit ? false : true}
+                      value={person.job ? person.job : ""}
                       id="standard-basic"
                       variant="standard"
                       select={edit ? true : false}
-                      name="site"
+                      name="job"
                       onChange={handleChange}
+                      error={jobError}
                     >
-                      {siteNames()}
+                      {jobsList()}
                     </TextField>
                   </Item>
-                  <Item sx={{ width: "50%", marginLeft: "5px" }}>
-                    <span>Постъпил на:</span>
-
-                    <DemoContainer components={["DatePicker, DatePicker"]}>
-                      <DatePicker
-                        slotProps={{
-                          textField: {
-                            width: "20%",
-                            size: "small",
-                            padding: "0px",
-                            variant: "standard",
-                          },
-                          inputAdornment: {
-                            padding: "0px",
-                            margin: "0px",
-                          },
-                        }}
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            padding: "0px",
-                            margin: "0px",
-                            width: "70%",
-                            height: "15px",
-                            fontWeight: 800,
-                          },
-                          "& .MuiInputBase-root": {
-                            padding: 0,
-
-                            "& .MuiButtonBase-root": {
-                              padding: 0,
-                            },
-                          },
-                        }}
-                        disabled={edit ? false : true}
-                        format="DD/MM/YYYY"
-                        id="employmentDate"
-                        value={
-                          person.employmentDate
-                            ? dayjs(person.employmentDate)
-                            : dayjs()
-                        }
-                        name="employmentDate"
-                        onChange={(newValue) => {
-                          setPerson({ ...person, employmentDate: newValue });
-                        }}
-                      />
-                    </DemoContainer>
+                  <Item sx={{ width: "50%" }}>
+                    <span>Семейно положение:</span>
+                    <TextField
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          fontSize: 16,
+                          height: 4,
+                          padding: 1,
+                          fontWeight: 800,
+                          textAlign: "end",
+                          padding: edit ? "0px" : "8px",
+                        },
+                      }}
+                      disabled={edit ? false : true}
+                      value={person.marital ? person.marital : ""}
+                      id="standard-basic"
+                      variant="standard"
+                      select={edit ? true : false}
+                      name="marital"
+                      onChange={handleChange}
+                    >
+                      <MenuItem key={1} value={"НЕЖЕНЕН/А"}>
+                        НЕЖЕНЕН/А
+                      </MenuItem>
+                      <MenuItem key={2} value={"ЖЕНЕН/А"}>
+                        ЖЕНЕН/А
+                      </MenuItem>
+                      <MenuItem key={3} value={"РАЗВЕДЕН/А"}>
+                        РАЗВЕДЕН/А
+                      </MenuItem>
+                      <MenuItem key={4} value={"ВДОВЕЦ/А"}>
+                        ВДОВЕЦ/А
+                      </MenuItem>
+                    </TextField>
                   </Item>
-                </Box>
+                  <Item sx={{ width: "50%" }}>
+                    <span>Деца:</span>
+                    <TextField
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          fontSize: 16,
+                          height: 4,
+                          padding: 1,
+                          fontWeight: 800,
+                          textAlign: "end",
+                          padding: edit ? "0px" : "8px",
+                        },
+                      }}
+                      disabled={edit ? false : true}
+                      value={person.children ? person.children : ""}
+                      id="standard-basic"
+                      variant="standard"
+                      select={edit ? true : false}
+                      name="children"
+                      onChange={handleChange}
+                    >
+                      <MenuItem key={1} value={"1"}>
+                        1
+                      </MenuItem>
+                      <MenuItem key={2} value={"2"}>
+                        2
+                      </MenuItem>
+                      <MenuItem key={3} value={"3"}>
+                        3
+                      </MenuItem>
+                      <MenuItem key={4} value={"4"}>
+                        4
+                      </MenuItem>
+                    </TextField>
+                  </Item>
+                  <Item sx={{ width: "50%" }}>
+                    <span>ТЕЛК:</span>
+                    <FormGroup>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            name="telk"
+                            onChange={handleTelk}
+                            value={person.telk}
+                            sx={
+                              edit
+                                ? { padding: "0px" }
+                                : { padding: "0px", display: "none" }
+                            }
+                            checked={person.telk}
+                          />
+                        }
+                        label={
+                          <Typography
+                            style={
+                              edit
+                                ? { fontWeight: 800 }
+                                : {
+                                    color: "rgba(0, 0, 0, 0.38)",
+                                    fontWeight: 800,
+                                  }
+                            }
+                          >
+                            {person.telk ? "ДА" : "НЕ"}
+                          </Typography>
+                        }
+                      />
+                    </FormGroup>
+                  </Item>
+                  <Item sx={{ width: "50%" }}>
+                    <span>Образование:</span>
+                    <TextField
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          fontSize: 16,
+                          height: 4,
+                          padding: 1,
+                          fontWeight: 800,
+                          textAlign: "end",
+                          padding: edit ? "0px" : "8px",
+                        },
+                      }}
+                      disabled={edit ? false : true}
+                      value={person.education ? person.education : ""}
+                      id="standard-basic"
+                      variant="standard"
+                      select={edit ? true : false}
+                      name="education"
+                      onChange={handleChange}
+                    >
+                      <MenuItem key={1} value={"НАЧАЛНО"}>
+                        НАЧАЛНО
+                      </MenuItem>
+                      <MenuItem key={2} value={"ОСНОВНО"}>
+                        ОСНОВНО
+                      </MenuItem>
+                      <MenuItem key={3} value={"СРЕДНО"}>
+                        СРЕДНО
+                      </MenuItem>
+                      <MenuItem key={4} value={"ВИСШЕ"}>
+                        ВИСШЕ
+                      </MenuItem>
+                    </TextField>
+                  </Item>
 
-                <Item sx={{ width: "50%" }}>
-                  <span>Длъжност:</span>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "end",
-                        padding: edit ? "0px" : "8px",
-                      },
-                    }}
-                    disabled={edit ? false : true}
-                    value={person.job ? person.job : ""}
-                    id="standard-basic"
-                    variant="standard"
-                    select={edit ? true : false}
-                    name="job"
-                    onChange={handleChange}
-                    error={jobError}
-                  >
-                    {jobsList()}
-                  </TextField>
-                </Item>
-                <Item sx={{ width: "50%" }}>
-                  <span>Семейно положение:</span>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "end",
-                        padding: edit ? "0px" : "8px",
-                      },
-                    }}
-                    disabled={edit ? false : true}
-                    value={person.marital ? person.marital : ""}
-                    id="standard-basic"
-                    variant="standard"
-                    select={edit ? true : false}
-                    name="marital"
-                    onChange={handleChange}
-                  >
-                    <MenuItem key={1} value={"НЕЖЕНЕН/А"}>
-                      НЕЖЕНЕН/А
-                    </MenuItem>
-                    <MenuItem key={2} value={"ЖЕНЕН/А"}>
-                      ЖЕНЕН/А
-                    </MenuItem>
-                    <MenuItem key={3} value={"РАЗВЕДЕН/А"}>
-                      РАЗВЕДЕН/А
-                    </MenuItem>
-                    <MenuItem key={4} value={"ВДОВЕЦ/А"}>
-                      ВДОВЕЦ/А
-                    </MenuItem>
-                  </TextField>
-                </Item>
-                <Item sx={{ width: "50%" }}>
-                  <span>Деца:</span>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "end",
-                        padding: edit ? "0px" : "8px",
-                      },
-                    }}
-                    disabled={edit ? false : true}
-                    value={person.children ? person.children : ""}
-                    id="standard-basic"
-                    variant="standard"
-                    select={edit ? true : false}
-                    name="children"
-                    onChange={handleChange}
-                  >
-                    <MenuItem key={1} value={"1"}>
-                      1
-                    </MenuItem>
-                    <MenuItem key={2} value={"2"}>
-                      2
-                    </MenuItem>
-                    <MenuItem key={3} value={"3"}>
-                      3
-                    </MenuItem>
-                    <MenuItem key={4} value={"4"}>
-                      4
-                    </MenuItem>
-                  </TextField>
-                </Item>
-                <Item sx={{ width: "50%" }}>
-                  <span>ТЕЛК:</span>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          name="telk"
-                          onChange={handleTelk}
-                          value={person.telk}
-                          sx={
-                            edit
-                              ? { padding: "0px" }
-                              : { padding: "0px", display: "none" }
-                          }
-                          checked={person.telk}
-                        />
-                      }
-                      label={
-                        <Typography
-                          style={
-                            edit
-                              ? { fontWeight: 800 }
-                              : {
-                                  color: "rgba(0, 0, 0, 0.38)",
-                                  fontWeight: 800,
-                                }
-                          }
-                        >
-                          {person.telk ? "ДА" : "НЕ"}
-                        </Typography>
-                      }
+                  <Item sx={{ width: "50%" }}>
+                    <span>Специалност:</span>
+                    <TextField
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          fontSize: 16,
+                          height: 4,
+                          padding: 1,
+                          fontWeight: 800,
+                          textAlign: "end",
+                        },
+                      }}
+                      disabled={edit ? false : true}
+                      value={person.major}
+                      id="standard-basic"
+                      variant="standard"
+                      name="major"
+                      onChange={handleChange}
                     />
-                  </FormGroup>
-                </Item>
-                <Item sx={{ width: "50%" }}>
-                  <span>Образование:</span>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "end",
-                        padding: edit ? "0px" : "8px",
-                      },
-                    }}
-                    disabled={edit ? false : true}
-                    value={person.education ? person.education : ""}
-                    id="standard-basic"
-                    variant="standard"
-                    select={edit ? true : false}
-                    name="education"
-                    onChange={handleChange}
-                  >
-                    <MenuItem key={1} value={"НАЧАЛНО"}>
-                      НАЧАЛНО
-                    </MenuItem>
-                    <MenuItem key={2} value={"ОСНОВНО"}>
-                      ОСНОВНО
-                    </MenuItem>
-                    <MenuItem key={3} value={"СРЕДНО"}>
-                      СРЕДНО
-                    </MenuItem>
-                    <MenuItem key={4} value={"ВИСШЕ"}>
-                      ВИСШЕ
-                    </MenuItem>
-                  </TextField>
-                </Item>
-                <Item sx={{ width: "50%" }}>
-                  <span>Диплома:</span>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "end",
-                      },
-                    }}
-                    disabled={edit ? false : true}
-                    value={person.diploma ? person.diploma : ""}
-                    id="standard-basic"
-                    variant="standard"
-                    name="diploma"
-                    onChange={handleChange}
-                  />
-                </Item>
-                <Item sx={{ width: "50%" }}>
-                  <span>Специалност:</span>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 16,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "end",
-                      },
-                    }}
-                    disabled={edit ? false : true}
-                    value={person.major}
-                    id="standard-basic"
-                    variant="standard"
-                    name="major"
-                    onChange={handleChange}
-                  />
-                </Item>
-              </Stack>
-              {userRole === "admin" || userRole === person.site ? (
-                <div className="flex justify-end">
-                  {edit ? (
-                    <ButtonGroup variant="contained">
-                      <form
-                        method="post"
-                        action=""
-                        encType="multipart/form-data"
-                        onSubmit={handleSave}
-                      >
-                        <Button type="submit" variant="contained" fullWidth>
-                          <SaveIcon /> ЗАПИШИ
+                  </Item>
+                </Stack>
+                {userRole === "admin" || userRole === "hr" ? (
+                  <div className="flex justify-end">
+                    {edit ? (
+                      <ButtonGroup variant="contained">
+                        <form
+                          method="post"
+                          action=""
+                          encType="multipart/form-data"
+                          onSubmit={handleSave}
+                        >
+                          <Button type="submit" variant="contained" fullWidth>
+                            <SaveIcon /> ЗАПИШИ
+                          </Button>
+                        </form>
+                        <Button color="error" onClick={handleCancelEdit}>
+                          <CancelIcon /> ОТКАЖИ
                         </Button>
-                      </form>
-                      <Button color="error" onClick={handleCancelEdit}>
-                        <CancelIcon /> ОТКАЖИ
+                      </ButtonGroup>
+                    ) : (
+                      <Button variant="contained" onClick={handleEdit}>
+                        <EditIcon /> РЕДАКТИРАНЕ
                       </Button>
-                    </ButtonGroup>
-                  ) : (
-                    <Button variant="contained" onClick={handleEdit}>
-                      <EditIcon /> РЕДАКТИРАНЕ
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                ""
-              )}
+                    )}
+                  </div>
+                ) : (
+                  ""
+                )}
+              </Box>
             </Box>
+
             <Accordion>
               <AccordionSummary
                 sx={{

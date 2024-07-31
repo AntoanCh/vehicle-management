@@ -54,7 +54,6 @@ const CreatePerson = ({ siteId, siteName }) => {
     firstName: "",
     middleName: "",
     lastName: "",
-    IDNum: "",
     EGN: "",
     addressOfficial: "",
     addressReal: "",
@@ -62,7 +61,6 @@ const CreatePerson = ({ siteId, siteName }) => {
     marital: "",
     telk: false,
     education: "",
-    diploma: "",
     major: "",
     email: "",
     phone: "",
@@ -80,7 +78,6 @@ const CreatePerson = ({ siteId, siteName }) => {
   const [lastNameError, setLastNameError] = useState(false);
   const [jobError, setJobError] = useState(false);
   const [employmentDateError, setEmploymentDateError] = useState(false);
-  const [IDNumError, setIDNumError] = useState(false);
   const [EGNError, setEGNError] = useState(false);
   const [error, setError] = useState([false, ""]);
   const [imageFeedback, setImageFeedback] = useState(false);
@@ -106,7 +103,6 @@ const CreatePerson = ({ siteId, siteName }) => {
       !data.middleName ||
       !data.lastName ||
       !data.EGN ||
-      !data.IDNum ||
       !data.job ||
       !data.employmentDate
     ) {
@@ -127,9 +123,7 @@ const CreatePerson = ({ siteId, siteName }) => {
       if (!data.employmentDate) {
         setEmploymentDateError(true);
       }
-      if (!data.IDNum) {
-        setIDNumError(true);
-      }
+
       if (!data.EGN) {
         setEGNError(true);
       }
@@ -144,7 +138,6 @@ const CreatePerson = ({ siteId, siteName }) => {
       formData.append("middleName", data.middleName);
       formData.append("lastName", data.lastName);
       formData.append("EGN", data.EGN);
-      formData.append("IDNum", data.IDNum);
       formData.append("job", data.job);
       formData.append("employmentDate", data.employmentDate);
       formData.append("addressOfficial", data.addressOfficial);
@@ -152,7 +145,6 @@ const CreatePerson = ({ siteId, siteName }) => {
       formData.append("marital", data.marital);
       formData.append("telk", data.telk);
       formData.append("education", data.education);
-      formData.append("diploma", data.diploma);
       formData.append("major", data.major);
       formData.append("email", data.email);
       formData.append("phone", data.phone);
@@ -194,21 +186,21 @@ const CreatePerson = ({ siteId, siteName }) => {
     }
 
     if (e.target.name === "firstName") {
-      if (e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) {
+      if (e.target.value.match(/^[A-Za-z0-9 \s]*$/) && e.target.value) {
         setFirstNameError(true);
       } else {
         setFirstNameError(false);
       }
     }
     if (e.target.name === "middleName") {
-      if (e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) {
+      if (e.target.value.match(/^[A-Za-z0-9 \s]*$/) && e.target.value) {
         setMiddleNameError(true);
       } else {
         setMiddleNameError(false);
       }
     }
     if (e.target.name === "lastName") {
-      if (e.target.value.match(/^[A-Za-z0-9]*$/) && e.target.value) {
+      if (e.target.value.match(/^[A-Za-z0-9 \s]*$/) && e.target.value) {
         setLastNameError(true);
       } else {
         setLastNameError(false);
@@ -221,10 +213,7 @@ const CreatePerson = ({ siteId, siteName }) => {
         e.target.value = "";
       }
     }
-    if (
-      (e.target.name === "IDNum" || e.target.name === "EGN") &&
-      e.target.value
-    ) {
+    if (e.target.name === "EGN" && e.target.value) {
       if (e.target.value.startsWith("0") && e.target.value !== "0") {
         if (e.target.value.startsWith("00") && e.target.value !== "00") {
           e.target.value = `00${parseInt(e.target.value).toString()}`;
@@ -258,16 +247,16 @@ const CreatePerson = ({ siteId, siteName }) => {
   };
 
   const jobs = [
-    "Управител",
-    "Супервайзер магазин",
-    "Оператор въвеждане на данни",
-    "Обслужващ магазин мърчандайзер",
-    "Обслужващ магазин  мърчандайзер каси",
-    "Продавач консултант",
-    "Касиер",
-    "Обслужващ магазин мърчандайзер кулинарен щанд",
-    "Обслужващ магазин мърчандайзер кулинарен щанд помощник",
-    "Транжор старши",
+    "УПРАВИТЕЛ",
+    "СУПЕРВАЙЗЕР МАГАЗИН",
+    "ОПЕРАТОР ВЪВЕЖДАНЕ НА ДАННИ",
+    "МЪРЧАНДАЙЗЕР",
+    "МЪРЧАНДАЙЗЕР КАСИ",
+    "ПРОДАВАЧ КОНСУЛТАНТ",
+    "КАСИЕР",
+    "МЪРЧАНДАЙЗЕР КУЛИНАРЕН ЩАНД",
+    "МЪРЧАНДАЙЗЕР КУЛИНАРЕН ЩАНД ПОМОЩНИК",
+    "ТРАНЖОР СТАРШИ",
   ];
   const jobsList = () =>
     jobs.map((job, index) => (
@@ -404,20 +393,7 @@ const CreatePerson = ({ siteId, siteName }) => {
                     </DemoContainer>
                   </div>
                 </Grid>
-                <Grid item xs={2}>
-                  <div>
-                    <TextField
-                      required
-                      id="IDNum"
-                      error={IDNumError}
-                      name="IDNum"
-                      label="ЛК №:"
-                      variant="filled"
-                      value={data.IDNum}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </Grid>
+
                 <Grid item xs={2}>
                   <div>
                     <TextField
@@ -457,18 +433,7 @@ const CreatePerson = ({ siteId, siteName }) => {
                     </TextField>
                   </div>
                 </Grid>
-                <Grid item xs={2}>
-                  <div>
-                    <TextField
-                      id="diploma"
-                      name="diploma"
-                      label="Диплома:"
-                      variant="filled"
-                      value={data.diploma}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </Grid>
+
                 <Grid item xs={2}>
                   <div>
                     <TextField

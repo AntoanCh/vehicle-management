@@ -21,10 +21,7 @@ export const personSchema = mongoose.Schema(
       required: true,
       uppercase: true,
     },
-    IDNum: {
-      type: String,
-      required: true,
-    },
+
     EGN: {
       type: String,
       required: true,
@@ -49,9 +46,7 @@ export const personSchema = mongoose.Schema(
     education: {
       type: String,
     },
-    diploma: {
-      type: String,
-    },
+
     major: {
       type: String,
     },
