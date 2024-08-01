@@ -371,7 +371,7 @@ const ShowVehicle = () => {
                 Отказ
               </Button>
               <Button variant="contained" onClick={handleDelete} autoFocus>
-                Добави
+                ИзтриЙ
               </Button>
             </DialogActions>
           </Dialog>

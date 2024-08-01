@@ -115,7 +115,7 @@ const CreateVehicle = () => {
         .post("http://192.168.0.147:5555/vehicle", data)
         .then(() => {
           setLoading(false);
-          navigate(`/${data.type}`);
+          window.location.reload();
         })
         .catch((err) => {
           setLoading(false);
@@ -227,7 +227,7 @@ const CreateVehicle = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-center text-3xl my-4">НОВ АВТОМОБИЛ</h1>
+      {/* <h1 className="text-center text-3xl my-4">НОВ АВТОМОБИЛ</h1> */}
       <Dialog
         open={error[0]}
         onClose={handleClose}

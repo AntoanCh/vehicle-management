@@ -51,7 +51,6 @@ function App() {
               <Route path="/warehouse" element={<Warehouse />} />
               <Route path="/office" element={<Office />} />
               <Route path="/vehicles" element={<VehiclesMain />} />
-              <Route path="/vehicles/create" element={<CreateVehicle />} />
               <Route path="/vehicles/details/:id" element={<ShowVehicle />} />
               <Route path="/people/details/:id" element={<PersonCard />} />
             </Routes>

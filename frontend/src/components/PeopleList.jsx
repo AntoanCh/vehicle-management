@@ -36,6 +36,7 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Link } from "react-router-dom";
 import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
 import CreatePerson from "../pages/CreatePerson";
+import { styled } from "@mui/system";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -47,6 +48,14 @@ function descendingComparator(a, b, orderBy) {
   return 0;
 }
 
+const TableCellNarrow = styled(TableCell)`
+  :last-of-type {
+    width: 80;
+    max-width: 80;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
 function getComparator(order, orderBy) {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
@@ -72,9 +81,15 @@ function stableSort(array, comparator) {
 const headCells = [
   {
     id: "name",
-    numeric: false,
+    numeric: true,
     disablePadding: false,
     label: "Име",
+  },
+  {
+    id: "site",
+    numeric: false,
+    disablePadding: false,
+    label: "Обект",
   },
   {
     id: "job",
@@ -103,7 +118,7 @@ const headCells = [
   },
   {
     id: "address",
-    numeric: false,
+    numeric: true,
     disablePadding: false,
     label: "Адрес",
   },
@@ -126,6 +141,17 @@ function EnhancedTableHead(props) {
       <TableRow sx={{ backgroundColor: "grey" }}>
         {headCells.map((headCell) => (
           <TableCell
+            style={
+              headCell.id === "site"
+                ? {
+                    width: 100,
+                    maxWidth: 100,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    borderStyle: "border-box",
+                  }
+                : {}
+            }
             align={headCell.id === "actions" ? "right" : "left"}
             key={headCell.id}
             padding={headCell.disablePadding ? "none" : "normal"}
@@ -139,9 +165,7 @@ function EnhancedTableHead(props) {
               {headCell.label}
               {orderBy === headCell.id ? (
                 <Box component="span" sx={visuallyHidden}>
-                  {order === "firstName"
-                    ? "sorted descending"
-                    : "sorted ascending"}
+                  {order === "name" ? "sorted descending" : "sorted ascending"}
                 </Box>
               ) : null}
             </TableSortLabel>
@@ -158,7 +182,7 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-const PeopleList = ({ people, siteName, siteId }) => {
+const PeopleList = ({ sites, people, siteName, siteId }) => {
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState([false, {}]);
   const [transfer, setTransfer] = useState([false, {}]);
@@ -170,8 +194,6 @@ const PeopleList = ({ people, siteName, siteId }) => {
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
-
-  console.log(`child: ${people}`);
 
   const requestSearch = (searched) => {
     if (searched) {
@@ -238,10 +260,13 @@ const PeopleList = ({ people, siteName, siteId }) => {
     });
   };
 
-  const handleChangeEdit = (e) => {
-    const { name, value } = e.target;
-    setEdit([true, { ...edit[1], [name]: value }]);
-    console.log(edit);
+  const handleChangeTransfer = (e) => {
+    const { value } = e.target;
+    const siteSelected = sites.filter((obj) => obj.name === value);
+    setTransfer([
+      true,
+      { ...transfer[1], site: value, siteId: siteSelected[0]._id },
+    ]);
   };
 
   const handleCloseTransfer = () => {
@@ -298,20 +323,14 @@ const PeopleList = ({ people, siteName, siteId }) => {
 
     try {
       const { data } = await axios.put(
-        `http://192.168.0.147:5555/api/sites/${edit[1]._id}`,
+        `http://192.168.0.147:5555/api/person/${transfer[1]._id}`,
         {
-          ...edit[1],
+          ...transfer[1],
         }
       );
       const { status, message } = data;
 
-      // if (status) {
-      //   handleSuccess(message);
-      //   window.location.reload();
-      // } else {
-      //   handleError(message);
-      // }
-      setEdit([false, {}]);
+      setTransfer([false, {}]);
     } catch (error) {
       console.log(error);
     }
@@ -380,30 +399,43 @@ const PeopleList = ({ people, siteName, siteId }) => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {`СМЯНА ОБЕКТ  ${edit[1].firstName} ${edit[1].middleName} ${edit[1].lastName}`}
+          {`ПРЕХВЪРЛЯНЕ В ДРУГ ОБЕКТ`}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
           <div>
-            <span>ID: </span>
-            <span>{transfer ? transfer[1]._id : ""}</span>
+            <span
+              style={{ fontWeight: 800 }}
+            >{`${transfer[1].firstName} ${transfer[1].middleName} ${transfer[1].lastName}`}</span>
           </div>
 
           <div className="">
             <div className="bg-gray-300 flex flex-col border-2 border-blue-400 rounded-xl w-[400px] p-4 mx-auto">
               <div className="my-4">
                 <TextField
-                  type="email"
+                  type="text"
                   fullWidth
-                  name="email"
-                  label="Еmail:"
-                  value={transfer[1].email}
-                  onChange={handleChangeEdit}
+                  name="site"
+                  select
+                  label="Обект:"
+                  value={transfer[1].site}
+                  onChange={handleChangeTransfer}
                   variant="filled"
-                />
+                >
+                  {sites.map((obj, index) => (
+                    <MenuItem key={index} value={obj.name}>
+                      {obj.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
               </div>
+              <span>{`siteId: ${transfer[1].siteId}`}</span>
             </div>
           </div>
+          <Box>
+            <span>ID: </span>
+            <span>{transfer ? transfer[1]._id : ""}</span>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button
@@ -415,7 +447,7 @@ const PeopleList = ({ people, siteName, siteId }) => {
             Отказ
           </Button>
           <Button variant="contained" onClick={handleUpdate} autoFocus>
-            Обнови
+            Запиши
           </Button>
         </DialogActions>
       </Dialog>
@@ -458,6 +490,11 @@ const PeopleList = ({ people, siteName, siteId }) => {
                       <TableCell sx={{ fontWeight: "800", fontSize: "20px" }}>
                         {`ПЕРСОНАЛ НА ${siteName}`}
                       </TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
                       <TableCell>
                         <TextField
                           size="small"
@@ -477,10 +514,6 @@ const PeopleList = ({ people, siteName, siteId }) => {
                           }}
                         />
                       </TableCell>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
                       <TableCell>
                         {" "}
                         <Button
@@ -533,6 +566,7 @@ const PeopleList = ({ people, siteName, siteId }) => {
                             >
                               {`${row.firstName} ${row.middleName} ${row.lastName}`}
                             </TableCell>
+                            <TableCell>{row.site}</TableCell>
                             <TableCell>{row.job}</TableCell>
                             <TableCell align="left">
                               {

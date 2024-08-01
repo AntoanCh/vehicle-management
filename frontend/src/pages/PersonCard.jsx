@@ -74,10 +74,10 @@ const PersonCard = () => {
   const [oldPerson, setOldPerson] = useState({});
   const [showLog, setShowLog] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState("");
+  const [imageFeedback, setImageFeedback] = useState(false);
   const [edit, setEdit] = useState(false);
   const [services, setServices] = useState();
-  const [fuels, setFuels] = useState();
+  const [sitesList, setSitesList] = useState();
   const [problems, setProblems] = useState();
   const [verDelete, setVerDelete] = useState(false);
   const [log, setLog] = useState();
@@ -307,6 +307,7 @@ const PersonCard = () => {
           //   changed: diff,
           //   personId: person._id,
           // });
+
           setTimeout(() => {
             window.location.reload();
           }, 1000);
@@ -330,6 +331,16 @@ const PersonCard = () => {
   const handleCancelEdit = () => {
     setEdit(false);
   };
+  // useEffect(() => {
+  //   const unloadCallback = (event) => {
+  //     event.preventDefault();
+  //     event.returnValue = "";
+  //     return "";
+  //   };
+
+  //   window.addEventListener("beforeunload", unloadCallback);
+  //   return () => window.removeEventListener("beforeunload", unloadCallback);
+  // }, [edit]);
 
   const handleChange = (e) => {
     if (e.target.name === "firstName") {
@@ -375,7 +386,17 @@ const PersonCard = () => {
         e.target.value = "";
       }
     }
-    setPerson({ ...person, [e.target.name]: e.target.value });
+    if (e.target.name === "site") {
+      const siteSelected = sites.filter((obj) => obj.name === e.target.value);
+
+      setPerson({
+        ...person,
+        siteId: siteSelected[0]._id,
+        site: e.target.value,
+      });
+    } else {
+      setPerson({ ...person, [e.target.name]: e.target.value });
+    }
   };
   const handleTelk = (event) => {
     setPerson({
@@ -385,6 +406,7 @@ const PersonCard = () => {
   };
   const handlePhoto = (e) => {
     setPerson({ ...person, photo: e.target.files[0] });
+    setImageFeedback(true);
   };
   //Function to rearrange date format to match DD/MM/YYYY
   const bgDate = (date) => {
@@ -475,6 +497,20 @@ const PersonCard = () => {
             <Box ref={componentRef}>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Box>
+                  {imageFeedback && (
+                    <Box>
+                      <span style={{ color: "green" }}>Снимката е качена</span>
+                      <Button
+                        color="error"
+                        onClick={() => {
+                          setPerson({ ...person, photo: "" });
+                          setImageFeedback(false);
+                        }}
+                      >
+                        <DeleteForeverIcon />
+                      </Button>
+                    </Box>
+                  )}
                   <Box
                     component="img"
                     sx={{
@@ -509,15 +545,38 @@ const PersonCard = () => {
                     </Button>
                   )}
                 </Box>
-                <Box sx={{ alignItems: "end" }}>
-                  <Fab
-                    //   variant="extended"
-                    onClick={handlePrint}
-                    color="primary"
-                    aria-label="add"
-                  >
-                    <PrintIcon />
-                  </Fab>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    // alignItems: "end",
+                  }}
+                >
+                  <Box>
+                    {edit && (
+                      <Item sx={{ width: "80%", backgroundColor: "#f50057" }}>
+                        <span>
+                          За да се запазят промените, трябва да натиснете бутона
+                          "ЗАПИШИ"
+                        </span>
+                      </Item>
+                    )}
+                  </Box>
+                  <Box>
+                    <Fab
+                      //   variant="extended"
+                      onClick={() => {
+                        setEdit(false);
+                        setTimeout(() => {
+                          handlePrint();
+                        }, 20);
+                      }}
+                      color="primary"
+                      aria-label="add"
+                    >
+                      <PrintIcon />
+                    </Fab>
+                  </Box>
                 </Box>
               </Box>
 
@@ -704,8 +763,8 @@ const PersonCard = () => {
                       error={EGNError}
                     />
                   </Item>
-                  <Item sx={{ width: "50%" }}>
-                    <span>Адрес по ЛК:</span>
+                  <Item sx={{ width: "50%", alignmentBaseline: "center" }}>
+                    <span style={{ alignContent: "center" }}>Адрес по ЛК:</span>
                     <TextField
                       sx={{
                         "& .MuiInputBase-input": {
@@ -716,6 +775,7 @@ const PersonCard = () => {
                           textAlign: "end",
                         },
                       }}
+                      multiline
                       disabled={edit ? false : true}
                       value={
                         person.addressOfficial ? person.addressOfficial : ""
@@ -727,7 +787,9 @@ const PersonCard = () => {
                     />
                   </Item>
                   <Item sx={{ width: "50%" }}>
-                    <span>Адрес по местопребиваване:</span>
+                    <span style={{ alignContent: "center" }}>
+                      Адрес по местопребиваване:
+                    </span>
                     <TextField
                       sx={{
                         "& .MuiInputBase-input": {
@@ -738,6 +800,7 @@ const PersonCard = () => {
                           textAlign: "end",
                         },
                       }}
+                      multiline
                       disabled={edit ? false : true}
                       value={person.addressReal ? person.addressReal : ""}
                       id="standard-basic"
@@ -749,6 +812,9 @@ const PersonCard = () => {
                   <Box sx={{ display: "flex" }}>
                     <Item sx={{ width: "50%" }}>
                       <span>Обект:</span>
+                      {/* <span
+                        style={{ color: "gray" }}
+                      >{`(${person.siteId})`}</span> */}
                       <TextField
                         sx={{
                           "& .MuiInputBase-input": {
@@ -760,7 +826,7 @@ const PersonCard = () => {
                             padding: edit ? "0px" : "8px",
                           },
                         }}
-                        disabled={edit ? true : true}
+                        disabled={edit ? false : true}
                         value={person.site}
                         id="standard-basic"
                         variant="standard"

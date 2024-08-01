@@ -28,6 +28,12 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import CreateVehicle from "../pages/CreateVehicle";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -175,6 +181,7 @@ export default function VehiclesList({ data }) {
   const [copyList, setCopyList] = useState();
   const [userRole, setUserRole] = useState();
   const [username, setUsername] = useState();
+  const [add, setAdd] = useState(false);
   const token = localStorage.getItem("token");
   const { id } = useParams();
   const navigate = useNavigate();
@@ -228,21 +235,9 @@ export default function VehiclesList({ data }) {
       setCopyList();
     }
   };
-  // const handleSearch = (e) => {
-  //   setSearchedVal(e.target.value);
-  //   const filteredRows = data.filter((row) => {
-  //     return (
-  //       row.make.toLowerCase().includes(searchedVal.toLowerCase()) ||
-  //       row.model.toLowerCase().includes(searchedVal.toLowerCase()) ||
-  //       row.reg.toLowerCase().includes(searchedVal.toLowerCase())
-  //     );
-  //   });
-  //   setRows(filteredRows);
-  // };
-  // const cancelSearch = () => {
-  //   setSearched("");
-  //   requestSearch(searched);
-  // };
+  const handleCloseAdd = () => {
+    setAdd(false);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -516,6 +511,31 @@ export default function VehiclesList({ data }) {
 
   return (
     <div className="flex justify-center">
+      <Dialog
+        maxWidth={"xl"}
+        open={add}
+        onClose={handleCloseAdd}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {`Добавяне на нов автомобил`}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description"></DialogContentText>
+          <CreateVehicle />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => setAdd(false)}
+            autoFocus
+          >
+            Отказ
+          </Button>
+        </DialogActions>
+      </Dialog>{" "}
       <Box sx={{ width: "95%", margin: "25px" }}>
         {/* <ThemeProvider theme={getMuiTheme()}> */}
         {/* <MUIDataTable
@@ -584,9 +604,9 @@ export default function VehiclesList({ data }) {
                 disabled={userRole === "user" || !userRole ? true : false}
                 sx={{ width: "8%" }}
                 variant={"contained"}
-                component={Link}
-                to="/vehicles/create"
-                // onClick={() => handleDialog("create")}
+                // component={Link}
+                // to="/vehicles/create"
+                onClick={() => setAdd(true)}
               >
                 {"ДОБАВИ"}
                 <AddCircleOutlineIcon />

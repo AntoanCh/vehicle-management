@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
@@ -47,6 +47,21 @@ const Hr = () => {
   const [loading, setLoading] = useState(false);
   const [value, setValue] = React.useState(0);
   const [persons, setPersons] = useState();
+  //persistent tab selection
+  const isFirst = useRef(false);
+  useEffect(() => {
+    if (isFirst.current) {
+      window.sessionStorage.setItem("value", JSON.stringify(value));
+    }
+  }, [value]);
+  useEffect(() => {
+    if (sites.length !== 0) {
+      const val = JSON.parse(window.sessionStorage.getItem("value"));
+      console.log(val);
+      setValue(val);
+      isFirst.current = true;
+    }
+  }, []);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -101,7 +116,7 @@ const Hr = () => {
     return sites.map((obj, index) => {
       return (
         <TabPanel key={index} value={value} index={index}>
-          <HrSite siteId={obj._id} siteName={obj.name} />
+          <HrSite siteId={obj._id} siteName={obj.name} sites={sites} />
         </TabPanel>
       );
     });
@@ -127,13 +142,16 @@ const Hr = () => {
       >
         {siteNames()}
         <Tab
-          key={sites.length + 1}
+          key={sites.length}
           sx={{ fontWeight: "800" }}
           label={"ВСИЧКИ"}
-          {...a11yProps(sites.length + 1)}
+          {...a11yProps(sites.length)}
         />
       </Tabs>
       {siteList()}
+      <TabPanel key={sites.length} value={value} index={sites.length}>
+        <HrSite siteId={0} siteName={"ВСИЧКИ"} sites={sites} />
+      </TabPanel>
     </Box>
   );
   //   <Box>{loading ? <CircularProgress /> : ""}</Box>;

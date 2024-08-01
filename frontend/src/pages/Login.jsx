@@ -75,7 +75,7 @@ const Login = () => {
         if (status) {
           handleSuccess(message);
           setTimeout(() => {
-            navigate("/vehicles");
+            navigate("/");
           }, 400);
         } else {
           setError([true, "Неправилна парола или потребителско име"]);
