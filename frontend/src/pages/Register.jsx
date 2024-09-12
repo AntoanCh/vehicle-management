@@ -83,10 +83,10 @@ const Register = () => {
               <MenuItem key={1} value="user">
                 USER
               </MenuItem>
-              <MenuItem key={2} value="office">
+              <MenuItem key={2} value="ОФИС">
                 ОФИС ОТГОВОРНИК
               </MenuItem>
-              <MenuItem key={3} value="warehouse">
+              <MenuItem key={3} value="СКЛАД">
                 СКЛАД ОТГОВОРНИК
               </MenuItem>
               <MenuItem key={4} value="admin">

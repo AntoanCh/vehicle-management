@@ -16,7 +16,10 @@ const Footer = () => {
   return (
     <Box
       sx={{
-        position: "fixed",
+        display: "none",
+        position: "absolute",
+        top: "100vh",
+        transform: "translateY(-100%)",
         bottom: "0px",
         width: "100%",
       }}

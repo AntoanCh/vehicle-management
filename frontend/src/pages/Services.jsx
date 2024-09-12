@@ -174,6 +174,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState([false, ""]);
   const [verifyDelete, setVerifyDelete] = useState([false, {}]);
+  const [edit, setEdit] = useState([false, {}]);
   const [newServ, setNewServ] = useState({
     date: dayjs(),
     type: "",
@@ -208,6 +209,65 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       setAdd(false);
       axios
         .post("http://192.168.0.147:5555/services", newServ)
+        .then(() => {
+          axios.post(`http://192.168.0.147:5555/logs`, {
+            date: dayjs(),
+            user: username,
+            changed: { newServ: [newServ.invoice, newServ.desc] },
+            vehicleId: vehicle._id,
+          });
+        })
+        .catch((err) => {
+          setLoading(false);
+          alert("Грешка, проверете конзолата 1");
+          console.log(err);
+        });
+      if (
+        !vehicle.startKm ||
+        parseInt(vehicle.startKm) > parseInt(newServ.km)
+      ) {
+        vehicle.startKm = newServ.km.toString();
+        axios
+          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
+          .then(() => {})
+          .catch((err) => {
+            alert("Грешка, проверете конзолата 2");
+            console.log(err);
+          });
+      }
+      if (
+        !vehicle.startDate ||
+        vehicle.startDate > newServ.date.$d.toISOString()
+      ) {
+        vehicle.startDate = newServ.date;
+        axios
+          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
+          .then(() => {})
+          .catch((err) => {
+            alert("Грешка, проверете конзолата 3");
+            console.log(err);
+          });
+      }
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  };
+  const handleSaveEdit = () => {
+    if (
+      !newServ.date ||
+      !newServ.type ||
+      !newServ.desc ||
+      !newServ.invoice ||
+      !newServ.km ||
+      !newServ.cost
+    ) {
+      setError([true, "Всички полета са задължителни"]);
+    } else {
+      setAdd(false);
+      axios
+        .put(`http://192.168.0.147:5555/services/:${newServ._id}`, newServ)
         .then(() => {
           axios.post(`http://192.168.0.147:5555/logs`, {
             date: dayjs(),
@@ -292,6 +352,40 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
 
     setNewServ({ ...newData });
   };
+  const handleChangeEdit = (e) => {
+    const newData = { ...newServ };
+    if (e.target.id === "km") {
+      e.target.value = parseInt(e.target.value);
+      if (e.target.value === "NaN") {
+        e.target.value = "";
+      }
+    } else if (e.target.id === "cost") {
+      if (e.target.value.endsWith(",")) {
+        e.target.value = parseFloat(e.target.value).toString() + ".";
+      } else if (e.target.value.endsWith(".")) {
+        e.target.value = parseFloat(e.target.value).toString() + ".";
+      } else if (e.target.value.endsWith(".0")) {
+        e.target.value = parseFloat(e.target.value).toString() + ".0";
+      } else if (/^[0-9]*\.[0-9]{2,3}$/.test(e.target.value)) {
+        e.target.value = Number(parseFloat(e.target.value).toFixed(2));
+      } else if (e.nativeEvent.inputType === "insertFromPaste") {
+        e.target.value = Number(parseFloat(e.target.value).toFixed(2));
+      } else {
+        e.target.value = parseFloat(e.target.value);
+        if (e.target.value === "NaN") {
+          e.target.value = "";
+        } //.toString();
+      }
+    }
+    if (e.target.name === "type") {
+      newData[e.target.name] = e.target.value;
+    } else {
+      newData[e.target.id] = e.target.value;
+    }
+
+    setNewServ({ ...newData });
+  };
+
   const bgDate = (date) => {
     let [yyyy, mm, dd] = date.split("-");
     let newDate = `${dd}.${mm}.${yyyy}`;
@@ -301,10 +395,13 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
   const handleCloseDelete = () => {
     setVerifyDelete([false, {}]);
   };
+  const handleCloseEdit = () => {
+    setEdit([false, {}]);
+  };
 
   const data = services.data.map((obj) => {
     return [
-      bgDate(obj.date.slice(0, 10)),
+      bgDate(dayjs(obj.date).add(3, "hour").toISOString().slice(0, 10)),
       obj.type,
       obj.desc,
       obj.invoice,
@@ -314,7 +411,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
         <Box>
           <IconButton
             onClick={() => {
-              setVerifyDelete([true, obj]);
+              setEdit([true, obj]);
             }}
             color="warning"
             variant="contained"
@@ -452,6 +549,105 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
               autoFocus
             >
               ИЗТРИЙ
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={edit[0]}
+          onClose={handleCloseEdit}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">РЕДАКТИРАНЕ</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description"></DialogContentText>
+
+            <div className="my-4">
+              <DemoContainer components={["DatePicker, DatePicker"]}>
+                <DatePicker
+                  fullWidth
+                  format="DD/MM/YYYY"
+                  id="date"
+                  label="Дата:"
+                  value={dayjs(edit[1].date).add(3, "hour")}
+                  onChange={(newValue) => {
+                    const newData = { ...newServ };
+                    newData.date = newValue;
+                    setNewServ({ ...newData });
+                  }}
+                />
+              </DemoContainer>
+            </div>
+            <div className="my-4">
+              <TextField
+                fullWidth
+                onChange={handleChangeEdit}
+                value={edit[1].type}
+                name="type"
+                id="type"
+                select
+                label="Вид:"
+              >
+                <MenuItem key={1} value="РЕМОНТ">
+                  РЕМОНТ
+                </MenuItem>
+                <MenuItem key={2} value="ДИАГНОСТИКА">
+                  ДИАГНОСТИКА
+                </MenuItem>
+              </TextField>
+            </div>
+            <div className="my-4">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                value={edit[1].desc}
+                name="desc"
+                id="desc"
+                label="Описание:"
+              />
+            </div>
+            <div className="my-4">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                value={edit[1].invoice}
+                name="invoice"
+                id="invoice"
+                label="Фактура №:"
+              />
+            </div>
+            <div className="my-4">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                value={edit[1].km}
+                name="km"
+                id="km"
+                label="Километри:"
+              />
+            </div>
+            <div className="my-4">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                value={edit[1].cost}
+                name="cost"
+                id="cost"
+                label="Стойност:"
+              />
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={handleCloseEdit}
+              autoFocus
+            >
+              Отказ
+            </Button>
+            <Button variant="contained" onClick={handleSaveEdit} autoFocus>
+              Добави
             </Button>
           </DialogActions>
         </Dialog>

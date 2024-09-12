@@ -427,10 +427,10 @@ const Users = ({ users }) => {
                   <MenuItem key={3} value="user">
                     USER
                   </MenuItem>
-                  <MenuItem key={4} value="office">
+                  <MenuItem key={4} value="ОФИС">
                     ОФИС ОТГОВОРНИК
                   </MenuItem>
-                  <MenuItem key={5} value="warehouse">
+                  <MenuItem key={5} value="СКЛАД">
                     СКЛАД ОТГОВОРНИК
                   </MenuItem>
                 </TextField>
@@ -690,7 +690,7 @@ const Users = ({ users }) => {
               </div>
               <Dialog
                 open={add}
-                onClose={handleClose}
+                onClose={() => setAdd(false)}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
               >

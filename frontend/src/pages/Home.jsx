@@ -69,7 +69,7 @@ const Home = () => {
                 fullWidth
                 variant="contained"
               >
-                АВТОПАРК
+                АВТОМОБИЛИ
               </BigButton>
             </Box>
             <Box sx={{ width: "50%" }}>

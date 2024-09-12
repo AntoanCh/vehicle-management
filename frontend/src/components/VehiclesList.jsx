@@ -576,10 +576,10 @@ export default function VehiclesList({ data }) {
                 <MenuItem key={1} value="all">
                   ВСИЧКИ
                 </MenuItem>
-                <MenuItem key={2} value="office">
+                <MenuItem key={2} value="ОФИС">
                   ОФИС
                 </MenuItem>
-                <MenuItem key={3} value="warehouse">
+                <MenuItem key={3} value="СКЛАД">
                   СКЛАД
                 </MenuItem>
               </TextField>

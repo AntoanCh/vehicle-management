@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Button, ButtonGroup } from "@mui/material";
+import { Button, ButtonGroup, MenuItem, TextField } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import Services from "./Services";
@@ -32,6 +32,36 @@ import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import HistoryIcon from "@mui/icons-material/History";
 import Fab from "@mui/material/Fab";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import { styled } from "@mui/material/styles";
+import Grid from "@mui/material/Grid";
+import InputAdornment from "@mui/material/InputAdornment";
+
+const ItemInline = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#ccc",
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: "center",
+  display: "flex",
+  fontWeight: "800",
+
+  justifyContent: "space-between",
+  color: theme.palette.text.primary,
+}));
+const ItemStacked = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#ccc",
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: "start",
+  display: "flex",
+  fontWeight: "800",
+  fontSize: "18",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  color: theme.palette.text.primary,
+}));
 
 const ShowVehicle = () => {
   const [vehicle, setVehicle] = useState({});
@@ -265,7 +295,7 @@ const ShowVehicle = () => {
     });
   };
   const handleChange = (e) => {
-    if (e.target.id === "tires") {
+    if (e.target.name === "tires") {
       if (e.target.value.match(/^[0-9]{3}$/)) {
         e.target.value = e.target.value + "/";
       } else if (e.target.value.match(/[0-9]{3}\/[0-9]{2}$/)) {
@@ -273,15 +303,14 @@ const ShowVehicle = () => {
       } else if (e.target.value.match(/[0-9]{3}\/[0-9]{2}\/[0-9]{3}$/)) {
       }
     }
-    if ((e.target.id === "km" || e.target.id === "oil") && e.target.value) {
+    if ((e.target.name === "km" || e.target.name === "oil") && e.target.value) {
       e.target.value = parseInt(e.target.value);
       if (e.target.value === "NaN") {
         e.target.value = "";
       }
     }
-    const newVehicle = { ...vehicle };
-    newVehicle[e.target.id] = e.target.value;
-    setVehicle({ ...newVehicle });
+
+    setVehicle({ ...vehicle, [e.target.name]: e.target.value });
   };
   //Function to rearrange date format to match DD/MM/YYYY
   const bgDate = (date) => {
@@ -378,23 +407,82 @@ const ShowVehicle = () => {
           <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-9/12 p-4">
             <div className="flex">
               <div>
-                <div className="w-fit input-box" style={{ width: "100%" }}>
-                  <input
-                    className="registration-ui"
-                    autoComplete="off"
-                    type="text"
-                    name="numberPlate"
-                    value={vehicle.reg}
-                    disabled
-                  />
-                  <span className="unit">BG</span>
-                </div>
-                <div className="my-4 flex justify-between">
+                <Stack spacing={2}>
+                  <Box>
+                    <div className="w-fit input-box" style={{ width: "100%" }}>
+                      <input
+                        className="registration-ui"
+                        autoComplete="off"
+                        type="text"
+                        name="numberPlate"
+                        value={vehicle.reg}
+                        disabled
+                      />
+                      <span className="unit">BG</span>
+                    </div>
+                  </Box>
+                  <ItemInline
+                    sx={{
+                      width: "90%",
+                      backgroundColor: "rgb(156 163 175)",
+                    }}
+                  >
+                    <TextField
+                      value={`${vehicle.make} ${vehicle.model}`}
+                      disabled
+                      variant="standard"
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          fontSize: 19,
+                          height: 4,
+                          padding: 1,
+                          fontWeight: 700,
+                          textAlign: "center",
+                        },
+                        "& .MuiInputBase-input.Mui-disabled": {
+                          WebkitTextFillColor: "black", //Adjust text color here
+                        },
+                      }}
+                    />
+                  </ItemInline>
+                  <ItemInline
+                    sx={{
+                      width: "70%",
+                      textAlign: "center",
+                      backgroundColor: "rgb(50, 50, 50)",
+                      color: "white",
+                    }}
+                  >
+                    <TextField
+                      value={vehicle.km}
+                      disabled={!edit}
+                      id="km"
+                      onChange={handleChange}
+                      variant="standard"
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          fontSize: 18,
+                          height: 4,
+                          padding: 1,
+                          fontWeight: 800,
+                          textAlign: "center",
+                          color: "white",
+                        },
+                        "& .MuiInputBase-input.Mui-disabled": {
+                          WebkitTextFillColor: "white", //Adjust text color here
+                        },
+                      }}
+                    />
+                    <span>KM</span>
+                  </ItemInline>
+                </Stack>
+                {/* <div className="my-4 flex justify-between">
                   <span className="text-3xl mr-4 text-gray-600">
                     {`${vehicle.make} ${vehicle.model}`}
                   </span>
-                </div>
-                <div className="flex w-fit text-xl text-center">
+                </div> */}
+
+                {/* <div className="flex w-fit text-xl text-center">
                   <input
                     id="km"
                     style={{
@@ -409,13 +497,255 @@ const ShowVehicle = () => {
                     disabled={!edit}
                   />
                   <span className=" text-3xl mr-4 text-black-500"> КМ</span>
-                </div>
+                </div> */}
               </div>
-              <div>
+
+              <Grid container spacing={2}>
+                <Grid item xs={3}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>Година:</Box>
+                    <Box>
+                      <TextField
+                        value={vehicle.year}
+                        disabled
+                        name="km"
+                        onChange={handleChange}
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      />
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={3}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>Гориво:</Box>
+                    <Box>
+                      {" "}
+                      <TextField
+                        value={vehicle.fuel}
+                        disabled
+                        name="fuel"
+                        onChange={handleChange}
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      />
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={3}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>№ ДВГ</Box>
+                    <Box>
+                      {" "}
+                      <TextField
+                        value={vehicle.engNum}
+                        disabled={!edit}
+                        name="engNum"
+                        onChange={handleChange}
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      />
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={3}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>Гуми Размер</Box>
+                    <Box>
+                      {" "}
+                      <TextField
+                        value={vehicle.tires}
+                        disabled={!edit}
+                        name="tires"
+                        onChange={handleChange}
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      />
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={3}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>Отговорник:</Box>
+                    <Box>
+                      {" "}
+                      <TextField
+                        fullWidth
+                        value={vehicle.site}
+                        disabled={!edit}
+                        select={edit}
+                        SelectProps={{ sx: { height: "25px" } }}
+                        name="site"
+                        onChange={handleChange}
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      >
+                        <MenuItem key={1} value={"ОФИС"}>
+                          ОФИС
+                        </MenuItem>
+                        <MenuItem key={2} value={"СКЛАД"}>
+                          СКЛАД
+                        </MenuItem>
+                      </TextField>
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={3}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>№ Талон</Box>
+                    <Box>
+                      {" "}
+                      <TextField
+                        value={vehicle.talonNum}
+                        disabled
+                        name="talonNum"
+                        onChange={handleChange}
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      />
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={3}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>№ Рама</Box>
+                    <Box>
+                      {" "}
+                      <TextField
+                        value={vehicle.bodyNum}
+                        disabled
+                        name="bodyNum"
+                        onChange={handleChange}
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      />
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={3}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>Собственик</Box>
+                    <Box>
+                      {" "}
+                      <TextField
+                        fullWidth
+                        value={vehicle.owner}
+                        disabled={!edit}
+                        select={edit}
+                        SelectProps={{ sx: { height: "25px" } }}
+                        name="owner"
+                        onChange={handleChange}
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      >
+                        <MenuItem key={1} value={"НИКОН-НК"}>
+                          НИКОН-НК
+                        </MenuItem>
+                        <MenuItem key={1} value={"ЕКСПРЕС-ГАРАНТ НК"}>
+                          ЕКСПРЕС-ГАРАНТ НК
+                        </MenuItem>
+                        <MenuItem key={1} value={"НИКОЛАЙ КЪНЧЕВ"}>
+                          НИКОЛАЙ КЪНЧЕВ
+                        </MenuItem>
+                      </TextField>
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+              </Grid>
+
+              {/* <div>
                 <div className="my-4 flex">
                   <div className="w-40">
                     <span className="text-xl mr-2 text-gray-500">Година:</span>
-                    {/* <span className="text-xl">{vehicle.year}</span> */}
+
                     <input
                       disabled
                       className="bg-gray-400"
@@ -433,7 +763,7 @@ const ShowVehicle = () => {
                     <span className="text-xl ml-4 mr-2 text-gray-500">
                       Гориво:
                     </span>
-                    {/* <span className="text-xl">{vehicle.fuel}</span> */}
+
                     <input
                       disabled
                       className="bg-gray-400"
@@ -591,7 +921,6 @@ const ShowVehicle = () => {
                     {edit ? (
                       <div>
                         <select
-                          // className="w-fit"
                           style={{
                             borderRadius: "5px",
                             backgroundColor: "rgb(100,100,100)",
@@ -625,14 +954,11 @@ const ShowVehicle = () => {
                     )}
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="flex justify-end">
               {userRole === "admin" || userRole === vehicle.site ? (
-                // <Button onClick={handleCheck} variant="outlined">
-                //   ПРОВЕРЕН
-                // </Button>
                 <Fab
                   variant="extended"
                   onClick={handleCheck}
@@ -647,7 +973,225 @@ const ShowVehicle = () => {
               )}
             </div>
             <div className="my-4">
-              <div className="my-4 flex justify-end my-2 border-t border-gray-500">
+              <Grid container spacing={2} columns={48}>
+                <Grid item xs={9}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>Масла/ф-ри:</Box>
+                    <Box sx={{ display: "flex", flexDirection: "row" }}>
+                      <TextField
+                        value={vehicle.oil}
+                        disabled={!edit}
+                        name="oil"
+                        onChange={handleChange}
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      />
+                      <span>KM</span>
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={9}>
+                  <ItemStacked
+                    sx={
+                      isDue(vehicle.km - vehicle.oil, "oil") === "warning"
+                        ? { backgroundColor: "#bb5a5a" }
+                        : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
+                        ? { backgroundColor: "#ca9f3d" }
+                        : {}
+                    }
+                  >
+                    <Box sx={{ color: "gray" }}>
+                      Преди:
+                      {isDue(vehicle.km - vehicle.oil, "oil") ? (
+                        <WarningAmberIcon />
+                      ) : (
+                        ""
+                      )}
+                    </Box>
+                    <Box sx={{ display: "flex", flexDirection: "row" }}>
+                      {" "}
+                      <TextField
+                        value={vehicle.km - vehicle.oil}
+                        disabled
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      />
+                      <span>KM</span>
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={9}>
+                  <ItemStacked
+                    sx={
+                      isDue(vehicle.km - vehicle.oil, "oil") === "warning"
+                        ? { backgroundColor: "#bb5a5a" }
+                        : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
+                        ? { backgroundColor: "#ca9f3d" }
+                        : {}
+                    }
+                  >
+                    <Box sx={{ color: "gray" }}>
+                      Остават:{" "}
+                      {isDue(vehicle.km - vehicle.oil, "oil") ? (
+                        <WarningAmberIcon />
+                      ) : (
+                        ""
+                      )}
+                    </Box>
+                    <Box sx={{ display: "flex", flexDirection: "row" }}>
+                      {" "}
+                      <TextField
+                        value={vehicle.oilChange - (vehicle.km - vehicle.oil)}
+                        disabled
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      />
+                      <span>KM</span>
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={9}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>Интервал</Box>
+                    <Box sx={{ display: "flex", flexDirection: "row" }}>
+                      {" "}
+                      <TextField
+                        value={vehicle.oilChange}
+                        disabled={!edit}
+                        name="oilChange"
+                        onChange={handleChange}
+                        variant="standard"
+                        sx={{
+                          "& .MuiInputBase-input": {
+                            fontSize: 18,
+                            height: 4,
+                            padding: 1,
+                            fontWeight: 800,
+                            textAlign: "center",
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        }}
+                      />
+                      <span>KM</span>
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item xs={12}>
+                  <ItemStacked
+                    sx={
+                      isDue(vehicle.checked, "checked") === "warning"
+                        ? { backgroundColor: "#bb5a5a" }
+                        : isDue(vehicle.checked, "checked") === "caution"
+                        ? { backgroundColor: "#ca9f3d" }
+                        : {}
+                    }
+                  >
+                    <Box
+                      sx={
+                        isDue(vehicle.checked, "checked") === "warning"
+                          ? { color: "#950e0e" }
+                          : isDue(vehicle.checked, "checked") === "caution"
+                          ? { color: "#95660e" }
+                          : { color: "gray" }
+                      }
+                    >
+                      Проверен на:
+                      {isDue(vehicle.checked, "checked") ? (
+                        <WarningAmberIcon />
+                      ) : (
+                        ""
+                      )}
+                    </Box>
+                    <Box>
+                      {" "}
+                      <DemoContainer components={["DatePicker, DatePicker"]}>
+                        <DatePicker
+                          slotProps={{
+                            textField: {
+                              width: "20%",
+                              size: "small",
+                              padding: "0px",
+                              margin: "0px",
+                              variant: "standard",
+                            },
+                            inputAdornment: {
+                              padding: "0px",
+                              margin: "0px",
+                            },
+                          }}
+                          sx={{
+                            "& .MuiInputBase-input": {
+                              padding: "0px",
+                              margin: "0px",
+                              width: "70%",
+                              height: "15px",
+                              fontWeight: 800,
+                            },
+                            "& .MuiInputBase-root": {
+                              padding: 0,
+                              margin: 0,
+
+                              "& .MuiButtonBase-root": {
+                                padding: 0,
+                                margin: 0,
+                              },
+                              "& .MuiInputBase-input.Mui-disabled": {
+                                WebkitTextFillColor: "black", //Adjust text color here
+                              },
+                            },
+                          }}
+                          disabled={edit ? false : true}
+                          format="DD/MM/YYYY"
+                          id="checked"
+                          value={
+                            vehicle.checked ? dayjs(vehicle.checked) : dayjs()
+                          }
+                          name="checked"
+                          onChange={(newValue) => {
+                            setVehicle({ ...vehicle, checked: newValue });
+                          }}
+                        />
+                      </DemoContainer>
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+              </Grid>
+              {/* <div className="my-4 flex justify-end my-2 border-t border-gray-500">
                 <div className="w-40">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     Масла/ф-ри:
@@ -837,9 +1381,294 @@ const ShowVehicle = () => {
                     </>
                   )}
                 </div>
-              </div>
-              <div className="my-4 flex justify-end my-2 border-t border-gray-500">
-                <div className="w-56">
+              </div> */}
+              <div className="my-4 flex pt-2 justify-end my-2 border-t border-gray-500">
+                <Grid container spacing={2}>
+                  <Grid item xs={3}>
+                    <ItemStacked
+                      sx={
+                        !vehicle.vignette
+                          ? { backgroundColor: "rgb(156 163 175)" }
+                          : isDue(vehicle.vignetteDate, "date") === "warning"
+                          ? { backgroundColor: "#bb5a5a" }
+                          : isDue(vehicle.vignetteDate, "date") === "caution"
+                          ? { backgroundColor: "#ca9f3d" }
+                          : {}
+                      }
+                    >
+                      <Box
+                        sx={
+                          !vehicle.vignette
+                            ? {}
+                            : isDue(vehicle.vignetteDate, "date") === "warning"
+                            ? { color: "#950e0e" }
+                            : isDue(vehicle.vignetteDate, "date") === "caution"
+                            ? { color: "#95660e" }
+                            : { color: "gray" }
+                        }
+                      >
+                        Винетка:
+                        {!vehicle.vignette ? (
+                          ""
+                        ) : isDue(vehicle.vignetteDate, "date") ? (
+                          <WarningAmberIcon />
+                        ) : (
+                          ""
+                        )}
+                        {edit ? (
+                          <Checkbox
+                            sx={{
+                              margin: "0",
+                              padding: "0",
+                              paddingLeft: "2px",
+                            }}
+                            checked={vehicle.vignette}
+                            onChange={handleVignette}
+                          />
+                        ) : (
+                          ""
+                        )}
+                      </Box>
+                      <Box>
+                        {!vehicle.vignette ? (
+                          <TextField
+                            disabled
+                            value={"НЯМА"}
+                            variant="standard"
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                fontSize: 18,
+                                height: 4,
+                                padding: 1,
+                                fontWeight: 800,
+                                textAlign: "center",
+                              },
+                              "& .MuiInputBase-input.Mui-disabled": {
+                                WebkitTextFillColor: "black", //Adjust text color here
+                              },
+                            }}
+                          />
+                        ) : (
+                          <DemoContainer
+                            components={["DatePicker, DatePicker"]}
+                          >
+                            <DatePicker
+                              slotProps={{
+                                textField: {
+                                  width: "20%",
+                                  size: "small",
+                                  padding: "0px",
+                                  margin: "0px",
+                                  variant: "standard",
+                                },
+                                inputAdornment: {
+                                  padding: "0px",
+                                  margin: "0px",
+                                },
+                              }}
+                              sx={{
+                                "& .MuiInputBase-input": {
+                                  padding: "0px",
+                                  margin: "0px",
+                                  width: "70%",
+                                  height: "15px",
+                                  fontWeight: 800,
+                                },
+                                "& .MuiInputBase-root": {
+                                  padding: 0,
+                                  margin: 0,
+
+                                  "& .MuiButtonBase-root": {
+                                    padding: 0,
+                                    margin: 0,
+                                  },
+                                  "& .MuiInputBase-input.Mui-disabled": {
+                                    WebkitTextFillColor: "black", //Adjust text color here
+                                  },
+                                },
+                              }}
+                              disabled={edit ? !vehicle.vignette : true}
+                              format="DD/MM/YYYY"
+                              id="vignetteDate"
+                              value={
+                                vehicle.vignetteDate
+                                  ? dayjs(vehicle.vignetteDate)
+                                  : dayjs()
+                              }
+                              name="vignetteDate"
+                              onChange={(newValue) => {
+                                setVehicle({
+                                  ...vehicle,
+                                  vignetteDate: newValue,
+                                });
+                              }}
+                            />
+                          </DemoContainer>
+                        )}
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ItemStacked>
+                      <Box sx={{ color: "gray" }}>Данък:</Box>
+                      <Box>
+                        {" "}
+                        <TextField
+                          fullWidth
+                          value={vehicle.tax}
+                          disabled={!edit}
+                          select={edit}
+                          SelectProps={{ sx: { height: "25px" } }}
+                          name="tax"
+                          onChange={handleChange}
+                          variant="standard"
+                          sx={{
+                            "& .MuiInputBase-input": {
+                              fontSize: 18,
+                              height: 4,
+                              padding: 1,
+                              fontWeight: 800,
+                              textAlign: "center",
+                            },
+                            "& .MuiInputBase-input.Mui-disabled": {
+                              WebkitTextFillColor: "black", //Adjust text color here
+                            },
+                          }}
+                        >
+                          <MenuItem key={1} value={dayjs().year() - 1}>
+                            {dayjs().year() - 1}
+                          </MenuItem>
+                          <MenuItem key={2} value={dayjs().year()}>
+                            {dayjs().year()}
+                          </MenuItem>
+                          <MenuItem key={3} value={dayjs().year() + 1}>
+                            {dayjs().year() + 1}
+                          </MenuItem>
+                        </TextField>
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ItemStacked
+                      sx={
+                        isDue(vehicle.gtp, "date") === "warning"
+                          ? { backgroundColor: "#bb5a5a" }
+                          : isDue(vehicle.gtp, "date") === "caution"
+                          ? { backgroundColor: "#ca9f3d" }
+                          : {}
+                      }
+                    >
+                      <Box
+                        sx={
+                          isDue(vehicle.gtp, "date") === "warning"
+                            ? { color: "#950e0e" }
+                            : isDue(vehicle.gtp, "date") === "caution"
+                            ? { color: "#95660e" }
+                            : { color: "gray" }
+                        }
+                      >
+                        ГТП:
+                        {isDue(vehicle.gtp, "date") ? <WarningAmberIcon /> : ""}
+                      </Box>
+                      <Box>
+                        {" "}
+                        <DemoContainer components={["DatePicker, DatePicker"]}>
+                          <DatePicker
+                            slotProps={{
+                              textField: {
+                                width: "20%",
+                                size: "small",
+                                padding: "0px",
+                                margin: "0px",
+                                variant: "standard",
+                              },
+                              inputAdornment: {
+                                padding: "0px",
+                                margin: "0px",
+                              },
+                            }}
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                padding: "0px",
+                                margin: "0px",
+                                width: "70%",
+                                height: "15px",
+                                fontWeight: 800,
+                              },
+                              "& .MuiInputBase-root": {
+                                padding: 0,
+                                margin: 0,
+
+                                "& .MuiButtonBase-root": {
+                                  padding: 0,
+                                  margin: 0,
+                                },
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                  WebkitTextFillColor: "black", //Adjust text color here
+                                },
+                              },
+                            }}
+                            disabled={edit ? false : true}
+                            format="DD/MM/YYYY"
+                            id="gtp"
+                            value={vehicle.gtp ? dayjs(vehicle.gtp) : dayjs()}
+                            name="gtp"
+                            onChange={(newValue) => {
+                              setVehicle({ ...vehicle, gtp: newValue });
+                            }}
+                          />
+                        </DemoContainer>
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ItemStacked>
+                      <Box sx={{ color: "gray" }}>ЕКО Група:</Box>
+                      <Box>
+                        {" "}
+                        <TextField
+                          fullWidth
+                          value={vehicle.cat}
+                          disabled={!edit}
+                          select={edit}
+                          SelectProps={{ sx: { height: "25px" } }}
+                          name="cat"
+                          onChange={handleChange}
+                          variant="standard"
+                          sx={{
+                            "& .MuiInputBase-input": {
+                              fontSize: 18,
+                              height: 4,
+                              padding: 1,
+                              fontWeight: 800,
+                              textAlign: "center",
+                            },
+                            "& .MuiInputBase-input.Mui-disabled": {
+                              WebkitTextFillColor: "black", //Adjust text color here
+                            },
+                          }}
+                        >
+                          <MenuItem key={1} value={1}>
+                            1
+                          </MenuItem>
+                          <MenuItem key={2} value={2}>
+                            2
+                          </MenuItem>
+                          <MenuItem key={3} value={3}>
+                            3
+                          </MenuItem>
+                          <MenuItem key={3} value={4}>
+                            4
+                          </MenuItem>
+                          <MenuItem key={3} value={5}>
+                            5
+                          </MenuItem>
+                        </TextField>
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                </Grid>
+                {/* <div className="w-56">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     Винетка до:
                   </span>
@@ -883,13 +1712,13 @@ const ShowVehicle = () => {
                         textAlign: "center",
                         width: "150px",
                       }}
-                      value={
-                        vehicle.vignetteDate
-                          ? !vehicle.vignette
-                            ? "НЯМА"
-                            : bgDate(vehicle.vignetteDate.slice(0, 10))
-                          : "N/A"
-                      }
+                      // value={
+                      //   vehicle.vignetteDate
+                      //     ? !vehicle.vignette
+                      //       ? "НЯМА"
+                      //       : bgDate(vehicle.vignetteDate.slice(0, 10))
+                      //     : "N/A"
+                      // }
                     />
                   )}
                 </div>
@@ -1019,10 +1848,276 @@ const ShowVehicle = () => {
                       value={vehicle.cat}
                     />
                   )}
-                </div>
+                </div> */}
               </div>
               <div className="my-4 flex justify-end my-2">
-                <div className="w-56">
+                <Grid container spacing={2}>
+                  <Grid item xs={3}>
+                    <ItemStacked
+                      sx={
+                        isDue(vehicle.insDate, "date") === "warning"
+                          ? { backgroundColor: "#bb5a5a" }
+                          : isDue(vehicle.insDate, "date") === "caution"
+                          ? { backgroundColor: "#ca9f3d" }
+                          : {}
+                      }
+                    >
+                      <Box
+                        sx={
+                          isDue(vehicle.insDate, "date") === "warning"
+                            ? { color: "#950e0e" }
+                            : isDue(vehicle.insDate, "date") === "caution"
+                            ? { color: "#95660e" }
+                            : { color: "gray" }
+                        }
+                      >
+                        ГО до:
+                        {isDue(vehicle.insDate, "date") ? (
+                          <WarningAmberIcon />
+                        ) : (
+                          ""
+                        )}
+                      </Box>
+                      <Box>
+                        {" "}
+                        <DemoContainer components={["DatePicker, DatePicker"]}>
+                          <DatePicker
+                            slotProps={{
+                              textField: {
+                                width: "20%",
+                                size: "small",
+                                padding: "0px",
+                                margin: "0px",
+                                variant: "standard",
+                              },
+                              inputAdornment: {
+                                padding: "0px",
+                                margin: "0px",
+                              },
+                            }}
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                padding: "0px",
+                                margin: "0px",
+                                width: "70%",
+                                height: "15px",
+                                fontWeight: 800,
+                              },
+                              "& .MuiInputBase-root": {
+                                padding: 0,
+                                margin: 0,
+
+                                "& .MuiButtonBase-root": {
+                                  padding: 0,
+                                  margin: 0,
+                                },
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                  WebkitTextFillColor: "black", //Adjust text color here
+                                },
+                              },
+                            }}
+                            disabled={edit ? false : true}
+                            format="DD/MM/YYYY"
+                            id="insDate"
+                            value={
+                              vehicle.insDate ? dayjs(vehicle.insDate) : dayjs()
+                            }
+                            name="insDate"
+                            onChange={(newValue) => {
+                              setVehicle({ ...vehicle, insDate: newValue });
+                            }}
+                          />
+                        </DemoContainer>
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ItemStacked>
+                      <Box sx={{ color: "gray" }}>ГО № Полица</Box>
+                      <Box>
+                        {" "}
+                        <TextField
+                          value={vehicle.insNum}
+                          disabled={!edit}
+                          name="insNum"
+                          onChange={handleChange}
+                          variant="standard"
+                          sx={{
+                            "& .MuiInputBase-input": {
+                              fontSize: 18,
+                              height: 4,
+                              padding: 1,
+                              fontWeight: 800,
+                              textAlign: "center",
+                            },
+                            "& .MuiInputBase-input.Mui-disabled": {
+                              WebkitTextFillColor: "black", //Adjust text color here
+                            },
+                          }}
+                        />
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ItemStacked
+                      sx={
+                        !vehicle.kasko
+                          ? { backgroundColor: "rgb(156 163 175)" }
+                          : isDue(vehicle.kaskoDate, "date") === "warning"
+                          ? { backgroundColor: "#bb5a5a" }
+                          : isDue(vehicle.kaskoDate, "date") === "caution"
+                          ? { backgroundColor: "#ca9f3d" }
+                          : {}
+                      }
+                    >
+                      <Box
+                        sx={
+                          !vehicle.kasko
+                            ? {}
+                            : isDue(vehicle.kaskoDate, "date") === "warning"
+                            ? { color: "#950e0e" }
+                            : isDue(vehicle.kaskoDate, "date") === "caution"
+                            ? { color: "#95660e" }
+                            : { color: "gray" }
+                        }
+                      >
+                        Каско до:
+                        {!vehicle.kasko ? (
+                          ""
+                        ) : isDue(vehicle.kaskoDate, "date") ? (
+                          <WarningAmberIcon />
+                        ) : (
+                          ""
+                        )}
+                        {edit ? (
+                          <Checkbox
+                            sx={{
+                              margin: "0",
+                              padding: "0",
+                              paddingLeft: "2px",
+                            }}
+                            checked={vehicle.kasko}
+                            onChange={handleKasko}
+                          />
+                        ) : (
+                          ""
+                        )}
+                      </Box>
+                      <Box>
+                        {!vehicle.kasko ? (
+                          <TextField
+                            disabled
+                            value={"НЯМА"}
+                            variant="standard"
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                fontSize: 18,
+                                height: 4,
+                                padding: 1,
+                                fontWeight: 800,
+                                textAlign: "center",
+                              },
+                              "& .MuiInputBase-input.Mui-disabled": {
+                                WebkitTextFillColor: "black", //Adjust text color here
+                              },
+                            }}
+                          />
+                        ) : (
+                          <DemoContainer
+                            components={["DatePicker, DatePicker"]}
+                          >
+                            <DatePicker
+                              slotProps={{
+                                textField: {
+                                  width: "20%",
+                                  size: "small",
+                                  padding: "0px",
+                                  margin: "0px",
+                                  variant: "standard",
+                                },
+                                inputAdornment: {
+                                  padding: "0px",
+                                  margin: "0px",
+                                },
+                              }}
+                              sx={{
+                                "& .MuiInputBase-input": {
+                                  padding: "0px",
+                                  margin: "0px",
+                                  width: "70%",
+                                  height: "15px",
+                                  fontWeight: 800,
+                                },
+                                "& .MuiInputBase-root": {
+                                  padding: 0,
+                                  margin: 0,
+
+                                  "& .MuiButtonBase-root": {
+                                    padding: 0,
+                                    margin: 0,
+                                  },
+                                  "& .MuiInputBase-input.Mui-disabled": {
+                                    WebkitTextFillColor: "black", //Adjust text color here
+                                  },
+                                },
+                              }}
+                              disabled={edit ? !vehicle.kasko : true}
+                              format="DD/MM/YYYY"
+                              id="kaskoDate"
+                              value={
+                                vehicle.kaskoDate
+                                  ? dayjs(vehicle.kaskoDate)
+                                  : dayjs()
+                              }
+                              name="kaskoDate"
+                              onChange={(newValue) => {
+                                setVehicle({
+                                  ...vehicle,
+                                  kaskoDate: newValue,
+                                });
+                              }}
+                            />
+                          </DemoContainer>
+                        )}
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ItemStacked
+                      sx={
+                        !vehicle.kasko
+                          ? { backgroundColor: "rgb(156 163 175)" }
+                          : {}
+                      }
+                    >
+                      <Box sx={{ color: "gray" }}>Каско № Полица</Box>
+                      <Box>
+                        <TextField
+                          value={!vehicle.kasko ? "НЯМА" : vehicle.kaskoNum}
+                          disabled={
+                            !edit ? true : !vehicle.kasko ? true : false
+                          }
+                          name="kaskoNum"
+                          onChange={handleChange}
+                          variant="standard"
+                          sx={{
+                            "& .MuiInputBase-input": {
+                              fontSize: 18,
+                              height: 4,
+                              padding: 1,
+                              fontWeight: 800,
+                              textAlign: "center",
+                            },
+                            "& .MuiInputBase-input.Mui-disabled": {
+                              WebkitTextFillColor: "black", //Adjust text color here
+                            },
+                          }}
+                        />
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                </Grid>
+                {/* <div className="w-56">
                   <span
                     className={
                       isDue(vehicle.insDate, "date") === "warning"
@@ -1154,10 +2249,10 @@ const ShowVehicle = () => {
                       }
                     />
                   )}
-                </div>
+                </div> */}
               </div>
               <div className="my-4 flex justify-end my-2">
-                <div className="w-56">
+                {/* <div className="w-56">
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     ГО № Полица:
                   </span>
@@ -1222,10 +2317,209 @@ const ShowVehicle = () => {
                       value={vehicle.kaskoNum ? vehicle.kaskoNum : "N/A"}
                     />
                   )}
-                </div>
+                </div> */}
               </div>
-              <div className="my-4 flex justify-end my-2 border-t border-gray-500">
-                <div className="w-56">
+              <div className="my-4 pt-2 flex justify-end my-2 border-t border-gray-500">
+                <Grid container spacing={2}>
+                  <Grid item xs={3}>
+                    <ItemStacked>
+                      <Box>Дата на покупка:</Box>
+                      <Box>
+                        {" "}
+                        <DemoContainer components={["DatePicker, DatePicker"]}>
+                          <DatePicker
+                            slotProps={{
+                              textField: {
+                                width: "20%",
+                                size: "small",
+                                padding: "0px",
+                                margin: "0px",
+                                variant: "standard",
+                              },
+                              inputAdornment: {
+                                padding: "0px",
+                                margin: "0px",
+                              },
+                            }}
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                padding: "0px",
+                                margin: "0px",
+                                width: "70%",
+                                height: "15px",
+                                fontWeight: 800,
+                              },
+                              "& .MuiInputBase-root": {
+                                padding: 0,
+                                margin: 0,
+
+                                "& .MuiButtonBase-root": {
+                                  padding: 0,
+                                  margin: 0,
+                                },
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                  WebkitTextFillColor: "black", //Adjust text color here
+                                },
+                              },
+                            }}
+                            disabled={edit ? false : true}
+                            format="DD/MM/YYYY"
+                            id="purchaseDate"
+                            value={
+                              vehicle.purchaseDate
+                                ? dayjs(vehicle.purchaseDate)
+                                : dayjs()
+                            }
+                            name="purchaseDate"
+                            onChange={(newValue) => {
+                              setVehicle({
+                                ...vehicle,
+                                purchaseDate: newValue,
+                              });
+                            }}
+                          />
+                        </DemoContainer>
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ItemStacked>
+                      <Box>Първи ремонт:</Box>
+                      <Box>
+                        {" "}
+                        <DemoContainer components={["DatePicker, DatePicker"]}>
+                          <DatePicker
+                            slotProps={{
+                              textField: {
+                                width: "20%",
+                                size: "small",
+                                padding: "0px",
+                                margin: "0px",
+                                variant: "standard",
+                              },
+                              inputAdornment: {
+                                padding: "0px",
+                                margin: "0px",
+                              },
+                            }}
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                padding: "0px",
+                                margin: "0px",
+                                width: "70%",
+                                height: "15px",
+                                fontWeight: 800,
+                              },
+                              "& .MuiInputBase-root": {
+                                padding: 0,
+                                margin: 0,
+
+                                "& .MuiButtonBase-root": {
+                                  padding: 0,
+                                  margin: 0,
+                                },
+                                "& .MuiInputBase-input.Mui-disabled": {
+                                  WebkitTextFillColor: "black", //Adjust text color here
+                                },
+                              },
+                            }}
+                            disabled={edit ? false : true}
+                            format="DD/MM/YYYY"
+                            id="startDate"
+                            value={
+                              vehicle.startDate
+                                ? dayjs(vehicle.startDate)
+                                : dayjs()
+                            }
+                            name="startDate"
+                            onChange={(newValue) => {
+                              setVehicle({
+                                ...vehicle,
+                                startDate: newValue,
+                              });
+                            }}
+                          />
+                        </DemoContainer>
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ItemStacked>
+                      <Box sx={{ color: "gray" }}>Начални километри:</Box>
+                      <Box sx={{ display: "flex", flexDirection: "row" }}>
+                        <TextField
+                          value={
+                            vehicle.startKm
+                              ? vehicle.startKm
+                              : !edit
+                              ? "НЯМА ДАННИ"
+                              : ""
+                          }
+                          disabled={!edit}
+                          name="startKm"
+                          onChange={handleChange}
+                          variant="standard"
+                          sx={{
+                            "& .MuiInputBase-input": {
+                              fontSize: 18,
+                              height: 4,
+                              padding: 1,
+                              fontWeight: 800,
+                              textAlign: "center",
+                            },
+                            "& .MuiInputBase-input.Mui-disabled": {
+                              WebkitTextFillColor: "black", //Adjust text color here
+                            },
+                          }}
+                        />
+                        <span>KM</span>
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ItemStacked>
+                      <Box sx={{ color: "gray" }}>Цена на покупка:</Box>
+                      <Box sx={{ display: "flex", flexDirection: "row" }}>
+                        <TextField
+                          slotProps={{
+                            input: {
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  kg
+                                </InputAdornment>
+                              ),
+                            },
+                          }}
+                          value={
+                            vehicle.price
+                              ? vehicle.price
+                              : !edit
+                              ? "НЯМА ДАННИ"
+                              : ""
+                          }
+                          disabled={!edit}
+                          name="price"
+                          onChange={handleChange}
+                          variant="standard"
+                          sx={{
+                            "& .MuiInputBase-input": {
+                              fontSize: 18,
+                              height: 4,
+                              padding: 1,
+                              fontWeight: 800,
+                              textAlign: "center",
+                            },
+                            "& .MuiInputBase-input.Mui-disabled": {
+                              WebkitTextFillColor: "black", //Adjust text color here
+                            },
+                          }}
+                        />
+                        <span>ЛВ</span>
+                      </Box>
+                    </ItemStacked>
+                  </Grid>
+                </Grid>
+                {/* <div className="w-56">
                   {" "}
                   <span className="text-xl mr-2 ml-4 text-gray-500">
                     Дата на покупка:
@@ -1321,7 +2615,7 @@ const ShowVehicle = () => {
                       }
                     />
                   )}
-                </div>
+                </div> */}
               </div>
 
               {userRole === "admin" || userRole === vehicle.site ? (
