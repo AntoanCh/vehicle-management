@@ -729,11 +729,14 @@ const ShowVehicle = () => {
                         <MenuItem key={1} value={"НИКОН-НК"}>
                           НИКОН-НК
                         </MenuItem>
-                        <MenuItem key={1} value={"ЕКСПРЕС-ГАРАНТ НК"}>
+                        <MenuItem key={2} value={"ЕКСПРЕС-ГАРАНТ НК"}>
                           ЕКСПРЕС-ГАРАНТ НК
                         </MenuItem>
-                        <MenuItem key={1} value={"НИКОЛАЙ КЪНЧЕВ"}>
+                        <MenuItem key={3} value={"НИКОЛАЙ КЪНЧЕВ"}>
                           НИКОЛАЙ КЪНЧЕВ
+                        </MenuItem>
+                        <MenuItem key={4} value={"ДАРИНКА ВУТЕВА"}>
+                          ДАРИНКА ВУТЕВА
                         </MenuItem>
                       </TextField>
                     </Box>

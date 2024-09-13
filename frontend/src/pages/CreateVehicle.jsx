@@ -202,7 +202,7 @@ const CreateVehicle = () => {
   };
 
   const years = [];
-  for (let i = 1; i < 25; i++) {
+  for (let i = 1; i < 35; i++) {
     years.push(
       <MenuItem key={i} value={dayjs().year() - i}>
         {dayjs().year() - i}
@@ -570,11 +570,14 @@ const CreateVehicle = () => {
                     <MenuItem key={1} value="НИКОН-НК">
                       НИКОН-НК
                     </MenuItem>
-                    <MenuItem key={1} value="ЕКСПРЕС-ГАРАНТ">
+                    <MenuItem key={2} value="ЕКСПРЕС-ГАРАНТ">
                       ЕКСПРЕС-ГАРАНТ
                     </MenuItem>
-                    <MenuItem key={2} value="Николай Кънчев">
+                    <MenuItem key={3} value="Николай Кънчев">
                       Николай Кънчев
+                    </MenuItem>
+                    <MenuItem key={4} value="Даринка Вутева">
+                      Даринка Вутева
                     </MenuItem>
                   </TextField>
                 </div>
