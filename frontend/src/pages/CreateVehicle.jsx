@@ -274,10 +274,10 @@ const CreateVehicle = () => {
                     onChange={handleChange}
                     variant="filled"
                   >
-                    <MenuItem key={1} value="office">
+                    <MenuItem key={1} value="ОФИС">
                       Офис
                     </MenuItem>
-                    <MenuItem key={2} value="warehouse">
+                    <MenuItem key={2} value="СКЛАД">
                       Склад
                     </MenuItem>
                   </TextField>

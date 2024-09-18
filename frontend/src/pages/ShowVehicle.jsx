@@ -457,6 +457,7 @@ const ShowVehicle = () => {
                       value={vehicle.km}
                       disabled={!edit}
                       id="km"
+                      name="km"
                       onChange={handleChange}
                       variant="standard"
                       sx={{

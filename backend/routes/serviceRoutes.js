@@ -35,6 +35,35 @@ router.post("/", async (req, res) => {
     res.status(500).send({ message: err.message });
   }
 });
+//Route for Update a Service
+router.put("/:id", async (req, res) => {
+  try {
+    if (
+      !req.body.date ||
+      !req.body.type ||
+      !req.body.desc ||
+      !req.body.invoice ||
+      !req.body.km ||
+      !req.body.cost ||
+      !req.body.vehicleId
+    ) {
+      return res.status(400).send({
+        message: "Send all required fields",
+      });
+    }
+
+    const { id } = req.params;
+
+    const result = await Service.findByIdAndUpdate(id, req.body);
+    if (!result) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+    return res.status(200).send({ message: "Service Updated" });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send({ message: err.message });
+  }
+});
 
 //Route to get all services
 router.get("/", async (req, res) => {

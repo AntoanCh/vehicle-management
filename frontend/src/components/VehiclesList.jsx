@@ -174,7 +174,7 @@ export default function VehiclesList({ data }) {
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const [filter, setFilter] = React.useState("all");
   const [searched, setSearched] = useState("");
   const [rows, setRows] = useState(data);
