@@ -6,6 +6,8 @@ import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Office from "./pages/Office.jsx";
+import PickUp from "./pages/PickUp.jsx";
+import Drivers from "./pages/Drivers.jsx";
 import Warehouse from "./pages/Warehouse.jsx";
 import Hr from "./pages/Hr.jsx";
 import CreatePerson from "./pages/CreatePerson.jsx";
@@ -47,6 +49,8 @@ function App() {
               <Route path="/users" element={<Users />} />
               <Route path="/sites" element={<Sites />} />
               <Route path="/hr" element={<Hr />} />
+              <Route path="/pick-up" element={<PickUp />} />
+              <Route path="/drivers" element={<Drivers />} />
               <Route path="/hr/create" element={<CreatePerson />} />
               <Route path="/warehouse" element={<Warehouse />} />
               <Route path="/office" element={<Office />} />

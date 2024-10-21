@@ -7,6 +7,9 @@ import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
+import ContactPageIcon from "@mui/icons-material/ContactPage";
+import SettingsIcon from "@mui/icons-material/Settings";
+import CarRentalIcon from "@mui/icons-material/CarRental";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -504,7 +507,7 @@ const HeaderMenu = () => {
               <ListItemText primary={"Начало"} sx={{ opacity: open ? 1 : 0 }} />
             </ListItemButton>
           </ListItem>
-
+          <Divider />
           <ListItem key={2} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
@@ -531,6 +534,67 @@ const HeaderMenu = () => {
             </ListItemButton>
           </ListItem>
 
+          <ListItem key={6} disablePadding sx={{ display: "block" }}>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? "initial" : "center",
+                px: 2.5,
+              }}
+              // disabled={
+              //   userRole === "admin" || userRole === "hr" ? false : true
+              // }
+              component={Link}
+              to={"/pick-up"}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : "auto",
+                  justifyContent: "center",
+                }}
+              >
+                {<CarRentalIcon />}
+              </ListItemIcon>
+              <ListItemText
+                primary={"Взимане на кола"}
+                sx={{ opacity: open ? 1 : 0 }}
+              />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key={8} disablePadding sx={{ display: "block" }}>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? "initial" : "center",
+                px: 2.5,
+              }}
+              // disabled={
+              //   userRole === "admin" || userRole === "hr" ? false : true
+              // }
+              component={Link}
+              to={"/drivers"}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : "auto",
+                  justifyContent: "center",
+                }}
+              >
+                {<PersonIcon />}
+                {<CarRentalIcon />}
+              </ListItemIcon>
+              <ListItemText
+                primary={"Шофьори"}
+                sx={{ opacity: open ? 1 : 0 }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
+        <Divider />
+
+        <List>
           <ListItem key={5} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
@@ -559,9 +623,6 @@ const HeaderMenu = () => {
               />
             </ListItemButton>
           </ListItem>
-        </List>
-        <Divider />
-        <List>
           <ListItem key={4} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
@@ -587,6 +648,31 @@ const HeaderMenu = () => {
               <ListItemText primary={"Обекти"} sx={{ opacity: open ? 1 : 0 }} />
             </ListItemButton>
           </ListItem>
+
+          {/* {["All mail", "Trash", "Spam"].map((text, index) => (
+            <ListItem key={text} disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                  }}
+                >
+                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                </ListItemIcon>
+                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+              </ListItemButton>
+            </ListItem>
+          ))} */}
+        </List>
+        <List style={{ position: "absolute", bottom: "0" }}>
           <ListItem key={3} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
@@ -613,28 +699,38 @@ const HeaderMenu = () => {
               />
             </ListItemButton>
           </ListItem>
-          {/* {["All mail", "Trash", "Spam"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
+          <ListItem key={7} disablePadding sx={{ display: "block" }}>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? "initial" : "center",
+                px: 2.5,
+              }}
+              component={Link}
+              to={"/settings"}
+              // disabled={userRole === "admin" ? false : true}
+              disabled
+            >
+              <ListItemIcon
                 sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
+                  minWidth: 0,
+                  mr: open ? 3 : "auto",
+                  justifyContent: "center",
                 }}
               >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                  }}
-                >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))} */}
+                {<SettingsIcon />}
+              </ListItemIcon>
+              <ListItemText
+                primary={"Настройки"}
+                sx={{ opacity: open ? 1 : 0 }}
+              />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem key={9} disablePadding sx={{ display: "block" }}>
+            {" "}
+            v.{process.env.REACT_APP_VERSION}
+          </ListItem>
         </List>
       </Drawer>
     </Box>

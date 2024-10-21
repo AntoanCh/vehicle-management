@@ -404,8 +404,8 @@ const ShowVehicle = () => {
               </Button>
             </DialogActions>
           </Dialog>
-          <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-9/12 p-4">
-            <div className="flex">
+          <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-full 2xl:w-9/12 p-4">
+            <Box sx={{ display: { sm: "flex", xs: "" } }}>
               <div>
                 <Stack spacing={2}>
                   <Box>
@@ -502,7 +502,7 @@ const ShowVehicle = () => {
               </div>
 
               <Grid container spacing={2}>
-                <Grid item xs={3}>
+                <Grid item lg={3} sm={6} xs={12}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>Година:</Box>
                     <Box>
@@ -528,7 +528,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item lg={3} sm={6} xs={12}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>Гориво:</Box>
                     <Box>
@@ -555,7 +555,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item lg={3} sm={6} xs={12}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>№ ДВГ</Box>
                     <Box>
@@ -582,7 +582,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item lg={3} sm={6} xs={12}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>Гуми Размер</Box>
                     <Box>
@@ -609,7 +609,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item lg={3} sm={6} xs={12}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>Отговорник:</Box>
                     <Box>
@@ -646,7 +646,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item lg={3} sm={6} xs={12}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>№ Талон</Box>
                     <Box>
@@ -673,7 +673,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item lg={3} sm={6} xs={12}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>№ Рама</Box>
                     <Box>
@@ -700,7 +700,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item lg={3} sm={6} xs={12}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>Собственик</Box>
                     <Box>
@@ -959,7 +959,7 @@ const ShowVehicle = () => {
                   </div>
                 </div>
               </div> */}
-            </div>
+            </Box>
 
             <div className="flex justify-end">
               {userRole === "admin" || userRole === vehicle.site ? (
@@ -978,7 +978,7 @@ const ShowVehicle = () => {
             </div>
             <div className="my-4">
               <Grid container spacing={2} columns={48}>
-                <Grid item xs={9}>
+                <Grid item sm={9} xs={48}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>Масла/ф-ри:</Box>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
@@ -1005,7 +1005,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={9}>
+                <Grid item sm={9} xs={48}>
                   <ItemStacked
                     sx={
                       isDue(vehicle.km - vehicle.oil, "oil") === "warning"
@@ -1046,7 +1046,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={9}>
+                <Grid item sm={9} xs={48}>
                   <ItemStacked
                     sx={
                       isDue(vehicle.km - vehicle.oil, "oil") === "warning"
@@ -1087,7 +1087,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={9}>
+                <Grid item sm={9} xs={48}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>Интервал</Box>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
@@ -1115,7 +1115,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item sm={12} xs={48}>
                   <ItemStacked
                     sx={
                       isDue(vehicle.checked, "checked") === "warning"
@@ -1388,7 +1388,7 @@ const ShowVehicle = () => {
               </div> */}
               <div className="my-4 flex pt-2 justify-end my-2 border-t border-gray-500">
                 <Grid container spacing={2}>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked
                       sx={
                         !vehicle.vignette
@@ -1512,7 +1512,7 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked>
                       <Box sx={{ color: "gray" }}>Данък:</Box>
                       <Box>
@@ -1552,7 +1552,7 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked
                       sx={
                         isDue(vehicle.gtp, "date") === "warning"
@@ -1625,7 +1625,7 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked>
                       <Box sx={{ color: "gray" }}>ЕКО Група:</Box>
                       <Box>
@@ -1856,7 +1856,7 @@ const ShowVehicle = () => {
               </div>
               <div className="my-4 flex justify-end my-2">
                 <Grid container spacing={2}>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked
                       sx={
                         isDue(vehicle.insDate, "date") === "warning"
@@ -1935,7 +1935,7 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked>
                       <Box sx={{ color: "gray" }}>ГО № Полица</Box>
                       <Box>
@@ -1962,7 +1962,7 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked
                       sx={
                         !vehicle.kasko
@@ -2086,7 +2086,7 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked
                       sx={
                         !vehicle.kasko
@@ -2325,7 +2325,7 @@ const ShowVehicle = () => {
               </div>
               <div className="my-4 pt-2 flex justify-end my-2 border-t border-gray-500">
                 <Grid container spacing={2}>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked>
                       <Box>Дата на покупка:</Box>
                       <Box>
@@ -2386,7 +2386,7 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked>
                       <Box>Първи ремонт:</Box>
                       <Box>
@@ -2447,7 +2447,7 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked>
                       <Box sx={{ color: "gray" }}>Начални километри:</Box>
                       <Box sx={{ display: "flex", flexDirection: "row" }}>
@@ -2480,7 +2480,7 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item sm={3} xs={12}>
                     <ItemStacked>
                       <Box sx={{ color: "gray" }}>Цена на покупка:</Box>
                       <Box sx={{ display: "flex", flexDirection: "row" }}>
