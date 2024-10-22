@@ -46,6 +46,7 @@ app.use("/services", serviceRoutes);
 app.use("/fuels", fuelRoutes);
 app.use("/problems", problemRoutes);
 app.use("/vehicle", vehicleRoutes);
+app.use("/api/drivers", driverRoutes);
 app.use("/cars", carRoutes);
 app.use("/trucks", truckRoutes);
 app.use("/api/person", personRoutes);
