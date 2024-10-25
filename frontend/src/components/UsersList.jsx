@@ -111,6 +111,7 @@ function EnhancedTableHead(props) {
       <TableRow sx={{ backgroundColor: "grey" }}>
         {headCells.map((headCell) => (
           <TableCell
+            sx={{ fontWeight: 800 }}
             align={
               headCell.id === "actions" || headCell.id === "id"
                 ? "right"
@@ -181,8 +182,8 @@ const Users = ({ users }) => {
     console.info("You clicked the Chip.");
   };
 
-  const handleDeleteChip = () => {
-    console.info("You clicked the delete icon.");
+  const handleDeleteChip = (index) => {
+    editUser.role.splice(index, 1);
   };
   const handleLoading = () => {
     setTimeout(() => {
@@ -323,6 +324,7 @@ const Users = ({ users }) => {
   const handleClose = () => {
     setEdit([false, 0, ""]);
   };
+  const roles = ["admin", "hr", "ОФИС", "СКЛАД", "IT", "FREEZER"];
   return (
     <div>
       <Dialog
@@ -378,9 +380,7 @@ const Users = ({ users }) => {
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
           <div>
-            <span>ID: </span>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <span>{editUser ? editUser._id : ""}</span>
               <span style={{ color: "red" }}> {caps ? "CAPSLOCK ON" : ""}</span>
             </Box>
           </div>
@@ -389,51 +389,32 @@ const Users = ({ users }) => {
             <>
               <div>
                 <span>Права: </span>
-                <span>{editUser ? editUser.role : ""}</span>
+                <span>
+                  {editUser
+                    ? editUser.role.map((item, index) => (
+                        <Chip
+                          color="primary"
+                          label={item}
+                          variant="outlined"
+                          onDelete={() => handleDeleteChip(index)}
+                        />
+                      ))
+                    : ""}
+                </span>
               </div>
               <div className="my-2">
                 <Stack direction="row" spacing={1}>
-                  <Chip
-                    color="secondary"
-                    label="Clickable Deletable"
-                    variant="outlined"
-                    onClick={handleClickChip}
-                  />
+                  {roles
+                    .filter((item) => !editUser.role.includes(item))
+                    .map((item) => (
+                      <Chip
+                        color="secondary"
+                        label={item}
+                        variant="outlined"
+                        onClick={handleClickChip}
+                      />
+                    ))}
                 </Stack>
-                <Stack direction="row" spacing={1}>
-                  <Chip
-                    color="primary"
-                    label="Clickable Deletable"
-                    variant="outlined"
-                    onDelete={handleDeleteChip}
-                  />
-                </Stack>
-                <TextField
-                  fullWidth
-                  name="role"
-                  select
-                  id="role"
-                  label="Нови Права:"
-                  variant="filled"
-                  value={editUser.role}
-                  onChange={handleChange}
-                >
-                  <MenuItem key={1} value="admin">
-                    ADMIN
-                  </MenuItem>
-                  <MenuItem key={2} value="hr">
-                    HR
-                  </MenuItem>
-                  <MenuItem key={3} value="user">
-                    USER
-                  </MenuItem>
-                  <MenuItem key={4} value="ОФИС">
-                    ОФИС ОТГОВОРНИК
-                  </MenuItem>
-                  <MenuItem key={5} value="СКЛАД">
-                    СКЛАД ОТГОВОРНИК
-                  </MenuItem>
-                </TextField>
               </div>
             </>
           ) : (
@@ -591,7 +572,7 @@ const Users = ({ users }) => {
                               {row.username}
                             </TableCell>
                             <TableCell>
-                              {row.role}
+                              {row.role.map((item) => `${item} ,`)}
                               <IconButton
                                 color="warning"
                                 onClick={(event) => {

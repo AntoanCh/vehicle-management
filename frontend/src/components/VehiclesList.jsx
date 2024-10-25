@@ -133,9 +133,10 @@ function EnhancedTableHead(props) {
 
   return (
     <TableHead>
-      <TableRow sx={{ backgroundColor: "grey" }}>
+      <TableRow sx={{ backgroundColor: "#2196f3" }}>
         {headCells.map((headCell) => (
           <TableCell
+            sx={{ fontWeight: 800 }}
             key={headCell.id}
             padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
@@ -179,7 +180,7 @@ export default function VehiclesList({ data }) {
   const [searched, setSearched] = useState("");
   const [rows, setRows] = useState(data);
   const [copyList, setCopyList] = useState();
-  const [userRole, setUserRole] = useState();
+  const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
   const [add, setAdd] = useState(false);
   const token = localStorage.getItem("token");
@@ -552,7 +553,7 @@ export default function VehiclesList({ data }) {
 
         <Paper sx={{ width: "100%", mb: 2 }}>
           <TableContainer
-            sx={{ backgroundColor: "rgb(180, 180, 180)", borderRadius: "5px" }}
+            sx={{ backgroundColor: "#53c4f7", borderRadius: "5px" }}
           >
             <div className="flex">
               <TextField
@@ -582,6 +583,9 @@ export default function VehiclesList({ data }) {
                 <MenuItem key={3} value="СКЛАД">
                   СКЛАД
                 </MenuItem>
+                <MenuItem key={4} value="ДРУГИ">
+                  ДРУГИ
+                </MenuItem>
               </TextField>
               <TextField
                 size="small"
@@ -601,7 +605,7 @@ export default function VehiclesList({ data }) {
               />
 
               <Button
-                disabled={userRole === "user" || !userRole ? true : false}
+                disabled={userRole.length === 0 || !userRole ? true : false}
                 sx={{ width: "8%" }}
                 variant={"contained"}
                 // component={Link}
@@ -646,7 +650,7 @@ export default function VehiclesList({ data }) {
                         cursor: "pointer",
                         backgroundColor: "#ccc",
                         "&:hover": {
-                          backgroundColor: "#000000",
+                          backgroundColor: "#2196f3 ",
                           boxShadow: "none",
                         },
                       }}
@@ -771,6 +775,7 @@ export default function VehiclesList({ data }) {
             </Table>
           </TableContainer>
           <TablePagination
+            sx={{ backgroundColor: "#2196f3" }}
             labelRowsPerPage={"Покажи по:"}
             labelDisplayedRows={({ from, to, count }) =>
               `${from}-${to} от ${count !== -1 ? count : `MORE THAN ${to}`}`

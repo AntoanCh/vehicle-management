@@ -141,6 +141,7 @@ function EnhancedTableHead(props) {
       <TableRow sx={{ backgroundColor: "grey" }}>
         {headCells.map((headCell) => (
           <TableCell
+            sx={{ fontWeight: 800 }}
             style={
               headCell.id === "site"
                 ? {

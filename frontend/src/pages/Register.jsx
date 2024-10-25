@@ -10,7 +10,7 @@ const Register = () => {
   const [input, setInput] = useState({
     username: "",
     password: "",
-    role: "",
+    role: [],
   });
   const { username, password, role } = input;
   const handleChange = (e) => {
@@ -52,7 +52,7 @@ const Register = () => {
       ...input,
       username: "",
       password: "",
-      role: "",
+      role: [],
     });
   };
   return (

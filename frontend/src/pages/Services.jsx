@@ -133,6 +133,7 @@ function EnhancedTableHead(props) {
       <TableRow sx={{ backgroundColor: "grey" }}>
         {headCells.map((headCell) => (
           <TableCell
+            sx={{ fontWeight: 800 }}
             align={
               headCell.id === "delete" ||
               headCell.id === "cost" ||
@@ -407,7 +408,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       obj.invoice,
       obj.km + " км",
       obj.cost + " лв",
-      userRole === "admin" || userRole === vehicle.site ? (
+      userRole.includes("admin") || userRole.includes(vehicle.site) ? (
         <Box>
           <IconButton
             onClick={() => {
@@ -773,7 +774,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
           <CircularProgress />
         ) : (
           <div className="my-4">
-            {userRole === "admin" || userRole === vehicle.site ? (
+            {userRole.includes("admin") || userRole.includes(vehicle.site) ? (
               <Button
                 fullWidth
                 variant="contained"

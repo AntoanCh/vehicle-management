@@ -75,10 +75,63 @@ const Home = () => {
             <Box sx={{ width: "50%" }}>
               <BigButton
                 disabled={
-                  userRole === "hr" || userRole === "admin" ? false : true
+                  userRole.includes("hr") || userRole.includes("admin")
+                    ? false
+                    : true
                 }
                 onClick={() =>
-                  userRole === "hr" || userRole === "admin"
+                  userRole.includes("hr") || userRole.includes("admin")
+                    ? navigate("/hr")
+                    : ""
+                }
+                fullWidth
+                color="secondary"
+                variant="contained"
+              >
+                ЧОВЕШКИ РЕСУРСИ
+              </BigButton>
+              <BigButton
+                disabled={
+                  userRole.includes("hr") || userRole.includes("admin")
+                    ? false
+                    : true
+                }
+                onClick={() =>
+                  userRole.includes("hr") || userRole.includes("admin")
+                    ? navigate("/hr")
+                    : ""
+                }
+                fullWidth
+                color="secondary"
+                variant="contained"
+              >
+                ЧОВЕШКИ РЕСУРСИ
+              </BigButton>
+              <BigButton
+                disabled={
+                  userRole.includes("hr") || userRole.includes("admin")
+                    ? false
+                    : true
+                }
+                onClick={() =>
+                  userRole.includes("hr") || userRole.includes("admin")
+                    ? navigate("/hr")
+                    : ""
+                }
+                fullWidth
+                color="secondary"
+                variant="contained"
+              >
+                ЧОВЕШКИ РЕСУРСИ
+              </BigButton>
+              <BigButton
+                disabled={
+                  userRole.includes("hr") || userRole.includes("admin")
+                    ? false
+                    : true
+                }
+                onClick={() =>
+                  userRole.includes("hr") || userRole.includes("admin")
                     ? navigate("/hr")
                     : ""
                 }

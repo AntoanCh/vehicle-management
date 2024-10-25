@@ -11,6 +11,7 @@ import ContactPageIcon from "@mui/icons-material/ContactPage";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CarRentalIcon from "@mui/icons-material/CarRental";
 import MenuIcon from "@mui/icons-material/Menu";
+import ComputerIcon from "@mui/icons-material/Computer";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
@@ -29,6 +30,7 @@ import { ToastContainer, toast } from "react-toastify";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
+import GroupsIcon from "@mui/icons-material/Groups";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -47,6 +49,18 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import HomeIcon from "@mui/icons-material/Home";
+import AcUnitIcon from "@mui/icons-material/AcUnit";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import PriceCheckIcon from "@mui/icons-material/PriceCheck";
+import PowerIcon from "@mui/icons-material/Power";
+import FiberDvrIcon from "@mui/icons-material/FiberDvr";
+import LanIcon from "@mui/icons-material/Lan";
+import StorageIcon from "@mui/icons-material/Storage";
+import PrintIcon from "@mui/icons-material/Print";
+import PhonelinkRingIcon from "@mui/icons-material/PhonelinkRing";
+import ScaleIcon from "@mui/icons-material/Scale";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import BusinessIcon from "@mui/icons-material/Business";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import StoreMallDirectoryIcon from "@mui/icons-material/StoreMallDirectory";
@@ -58,7 +72,7 @@ import FormControl from "@mui/material/FormControl";
 import Input from "@mui/material/Input";
 import FilledInput from "@mui/material/FilledInput";
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -77,7 +91,7 @@ const closedMixin = (theme) => ({
   overflowX: "hidden",
   width: `calc(${theme.spacing(7)} + 1px)`,
   [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
+    width: `calc(${theme.spacing(8)} + 10px)`,
   },
 });
 
@@ -128,9 +142,10 @@ const Drawer = styled(MuiDrawer, {
 const HeaderMenu = () => {
   //HEADER
   const [tab, setTab] = useState("");
+
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
-  const [userRole, setUserRole] = useState("");
+  const [userRole, setUserRole] = useState([]);
   const [userId, setUserId] = useState("");
   const [editUser, setEditUser] = useState({});
   const token = localStorage.getItem("token");
@@ -242,11 +257,29 @@ const HeaderMenu = () => {
   //DRAWER
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-
+  const [expandVeh, setExpandVeh] = useState(false);
+  const [expandIT, setExpandIT] = useState(false);
+  const [expandHR, setExpandHR] = useState(false);
+  const [expandCool, setExpandCool] = useState(false);
+  const [expandSettings, setExpandSettings] = useState(false);
   const handleDrawerOpen = () => {
     setOpen(true);
   };
-
+  const handleExpandVeh = () => {
+    setExpandVeh(!expandVeh);
+  };
+  const handleExpandIT = () => {
+    setExpandIT(!expandIT);
+  };
+  const handleExpandHR = () => {
+    setExpandHR(!expandHR);
+  };
+  const handleExpandCool = () => {
+    setExpandCool(!expandCool);
+  };
+  const handleExpandSettings = () => {
+    setExpandSettings(!expandSettings);
+  };
   const handleDrawerClose = () => {
     setOpen(false);
   };
@@ -385,7 +418,7 @@ const HeaderMenu = () => {
         sx={
           {
             // display: "flex",
-            //  bgcolor: "gray",
+            // bgcolor: "gray",
             // height: "50px",
           }
         }
@@ -397,10 +430,14 @@ const HeaderMenu = () => {
               aria-label="open drawer"
               onClick={handleDrawerOpen}
               edge="start"
-              sx={{
-                marginRight: 5,
-                ...(open && { display: "none" }),
-              }}
+              sx={[
+                {
+                  marginRight: 5,
+
+                  ...(open && { display: "none" }),
+                },
+                username === "USER" && { display: "none" },
+              ]}
             >
               <MenuIcon />
             </IconButton>
@@ -444,6 +481,7 @@ const HeaderMenu = () => {
       <Drawer
         variant="permanent"
         open={open}
+        sx={[username === "USER" && { display: "none" }]}
         PaperProps={{
           sx: {
             backgroundColor: "lightgray",
@@ -515,8 +553,9 @@ const HeaderMenu = () => {
                 justifyContent: open ? "initial" : "center",
                 px: 2.5,
               }}
-              component={Link}
-              to={"/vehicles"}
+              // component={Link}
+              // to={"/it"}
+              onClick={handleExpandVeh}
             >
               <ListItemIcon
                 sx={{
@@ -531,82 +570,198 @@ const HeaderMenu = () => {
                 primary={"Автомобили"}
                 sx={{ opacity: open ? 1 : 0 }}
               />
+              {expandVeh ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-          </ListItem>
-
-          <ListItem key={6} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-              }}
-              // disabled={
-              //   userRole === "admin" || userRole === "hr" ? false : true
-              // }
-              component={Link}
-              to={"/pick-up"}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                }}
-              >
-                {<CarRentalIcon />}
-              </ListItemIcon>
-              <ListItemText
-                primary={"Взимане на кола"}
-                sx={{ opacity: open ? 1 : 0 }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key={8} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-              }}
-              // disabled={
-              //   userRole === "admin" || userRole === "hr" ? false : true
-              // }
-              component={Link}
-              to={"/drivers"}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                }}
-              >
-                {<PersonIcon />}
-                {<CarRentalIcon />}
-              </ListItemIcon>
-              <ListItemText
-                primary={"Шофьори"}
-                sx={{ opacity: open ? 1 : 0 }}
-              />
-            </ListItemButton>
+            <Collapse in={expandVeh} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
+                  component={Link}
+                  to={"/vehicles"}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<TimeToLeaveIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Автомобили"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
+                  // disabled={
+                  //   userRole === "admin" || userRole === "hr" ? false : true
+                  // }
+                  component={Link}
+                  to={"/scan"}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<CarRentalIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Взимане на кола"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
+                  // disabled={
+                  //   userRole === "admin" || userRole === "hr" ? false : true
+                  // }
+                  component={Link}
+                  to={"/drivers"}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<PersonIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Шофьори"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+              </List>
+            </Collapse>
           </ListItem>
         </List>
         <Divider />
-
         <List>
-          <ListItem key={5} disablePadding sx={{ display: "block" }}>
+          <ListItem key={10} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
                 minHeight: 48,
                 justifyContent: open ? "initial" : "center",
                 px: 2.5,
               }}
-              disabled={
-                userRole === "admin" || userRole === "hr" ? false : true
-              }
-              component={Link}
-              to={"/hr"}
+              // component={Link}
+              // to={"/it"}
+              onClick={handleExpandIT}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : "auto",
+                  justifyContent: "center",
+                }}
+              >
+                {<ComputerIcon />}
+              </ListItemIcon>
+              <ListItemText
+                primary={"ИТ Техника"}
+                sx={{ opacity: open ? 1 : 0 }}
+              />
+              {expandIT ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={expandIT} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <ScaleIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Везни" />
+                </ListItemButton>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <PhonelinkRingIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Хенди" />
+                </ListItemButton>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <PrintIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Принтери" />
+                </ListItemButton>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <ComputerIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Компютри" />
+                </ListItemButton>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <StorageIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Сървъри" />
+                </ListItemButton>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <LanIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Мрежова техника" />
+                </ListItemButton>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <FiberDvrIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="DVR" />
+                </ListItemButton>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <PowerIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="UPS" />
+                </ListItemButton>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <ReceiptLongIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Фискални у-ва" />
+                </ListItemButton>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <PriceCheckIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Каси" />
+                </ListItemButton>
+              </List>
+            </Collapse>
+          </ListItem>
+        </List>
+        <Divider />
+        <List>
+          <ListItem key={10} disablePadding sx={{ display: "block" }}>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? "initial" : "center",
+                px: 2.5,
+              }}
+              // component={Link}
+              // to={"/it"}
+              onClick={handleExpandHR}
             >
               <ListItemIcon
                 sx={{
@@ -621,34 +776,73 @@ const HeaderMenu = () => {
                 primary={"Човешки ресурси"}
                 sx={{ opacity: open ? 1 : 0 }}
               />
+              {expandHR ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-          </ListItem>
-          <ListItem key={4} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-              }}
-              disabled={
-                userRole === "admin" || userRole === "hr" ? false : true
-              }
-              component={Link}
-              to={"/sites"}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                }}
-              >
-                {<StoreMallDirectoryIcon />}
-              </ListItemIcon>
-              <ListItemText primary={"Обекти"} sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
+            <Collapse in={expandHR} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
+                  disabled={
+                    userRole.includes("admin") || userRole.includes("hr")
+                      ? false
+                      : true
+                  }
+                  component={Link}
+                  to={"/hr"}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<GroupsIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Персонал"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
+                  disabled={
+                    userRole.includes("admin") || userRole.includes("hr")
+                      ? false
+                      : true
+                  }
+                  component={Link}
+                  to={"/sites"}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<StoreMallDirectoryIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Обекти"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+              </List>
+            </Collapse>
           </ListItem>
 
+          <Divider />
           {/* {["All mail", "Trash", "Spam"].map((text, index) => (
             <ListItem key={text} disablePadding sx={{ display: "block" }}>
               <ListItemButton
@@ -672,17 +866,18 @@ const HeaderMenu = () => {
             </ListItem>
           ))} */}
         </List>
-        <List style={{ position: "absolute", bottom: "0" }}>
-          <ListItem key={3} disablePadding sx={{ display: "block" }}>
+
+        <List>
+          <ListItem key={10} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
                 minHeight: 48,
                 justifyContent: open ? "initial" : "center",
                 px: 2.5,
               }}
-              component={Link}
-              to={"/users"}
-              disabled={userRole === "admin" ? false : true}
+              // component={Link}
+              // to={"/it"}
+              onClick={handleExpandCool}
             >
               <ListItemIcon
                 sx={{
@@ -691,25 +886,93 @@ const HeaderMenu = () => {
                   justifyContent: "center",
                 }}
               >
-                {<PersonIcon />}
+                {<AcUnitIcon />}
               </ListItemIcon>
               <ListItemText
-                primary={"Потребители"}
+                primary={"Хладилна техника"}
                 sx={{ opacity: open ? 1 : 0 }}
               />
+              {expandCool ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
+            <Collapse in={expandCool} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
+                  disabled={
+                    userRole.includes("admin") || userRole.includes("hr")
+                      ? false
+                      : true
+                  }
+                  component={Link}
+                  to={"/hr"}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<GroupsIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Персонал"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
+                  disabled={
+                    userRole.includes("admin") || userRole.includes("hr")
+                      ? false
+                      : true
+                  }
+                  component={Link}
+                  to={"/sites"}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<StoreMallDirectoryIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Обекти"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+              </List>
+            </Collapse>
           </ListItem>
-          <ListItem key={7} disablePadding sx={{ display: "block" }}>
+
+          <Divider />
+        </List>
+        <List
+        // style={{ position: "absolute", bottom: "0" }}
+        >
+          <ListItem key={10} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
                 minHeight: 48,
                 justifyContent: open ? "initial" : "center",
                 px: 2.5,
               }}
-              component={Link}
-              to={"/settings"}
-              // disabled={userRole === "admin" ? false : true}
-              disabled
+              // component={Link}
+              // to={"/it"}
+              onClick={handleExpandSettings}
             >
               <ListItemIcon
                 sx={{
@@ -724,7 +987,63 @@ const HeaderMenu = () => {
                 primary={"Настройки"}
                 sx={{ opacity: open ? 1 : 0 }}
               />
+              {expandSettings ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
+            <Collapse in={expandSettings} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
+                  component={Link}
+                  to={"/users"}
+                  disabled={userRole.includes("admin") ? false : true}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<PersonIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Потребители"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
+                  component={Link}
+                  to={"/settings"}
+                  // disabled={userRole === "admin" ? false : true}
+                  disabled
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<SettingsIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Настройки"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+              </List>
+            </Collapse>
           </ListItem>
 
           <ListItem key={9} disablePadding sx={{ display: "block" }}>

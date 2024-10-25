@@ -109,6 +109,7 @@ function EnhancedTableHead(props) {
       <TableRow sx={{ backgroundColor: "grey" }}>
         {headCells.map((headCell) => (
           <TableCell
+            sx={{ fontWeight: 800 }}
             align={
               headCell.id === "actions" || headCell.id === "id"
                 ? "right"

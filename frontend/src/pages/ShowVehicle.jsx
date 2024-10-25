@@ -79,7 +79,7 @@ const ShowVehicle = () => {
   const [fuelLoading, setFuelLoading] = useState(true);
   const [logLoading, setLogLoading] = useState(true);
   const [problemLoading, setProblemLoading] = useState(true);
-  const [userRole, setUserRole] = useState();
+  const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
   const token = localStorage.getItem("token");
   const { id } = useParams();
@@ -642,6 +642,9 @@ const ShowVehicle = () => {
                         <MenuItem key={2} value={"СКЛАД"}>
                           СКЛАД
                         </MenuItem>
+                        <MenuItem key={3} value={"ДРУГИ"}>
+                          ДРУГИ
+                        </MenuItem>
                       </TextField>
                     </Box>
                   </ItemStacked>
@@ -961,21 +964,6 @@ const ShowVehicle = () => {
               </div> */}
             </Box>
 
-            <div className="flex justify-end">
-              {userRole === "admin" || userRole === vehicle.site ? (
-                <Fab
-                  variant="extended"
-                  onClick={handleCheck}
-                  color="primary"
-                  aria-label="add"
-                >
-                  <DoneAllIcon />
-                  ПРОВЕРЕН
-                </Fab>
-              ) : (
-                ""
-              )}
-            </div>
             <div className="my-4">
               <Grid container spacing={2} columns={48}>
                 <Grid item sm={9} xs={48}>
@@ -1128,15 +1116,33 @@ const ShowVehicle = () => {
                     <Box
                       sx={
                         isDue(vehicle.checked, "checked") === "warning"
-                          ? { color: "#950e0e" }
+                          ? {
+                              color: "#950e0e",
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }
                           : isDue(vehicle.checked, "checked") === "caution"
-                          ? { color: "#95660e" }
-                          : { color: "gray" }
+                          ? { color: "#95660e", display: "flex" }
+                          : { color: "gray", display: "flex" }
                       }
                     >
                       Проверен на:
                       {isDue(vehicle.checked, "checked") ? (
                         <WarningAmberIcon />
+                      ) : (
+                        ""
+                      )}
+                      {userRole.includes("admin") ||
+                      userRole.includes(vehicle.site) ? (
+                        <Button
+                          sx={{ maxHeight: "20px" }}
+                          variant="contained"
+                          onClick={handleCheck}
+                          color="primary"
+                          aria-label="add"
+                        >
+                          <DoneAllIcon />
+                        </Button>
                       ) : (
                         ""
                       )}
@@ -2622,7 +2628,7 @@ const ShowVehicle = () => {
                 </div> */}
               </div>
 
-              {userRole === "admin" || userRole === vehicle.site ? (
+              {userRole.includes("admin") || userRole.includes(vehicle.site) ? (
                 <div className="flex justify-end">
                   {edit ? (
                     <ButtonGroup variant="contained">
@@ -2795,7 +2801,7 @@ const ShowVehicle = () => {
               <span>{vehicle._id}</span>
             </div>
             <div>
-              {userRole === "admin" || userRole === vehicle.site ? (
+              {userRole.includes("admin") || userRole.includes(vehicle.site) ? (
                 <Button
                   onClick={verifyDelete}
                   color="error"

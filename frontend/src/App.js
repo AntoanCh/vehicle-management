@@ -6,7 +6,9 @@ import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Office from "./pages/Office.jsx";
+import Scan from "./pages/Scan.jsx";
 import PickUp from "./pages/PickUp.jsx";
+import DropOff from "./pages/DropOff.jsx";
 import Drivers from "./pages/Drivers.jsx";
 import Warehouse from "./pages/Warehouse.jsx";
 import Hr from "./pages/Hr.jsx";
@@ -49,7 +51,9 @@ function App() {
               <Route path="/users" element={<Users />} />
               <Route path="/sites" element={<Sites />} />
               <Route path="/hr" element={<Hr />} />
-              <Route path="/pick-up" element={<PickUp />} />
+              <Route path="/scan" element={<Scan />} />
+              <Route path="/pick-up/:barcode" element={<PickUp />} />
+              <Route path="/drop-off/:id" element={<DropOff />} />
               <Route path="/drivers" element={<Drivers />} />
               <Route path="/hr/create" element={<CreatePerson />} />
               <Route path="/warehouse" element={<Warehouse />} />

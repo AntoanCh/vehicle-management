@@ -85,7 +85,7 @@ const PersonCard = () => {
   const [fuelLoading, setFuelLoading] = useState(true);
   const [logLoading, setLogLoading] = useState(true);
   const [problemLoading, setProblemLoading] = useState(true);
-  const [userRole, setUserRole] = useState();
+  const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
   const [firstNameError, setFirstNameError] = useState(false);
   const [middleNameError, setMiddleNameError] = useState(false);
@@ -1073,7 +1073,7 @@ const PersonCard = () => {
                     />
                   </Item>
                 </Stack>
-                {userRole === "admin" || userRole === "hr" ? (
+                {userRole.includes("hr") || userRole.includes("admin") ? (
                   <div className="flex justify-end">
                     {edit ? (
                       <ButtonGroup variant="contained">
@@ -1147,7 +1147,9 @@ const PersonCard = () => {
               <span>{`${person._id} / ${person.siteId}`}</span>
             </div>
             <div>
-              {userRole === "admin" || userRole === person.site ? (
+              {userRole.includes("admin") ||
+              userRole.includes(person.site) ||
+              userRole.includes("hr") ? (
                 <Button
                   onClick={verifyDelete}
                   color="error"

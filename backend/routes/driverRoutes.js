@@ -37,7 +37,17 @@ router.get("/", async (req, res) => {
     res.status(500).send({ message: err.message });
   }
 });
-
+//Route to get One Driver from Barcode
+router.get("/barcode/:barcode", async (req, res) => {
+  try {
+    const { barcode } = req.params;
+    const driver = await Driver.find({ barcode: barcode });
+    return res.status(200).json(driver);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send({ message: err.message });
+  }
+});
 //Route for Get One Driver from database by id
 router.get("/:id", async (req, res) => {
   try {

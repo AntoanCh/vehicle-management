@@ -1,28 +1,21 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 import { Vehicle } from "./VehicleModel.js";
 import { Driver } from "./DriverModel.js";
 
-export const problemSchema = mongoose.Schema(
+export const recordSchema = mongoose.Schema(
   {
-    date: {
+    pickupTime: {
       type: Date,
       required: true,
     },
-
-    desc: {
-      type: String,
+    dropoffTime: {
+      type: Date,
       required: true,
-    },
-
-    km: {
-      type: Number,
-      required: false,
     },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Driver",
     },
-
     vehicleId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vehicle",
@@ -32,3 +25,6 @@ export const problemSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+
+//Creating models for fuel using fuelSchema
+export const Record = mongoose.model("Record", recordSchema);

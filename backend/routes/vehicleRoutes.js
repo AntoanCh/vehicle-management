@@ -29,6 +29,7 @@ router.post("/", async (req, res) => {
       !req.body.cat ||
       !req.body.oil ||
       !req.body.oilChange ||
+      !req.body.occupied ||
       !req.body.tires
     ) {
       return res.status(400).send({
@@ -65,6 +66,7 @@ router.post("/", async (req, res) => {
       startDate: req.body.startDate,
       startKm: req.body.startKm,
       price: req.body.price,
+      occupied: req.body.occupied,
       checked: new Date().toISOString(),
     };
 
@@ -93,6 +95,7 @@ router.get("/", async (req, res) => {
     res.status(500).send({ message: err.message });
   }
 });
+
 //Route for Get One Vehicle from database by id
 router.get("/:id", async (req, res) => {
   try {
@@ -129,6 +132,7 @@ router.put("/:id", async (req, res) => {
       !req.body.cat ||
       !req.body.oil ||
       !req.body.oilChange ||
+      !req.body.occupied ||
       !req.body.tires
     ) {
       return res.status(400).send({

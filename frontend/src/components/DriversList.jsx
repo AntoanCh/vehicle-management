@@ -26,6 +26,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import MUIDataTable from "mui-datatables";
@@ -97,7 +98,12 @@ function EnhancedTableHead(props) {
       <TableRow sx={{ backgroundColor: "grey" }}>
         {headCells.map((headCell) => (
           <TableCell
-            align={headCell.id === "actions" ? "right" : "left"}
+            sx={{ fontWeight: 800 }}
+            align={
+              headCell.id === "actions" || headCell.id === "barcode"
+                ? "right"
+                : "left"
+            }
             key={headCell.id}
             padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
@@ -144,7 +150,8 @@ const Drivers = ({ drivers }) => {
         drivers.data.filter(
           (item) =>
             item.firstName.toUpperCase().includes(searched.toUpperCase()) ||
-            item.lastName.toUpperCase().includes(searched.toUpperCase())
+            item.lastName.toUpperCase().includes(searched.toUpperCase()) ||
+            item.barcode.toString().includes(searched)
         )
       );
     } else {
@@ -551,7 +558,7 @@ const Drivers = ({ drivers }) => {
                   <TableHead>
                     <TableRow sx={{ backgroundColor: "grey" }}>
                       <TableCell sx={{ fontWeight: "800", fontSize: "20px" }}>
-                        {"ШОФьОРИ"}
+                        {"ШОФЬОРИ"}
                       </TableCell>
                       <TableCell>
                         <TextField
@@ -560,7 +567,7 @@ const Drivers = ({ drivers }) => {
                             backgroundColor: "#bdbdbd",
                           }}
                           variant="outlined"
-                          placeholder="Име..."
+                          placeholder="Търси..."
                           type="search"
                           onInput={(e) => requestSearch(e.target.value)}
                           InputProps={{
@@ -572,8 +579,6 @@ const Drivers = ({ drivers }) => {
                           }}
                         />
                       </TableCell>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
                       <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
@@ -599,10 +604,9 @@ const Drivers = ({ drivers }) => {
                               id={labelId}
                               scope="row"
                             >
-                              {row.firstName}
-                              {row.lastName}
+                              {`${row.firstName} ${row.lastName}`}
                             </TableCell>
-                            <TableCell>{row.barcode}</TableCell>
+                            <TableCell align="right">{row.barcode}</TableCell>
                             <TableCell align="right">
                               <IconButton
                                 onClick={() => {
@@ -655,8 +659,8 @@ const Drivers = ({ drivers }) => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
               />
               <Button fullWidth variant="contained" onClick={handleAddModal}>
-                Добави Шпфьор
-                <AddBusinessIcon />
+                Добави Шофьор
+                <PersonAddAlt1Icon />
               </Button>
             </Paper>
 

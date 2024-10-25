@@ -47,7 +47,7 @@ const CreateVehicle = () => {
     cat: "",
     oil: "",
     oilChange: "",
-
+    occupied: false,
     tires: "",
     purchaseDate: dayjs(),
     startDate: dayjs(),
@@ -279,6 +279,9 @@ const CreateVehicle = () => {
                     </MenuItem>
                     <MenuItem key={2} value="СКЛАД">
                       Склад
+                    </MenuItem>
+                    <MenuItem key={3} value="ДРУГИ">
+                      Други
                     </MenuItem>
                   </TextField>
                 </div>

@@ -31,7 +31,7 @@ const Header = () => {
   const [tab, setTab] = useState("");
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
-  const [userRole, setUserRole] = useState("");
+  const [userRole, setUserRole] = useState([]);
   const [userId, setUserId] = useState("");
   const [editUser, setEditUser] = useState({});
   const token = localStorage.getItem("token");
@@ -220,7 +220,7 @@ const Header = () => {
               <TimeToLeaveIcon />
             </Button>
 
-            {userRole === "admin" ? (
+            {userRole.includes("admin") ? (
               <Button
                 sx={{ marginLeft: "3px" }}
                 variant={tab === "users" ? "contained" : "outlined"}

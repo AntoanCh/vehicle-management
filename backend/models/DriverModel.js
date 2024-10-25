@@ -9,6 +9,8 @@ export const driverSchema = mongoose.Schema(
     },
     lastName: {
       type: String,
+      required: true,
+      uppercase: true,
     },
     barcode: {
       type: Number,
