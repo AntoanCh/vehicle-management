@@ -10,7 +10,7 @@ export const recordSchema = mongoose.Schema(
     },
     dropoffTime: {
       type: Date,
-      required: true,
+      required: false,
     },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,

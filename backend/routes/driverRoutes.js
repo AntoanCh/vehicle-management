@@ -6,7 +6,12 @@ const router = express.Router();
 //Route for saving a new Driver
 router.post("/", async (req, res) => {
   try {
-    if (!req.body.firstName || !req.body.lastName || !req.body.barcode) {
+    if (
+      !req.body.firstName ||
+      !req.body.lastName ||
+      !req.body.barcode ||
+      !req.body.occupied
+    ) {
       return res.status(400).send({
         message: "Send all required fields",
       });
@@ -15,6 +20,8 @@ router.post("/", async (req, res) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       barcode: req.body.barcode,
+      occupied: req.body.occupied,
+      vehicleId: req.body.vehicleId,
     };
     const driver = await Driver.create(newDriver);
     return res.status(201).send(driver);
@@ -64,7 +71,12 @@ router.get("/:id", async (req, res) => {
 //Route for Update a Driver
 router.put("/:id", async (req, res) => {
   try {
-    if (!req.body.firstName || !req.body.lastName || !req.body.barcode) {
+    if (
+      !req.body.firstName ||
+      !req.body.lastName ||
+      !req.body.barcode ||
+      !req.body.occupied
+    ) {
       return res.status(400).send({
         message: "Send all required fields",
       });

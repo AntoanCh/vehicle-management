@@ -30,7 +30,7 @@ const PickUp = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`http://192.168.0.147:5555/api/drivers/${barcode}`)
+      .get(`http://192.168.0.147:5555/api/drivers/barcode/${barcode}`)
       .then((res) => {
         setDriver(res.data[0]);
         axios
@@ -60,7 +60,47 @@ const PickUp = () => {
     setSelect([false, {}]);
     console.log(select);
   };
-  const handlePickUp = () => {};
+  const handlePickUp = (vehicle) => {
+    axios
+      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+        ...vehicle,
+        occupied: true,
+      })
+      .then((res) => {
+        axios
+          .post("http://192.168.0.147:5555/api/records", {
+            driverId: driver._id,
+            vehicleId: vehicle._id,
+            pickupTime: dayjs(),
+            dropoffTime: dayjs(),
+          })
+          .then((res) => {
+            setLoading(false);
+          })
+          .catch((err) => {
+            console.log(err);
+            setLoading(false);
+          });
+        axios
+          .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
+            ...driver,
+            occupied: true,
+            vehicleId: vehicle._id,
+          })
+          .then((res) => {
+            setLoading(false);
+          })
+          .catch((err) => {
+            console.log(err);
+            setLoading(false);
+          });
+        setLoading(false);
+        navigate("/scan");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const handleAgree = () => {
     setAgree(!agree);
   };
@@ -183,7 +223,12 @@ const PickUp = () => {
           >
             Отказ
           </Button>
-          <Button variant="contained" onClick={handlePickUp} autoFocus>
+          <Button
+            disabled={agree ? false : true}
+            variant="contained"
+            onClick={() => handlePickUp(select[1])}
+            autoFocus
+          >
             Взимане
           </Button>
         </DialogActions>

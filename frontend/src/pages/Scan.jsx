@@ -29,11 +29,16 @@ const Scan = () => {
 
         const { status, message } = data;
 
-        console.log(data);
         if (data.length !== 0) {
-          setTimeout(() => {
-            navigate(`/pick-up/${data[0].barcode}`);
-          }, 400);
+          if (data[0].occupied) {
+            setTimeout(() => {
+              navigate(`/drop-off/${data[0].barcode}`);
+            }, 400);
+          } else {
+            setTimeout(() => {
+              navigate(`/pick-up/${data[0]._id}`);
+            }, 400);
+          }
         } else {
           setError([true, "Шофьор с такъв номер не съществува"]);
         }

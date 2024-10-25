@@ -6,12 +6,7 @@ const router = express.Router();
 //Route for saving a new Record
 router.post("/", async (req, res) => {
   try {
-    if (
-      !req.body.pickupTime ||
-      !req.body.dropoffTime ||
-      !req.body.driverId ||
-      !req.body.vehicleId
-    ) {
+    if (!req.body.pickupTime || !req.body.driverId || !req.body.vehicleId) {
       return res.status(400).send({
         message: "Send all required fields",
       });
@@ -32,12 +27,7 @@ router.post("/", async (req, res) => {
 //Route for Update a Record
 router.put("/:id", async (req, res) => {
   try {
-    if (
-      !req.body.pickupTime ||
-      !req.body.dropoffTime ||
-      !req.body.driverId ||
-      !req.body.vehicleId
-    ) {
+    if (!req.body.pickupTime || !req.body.driverId || !req.body.vehicleId) {
       return res.status(400).send({
         message: "Send all required fields",
       });

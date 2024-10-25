@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { Vehicle } from "./VehicleModel.js";
 
 export const driverSchema = mongoose.Schema(
   {
@@ -15,6 +16,15 @@ export const driverSchema = mongoose.Schema(
     barcode: {
       type: Number,
       required: true,
+    },
+    occupied: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    vehicleId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
     },
   },
   {
