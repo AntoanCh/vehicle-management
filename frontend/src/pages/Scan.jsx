@@ -1,22 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import { Button, TextField } from "@mui/material";
 import axios from "axios";
+import dayjs from "dayjs";
 import { Link, useNavigate } from "react-router-dom";
 import Dialog from "@mui/material/Dialog";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 
 const Scan = () => {
   const [barcode, setBarcode] = useState();
   const [error, setError] = useState([false, ""]);
+  const [loading, setLoading] = useState(false);
+  const [vehicles, setVehicles] = useState([]);
   const handleChange = (e) => {
     setBarcode(e.target.value);
   };
   const navigate = useNavigate();
+  useEffect(() => {
+    setLoading(true);
+
+    axios
+      .get("http://192.168.0.147:5555/vehicle")
+      .then((res) => {
+        setVehicles(res.data.data.filter((item) => item.site === "ОФИС"));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    setLoading(false);
+  }, [vehicles]);
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!barcode) {
@@ -32,7 +56,7 @@ const Scan = () => {
         if (data.length !== 0) {
           if (data[0].occupied) {
             setTimeout(() => {
-              navigate(`/drop-off/${data[0].barcode}`);
+              navigate(`/drop-off/${data[0]._id}`);
             }, 400);
           } else {
             setTimeout(() => {
@@ -97,6 +121,7 @@ const Scan = () => {
             >
               <TextField
                 autoFocus
+                autoComplete="off"
                 fullWidth
                 id="barcode"
                 name="barcode"
@@ -117,6 +142,60 @@ const Scan = () => {
             </Box>
           </form>
         </Box>
+      </Box>
+      <Box
+        sx={{
+          backgroundColor: "#ccc",
+        }}
+        className="  border-2 border-blue-400 rounded-xl w-[600px] p-4 mx-auto mt-5"
+      >
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 450 }} size="small" aria-label="a dense table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Модел</TableCell>
+                <TableCell align="right">Номер</TableCell>
+                <TableCell align="right">Шофьор</TableCell>
+                <TableCell align="right">Време на излизане</TableCell>
+              </TableRow>
+            </TableHead>
+            {vehicles
+              .sort((a, b) => {
+                if (a.occupied.bool && !b.occupied.bool) {
+                  return 1;
+                } else if (!a.occupied.bool && b.occupied.bool) {
+                  return -1;
+                } else {
+                  return 0;
+                }
+              })
+              .map((vehicle, index) => (
+                <TableBody>
+                  <TableRow
+                    key={index}
+                    sx={[
+                      vehicle.occupied.bool
+                        ? { backgroundColor: "grey" }
+                        : { backgroundColor: "#29b6f6" },
+                    ]}
+                  >
+                    <TableCell component="th" scope="row">
+                      {`${vehicle.make} ${vehicle.model}`}
+                    </TableCell>
+                    <TableCell align="right">{vehicle.reg}</TableCell>
+                    <TableCell align="right">{vehicle.occupied.user}</TableCell>
+                    <TableCell align="right">
+                      {vehicle.occupied.bool
+                        ? dayjs(vehicle.occupied.time).format(
+                            "DD/MM/YYYY - HH:mm"
+                          )
+                        : ""}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              ))}
+          </Table>
+        </TableContainer>
       </Box>
     </>
   );

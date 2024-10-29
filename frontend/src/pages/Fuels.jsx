@@ -171,7 +171,7 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
       obj.invoice,
       obj.km + " км",
       obj.cost + " лв",
-      userRole.inculdes("admin") || userRole.includes(vehicle.site) ? (
+      userRole.includes("admin") || userRole.includes(vehicle.site) ? (
         <IconButton
           onClick={() => {
             setVerifyDelete([true, obj]);
@@ -427,7 +427,7 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
           <CircularProgress />
         ) : (
           <div className="my-4">
-            {userRole.inculdes("admin") || userRole.includes(vehicle.site) ? (
+            {userRole.includes("admin") || userRole.includes(vehicle.site) ? (
               <Button
                 fullWidth
                 variant="contained"

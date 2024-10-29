@@ -24,15 +24,16 @@ const PickUp = () => {
   const [driver, setDriver] = useState({});
   const [agree, setAgree] = useState(false);
   const [select, setSelect] = useState([false, {}]);
-  const { barcode } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`http://192.168.0.147:5555/api/drivers/barcode/${barcode}`)
+      .get(`http://192.168.0.147:5555/api/drivers/${id}`)
       .then((res) => {
-        setDriver(res.data[0]);
+        console.log(res.data);
+        setDriver(res.data);
         axios
           .get("http://192.168.0.147:5555/vehicle")
           .then((res) => {
@@ -62,44 +63,41 @@ const PickUp = () => {
   };
   const handlePickUp = (vehicle) => {
     axios
-      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
-        ...vehicle,
-        occupied: true,
+      .post("http://192.168.0.147:5555/api/records", {
+        driverId: driver._id,
+        vehicleId: vehicle._id,
+        pickupTime: dayjs(),
       })
       .then((res) => {
-        axios
-          .post("http://192.168.0.147:5555/api/records", {
-            driverId: driver._id,
-            vehicleId: vehicle._id,
-            pickupTime: dayjs(),
-            dropoffTime: dayjs(),
-          })
-          .then((res) => {
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
         axios
           .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
             ...driver,
             occupied: true,
-            vehicleId: vehicle._id,
+            recordId: res.data._id,
           })
-          .then((res) => {
-            setLoading(false);
-          })
+          .then((res) => {})
           .catch((err) => {
             console.log(err);
-            setLoading(false);
           });
-        setLoading(false);
-        navigate("/scan");
+        axios
+          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+            ...vehicle,
+            occupied: {
+              bool: true,
+              user: driver.firstName,
+              time: dayjs(),
+            },
+          })
+          .then((res) => {})
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((err) => {
         console.log(err);
       });
+    setLoading(false);
+    navigate("/scan");
   };
   const handleAgree = () => {
     setAgree(!agree);
@@ -209,8 +207,12 @@ const PickUp = () => {
             />
             <Checkbox value={agree} onChange={handleAgree} />
             <span>
-              Съгласен съм, че автомобилът има всички необходими документи и
-              пълно оборудване за предвижване
+              Съгласен съм, че автомобилът има всички задължителни
+              документи(Годишен технически преглед, малък талон и валидна
+              застраховка "Гражданска отговорност"), както и принадлежностите
+              аптечка, триъгълник, жилетка и пожарогасител (в срок н годност) и
+              нося отговрност, ако бъда санкциониран от органите на КАТ за
+              липсата на някой от тях
             </span>
           </DialogContentText>
         </DialogContent>
@@ -278,9 +280,11 @@ const PickUp = () => {
           {vehicles.map((vehicle) => (
             <Grid item xs={4}>
               <Paper
-                onClick={() => (vehicle.occupied ? "" : handleClick(vehicle))}
+                onClick={() =>
+                  vehicle.occupied.bool ? "" : handleClick(vehicle)
+                }
                 sx={[
-                  vehicle.occupied
+                  vehicle.occupied.bool
                     ? { backgroundColor: "grey" }
                     : {
                         backgroundColor: "#53c4f7",

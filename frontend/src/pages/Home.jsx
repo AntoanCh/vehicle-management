@@ -6,6 +6,7 @@ import dar_logo from "../resources/dar_logo.jpg";
 import { Button } from "@mui/material";
 import { Box } from "@mui/material";
 import { styled } from "@mui/system";
+import Grid from "@mui/material/Grid";
 
 const BigButton = styled(Button)({
   fontWeight: 800,
@@ -63,89 +64,87 @@ const Home = () => {
             sx={{ display: "flex", justifyContent: "space-between" }}
             className="bg-white  border-2 border-blue-400 rounded-xl w-[600px] p-4 mx-auto"
           >
-            <Box sx={{ minWidth: "50%" }}>
-              <BigButton
-                onClick={() => navigate("/vehicles")}
-                fullWidth
-                variant="contained"
-              >
-                АВТОМОБИЛИ
-              </BigButton>
-            </Box>
-            <Box sx={{ width: "50%" }}>
-              <BigButton
-                disabled={
-                  userRole.includes("hr") || userRole.includes("admin")
-                    ? false
-                    : true
-                }
-                onClick={() =>
-                  userRole.includes("hr") || userRole.includes("admin")
-                    ? navigate("/hr")
-                    : ""
-                }
-                fullWidth
-                color="secondary"
-                variant="contained"
-              >
-                ЧОВЕШКИ РЕСУРСИ
-              </BigButton>
-              <BigButton
-                disabled={
-                  userRole.includes("hr") || userRole.includes("admin")
-                    ? false
-                    : true
-                }
-                onClick={() =>
-                  userRole.includes("hr") || userRole.includes("admin")
-                    ? navigate("/hr")
-                    : ""
-                }
-                fullWidth
-                color="secondary"
-                variant="contained"
-              >
-                ЧОВЕШКИ РЕСУРСИ
-              </BigButton>
-              <BigButton
-                disabled={
-                  userRole.includes("hr") || userRole.includes("admin")
-                    ? false
-                    : true
-                }
-                onClick={() =>
-                  userRole.includes("hr") || userRole.includes("admin")
-                    ? navigate("/hr")
-                    : ""
-                }
-                fullWidth
-                color="secondary"
-                variant="contained"
-              >
-                ЧОВЕШКИ РЕСУРСИ
-              </BigButton>
-              <BigButton
-                disabled={
-                  userRole.includes("hr") || userRole.includes("admin")
-                    ? false
-                    : true
-                }
-                onClick={() =>
-                  userRole.includes("hr") || userRole.includes("admin")
-                    ? navigate("/hr")
-                    : ""
-                }
-                fullWidth
-                color="secondary"
-                variant="contained"
-              >
-                ЧОВЕШКИ РЕСУРСИ
-              </BigButton>
-            </Box>
+            <Grid container spacing={2}>
+              {" "}
+              <Grid item xs={6}>
+                <Box sx={{ height: "100%" }}>
+                  <BigButton
+                    onClick={() => navigate("/vehicles")}
+                    fullWidth
+                    variant="contained"
+                  >
+                    АВТОМОБИЛИ
+                  </BigButton>
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box sx={{}}>
+                  <BigButton
+                    disabled={
+                      userRole.includes("it") || userRole.includes("admin")
+                        ? false
+                        : true
+                    }
+                    onClick={() =>
+                      userRole.includes("it") || userRole.includes("admin")
+                        ? navigate("/hr")
+                        : ""
+                    }
+                    fullWidth
+                    color="secondary"
+                    variant="contained"
+                  >
+                    ИТ ТЕХНИКА
+                  </BigButton>
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box sx={{}}>
+                  <BigButton
+                    disabled={
+                      userRole.includes("cool") || userRole.includes("admin")
+                        ? false
+                        : true
+                    }
+                    onClick={() =>
+                      userRole.includes("cool") || userRole.includes("admin")
+                        ? navigate("/hr")
+                        : ""
+                    }
+                    fullWidth
+                    color="secondary"
+                    variant="contained"
+                  >
+                    ХЛАДИЛНА ТЕХНИКА
+                  </BigButton>
+                </Box>
+              </Grid>
+              <Grid item xs={6}>
+                <Box sx={{}}>
+                  <BigButton
+                    disabled={
+                      userRole.includes("hr") || userRole.includes("admin")
+                        ? false
+                        : true
+                    }
+                    onClick={() =>
+                      userRole.includes("hr") || userRole.includes("admin")
+                        ? navigate("/hr")
+                        : ""
+                    }
+                    fullWidth
+                    color="secondary"
+                    variant="contained"
+                  >
+                    ЧОВЕШКИ РЕСУРСИ
+                  </BigButton>
+                </Box>
+              </Grid>
+            </Grid>
           </Box>
         </Box>
       </Box>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
     </>
   );
 };

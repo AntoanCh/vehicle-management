@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { Vehicle } from "./VehicleModel.js";
+import { Record } from "./RecordModel.js";
 
 export const driverSchema = mongoose.Schema(
   {
@@ -22,9 +22,9 @@ export const driverSchema = mongoose.Schema(
       default: false,
       required: true,
     },
-    vehicleId: {
+    recordId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Vehicle",
+      ref: "Record",
     },
   },
   {

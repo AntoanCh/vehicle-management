@@ -29,7 +29,6 @@ router.post("/", async (req, res) => {
       !req.body.cat ||
       !req.body.oil ||
       !req.body.oilChange ||
-      !req.body.occupied ||
       !req.body.tires
     ) {
       return res.status(400).send({
@@ -132,7 +131,6 @@ router.put("/:id", async (req, res) => {
       !req.body.cat ||
       !req.body.oil ||
       !req.body.oilChange ||
-      !req.body.occupied ||
       !req.body.tires
     ) {
       return res.status(400).send({

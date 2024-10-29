@@ -6,12 +6,7 @@ const router = express.Router();
 //Route for saving a new Driver
 router.post("/", async (req, res) => {
   try {
-    if (
-      !req.body.firstName ||
-      !req.body.lastName ||
-      !req.body.barcode ||
-      !req.body.occupied
-    ) {
+    if (!req.body.firstName || !req.body.lastName || !req.body.barcode) {
       return res.status(400).send({
         message: "Send all required fields",
       });
@@ -71,12 +66,7 @@ router.get("/:id", async (req, res) => {
 //Route for Update a Driver
 router.put("/:id", async (req, res) => {
   try {
-    if (
-      !req.body.firstName ||
-      !req.body.lastName ||
-      !req.body.barcode ||
-      !req.body.occupied
-    ) {
+    if (!req.body.firstName || !req.body.lastName || !req.body.barcode) {
       return res.status(400).send({
         message: "Send all required fields",
       });

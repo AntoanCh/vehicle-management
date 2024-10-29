@@ -6,12 +6,7 @@ const router = express.Router();
 //Route for saving a new Problem
 router.post("/", async (req, res) => {
   try {
-    if (
-      !req.body.date ||
-      !req.body.desc ||
-      !req.body.km ||
-      !req.body.vehicleId
-    ) {
+    if (!req.body.date || !req.body.desc || !req.body.vehicleId) {
       return res.status(400).send({
         message: "Send all required fields",
       });
@@ -19,7 +14,6 @@ router.post("/", async (req, res) => {
     const newProblem = {
       date: req.body.date,
       desc: req.body.desc,
-      km: req.body.km,
       vehicleId: req.body.vehicleId,
     };
     const problem = await Problem.create(newProblem);
@@ -72,6 +66,27 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+//Route for Update a Problem
+router.put("/:id", async (req, res) => {
+  try {
+    if (!req.body.date || !req.body.desc || !req.body.vehicleId) {
+      return res.status(400).send({
+        message: "Send all required fields",
+      });
+    }
+
+    const { id } = req.params;
+
+    const result = await Problem.findByIdAndUpdate(id, req.body);
+    if (!result) {
+      return res.status(404).json({ message: "Problem not found" });
+    }
+    return res.status(200).send({ message: "Problem Updated" });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send({ message: err.message });
+  }
+});
 //Route for Deleting a Problem
 router.delete("/:id", async (req, res) => {
   try {

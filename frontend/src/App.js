@@ -52,7 +52,7 @@ function App() {
               <Route path="/sites" element={<Sites />} />
               <Route path="/hr" element={<Hr />} />
               <Route path="/scan" element={<Scan />} />
-              <Route path="/pick-up/:barcode" element={<PickUp />} />
+              <Route path="/pick-up/:id" element={<PickUp />} />
               <Route path="/drop-off/:id" element={<DropOff />} />
               <Route path="/drivers" element={<Drivers />} />
               <Route path="/hr/create" element={<CreatePerson />} />

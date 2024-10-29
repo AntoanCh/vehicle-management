@@ -18,6 +18,14 @@ export const problemSchema = mongoose.Schema(
       type: Number,
       required: false,
     },
+    driverName: {
+      type: String,
+      required: true,
+    },
+    done: {
+      type: Boolean,
+      default: false,
+    },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Driver",

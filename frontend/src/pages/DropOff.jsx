@@ -4,26 +4,16 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button, TextField } from "@mui/material";
 import * as React from "react";
-import { styled } from "@mui/material/styles";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import Checkbox from "@mui/material/Checkbox";
-import Typography from "@mui/material/Typography";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import dayjs from "dayjs";
 
 const DropOff = () => {
   const [loading, setLoading] = useState(false);
-  const [vehicles, setVehicles] = useState([]);
+  const [vehicle, setVehicle] = useState({});
+  const [record, setRecord] = useState({});
   const [driver, setDriver] = useState({});
-  const [agree, setAgree] = useState(false);
-  const [select, setSelect] = useState([false, {}]);
+  const [problems, setProblems] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -32,17 +22,24 @@ const DropOff = () => {
     axios
       .get(`http://192.168.0.147:5555/api/drivers/${id}`)
       .then((res) => {
-        setDriver(res.data[0]);
+        setDriver(res.data);
         axios
-          .get("http://192.168.0.147:5555/vehicle")
+          .get(`http://192.168.0.147:5555/api/records/${res.data.recordId}`)
           .then((res) => {
-            setVehicles(res.data.data.filter((item) => item.site === "ОФИС"));
-            setLoading(false);
+            setRecord(res.data);
+            axios
+              .get(`http://192.168.0.147:5555/vehicle/${res.data.vehicleId}`)
+              .then((res) => {
+                setVehicle(res.data);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
           })
           .catch((err) => {
             console.log(err);
-            setLoading(false);
           });
+
         setLoading(false);
       })
       .catch((err) => {
@@ -52,169 +49,62 @@ const DropOff = () => {
   useEffect(() => {
     setLoading(true);
   }, []);
-  const handleClick = (vehicle) => {
-    setSelect([true, { ...vehicle }]);
-    console.log(select);
-  };
-  const handleClose = () => {
-    setSelect([false, {}]);
-    console.log(select);
-  };
-  const handlePickUp = (vehicle) => {
+
+  const handleDropOff = () => {
     axios
-      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
-        ...vehicle,
-        occupied: true,
+      .put(`http://192.168.0.147:5555/api/records/${record._id}`, {
+        ...record,
+        dropoffTime: dayjs(),
       })
       .then((res) => {
         axios
-          .post("http://192.168.0.147:5555/api/records")
-          .then((res) => {
-            setLoading(false);
+          .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
+            ...driver,
+            occupied: false,
           })
+          .then((res) => {})
           .catch((err) => {
             console.log(err);
-            setLoading(false);
           });
-        setLoading(false);
-        navigate("/scan");
+        axios
+          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+            ...vehicle,
+            occupied: {
+              bool: false,
+              user: "",
+            },
+          })
+          .then((res) => {})
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((err) => {
         console.log(err);
       });
+    if (problems) {
+      axios
+        .post(`http://192.168.0.147:5555/problems`, {
+          date: dayjs(),
+          desc: problems,
+          vehicleId: vehicle._id,
+          driverName: driver.firstName,
+        })
+        .then((res) => {})
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+
+    setLoading(false);
+    navigate("/scan");
   };
-  const handleAgree = () => {
-    setAgree(!agree);
+
+  const handleChange = (e) => {
+    setProblems(e.target.value);
   };
   return (
     <div>
-      <Dialog
-        maxWidth={"xs"}
-        open={select[0]}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"ВЗИМАНЕ НА КОЛА"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            <TextField
-              disabled
-              fullWidth
-              value={select[1].reg}
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <TextField
-              fullWidth
-              disabled
-              value={`${select[1].make} ${select[1].model}`}
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <TextField
-              disabled
-              fullWidth
-              value={select[1].fuel}
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <TextField
-              disabled
-              fullWidth
-              value={`ГТП:   ${dayjs(select[1].gtp).format("DD/MM/YYYY")}`}
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <TextField
-              disabled
-              fullWidth
-              value={`ГО:   ${dayjs(select[1].insDate).format("DD/MM/YYYY")}`}
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <Checkbox value={agree} onChange={handleAgree} />
-            <span>
-              Съгласен съм, че автомобилът има всички необходими документи и
-              пълно оборудване за предвижване
-            </span>
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleClose}
-            autoFocus
-          >
-            Отказ
-          </Button>
-          <Button
-            disabled={agree ? false : true}
-            variant="contained"
-            onClick={() => handlePickUp(select[1])}
-            autoFocus
-          >
-            Взимане
-          </Button>
-        </DialogActions>
-      </Dialog>{" "}
       <Box
         sx={{
           backgroundColor: "#ccc",
@@ -251,55 +141,144 @@ const DropOff = () => {
           disabled
           value={`${driver.firstName} ${driver.lastName}`}
         >{`${driver.firstName} ${driver.lastName}`}</TextField>
+        <h1 style={{ fontWeight: 800, fontSize: 24, textAlign: "center" }}>
+          ВРЪЩАНЕ НА АВТОМОБИЛ
+        </h1>
         <Box>
-          <h1 style={{ fontWeight: 800, fontSize: 24, textAlign: "center" }}>
-            ИЗБЕРЕТЕ АВТОМОБИЛ
-          </h1>
+          <TextField
+            label="Дата и час на взимане"
+            disabled
+            variant="standard"
+            value={dayjs(record.pickupTime).format(
+              "DD/MM/YYYY     [Час:] HH:mm"
+            )}
+          />
         </Box>
-        <Grid container spacing={2}>
-          {vehicles.map((vehicle) => (
-            <Grid item xs={4}>
-              <Paper
-                onClick={() => (vehicle.occupied ? "" : handleClick(vehicle))}
-                sx={[
-                  vehicle.occupied
-                    ? { backgroundColor: "grey" }
-                    : {
-                        backgroundColor: "#53c4f7",
-                        "&:hover": {
-                          boxShadow: 6,
-                          cursor: "pointer",
-                          backgroundColor: "#29b6f6",
-                        },
-                      },
-                ]}
-              >
-                <Typography
-                  sx={{
-                    letterSpacing: "2px",
-                    fontWeight: 800,
-                    textAlign: "center",
-                  }}
-                  variant="h4"
-                  gutterBottom
-                >
-                  {`${vehicle.reg}`}
-                </Typography>
-                <Typography
-                  sx={{
-                    letterSpacing: "2px",
-                    fontWeight: 800,
-                    textAlign: "center",
-                  }}
-                  variant="h6"
-                  gutterBottom
-                >
-                  {`${vehicle.make} ${vehicle.model}`}
-                </Typography>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Box
+            sx={{
+              backgroundColor: "#bbb",
+              width: "50%",
+            }}
+            className="  border-2 border-blue-400 rounded-xl  p-4  mt-5 mx-1"
+          >
+            <TextField
+              disabled
+              fullWidth
+              value={vehicle.reg}
+              variant="standard"
+              sx={{
+                "& .MuiInputBase-input": {
+                  fontSize: 18,
+
+                  padding: 1,
+                  fontWeight: 800,
+                  textAlign: "center",
+                  color: "black",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor: "black", //Adjust text color here
+                },
+              }}
+            />
+            <TextField
+              fullWidth
+              disabled
+              value={`${vehicle.make} ${vehicle.model}`}
+              variant="standard"
+              sx={{
+                "& .MuiInputBase-input": {
+                  fontSize: 18,
+                  padding: 1,
+                  fontWeight: 800,
+                  textAlign: "center",
+                  color: "black",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor: "black", //Adjust text color here
+                },
+              }}
+            />
+            <TextField
+              disabled
+              fullWidth
+              value={vehicle.fuel}
+              variant="standard"
+              sx={{
+                "& .MuiInputBase-input": {
+                  fontSize: 18,
+                  padding: 1,
+                  fontWeight: 800,
+                  textAlign: "center",
+                  color: "black",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor: "black", //Adjust text color here
+                },
+              }}
+            />
+            <TextField
+              disabled
+              fullWidth
+              value={`ГТП:   ${dayjs(vehicle.gtp).format("DD/MM/YYYY")}`}
+              variant="standard"
+              sx={{
+                "& .MuiInputBase-input": {
+                  fontSize: 18,
+                  padding: 1,
+                  fontWeight: 800,
+                  textAlign: "center",
+                  color: "black",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor: "black", //Adjust text color here
+                },
+              }}
+            />
+            <TextField
+              disabled
+              fullWidth
+              value={`ГО:   ${dayjs(vehicle.insDate).format("DD/MM/YYYY")}`}
+              variant="standard"
+              sx={{
+                "& .MuiInputBase-input": {
+                  fontSize: 18,
+                  padding: 1,
+                  fontWeight: 800,
+                  textAlign: "center",
+                  color: "black",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor: "black", //Adjust text color here
+                },
+              }}
+            />
+          </Box>
+          <Box
+            sx={{
+              backgroundColor: "#bbb",
+              width: "50%",
+            }}
+            className="  border-2 border-blue-400 rounded-xl  p-4  mt-5 mx-1"
+          >
+            <TextField
+              label="ЗАБЕЛЕЖКИ"
+              onChange={handleChange}
+              value={problems}
+              sx={{
+                width: "100%",
+                height: "100%",
+                "& .MuiInputBase-input": {
+                  height: "100%",
+                },
+              }}
+              multiline
+            />
+          </Box>
+        </Box>
+        <Button variant="contained" fullWidth onClick={handleDropOff}>
+          ВЪРНИ АВТОМОБИЛ
+        </Button>
       </Box>
     </div>
   );

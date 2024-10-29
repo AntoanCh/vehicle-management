@@ -133,9 +133,17 @@ export const vehicleSchema = mongoose.Schema(
       required: true,
     },
     occupied: {
-      type: Boolean,
-      required: true,
-      default: false,
+      bool: {
+        type: Boolean,
+        required: true,
+        default: false,
+      },
+      user: {
+        type: String,
+      },
+      time: {
+        type: Date,
+      },
     },
     sold: {
       type: Boolean,
