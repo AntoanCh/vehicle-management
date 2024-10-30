@@ -12,6 +12,18 @@ export const recordSchema = mongoose.Schema(
       type: Date,
       required: false,
     },
+    driverName: {
+      type: String,
+      required: true,
+    },
+    vehicleReg: {
+      type: String,
+      required: true,
+    },
+    vehicleModel: {
+      type: String,
+      required: true,
+    },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Driver",

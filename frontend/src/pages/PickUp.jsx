@@ -32,7 +32,6 @@ const PickUp = () => {
     axios
       .get(`http://192.168.0.147:5555/api/drivers/${id}`)
       .then((res) => {
-        console.log(res.data);
         setDriver(res.data);
         axios
           .get("http://192.168.0.147:5555/vehicle")
@@ -55,17 +54,18 @@ const PickUp = () => {
   }, []);
   const handleClick = (vehicle) => {
     setSelect([true, { ...vehicle }]);
-    console.log(select);
   };
   const handleClose = () => {
     setSelect([false, {}]);
-    console.log(select);
   };
   const handlePickUp = (vehicle) => {
     axios
       .post("http://192.168.0.147:5555/api/records", {
         driverId: driver._id,
         vehicleId: vehicle._id,
+        vehicleModel: `${vehicle.make} ${vehicle.model}`,
+        vehicleReg: vehicle.reg,
+        driverName: driver.firstName,
         pickupTime: dayjs(),
       })
       .then((res) => {
@@ -92,12 +92,12 @@ const PickUp = () => {
           .catch((err) => {
             console.log(err);
           });
+        setLoading(false);
+        navigate("/scan", { state: { state: true } });
       })
       .catch((err) => {
         console.log(err);
       });
-    setLoading(false);
-    navigate("/scan");
   };
   const handleAgree = () => {
     setAgree(!agree);

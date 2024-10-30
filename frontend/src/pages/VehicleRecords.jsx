@@ -10,7 +10,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import MUIDataTable from "mui-datatables";
-import DoneOutlineIcon from "@mui/icons-material/DoneOutline";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -19,8 +18,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 
-// test
-const Problems = ({ vehicle, userRole, username, problems }) => {
+const VehicleRecords = ({ vehicle, userRole, username, records }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState([false, ""]);
 
@@ -34,7 +32,7 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
     setError([false, ""]);
   };
 
-  const data = problems.data.map((obj) => {
+  const data = records.data.map((obj) => {
     return [
       dayjs(obj.date).format("DD/MM/YYYY - HH:mm"),
       obj.driverName,
@@ -43,18 +41,13 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
       obj.done,
       userRole.includes("admin") || userRole.includes(vehicle.site) ? (
         <IconButton
-          sx={[obj.done ? { display: "none" } : ""]}
           onClick={() => {
             axios
-              .put(`http://192.168.0.147:5555/problems/${obj._id}`, {
+              .put(`http://192.168.0.147:5555/api/records/${obj._id}`, {
                 ...obj,
                 done: true,
               })
-              .then((res) => {
-                setTimeout(() => {
-                  window.location.reload();
-                }, 1000);
-              })
+              .then((res) => {})
               .catch((err) => {
                 console.log(err);
               });
@@ -62,7 +55,7 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
           color="success"
           variant="contained"
         >
-          <DoneOutlineIcon />
+          <DeleteForeverIcon />
         </IconButton>
       ) : (
         ""
@@ -72,13 +65,13 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
 
   const columns = [
     {
-      name: "Дата",
+      name: "Шофьор",
       options: {
         sortDirection: "desc",
       },
     },
-    { name: "Шофьор" },
-    { name: "Забележка" },
+    { name: "Час на взимане" },
+    { name: "Час на връщане" },
     { name: "Километри" },
     { name: "" },
     { name: "" },
@@ -155,7 +148,7 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
         ) : (
           <div className="my-4">
             <MUIDataTable
-              title={"ЗАБЕЛЕЖКИ"}
+              title={"ДВИЖЕНИЕ"}
               data={data}
               columns={columns}
               options={options}
@@ -167,4 +160,4 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
   );
 };
 
-export default Problems;
+export default VehicleRecords;

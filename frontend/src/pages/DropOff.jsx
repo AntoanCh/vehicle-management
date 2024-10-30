@@ -78,6 +78,7 @@ const DropOff = () => {
           .catch((err) => {
             console.log(err);
           });
+        navigate("/scan", { state: { state: true } });
       })
       .catch((err) => {
         console.log(err);

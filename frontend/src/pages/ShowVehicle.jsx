@@ -6,9 +6,11 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Button, ButtonGroup, MenuItem, TextField } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import TimelineIcon from "@mui/icons-material/Timeline";
 import Services from "./Services";
 import Ref from "../components/Ref";
 import Fuels from "./Fuels";
+import VehicleRecords from "./VehicleRecords";
 import Problems from "./Problems";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import WarningIcon from "@mui/icons-material/Warning";
@@ -74,11 +76,13 @@ const ShowVehicle = () => {
   const [services, setServices] = useState();
   const [fuels, setFuels] = useState();
   const [problems, setProblems] = useState();
+  const [records, setRecords] = useState();
   const [verDelete, setVerDelete] = useState(false);
   const [log, setLog] = useState();
   const [servLoading, setServLoading] = useState(true);
   const [fuelLoading, setFuelLoading] = useState(true);
   const [logLoading, setLogLoading] = useState(true);
+  const [recordLoading, setRecordLoading] = useState(true);
   const [problemLoading, setProblemLoading] = useState(true);
   const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
@@ -145,6 +149,16 @@ const ShowVehicle = () => {
           .catch((err) => {
             console.log(err);
             setLogLoading(false);
+          });
+        axios
+          .get(`http://192.168.0.147:5555/api/records/vehicle/${res.data._id}`)
+          .then((res) => {
+            setRecords(res.data);
+            setRecordLoading(false);
+          })
+          .catch((err) => {
+            console.log(err);
+            setRecordLoading(false);
           });
       })
       .catch((err) => {
@@ -406,6 +420,19 @@ const ShowVehicle = () => {
             </DialogActions>
           </Dialog>
           <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-full 2xl:w-9/12 p-4">
+            {problems && problems.data.filter((item) => item.done).length && (
+              <Box
+                sx={{
+                  textAlign: "center",
+                  fontWeight: 800,
+                  fontSize: 24,
+                  color: "red",
+                }}
+              >
+                АВТОМОБИЛЪТ ИМА НЕРАЗРЕШЕНИ ПРОБЛЕМИ
+              </Box>
+            )}
+
             <Box sx={{ display: { sm: "flex", xs: "" } }}>
               <div>
                 <Stack spacing={2}>
@@ -1748,6 +1775,20 @@ const ShowVehicle = () => {
             <ButtonGroup sx={{ marginBottom: "10px" }} fullWidth>
               <Button
                 variant="contained"
+                color={tab === "record" ? "secondary" : "primary"}
+                onClick={() => {
+                  if (tab === "record") {
+                    setTab("");
+                  } else {
+                    setTab("record");
+                  }
+                }}
+              >
+                Движение
+                <TimelineIcon />
+              </Button>
+              <Button
+                variant="contained"
                 color={tab === "problem" ? "secondary" : "primary"}
                 onClick={() => {
                   if (tab === "problem") {
@@ -1832,6 +1873,20 @@ const ShowVehicle = () => {
               )}
             </div> */}
             <div>
+              {tab === "record" ? (
+                recordLoading ? (
+                  <CircularProgress />
+                ) : (
+                  <VehicleRecords
+                    username={username}
+                    userRole={userRole}
+                    vehicle={vehicle}
+                    records={records}
+                  />
+                )
+              ) : (
+                ""
+              )}
               {tab === "problem" ? (
                 problemLoading ? (
                   <CircularProgress />

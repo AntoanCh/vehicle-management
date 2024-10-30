@@ -4,6 +4,7 @@ import { Button, TextField } from "@mui/material";
 import axios from "axios";
 import dayjs from "dayjs";
 import { Link, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Dialog from "@mui/material/Dialog";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
@@ -20,17 +21,25 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
 const Scan = () => {
-  const [barcode, setBarcode] = useState();
+  const [barcode, setBarcode] = useState("");
   const [error, setError] = useState([false, ""]);
   const [loading, setLoading] = useState(false);
+  const [changed, setChanged] = useState(false);
   const [vehicles, setVehicles] = useState([]);
   const handleChange = (e) => {
     setBarcode(e.target.value);
   };
   const navigate = useNavigate();
+  let location = useLocation();
+
+  setTimeout(() => {
+    if (location.state) {
+      location.state = 0;
+      navigate(0);
+    }
+  }, 1000);
   useEffect(() => {
     setLoading(true);
-
     axios
       .get("http://192.168.0.147:5555/vehicle")
       .then((res) => {
@@ -40,7 +49,8 @@ const Scan = () => {
         console.log(err);
       });
     setLoading(false);
-  }, [vehicles]);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!barcode) {
@@ -159,41 +169,44 @@ const Scan = () => {
                 <TableCell align="right">Време на излизане</TableCell>
               </TableRow>
             </TableHead>
-            {vehicles
-              .sort((a, b) => {
-                if (a.occupied.bool && !b.occupied.bool) {
-                  return 1;
-                } else if (!a.occupied.bool && b.occupied.bool) {
-                  return -1;
-                } else {
-                  return 0;
-                }
-              })
-              .map((vehicle, index) => (
-                <TableBody>
-                  <TableRow
-                    key={index}
-                    sx={[
-                      vehicle.occupied.bool
-                        ? { backgroundColor: "grey" }
-                        : { backgroundColor: "#29b6f6" },
-                    ]}
-                  >
-                    <TableCell component="th" scope="row">
-                      {`${vehicle.make} ${vehicle.model}`}
-                    </TableCell>
-                    <TableCell align="right">{vehicle.reg}</TableCell>
-                    <TableCell align="right">{vehicle.occupied.user}</TableCell>
-                    <TableCell align="right">
-                      {vehicle.occupied.bool
-                        ? dayjs(vehicle.occupied.time).format(
-                            "DD/MM/YYYY - HH:mm"
-                          )
-                        : ""}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              ))}
+            {vehicles &&
+              vehicles
+                .sort((a, b) => {
+                  if (a.occupied.bool && !b.occupied.bool) {
+                    return 1;
+                  } else if (!a.occupied.bool && b.occupied.bool) {
+                    return -1;
+                  } else {
+                    return 0;
+                  }
+                })
+                .map((vehicle, index) => (
+                  <TableBody key={index}>
+                    <TableRow
+                      key={index}
+                      sx={[
+                        vehicle.occupied.bool
+                          ? { backgroundColor: "grey" }
+                          : { backgroundColor: "#29b6f6" },
+                      ]}
+                    >
+                      <TableCell component="th" scope="row">
+                        {`${vehicle.make} ${vehicle.model}`}
+                      </TableCell>
+                      <TableCell align="right">{vehicle.reg}</TableCell>
+                      <TableCell align="right">
+                        {vehicle.occupied.user}
+                      </TableCell>
+                      <TableCell align="right">
+                        {vehicle.occupied.bool
+                          ? dayjs(vehicle.occupied.time).format(
+                              "DD/MM/YYYY - HH:mm"
+                            )
+                          : ""}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                ))}
           </Table>
         </TableContainer>
       </Box>

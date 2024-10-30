@@ -167,7 +167,12 @@ const HeaderMenu = () => {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   useEffect(() => {
     const verifyUser = async () => {
-      if (!token) {
+      if (
+        !token &&
+        window.location.pathname !== "/scan" &&
+        window.location.pathname.includes("/pick-up") &&
+        window.location.pathname.includes("/drop-off")
+      ) {
         navigate("/login");
       }
       const { data } = await axios.post("http://192.168.0.147:5555/auth", {
@@ -183,7 +188,10 @@ const HeaderMenu = () => {
         role: role,
         password: "",
       });
-      return status
+      return status ||
+        window.location.pathname === "/scan" ||
+        window.location.pathname.includes("/pick-up") ||
+        window.location.pathname.includes("/drop-off")
         ? toast(`${user}`, {
             position: "top-right",
             autoClose: 5000,
