@@ -32,12 +32,12 @@ const Scan = () => {
   const navigate = useNavigate();
   let location = useLocation();
 
-  setTimeout(() => {
-    if (location.state) {
-      location.state = 0;
-      navigate(0);
-    }
-  }, 1000);
+  // setTimeout(() => {
+  //   if (location.state) {
+  //     location.state = 0;
+  //     navigate(0);
+  //   }
+  // }, 500);
   useEffect(() => {
     setLoading(true);
     axios

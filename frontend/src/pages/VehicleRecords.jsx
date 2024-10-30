@@ -34,47 +34,26 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
 
   const data = records.data.map((obj) => {
     return [
-      dayjs(obj.date).format("DD/MM/YYYY - HH:mm"),
       obj.driverName,
-      obj.desc,
-      obj.km + " км",
-      obj.done,
-      userRole.includes("admin") || userRole.includes(vehicle.site) ? (
-        <IconButton
-          onClick={() => {
-            axios
-              .put(`http://192.168.0.147:5555/api/records/${obj._id}`, {
-                ...obj,
-                done: true,
-              })
-              .then((res) => {})
-              .catch((err) => {
-                console.log(err);
-              });
-          }}
-          color="success"
-          variant="contained"
-        >
-          <DeleteForeverIcon />
-        </IconButton>
-      ) : (
-        ""
-      ),
+      dayjs(obj.pickupTime).format("DD/MM/YY - HH:mm"),
+      obj.dropoffTime
+        ? dayjs(obj.dropoffTime).format("DD/MM/YY - HH:mm")
+        : "в движение",
+      obj.dropoffTime,
     ];
   });
 
   const columns = [
     {
       name: "Шофьор",
+    },
+    {
+      name: "Час на взимане",
       options: {
         sortDirection: "desc",
       },
     },
-    { name: "Час на взимане" },
     { name: "Час на връщане" },
-    { name: "Километри" },
-    { name: "" },
-    { name: "" },
   ];
   const options = {
     filterType: "checkbox",

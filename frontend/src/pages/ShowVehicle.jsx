@@ -423,9 +423,13 @@ const ShowVehicle = () => {
             {problems && problems.data.filter((item) => item.done).length && (
               <Box
                 sx={{
+                  border: "solid red",
+                  borderRadius: "5px",
+                  backgroundColor: "#f6734b",
                   textAlign: "center",
                   fontWeight: 800,
                   fontSize: 24,
+                  marginBottom: "5px",
                   color: "red",
                 }}
               >

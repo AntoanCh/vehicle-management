@@ -15,6 +15,7 @@ router.post("/", async (req, res) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       barcode: req.body.barcode,
+      barcode2: req.body.barcode2,
       occupied: req.body.occupied,
       vehicleId: req.body.vehicleId,
     };

@@ -17,6 +17,9 @@ export const driverSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    barcode2: {
+      type: Number,
+    },
     occupied: {
       type: Boolean,
       default: false,

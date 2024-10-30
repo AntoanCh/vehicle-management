@@ -6,7 +6,14 @@ const router = express.Router();
 //Route for saving a new Record
 router.post("/", async (req, res) => {
   try {
-    if (!req.body.pickupTime || !req.body.driverId || !req.body.vehicleId) {
+    if (
+      !req.body.pickupTime ||
+      !req.body.driverId ||
+      !req.body.vehicleId ||
+      !req.body.driverName ||
+      !req.body.vehicleReg ||
+      !req.body.vehicleModel
+    ) {
       return res.status(400).send({
         message: "Send all required fields",
       });
@@ -15,6 +22,9 @@ router.post("/", async (req, res) => {
       pickupTime: req.body.pickupTime,
       dropoffTime: req.body.dropoffTime,
       driverId: req.body.driverId,
+      driverName: req.body.driverName,
+      vehicleReg: req.body.vehicleReg,
+      vehicleModel: req.body.vehicleModel,
       vehicleId: req.body.vehicleId,
     };
     const record = await Record.create(newRecord);
@@ -27,7 +37,14 @@ router.post("/", async (req, res) => {
 //Route for Update a Record
 router.put("/:id", async (req, res) => {
   try {
-    if (!req.body.pickupTime || !req.body.driverId || !req.body.vehicleId) {
+    if (
+      !req.body.pickupTime ||
+      !req.body.driverId ||
+      !req.body.vehicleId ||
+      !req.body.driverName ||
+      !req.body.vehicleReg ||
+      !req.body.vehicleModel
+    ) {
       return res.status(400).send({
         message: "Send all required fields",
       });
