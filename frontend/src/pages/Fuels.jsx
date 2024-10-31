@@ -1,32 +1,15 @@
 import React from "react";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Button, MenuItem } from "@mui/material";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import SaveIcon from "@mui/icons-material/Save";
 import dayjs from "dayjs";
 import "dayjs/locale/bg";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import PropTypes from "prop-types";
-import Box from "@mui/material/Box";
-import TablePagination from "@mui/material/TablePagination";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import { visuallyHidden } from "@mui/utils";
-import CancelIcon from "@mui/icons-material/Cancel";
-import ButtonGroup from "@mui/material/ButtonGroup";
 import MUIDataTable from "mui-datatables";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -152,11 +135,7 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
 
     setNewFuel({ ...newData });
   };
-  const bgDate = (date) => {
-    let [yyyy, mm, dd] = date.split("-");
-    let newDate = `${dd}.${mm}.${yyyy}`;
-    return newDate;
-  };
+
   const handleCloseError = () => {
     setError([false, ""]);
   };
@@ -166,7 +145,7 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
 
   const data = fuels.data.map((obj) => {
     return [
-      bgDate(obj.date.slice(0, 10)),
+      dayjs(obj.date).format("DD/MM/YYYY - HH:mm"),
       obj.type,
       obj.invoice,
       obj.km + " км",
@@ -440,7 +419,6 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
               ""
             )}
 
-            {/* <h1 className="text-center text-2xl">Сервизна история</h1> */}
             <MUIDataTable
               title={"ГОРИВО"}
               data={data}

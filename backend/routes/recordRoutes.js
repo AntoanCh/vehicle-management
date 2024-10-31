@@ -12,7 +12,8 @@ router.post("/", async (req, res) => {
       !req.body.vehicleId ||
       !req.body.driverName ||
       !req.body.vehicleReg ||
-      !req.body.vehicleModel
+      !req.body.vehicleModel ||
+      !req.body.pickupKm
     ) {
       return res.status(400).send({
         message: "Send all required fields",
@@ -26,6 +27,9 @@ router.post("/", async (req, res) => {
       vehicleReg: req.body.vehicleReg,
       vehicleModel: req.body.vehicleModel,
       vehicleId: req.body.vehicleId,
+      pickupKm: req.body.pickupKm,
+      dropoffKm: req.body.dropoffKm,
+      destination: req.body.destination,
     };
     const record = await Record.create(newRecord);
     return res.status(201).send(record);
@@ -43,7 +47,8 @@ router.put("/:id", async (req, res) => {
       !req.body.vehicleId ||
       !req.body.driverName ||
       !req.body.vehicleReg ||
-      !req.body.vehicleModel
+      !req.body.vehicleModel ||
+      !req.body.pickupKm
     ) {
       return res.status(400).send({
         message: "Send all required fields",

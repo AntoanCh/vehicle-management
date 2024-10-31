@@ -3,10 +3,8 @@ import { Box } from "@mui/material";
 import { Button, TextField } from "@mui/material";
 import axios from "axios";
 import dayjs from "dayjs";
-import { Link, useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Dialog from "@mui/material/Dialog";
-import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -26,18 +24,11 @@ const Scan = () => {
   const [loading, setLoading] = useState(false);
   const [changed, setChanged] = useState(false);
   const [vehicles, setVehicles] = useState([]);
+  const [time, setTime] = useState(dayjs());
   const handleChange = (e) => {
     setBarcode(e.target.value);
   };
   const navigate = useNavigate();
-  let location = useLocation();
-
-  if (location.state.state) {
-    location.state.state = null;
-    setTimeout(() => {
-      navigate(0);
-    }, 500);
-  }
 
   useEffect(() => {
     setLoading(true);
@@ -51,7 +42,9 @@ const Scan = () => {
       });
     setLoading(false);
   }, []);
-
+  useEffect(() => {
+    setTime(dayjs());
+  }, [dayjs()]);
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!barcode) {
@@ -86,7 +79,6 @@ const Scan = () => {
   const handleError = () => {
     setError(false, "");
   };
-
   return (
     <>
       <Dialog
@@ -160,6 +152,23 @@ const Scan = () => {
         }}
         className="  border-2 border-blue-400 rounded-xl w-[600px] p-4 mx-auto mt-5"
       >
+        <TextField
+          label=""
+          disabled
+          InputLabelProps={{ shrink: true }}
+          sx={{
+            marginBottom: "10px",
+            "& .MuiInputBase-input": {
+              padding: "8px",
+              fontWeight: 800,
+            },
+            "& .MuiInputBase-input.Mui-disabled": {
+              WebkitTextFillColor: "black", //Adjust text color here
+            },
+          }}
+          variant="standard"
+          value={dayjs().format("DD/MM/YYYY      HH:mm:ss")}
+        />
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 450 }} size="small" aria-label="a dense table">
             <TableHead>

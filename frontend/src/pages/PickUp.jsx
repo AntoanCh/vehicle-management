@@ -4,10 +4,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button, TextField } from "@mui/material";
 import * as React from "react";
-import { styled } from "@mui/material/styles";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Grid";
 import Checkbox from "@mui/material/Checkbox";
 import Typography from "@mui/material/Typography";
@@ -16,6 +17,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import InputAdornment from "@mui/material/InputAdornment";
 import dayjs from "dayjs";
 
 const PickUp = () => {
@@ -67,6 +69,7 @@ const PickUp = () => {
         vehicleReg: vehicle.reg,
         driverName: driver.firstName,
         pickupTime: dayjs(),
+        pickupKm: vehicle.km,
       })
       .then((res) => {
         axios
@@ -93,7 +96,7 @@ const PickUp = () => {
             console.log(err);
           });
         setLoading(false);
-        navigate("/scan", { state: { state: true } });
+        navigate("/scan");
       })
       .catch((err) => {
         console.log(err);
@@ -172,6 +175,36 @@ const PickUp = () => {
             <TextField
               disabled
               fullWidth
+              value={
+                select[1].km
+                  ? select[1].km.toString().slice(0, -3) +
+                    " " +
+                    select[1].km.toString().slice(-3) +
+                    " км"
+                  : select[1].km + " км"
+              }
+              variant="standard"
+              inputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">kg</InputAdornment>
+                ),
+              }}
+              sx={{
+                "& .MuiInputBase-input": {
+                  fontSize: 18,
+                  padding: 1,
+                  fontWeight: 800,
+                  textAlign: "center",
+                  color: "black",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor: "black", //Adjust text color here
+                },
+              }}
+            />
+            <TextField
+              disabled
+              fullWidth
               value={`ГТП:   ${dayjs(select[1].gtp).format("DD/MM/YYYY")}`}
               variant="standard"
               sx={{
@@ -205,15 +238,21 @@ const PickUp = () => {
                 },
               }}
             />
-            <Checkbox value={agree} onChange={handleAgree} />
-            <span>
-              Съгласен съм, че автомобилът има всички задължителни
-              документи(Годишен технически преглед, малък талон и валидна
-              застраховка "Гражданска отговорност"), както и принадлежностите
-              аптечка, триъгълник, жилетка и пожарогасител (в срок н годност) и
-              нося отговрност, ако бъда санкциониран от органите на КАТ за
-              липсата на някой от тях
-            </span>
+            <FormGroup>
+              <FormControlLabel
+                control={<Checkbox value={agree} onChange={handleAgree} />}
+                label="Съгласен съм, че автомобилът има всички задължителни
+                документи(Годишен технически преглед, малък талон и валидна
+                застраховка 'Гражданска отговорност'), както и принадлежностите
+                аптечка, триъгълник, жилетка и пожарогасител (в срок н годност) и
+                нося отговрност, ако бъда санкциониран от органите на КАТ за
+                липсата на някой от тях"
+              />
+            </FormGroup>
+
+            {/* <span>
+              
+            </span> */}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -243,7 +282,7 @@ const PickUp = () => {
         className="  border-2 border-blue-400 rounded-xl  p-4 mx-auto mt-5"
       >
         <Button
-          sx={{}}
+          sx={{ marginBottom: "10px" }}
           color="error"
           variant="contained"
           onClick={() => navigate("/scan")}

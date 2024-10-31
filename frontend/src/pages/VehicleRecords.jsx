@@ -1,22 +1,16 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Button, MenuItem } from "@mui/material";
+import { Button } from "@mui/material";
 import dayjs from "dayjs";
 import "dayjs/locale/bg";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import MUIDataTable from "mui-datatables";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
-import IconButton from "@mui/material/IconButton";
 
 const VehicleRecords = ({ vehicle, userRole, username, records }) => {
   const [loading, setLoading] = useState(false);
@@ -39,7 +33,9 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
       obj.dropoffTime
         ? dayjs(obj.dropoffTime).format("DD/MM/YY - HH:mm")
         : "в движение",
-      obj.dropoffTime,
+      obj.pickupKm,
+      obj.dropoffKm ? obj.dropoffKm : "в движение",
+      obj.destination ? obj.destination : "в движение",
     ];
   });
 
@@ -48,12 +44,15 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
       name: "Шофьор",
     },
     {
-      name: "Час на взимане",
+      name: "Час на тръгване",
       options: {
         sortDirection: "desc",
       },
     },
     { name: "Час на връщане" },
+    { name: "Километри на тръгване" },
+    { name: "Километри на връщане" },
+    { name: "Маршрут" },
   ];
   const options = {
     filterType: "checkbox",
@@ -62,13 +61,6 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
     rowsPerPage: 20,
     rowsPerPageOptions: [20, 50, 100],
 
-    setRowProps: (row) => {
-      if (row[4]) {
-        return {
-          style: { textDecoration: "line-through" },
-        };
-      }
-    },
     textLabels: {
       body: {
         noMatch: "Нищо не е намерено",

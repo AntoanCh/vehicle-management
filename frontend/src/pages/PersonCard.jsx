@@ -408,12 +408,7 @@ const PersonCard = () => {
     setPerson({ ...person, photo: e.target.files[0] });
     setImageFeedback(true);
   };
-  //Function to rearrange date format to match DD/MM/YYYY
-  const bgDate = (date) => {
-    let [yyyy, mm, dd] = date.split("-");
-    let newDate = `${dd}.${mm}.${yyyy}`;
-    return newDate;
-  };
+
   //Sites name list
   const siteNames = () =>
     sites.map((obj, index) => {

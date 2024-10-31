@@ -16,6 +16,18 @@ export const recordSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    destination: {
+      type: String,
+      required: false,
+    },
+    pickupKm: {
+      type: Number,
+      required: true,
+    },
+    dropoffKm: {
+      type: Number,
+      required: false,
+    },
     vehicleReg: {
       type: String,
       required: true,

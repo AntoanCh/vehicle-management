@@ -314,13 +314,6 @@ export default function VehiclesList({ data }) {
     [order, orderBy, page, rowsPerPage]
   );
 
-  //Function to rearrange date format to match DD/MM/YYYY
-  const bgDate = (date) => {
-    let [yyyy, mm, dd] = date.split("-");
-    let newDate = `${dd}.${mm}.${yyyy}`;
-    return newDate;
-  };
-
   const isDue = (dueDate, type, oilChange) => {
     if (type === "date") {
       if (dueDate <= dayjs().add(1, "week").toISOString()) {
@@ -675,7 +668,7 @@ export default function VehiclesList({ data }) {
                         }
                       >
                         {isDue(row.insDate, "date") ? <WarningAmberIcon /> : ""}
-                        {bgDate(row.insDate.slice(0, 10))}
+                        {dayjs(row.insDate).format("DD/MM/YYYY")}
                       </TableCell>
                       <TableCell
                         style={
@@ -695,9 +688,10 @@ export default function VehiclesList({ data }) {
                         )}
                         {row.kaskoDate == "2001-01-01T00:00:00.000Z" ||
                         row.kaskoDate == null ||
-                        bgDate(row.kaskoDate.slice(0, 10)) == "31.12.2000"
+                        dayjs(row.kaskoDate).format("DD/MM/YYYY") ==
+                          "01/01/2001"
                           ? "Няма"
-                          : bgDate(row.kaskoDate.slice(0, 10))}
+                          : dayjs(row.kaskoDate).format("DD/MM/YYYY")}
                       </TableCell>
                       <TableCell
                         style={
@@ -709,7 +703,7 @@ export default function VehiclesList({ data }) {
                         }
                       >
                         {isDue(row.gtp, "date") ? <WarningAmberIcon /> : ""}
-                        {bgDate(row.gtp.slice(0, 10))}
+                        {dayjs(row.gtp).format("DD/MM/YYYY")}
                       </TableCell>
                       <TableCell
                         style={
@@ -752,7 +746,9 @@ export default function VehiclesList({ data }) {
                             : {}
                         }
                       >
-                        {row.checked ? bgDate(row.checked.slice(0, 10)) : ""}
+                        {row.checked
+                          ? dayjs(row.checked).format("DD/MM/YYYY")
+                          : ""}
                         {isDue(row.checked, "checked") ? (
                           <WarningAmberIcon />
                         ) : (

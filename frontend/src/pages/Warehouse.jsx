@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import VehiclesList from "../components/VehiclesList.jsx";
-import { Button } from "@mui/material";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 const Warehouse = () => {
   const [trucks, setTrucks] = useState([]);

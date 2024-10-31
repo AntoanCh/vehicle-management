@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -33,7 +33,6 @@ import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import CarRepairIcon from "@mui/icons-material/CarRepair";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import HistoryIcon from "@mui/icons-material/History";
-import Fab from "@mui/material/Fab";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
@@ -188,76 +187,6 @@ const ShowVehicle = () => {
     setEdit(true);
   };
 
-  const localDateTime = (dateTime) => {
-    let weekday = dateTime.slice(0, 3);
-    let month = dateTime.slice(4, 7);
-    const date = dateTime.slice(8, 10);
-    const year = dateTime.slice(11, 15);
-    const time = dateTime.slice(16, 24);
-    const timeZone = dateTime.slice(25, 31);
-    switch (weekday) {
-      case "Mon":
-        weekday = "Понеделник";
-        break;
-      case "Tue":
-        weekday = "Вторник";
-        break;
-      case "Wed":
-        weekday = "Сряда";
-        break;
-      case "Thu":
-        weekday = "Четвъртък";
-        break;
-      case "Fri":
-        weekday = "Петък";
-        break;
-      case "Sat":
-        weekday = "Събота";
-        break;
-      case "Sun":
-        weekday = "Неделя";
-        break;
-    }
-    switch (month) {
-      case "Jan":
-        month = "Януари";
-        break;
-      case "Feb":
-        month = "Февруари";
-        break;
-      case "Mar":
-        month = "Март";
-        break;
-      case "Apr":
-        month = "Април";
-        break;
-      case "May":
-        month = "Май";
-        break;
-      case "Jun":
-        month = "Юни";
-        break;
-      case "Jul":
-        month = "Юли";
-        break;
-      case "Aug":
-        month = "Август";
-        break;
-      case "Sep":
-        month = "Септември";
-        break;
-      case "Oct":
-        month = "Октомври";
-        break;
-      case "Nov":
-        month = "Ноември";
-        break;
-      case "Dev":
-        month = "Декември";
-        break;
-    }
-    return `${date} ${month} ${year} ${weekday} ${time} ${timeZone}`;
-  };
   const handleSave = () => {
     let updated;
     if (vehicle.km < oldVehicle.km) {
@@ -326,12 +255,6 @@ const ShowVehicle = () => {
     }
 
     setVehicle({ ...vehicle, [e.target.name]: e.target.value });
-  };
-  //Function to rearrange date format to match DD/MM/YYYY
-  const bgDate = (date) => {
-    let [yyyy, mm, dd] = date.split("-");
-    let newDate = `${dd}.${mm}.${yyyy}`;
-    return newDate;
   };
 
   const isDue = (dueDate, type) => {
@@ -1965,17 +1888,13 @@ const ShowVehicle = () => {
                 Последна Промяна:
               </span>
               <span>
-                {localDateTime(
-                  new Date(vehicle.updatedAt).toString().slice(0, 31)
-                )}
+                {dayjs(vehicle.updatedAt).format("DD/MM/YYYY ddd HH:mm:ss")}
               </span>
             </div>
             <div className="my-2">
               <span className="text-xl mr-4 text-gray-500">Добавен:</span>
               <span>
-                {localDateTime(
-                  new Date(vehicle.createdAt).toString().slice(0, 31)
-                )}
+                {dayjs(vehicle.createdAt).format("DD/MM/YYYY ddd HH:mm:ss")}
               </span>
             </div>
 
