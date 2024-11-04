@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
 router.get("/barcode/:barcode", async (req, res) => {
   try {
     const { barcode } = req.params;
-    const driver = await Driver.find({ barcode: barcode });
+    const driver = await Driver.find({ barcode: barcode, barcode2: barcode });
     return res.status(200).json(driver);
   } catch (err) {
     console.log(err.message);

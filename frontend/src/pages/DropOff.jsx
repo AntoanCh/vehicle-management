@@ -104,6 +104,7 @@ const DropOff = () => {
         .post(`http://192.168.0.147:5555/problems`, {
           date: dayjs(),
           desc: problems,
+          km: km,
           vehicleId: vehicle._id,
           driverName: driver.firstName,
         })

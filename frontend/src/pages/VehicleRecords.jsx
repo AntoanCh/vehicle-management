@@ -29,10 +29,8 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
   const data = records.data.map((obj) => {
     return [
       obj.driverName,
-      dayjs(obj.pickupTime).format("DD/MM/YY - HH:mm"),
-      obj.dropoffTime
-        ? dayjs(obj.dropoffTime).format("DD/MM/YY - HH:mm")
-        : "в движение",
+      obj.pickupTime,
+      obj.dropoffTime,
       obj.pickupKm,
       obj.dropoffKm ? obj.dropoffKm : "в движение",
       obj.destination ? obj.destination : "в движение",
@@ -47,19 +45,48 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
       name: "Час на тръгване",
       options: {
         sortDirection: "desc",
+        customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY - HH:mm"),
+        filterOptions: {
+          logic: (date, filters, row) => {
+            console.log(date);
+            if (filters.length) return !date.includes(filters);
+          },
+          names: records.data
+            ? records.data
+                .map((rec) => dayjs(rec.pickupTime).format("DD/MM/YYYY"))
+                .filter((rec, index, records) => records.indexOf(rec) === index)
+            : [],
+        },
       },
     },
-    { name: "Час на връщане" },
-    { name: "Километри на тръгване" },
-    { name: "Километри на връщане" },
+    {
+      name: "Час на връщане",
+      options: {
+        customBodyRender: (value) =>
+          value ? dayjs(value).format("DD/MM/YYYY - HH:mm") : "в движение",
+      },
+    },
+    {
+      name: "Километри на тръгване",
+      options: {
+        filter: false,
+      },
+    },
+    {
+      name: "Километри на връщане",
+      options: {
+        filter: false,
+      },
+    },
     { name: "Маршрут" },
   ];
   const options = {
-    filterType: "checkbox",
+    filterType: "dropdown",
     selectableRows: false,
     download: false,
-    rowsPerPage: 20,
-    rowsPerPageOptions: [20, 50, 100],
+    print: false,
+    rowsPerPage: 30,
+    rowsPerPageOptions: [30, 50, 100],
 
     textLabels: {
       body: {

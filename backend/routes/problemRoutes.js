@@ -6,7 +6,12 @@ const router = express.Router();
 //Route for saving a new Problem
 router.post("/", async (req, res) => {
   try {
-    if (!req.body.date || !req.body.desc || !req.body.vehicleId) {
+    if (
+      !req.body.date ||
+      !req.body.desc ||
+      !req.body.vehicleId ||
+      !req.body.driverName
+    ) {
       return res.status(400).send({
         message: "Send all required fields",
       });
@@ -14,7 +19,10 @@ router.post("/", async (req, res) => {
     const newProblem = {
       date: req.body.date,
       desc: req.body.desc,
+      driverName: req.body.driverName,
+      km: req.body.km,
       vehicleId: req.body.vehicleId,
+      driverId: req.body.driverId,
     };
     const problem = await Problem.create(newProblem);
     return res.status(201).send(problem);

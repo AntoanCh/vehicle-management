@@ -32,7 +32,7 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
 
   const data = problems.data.map((obj) => {
     return [
-      dayjs(obj.date).format("DD/MM/YYYY - HH:mm"),
+      obj.date,
       obj.driverName,
       obj.desc,
       obj.km + " км",
@@ -71,20 +71,35 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
       name: "Дата",
       options: {
         sortDirection: "desc",
+        customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY - HH:mm"),
+        filterOptions: {
+          logic: (date, filters, row) => {
+            console.log(date);
+            if (filters.length) return !date.includes(filters);
+          },
+          names: problems.data
+            ? problems.data
+                .map((prob) => dayjs(prob.date).format("DD/MM/YYYY"))
+                .filter(
+                  (prob, index, problems) => problems.indexOf(prob) === index
+                )
+            : [],
+        },
       },
     },
     { name: "Шофьор" },
-    { name: "Забележка" },
-    { name: "Километри" },
-    { name: "" },
-    { name: "" },
+    { name: "Забележка", options: { filter: false, sort: false } },
+    { name: "Километри", options: { filter: false } },
+    { name: "", options: { filter: false, sort: false } },
+    { name: "", options: { filter: false, sort: false } },
   ];
   const options = {
-    filterType: "checkbox",
+    filterType: "dropdown",
     selectableRows: false,
     download: false,
-    rowsPerPage: 20,
-    rowsPerPageOptions: [20, 50, 100],
+    print: false,
+    rowsPerPage: 30,
+    rowsPerPageOptions: [30, 50, 100],
 
     setRowProps: (row) => {
       if (row[4]) {

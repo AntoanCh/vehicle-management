@@ -69,7 +69,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
-import Input from "@mui/material/Input";
+import TimelineIcon from "@mui/icons-material/Timeline";
 import FilledInput from "@mui/material/FilledInput";
 
 const drawerWidth = 260;
@@ -613,6 +613,30 @@ const HeaderMenu = () => {
                     px: 2.5,
                     pl: 4,
                   }}
+                  component={Link}
+                  to={"/records"}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<TimelineIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Движение на коли"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
                   // disabled={
                   //   userRole === "admin" || userRole === "hr" ? false : true
                   // }
@@ -770,6 +794,11 @@ const HeaderMenu = () => {
               // component={Link}
               // to={"/it"}
               onClick={handleExpandHR}
+              disabled={
+                userRole.includes("admin") || userRole.includes("hr")
+                  ? false
+                  : true
+              }
             >
               <ListItemIcon
                 sx={{

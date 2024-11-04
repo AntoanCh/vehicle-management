@@ -145,7 +145,7 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
 
   const data = fuels.data.map((obj) => {
     return [
-      dayjs(obj.date).format("DD/MM/YYYY - HH:mm"),
+      obj.date,
       obj.type,
       obj.invoice,
       obj.km + " км",
@@ -171,20 +171,33 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
       name: "Дата",
       options: {
         sortDirection: "desc",
+        customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY - HH:mm"),
+        filterOptions: {
+          logic: (date, filters, row) => {
+            console.log(date);
+            if (filters.length) return !date.includes(filters);
+          },
+          names: fuels.data
+            ? fuels.data
+                .map((fuel) => dayjs(fuel.date).format("DD/MM/YYYY"))
+                .filter((fuel, index, fuels) => fuels.indexOf(fuel) === index)
+            : [],
+        },
       },
     },
     { name: "Вид" },
-    { name: "Фактура №" },
-    { name: "Километри" },
-    { name: "Стойност" },
-    { name: "" },
+    { name: "Фактура №", options: { filter: false } },
+    { name: "Километри", options: { filter: false } },
+    { name: "Стойност", options: { filter: false } },
+    { name: "", options: { filter: false, sort: false } },
   ];
   const options = {
-    filterType: "checkbox",
+    filterType: "dropdown",
     selectableRows: false,
     download: false,
-    rowsPerPage: 20,
-    rowsPerPageOptions: [20, 50, 100],
+    print: false,
+    rowsPerPage: 30,
+    rowsPerPageOptions: [30, 50, 100],
     // expandableRowsOnClick: true,
     // expandableRows: true,
     textLabels: {

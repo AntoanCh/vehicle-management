@@ -36,12 +36,13 @@ const Scan = () => {
       .get("http://192.168.0.147:5555/vehicle")
       .then((res) => {
         setVehicles(res.data.data.filter((item) => item.site === "ОФИС"));
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
       });
-    setLoading(false);
   }, []);
+
   useEffect(() => {
     setTime(dayjs());
   }, [dayjs()]);

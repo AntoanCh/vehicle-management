@@ -19,7 +19,7 @@ import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
 import TimelineIcon from "@mui/icons-material/Timeline";
 
-const Drivers = ({ drivers }) => {
+const DriversList = ({ drivers }) => {
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState([false, {}]);
   const [add, setAdd] = useState(false);
@@ -189,32 +189,81 @@ const Drivers = ({ drivers }) => {
         sortDirection: "desc",
       },
     },
-    { name: "История" },
+    {
+      name: "История",
+      options: {
+        filter: false,
+        sort: false,
+      },
+    },
     { name: "Карта 1" },
     { name: "Карта 2" },
-    { name: "Действия" },
+    {
+      name: "Действия",
+      options: {
+        filter: false,
+        sort: false,
+      },
+    },
   ];
   const columns2 = [
     {
       name: "Кола",
+      options: {
+        filter: false,
+      },
     },
     {
       name: "Номер",
     },
     {
-      name: "Час на взимане",
+      name: "Час на тръгване",
       options: {
         sortDirection: "desc",
+        customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY - HH:mm"),
       },
     },
-    { name: "Час на връщане" },
+    {
+      name: "Час на връщане",
+      options: {
+        customBodyRender: (value) =>
+          value ? dayjs(value).format("DD/MM/YYYY - HH:mm") : "в движение",
+      },
+    },
+    {
+      name: "Километри на тръгване",
+      options: {
+        filter: false,
+        setCellProps: () => {
+          return { align: "center" };
+        },
+      },
+    },
+    {
+      name: "Километри на връщане",
+      options: {
+        filter: false,
+        setCellProps: () => {
+          return { align: "center" };
+        },
+      },
+    },
+    {
+      name: "Маршрут",
+      options: {
+        setCellProps: () => {
+          return { align: "center" };
+        },
+      },
+    },
   ];
   const options = {
-    filterType: "checkbox",
+    filterType: "dropdown",
     selectableRows: false,
     download: false,
-    rowsPerPage: 20,
-    rowsPerPageOptions: [20, 50, 100],
+    print: false,
+    rowsPerPage: 30,
+    rowsPerPageOptions: [30, 50, 100],
     // expandableRowsOnClick: true,
     // expandableRows: true,
     textLabels: {
@@ -367,6 +416,7 @@ const Drivers = ({ drivers }) => {
         </DialogActions>
       </Dialog>
       <Dialog
+        maxWidth={"lg"}
         open={hist[0]}
         onClose={handleCloseHist}
         fullWidth
@@ -380,7 +430,7 @@ const Drivers = ({ drivers }) => {
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
 
-          <div className="">
+          <Box>
             {hist[0] && (
               <MUIDataTable
                 title={"ИСТОРИЯ"}
@@ -388,18 +438,18 @@ const Drivers = ({ drivers }) => {
                   return [
                     obj.vehicleModel,
                     obj.vehicleReg,
-                    dayjs(obj.pickupTime).format("DD/MM/YY - HH:mm"),
-                    obj.dropoffTime
-                      ? dayjs(obj.dropoffTime).format("DD/MM/YY - HH:mm")
-                      : "в движение",
+                    obj.pickupTime,
                     obj.dropoffTime,
+                    obj.pickupKm,
+                    obj.dropoffKm ? obj.dropoffKm : "в движение",
+                    obj.destination ? obj.destination : "в движение",
                   ];
                 })}
                 columns={columns2}
                 options={options}
               />
             )}
-          </div>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button
@@ -493,7 +543,7 @@ const Drivers = ({ drivers }) => {
         <CircularProgress />
       ) : (
         <Box className="my-4 flex flex-col items-center">
-          <Box sx={{ width: "50%", margin: "5px" }}>
+          <Box sx={{ width: "80%", margin: "5px" }}>
             <MUIDataTable
               title={"ШОФЬОРИ"}
               data={data}
@@ -511,4 +561,4 @@ const Drivers = ({ drivers }) => {
   );
 };
 
-export default Drivers;
+export default DriversList;

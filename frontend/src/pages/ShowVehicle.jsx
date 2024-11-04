@@ -722,7 +722,7 @@ const ShowVehicle = () => {
                     }
                   >
                     <Box sx={{ color: "gray" }}>
-                      Преди:
+                      Изминати км:
                       {isDue(vehicle.km - vehicle.oil, "oil") ? (
                         <WarningAmberIcon />
                       ) : (
@@ -763,7 +763,7 @@ const ShowVehicle = () => {
                     }
                   >
                     <Box sx={{ color: "gray" }}>
-                      Остават:{" "}
+                      Оставащи км:{" "}
                       {isDue(vehicle.km - vehicle.oil, "oil") ? (
                         <WarningAmberIcon />
                       ) : (
@@ -1717,6 +1717,11 @@ const ShowVehicle = () => {
               <Button
                 variant="contained"
                 color={tab === "problem" ? "secondary" : "primary"}
+                sx={[
+                  problems && problems.data.filter((item) => item.done).length
+                    ? { backgroundColor: "#f44336" }
+                    : "",
+                ]}
                 onClick={() => {
                   if (tab === "problem") {
                     setTab("");

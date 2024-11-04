@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import DriversList from "../components/DriversList.jsx";
+import { Box } from "@mui/material";
 
 const Drivers = () => {
   const [drivers, setDrivers] = useState([]);
@@ -20,9 +21,9 @@ const Drivers = () => {
       });
   }, []);
   return (
-    <div className="home">
+    <Box>
       {loading ? <CircularProgress /> : <DriversList drivers={drivers} />}
-    </div>
+    </Box>
   );
 };
 
