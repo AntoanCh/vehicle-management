@@ -20,7 +20,7 @@ const Records = () => {
   }, []);
   const columns = [
     {
-      name: "Час на тръгване",
+      name: "Тръгване",
       options: {
         sortDirection: "desc",
         customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY - HH:mm"),
@@ -38,7 +38,7 @@ const Records = () => {
       },
     },
     {
-      name: "Час на връщане",
+      name: "Връщане",
       options: {
         customBodyRender: (value) =>
           value ? dayjs(value).format("DD/MM/YYYY - HH:mm") : "в движение",
@@ -77,6 +77,7 @@ const Records = () => {
         setCellProps: () => {
           return { align: "center" };
         },
+        customBodyRender: (value) => (value ? value : "в движение"),
         filter: false,
       },
     },
@@ -86,6 +87,7 @@ const Records = () => {
         setCellProps: () => {
           return { align: "center" };
         },
+        customBodyRender: (value) => (value ? value : "в движение"),
       },
     },
   ];

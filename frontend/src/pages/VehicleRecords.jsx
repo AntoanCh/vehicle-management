@@ -48,7 +48,7 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
       name: "Шофьор",
     },
     {
-      name: "Час на тръгване",
+      name: "Тръгване",
       options: {
         sortDirection: "desc",
         customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY - HH:mm"),
@@ -66,7 +66,7 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
       },
     },
     {
-      name: "Час на връщане",
+      name: "Връщане",
       options: {
         customBodyRender: (value) =>
           value ? dayjs(value).format("DD/MM/YYYY - HH:mm") : "в движение",
@@ -83,8 +83,14 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
       options: {
         filter: false,
       },
+      customBodyRender: (value) => (value ? value : "в движение"),
     },
-    { name: "Маршрут" },
+    {
+      name: "Маршрут",
+      options: {
+        customBodyRender: (value) => (value ? value : "в движение"),
+      },
+    },
   ];
   const options = {
     filterType: "dropdown",

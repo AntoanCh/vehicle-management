@@ -178,7 +178,7 @@ const Scan = () => {
                 <TableCell>Модел</TableCell>
                 <TableCell align="right">Номер</TableCell>
                 <TableCell align="right">Шофьор</TableCell>
-                <TableCell align="right">Време на излизане</TableCell>
+                <TableCell align="right">Време на тръгване</TableCell>
               </TableRow>
             </TableHead>
             {vehicles &&
@@ -188,6 +188,10 @@ const Scan = () => {
                     return 1;
                   } else if (!a.occupied.bool && b.occupied.bool) {
                     return -1;
+                  } else if (a.occupied.bool && b.occupied.bool) {
+                    if (a.occupied.time < b.occupied.time) {
+                      return 1;
+                    }
                   } else {
                     return 0;
                   }

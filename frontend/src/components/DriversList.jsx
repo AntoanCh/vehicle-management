@@ -218,14 +218,14 @@ const DriversList = ({ drivers }) => {
       name: "Номер",
     },
     {
-      name: "Час на тръгване",
+      name: "Тръгване",
       options: {
         sortDirection: "desc",
         customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY - HH:mm"),
       },
     },
     {
-      name: "Час на връщане",
+      name: "Връщане",
       options: {
         customBodyRender: (value) =>
           value ? dayjs(value).format("DD/MM/YYYY - HH:mm") : "в движение",
