@@ -14,11 +14,11 @@ export const driverSchema = mongoose.Schema(
       uppercase: true,
     },
     barcode: {
-      type: Number,
+      type: String,
       required: true,
     },
     barcode2: {
-      type: Number,
+      type: String,
     },
     occupied: {
       type: Boolean,

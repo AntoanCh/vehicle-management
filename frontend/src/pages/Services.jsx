@@ -249,7 +249,10 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       obj.type,
       obj.desc,
       obj.invoice,
-      obj.km + " км",
+      obj.km.toString().slice(0, -3) +
+        " " +
+        obj.km.toString().slice(-3) +
+        " км",
       obj.cost + " лв",
       userRole.includes("admin") || userRole.includes(vehicle.site) ? (
         <Box>

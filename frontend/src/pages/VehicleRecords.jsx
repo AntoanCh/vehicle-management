@@ -31,8 +31,14 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
       obj.driverName,
       obj.pickupTime,
       obj.dropoffTime,
-      obj.pickupKm,
-      obj.dropoffKm ? obj.dropoffKm : "в движение",
+      obj.pickupKm.toString().slice(0, -3) +
+        " " +
+        obj.pickupKm.toString().slice(-3),
+      obj.dropoffKm
+        ? obj.dropoffKm.toString().slice(0, -3) +
+          " " +
+          obj.dropoffKm.toString().slice(-3)
+        : "в движение",
       obj.destination ? obj.destination : "в движение",
     ];
   });

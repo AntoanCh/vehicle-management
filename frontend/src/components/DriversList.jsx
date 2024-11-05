@@ -44,6 +44,7 @@ const DriversList = ({ drivers }) => {
 
   const handleChangeEdit = (e) => {
     const { name, value } = e.target;
+
     setEdit([true, { ...edit[1], [name]: value }]);
     console.log(edit);
   };
@@ -132,62 +133,62 @@ const DriversList = ({ drivers }) => {
   };
 
   const data = drivers.data
-    ? drivers.data.map((obj) => {
-        return [
-          `${obj.firstName} ${obj.lastName}`,
-          <Box>
-            <IconButton
-              onClick={() => {
-                axios
-                  .get(
-                    `http://192.168.0.147:5555/api/records/driver/${obj._id}`
-                  )
-                  .then((res) => {
-                    setHist([true, obj, res.data]);
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                  });
-              }}
-              color="success"
-              variant="contained"
-            >
-              <TimelineIcon />
-            </IconButton>
-          </Box>,
-          obj.barcode,
-          obj.barcode2,
-          <Box>
-            <IconButton
-              onClick={() => {
-                setEdit([true, obj]);
-              }}
-              color="warning"
-              variant="contained"
-            >
-              <EditIcon />
-            </IconButton>
+    ? drivers.data
+        .map((obj) => {
+          return [
+            `${obj.firstName} ${obj.lastName}`,
+            <Box>
+              <IconButton
+                onClick={() => {
+                  axios
+                    .get(
+                      `http://192.168.0.147:5555/api/records/driver/${obj._id}`
+                    )
+                    .then((res) => {
+                      setHist([true, obj, res.data]);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                }}
+                color="success"
+                variant="contained"
+              >
+                <TimelineIcon />
+              </IconButton>
+            </Box>,
+            obj.barcode,
+            obj.barcode2,
+            <Box>
+              <IconButton
+                onClick={() => {
+                  setEdit([true, obj]);
+                }}
+                color="warning"
+                variant="contained"
+              >
+                <EditIcon />
+              </IconButton>
 
-            <IconButton
-              onClick={() => {
-                setVerifyDelete([true, obj]);
-              }}
-              color="error"
-              variant="contained"
-            >
-              <DeleteForeverIcon />
-            </IconButton>
-          </Box>,
-        ];
-      })
+              <IconButton
+                onClick={() => {
+                  setVerifyDelete([true, obj]);
+                }}
+                color="error"
+                variant="contained"
+              >
+                <DeleteForeverIcon />
+              </IconButton>
+            </Box>,
+          ];
+        })
+        .sort()
     : [];
 
   const columns = [
     {
       name: "Име",
-      options: {
-        sortDirection: "desc",
-      },
+      options: {},
     },
     {
       name: "История",

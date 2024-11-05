@@ -57,6 +57,7 @@ const Scan = () => {
         );
 
         const { status, message } = data;
+        console.log(data);
 
         if (data.length !== 0) {
           if (data[0].occupied) {
@@ -115,7 +116,7 @@ const Scan = () => {
               textAlign: "center",
             }}
           >
-            СКАНИРАЙТЕ СЛУЖЕБНАТА КАРТА
+            БАРКОД:
           </h1>
           <form action="">
             <Box
@@ -129,7 +130,7 @@ const Scan = () => {
                 fullWidth
                 id="barcode"
                 name="barcode"
-                label="Сканирайте картата:"
+                label="Баркод:"
                 variant="filled"
                 value={barcode}
                 onChange={handleChange}

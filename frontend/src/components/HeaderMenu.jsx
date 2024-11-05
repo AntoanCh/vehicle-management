@@ -718,7 +718,7 @@ const HeaderMenu = () => {
             </ListItemButton>
             <Collapse in={expandIT} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 4 }}>
+                {/* <ListItemButton sx={{ pl: 4 }}>
                   <ListItemIcon>
                     <ScaleIcon />
                   </ListItemIcon>
@@ -777,7 +777,7 @@ const HeaderMenu = () => {
                     <PriceCheckIcon />
                   </ListItemIcon>
                   <ListItemText primary="Каси" />
-                </ListItemButton>
+                </ListItemButton> */}
               </List>
             </Collapse>
           </ListItem>

@@ -132,6 +132,10 @@ export const vehicleSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    issue: {
+      type: Boolean,
+      default: false,
+    },
     occupied: {
       bool: {
         type: Boolean,
@@ -146,14 +150,16 @@ export const vehicleSchema = mongoose.Schema(
       },
     },
     sold: {
-      type: Boolean,
-      default: false,
-    },
-    soldDate: {
-      type: Date,
-    },
-    soldPrice: {
-      type: String,
+      bool: {
+        type: Boolean,
+        default: false,
+      },
+      soldDate: {
+        type: Date,
+      },
+      soldPrice: {
+        type: String,
+      },
     },
   },
   {

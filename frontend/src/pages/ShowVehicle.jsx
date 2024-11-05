@@ -203,7 +203,10 @@ const ShowVehicle = () => {
     setEdit(false);
 
     axios
-      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, updated)
+      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+        ...updated,
+        sold: { bool: false, price: "", date: dayjs("01-01-2001") },
+      })
       .then(() => {
         axios.post(`http://192.168.0.147:5555/logs`, {
           date: dayjs(),
@@ -236,6 +239,16 @@ const ShowVehicle = () => {
       ...vehicle,
       vignette: event.target.checked,
       vignetteDate: event.target.checked ? dayjs() : dayjs("01-01-2001"),
+    });
+  };
+  const handleSold = (event) => {
+    setVehicle({
+      ...vehicle,
+      sold: {
+        bool: event.target.checked,
+        date: event.target.checked ? dayjs() : dayjs("01-01-2001"),
+        price: 0,
+      },
     });
   };
   const handleChange = (e) => {
@@ -409,7 +422,12 @@ const ShowVehicle = () => {
                     }}
                   >
                     <TextField
-                      value={vehicle.km}
+                      value={
+                        vehicle.km &&
+                        vehicle.km.toString().slice(0, -3) +
+                          " " +
+                          vehicle.km.toString().slice(-3)
+                      }
                       disabled={!edit}
                       id="km"
                       name="km"
@@ -721,7 +739,19 @@ const ShowVehicle = () => {
                         : {}
                     }
                   >
-                    <Box sx={{ color: "gray" }}>
+                    <Box
+                      sx={
+                        isDue(vehicle.km - vehicle.oil, "oil") === "warning"
+                          ? {
+                              color: "#950e0e",
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }
+                          : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
+                          ? { color: "#95660e", display: "flex" }
+                          : { color: "gray", display: "flex" }
+                      }
+                    >
                       Изминати км:
                       {isDue(vehicle.km - vehicle.oil, "oil") ? (
                         <WarningAmberIcon />
@@ -732,7 +762,12 @@ const ShowVehicle = () => {
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       {" "}
                       <TextField
-                        value={vehicle.km - vehicle.oil}
+                        value={
+                          vehicle.km &&
+                          (vehicle.km - vehicle.oil).toString().slice(0, -3) +
+                            " " +
+                            (vehicle.km - vehicle.oil).toString().slice(-3)
+                        }
                         disabled
                         variant="standard"
                         sx={{
@@ -762,7 +797,19 @@ const ShowVehicle = () => {
                         : {}
                     }
                   >
-                    <Box sx={{ color: "gray" }}>
+                    <Box
+                      sx={
+                        isDue(vehicle.km - vehicle.oil, "oil") === "warning"
+                          ? {
+                              color: "#950e0e",
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }
+                          : isDue(vehicle.km - vehicle.oil, "oil") === "caution"
+                          ? { color: "#95660e", display: "flex" }
+                          : { color: "gray", display: "flex" }
+                      }
+                    >
                       Оставащи км:{" "}
                       {isDue(vehicle.km - vehicle.oil, "oil") ? (
                         <WarningAmberIcon />
@@ -773,7 +820,16 @@ const ShowVehicle = () => {
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       {" "}
                       <TextField
-                        value={vehicle.oilChange - (vehicle.km - vehicle.oil)}
+                        value={
+                          vehicle.oilChange - (vehicle.km - vehicle.oil) &&
+                          (vehicle.oilChange - (vehicle.km - vehicle.oil))
+                            .toString()
+                            .slice(0, -3) +
+                            " " +
+                            (vehicle.oilChange - (vehicle.km - vehicle.oil))
+                              .toString()
+                              .slice(-3)
+                        }
                         disabled
                         variant="standard"
                         sx={{
@@ -799,7 +855,12 @@ const ShowVehicle = () => {
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       {" "}
                       <TextField
-                        value={vehicle.oilChange}
+                        value={
+                          vehicle.oilChange &&
+                          vehicle.oilChange.toString().slice(0, -3) +
+                            " " +
+                            vehicle.oilChange.toString().slice(-3)
+                        }
                         disabled={!edit}
                         name="oilChange"
                         onChange={handleChange}
@@ -1607,7 +1668,9 @@ const ShowVehicle = () => {
                         <TextField
                           value={
                             vehicle.startKm
-                              ? vehicle.startKm
+                              ? vehicle.startKm.toString().slice(0, -3) +
+                                " " +
+                                vehicle.startKm.toString().slice(-3)
                               : !edit
                               ? "НЯМА ДАННИ"
                               : ""
@@ -1638,18 +1701,11 @@ const ShowVehicle = () => {
                       <Box sx={{ color: "gray" }}>Цена на покупка:</Box>
                       <Box sx={{ display: "flex", flexDirection: "row" }}>
                         <TextField
-                          slotProps={{
-                            input: {
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  kg
-                                </InputAdornment>
-                              ),
-                            },
-                          }}
                           value={
                             vehicle.price
-                              ? vehicle.price
+                              ? vehicle.price.toString().slice(0, -3) +
+                                " " +
+                                vehicle.price.toString().slice(-3)
                               : !edit
                               ? "НЯМА ДАННИ"
                               : ""
@@ -1675,6 +1731,128 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
+                  {/* {vehicle.sold.bool && (
+                    <Grid item sm={4} xs={12}>
+                      <ItemStacked>
+                        <Box>Дата на продажба:</Box>
+                        <Box>
+                          {" "}
+                          <DemoContainer
+                            components={["DatePicker, DatePicker"]}
+                          >
+                            <DatePicker
+                              slotProps={{
+                                textField: {
+                                  width: "20%",
+                                  size: "small",
+                                  padding: "0px",
+                                  margin: "0px",
+                                  variant: "standard",
+                                },
+                                inputAdornment: {
+                                  padding: "0px",
+                                  margin: "0px",
+                                },
+                              }}
+                              sx={{
+                                "& .MuiInputBase-input": {
+                                  padding: "0px",
+                                  margin: "0px",
+                                  width: "70%",
+                                  height: "15px",
+                                  fontWeight: 800,
+                                },
+                                "& .MuiInputBase-root": {
+                                  padding: 0,
+                                  margin: 0,
+
+                                  "& .MuiButtonBase-root": {
+                                    padding: 0,
+                                    margin: 0,
+                                  },
+                                  "& .MuiInputBase-input.Mui-disabled": {
+                                    WebkitTextFillColor: "black", //Adjust text color here
+                                  },
+                                },
+                              }}
+                              disabled={edit ? false : true}
+                              format="DD/MM/YYYY"
+                              id="purchaseDate"
+                              value={
+                                vehicle.sold.date
+                                  ? dayjs(vehicle.sold.date)
+                                  : dayjs()
+                              }
+                              name="purchaseDate"
+                              onChange={(newValue) => {
+                                setVehicle({
+                                  ...vehicle,
+                                  sold: { ...vehicle.sold, date: newValue },
+                                });
+                              }}
+                            />
+                          </DemoContainer>
+                        </Box>
+                      </ItemStacked>
+                    </Grid>
+                  )}
+                  {vehicle.sold.bool && (
+                    <Grid item sm={4} xs={12}>
+                      <ItemStacked>
+                        <Box sx={{ color: "gray" }}>Цена на продажба:</Box>
+                        <Box sx={{ display: "flex", flexDirection: "row" }}>
+                          <TextField
+                            value={
+                              vehicle.sold.bool
+                                ? vehicle.sold.price
+                                : !edit
+                                ? "НЯМА ДАННИ"
+                                : ""
+                            }
+                            disabled={!edit}
+                            name="sold.price"
+                            onChange={handleChange}
+                            variant="standard"
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                fontSize: 18,
+                                height: 4,
+                                padding: 1,
+                                fontWeight: 800,
+                                textAlign: "center",
+                              },
+                              "& .MuiInputBase-input.Mui-disabled": {
+                                WebkitTextFillColor: "black", //Adjust text color here
+                              },
+                            }}
+                          />
+                          <span>ЛВ</span>
+                        </Box>
+                      </ItemStacked>
+                    </Grid>
+                  )}
+                  {edit && (
+                    <Grid item sm={4} xs={12}>
+                      <ItemStacked>
+                        <Box>
+                          Автомобилът е продаден
+                          {edit ? (
+                            <Checkbox
+                              sx={{
+                                margin: "0",
+                                padding: "0",
+                                paddingLeft: "2px",
+                              }}
+                              checked={vehicle.kasko}
+                              onChange={handleKasko}
+                            />
+                          ) : (
+                            ""
+                          )}
+                        </Box>
+                      </ItemStacked>
+                    </Grid>
+                  )} */}
                 </Grid>
               </div>
 
