@@ -3,7 +3,7 @@ import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import VehiclesList from "../components/VehiclesList.jsx";
 
-const VehiclesMain = () => {
+const VehiclesMain = ({ filter, setFilter }) => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -21,7 +21,11 @@ const VehiclesMain = () => {
   }, []);
   return (
     <div className="home">
-      {loading ? <CircularProgress /> : <VehiclesList data={vehicles} />}
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        <VehiclesList data={vehicles} filter={filter} setFilter={setFilter} />
+      )}
     </div>
   );
 };

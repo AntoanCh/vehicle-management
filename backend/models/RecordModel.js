@@ -20,6 +20,9 @@ export const recordSchema = mongoose.Schema(
       type: String,
       required: false,
     },
+    problem: {
+      type: String,
+    },
     pickupKm: {
       type: Number,
       required: true,

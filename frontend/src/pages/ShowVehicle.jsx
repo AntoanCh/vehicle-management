@@ -40,6 +40,9 @@ import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
 import Grid from "@mui/material/Grid";
 import InputAdornment from "@mui/material/InputAdornment";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import Alert from "@mui/material/Alert";
+import { keyframes } from "@mui/system";
 
 const ItemInline = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#ccc",
@@ -64,7 +67,18 @@ const ItemStacked = styled(Paper)(({ theme }) => ({
   justifyContent: "space-between",
   color: theme.palette.text.primary,
 }));
+const blink = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
 
+const BlinkedBox = styled("div")({
+  // backgroundColor: "pink",
+  color: "#f6685e",
+  display: "flex",
+
+  animation: `${blink} 1s ease infinite`,
+});
 const ShowVehicle = () => {
   const [vehicle, setVehicle] = useState({});
   const [oldVehicle, setOldVehicle] = useState({});
@@ -77,6 +91,7 @@ const ShowVehicle = () => {
   const [problems, setProblems] = useState();
   const [records, setRecords] = useState();
   const [verDelete, setVerDelete] = useState(false);
+  const [sell, setSell] = useState([false, 0, dayjs()]);
   const [log, setLog] = useState();
   const [servLoading, setServLoading] = useState(true);
   const [fuelLoading, setFuelLoading] = useState(true);
@@ -172,8 +187,14 @@ const ShowVehicle = () => {
   const handleClose = () => {
     setVerDelete(false);
   };
+  const handleCloseSell = () => {
+    setSell([false, 0, dayjs()]);
+  };
   const verifyDelete = () => {
     setVerDelete(true);
+  };
+  const verifySell = () => {
+    setSell([true, 0, dayjs()]);
   };
   const handleDelete = () => {
     axios
@@ -205,7 +226,6 @@ const ShowVehicle = () => {
     axios
       .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
         ...updated,
-        sold: { bool: false, price: "", date: dayjs("01-01-2001") },
       })
       .then(() => {
         axios.post(`http://192.168.0.147:5555/logs`, {
@@ -241,16 +261,7 @@ const ShowVehicle = () => {
       vignetteDate: event.target.checked ? dayjs() : dayjs("01-01-2001"),
     });
   };
-  const handleSold = (event) => {
-    setVehicle({
-      ...vehicle,
-      sold: {
-        bool: event.target.checked,
-        date: event.target.checked ? dayjs() : dayjs("01-01-2001"),
-        price: 0,
-      },
-    });
-  };
+
   const handleChange = (e) => {
     if (e.target.name === "tires") {
       if (e.target.value.match(/^[0-9]{3}$/)) {
@@ -271,27 +282,31 @@ const ShowVehicle = () => {
   };
 
   const isDue = (dueDate, type) => {
-    if (type === "date") {
-      if (dueDate <= dayjs().add(1, "week").toISOString()) {
-        return "warning";
-      } else if (dueDate <= dayjs().add(1, "month").toISOString()) {
-        return "caution";
-      }
-    } else if (type === "checked") {
-      if (
-        dayjs(dueDate).add(1, "month").toISOString() <= dayjs().toISOString()
-      ) {
-        return "warning";
-      } else if (
-        dayjs(dueDate).add(3, "week").toISOString() < dayjs().toISOString()
-      ) {
-        return "caution";
-      }
-    } else if (type === "oil") {
-      if (dueDate > vehicle.oilChange) {
-        return "warning";
-      } else if (dueDate > vehicle.oilChange - 1000) {
-        return "caution";
+    if (vehicle.sold) {
+      return "";
+    } else {
+      if (type === "date") {
+        if (dueDate <= dayjs().add(1, "week").toISOString()) {
+          return "warning";
+        } else if (dueDate <= dayjs().add(1, "month").toISOString()) {
+          return "caution";
+        }
+      } else if (type === "checked") {
+        if (
+          dayjs(dueDate).add(1, "month").toISOString() <= dayjs().toISOString()
+        ) {
+          return "warning";
+        } else if (
+          dayjs(dueDate).add(3, "week").toISOString() < dayjs().toISOString()
+        ) {
+          return "caution";
+        }
+      } else if (type === "oil") {
+        if (dueDate > vehicle.oilChange) {
+          return "warning";
+        } else if (dueDate > vehicle.oilChange - 1000) {
+          return "caution";
+        }
       }
     }
   };
@@ -317,6 +332,7 @@ const ShowVehicle = () => {
         window.location.reload();
       });
   };
+  console.log(problems ? problems.data.filter((item) => item.done).length : "");
   return (
     <div className="p-4">
       <h1 className="text-3xl m-auto text-center my-4">
@@ -335,11 +351,13 @@ const ShowVehicle = () => {
             <DialogTitle id="alert-dialog-title">ИЗТРИВАНЕ</DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description"></DialogContentText>
-              {`Сигурен ли сте, че искате да изтриете автомобил ${
+              {`ВНИМАНИЕ! \nСигурен ли сте, че искате да изтриете автомобил ${
                 vehicle.make + " " + vehicle.model
               } с Номер ${
                 vehicle.reg
-              }\n Всички данни за автомобила, включително сервизната история ще бъдат премахнати завинаги`}
+              }\n Всички данни за автомобила, включително сервизната история ще бъдат премахнати завинаги
+              \n Ако автомобилът е продаден, моля използвайте бутонът ПРОДАДЕН
+              `}
             </DialogContent>
             <DialogActions>
               <Button
@@ -355,24 +373,148 @@ const ShowVehicle = () => {
               </Button>
             </DialogActions>
           </Dialog>
+          <Dialog
+            open={sell[0]}
+            onClose={handleCloseSell}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">ПРОДАЖБА</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description"></DialogContentText>
+              {`ВНИМАНИЕ! Продажба автомобил ${
+                vehicle.make + " " + vehicle.model
+              } с Номер ${
+                vehicle.reg
+              }\n Всички данни за автомобила,  ще бъдат запазени, но няма да могат да се редактират повече
+              
+              `}
+              <Box>
+                <ItemStacked>
+                  <Box sx={{ color: "gray" }}>Цена:</Box>
+                  <TextField
+                    value={sell[1]}
+                    name="sold.price"
+                    onChange={(e) => {
+                      const newArr = [...sell];
+                      newArr[1] = e.target.value;
+                      setSell([...newArr]);
+                    }}
+                    variant="standard"
+                    sx={{
+                      "& .MuiInputBase-input": {
+                        fontSize: 18,
+                        height: 4,
+                        padding: 1,
+                        fontWeight: 800,
+                        textAlign: "center",
+                      },
+                      "& .MuiInputBase-input.Mui-disabled": {
+                        WebkitTextFillColor: "black", //Adjust text color here
+                      },
+                    }}
+                  />
+                </ItemStacked>
+                <ItemStacked>
+                  <Box sx={{ color: "gray" }}>Дата:</Box>
+                  <DemoContainer components={["DatePicker, DatePicker"]}>
+                    <DatePicker
+                      slotProps={{
+                        textField: {
+                          width: "20%",
+                          size: "small",
+                          padding: "0",
+                          margin: "0",
+                          variant: "standard",
+                        },
+                        inputAdornment: {
+                          padding: "0",
+                          margin: "0",
+                        },
+                      }}
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          padding: "0",
+                          margin: "0",
+                          width: "70%",
+                          height: "15px",
+                          fontWeight: 800,
+                        },
+                        "& .MuiInputBase-root": {
+                          padding: 0,
+                          margin: 0,
+
+                          "& .MuiButtonBase-root": {
+                            padding: 0,
+                            margin: 0,
+                          },
+                          "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "black", //Adjust text color here
+                          },
+                        },
+                      }}
+                      format="DD/MM/YYYY"
+                      id="sold.date"
+                      value={sell[2]}
+                      name="sold.date"
+                      onChange={(newValue) => {
+                        const newArr = [...sell];
+                        newArr[2] = newValue;
+                        setSell([...newArr]);
+                      }}
+                    />
+                  </DemoContainer>
+                </ItemStacked>
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                color="error"
+                variant="contained"
+                onClick={handleCloseSell}
+                autoFocus
+              >
+                Отказ
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() =>
+                  axios.put(
+                    `http://192.168.0.147:5555/vehicle/${vehicle._id}`,
+                    {
+                      ...vehicle,
+                      sold: true,
+                      soldPrice: sell[1],
+                      soldDate: sell[2],
+                      site: "ПРОДАДЕНИ",
+                    }
+                  )
+                }
+                autoFocus
+              >
+                Готово
+              </Button>
+            </DialogActions>
+          </Dialog>
           <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-full 2xl:w-9/12 p-4">
-            {problems && problems.data.filter((item) => item.done).length && (
-              <Box
-                sx={{
-                  border: "solid red",
-                  borderRadius: "5px",
-                  backgroundColor: "#f6734b",
-                  textAlign: "center",
-                  fontWeight: 800,
-                  fontSize: 24,
-                  marginBottom: "5px",
-                  color: "red",
-                }}
+            {vehicle.issue && (
+              <Alert
+                sx={{ marginBottom: "5px", color: "black", fontWeight: 800 }}
+                variant="filled"
+                severity="warning"
               >
                 АВТОМОБИЛЪТ ИМА НЕРАЗРЕШЕНИ ПРОБЛЕМИ
-              </Box>
+              </Alert>
             )}
-
+            {vehicle.sold && (
+              <Alert
+                sx={{ marginBottom: "5px", color: "black", fontWeight: 800 }}
+                variant="filled"
+                severity="error"
+              >
+                ПРОДАДЕН!
+              </Alert>
+            )}
             <Box sx={{ display: { sm: "flex", xs: "" } }}>
               <div>
                 <Stack spacing={2}>
@@ -391,8 +533,9 @@ const ShowVehicle = () => {
                   </Box>
                   <ItemInline
                     sx={{
-                      width: "90%",
-                      backgroundColor: "rgb(156 163 175)",
+                      width: "95%",
+                      // backgroundColor: "rgb(156 163 175)",
+                      backgroundColor: "black",
                     }}
                   >
                     <TextField
@@ -408,25 +551,28 @@ const ShowVehicle = () => {
                           textAlign: "center",
                         },
                         "& .MuiInputBase-input.Mui-disabled": {
-                          WebkitTextFillColor: "black", //Adjust text color here
+                          WebkitTextFillColor: "white", //Adjust text color here
                         },
                       }}
                     />
                   </ItemInline>
                   <ItemInline
                     sx={{
-                      width: "70%",
+                      width: "95%",
                       textAlign: "center",
                       backgroundColor: "rgb(50, 50, 50)",
                       color: "white",
                     }}
                   >
                     <TextField
+                      inputProps={{ maxLength: 7 }}
                       value={
-                        vehicle.km &&
-                        vehicle.km.toString().slice(0, -3) +
-                          " " +
-                          vehicle.km.toString().slice(-3)
+                        !edit
+                          ? vehicle.km &&
+                            vehicle.km.toString().slice(0, -3) +
+                              " " +
+                              vehicle.km.toString().slice(-3)
+                          : vehicle.km
                       }
                       disabled={!edit}
                       id="km"
@@ -539,6 +685,7 @@ const ShowVehicle = () => {
                     <Box>
                       {" "}
                       <TextField
+                        inputProps={{ maxLength: 9 }}
                         value={vehicle.tires}
                         disabled={!edit}
                         name="tires"
@@ -590,10 +737,13 @@ const ShowVehicle = () => {
                         <MenuItem key={1} value={"ОФИС"}>
                           ОФИС
                         </MenuItem>
-                        <MenuItem key={2} value={"СКЛАД"}>
-                          СКЛАД
+                        <MenuItem key={2} value={"ВИТАЛИНО"}>
+                          ВИТАЛИНО
                         </MenuItem>
-                        <MenuItem key={3} value={"ДРУГИ"}>
+                        <MenuItem key={3} value={"БОРСА"}>
+                          БОРСА
+                        </MenuItem>
+                        <MenuItem key={4} value={"ДРУГИ"}>
                           ДРУГИ
                         </MenuItem>
                       </TextField>
@@ -707,7 +857,14 @@ const ShowVehicle = () => {
                     <Box sx={{ color: "gray" }}>Масла/ф-ри:</Box>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       <TextField
-                        value={vehicle.oil}
+                        inputProps={{ maxLength: 7 }}
+                        value={
+                          vehicle.oil && !edit
+                            ? vehicle.oil.toString().slice(0, -3) +
+                              " " +
+                              vehicle.oil.toString().slice(-3)
+                            : vehicle.oil
+                        }
                         disabled={!edit}
                         name="oil"
                         onChange={handleChange}
@@ -762,6 +919,7 @@ const ShowVehicle = () => {
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       {" "}
                       <TextField
+                        inputProps={{ maxLength: 7 }}
                         value={
                           vehicle.km &&
                           (vehicle.km - vehicle.oil).toString().slice(0, -3) +
@@ -820,6 +978,7 @@ const ShowVehicle = () => {
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       {" "}
                       <TextField
+                        inputProps={{ maxLength: 7 }}
                         value={
                           vehicle.oilChange - (vehicle.km - vehicle.oil) &&
                           (vehicle.oilChange - (vehicle.km - vehicle.oil))
@@ -855,11 +1014,14 @@ const ShowVehicle = () => {
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       {" "}
                       <TextField
+                        inputProps={{ maxLength: 5 }}
                         value={
-                          vehicle.oilChange &&
-                          vehicle.oilChange.toString().slice(0, -3) +
-                            " " +
-                            vehicle.oilChange.toString().slice(-3)
+                          !edit
+                            ? vehicle.oilChange &&
+                              vehicle.oilChange.toString().slice(0, -3) +
+                                " " +
+                                vehicle.oilChange.toString().slice(-3)
+                            : vehicle.oilChange
                         }
                         disabled={!edit}
                         name="oilChange"
@@ -911,8 +1073,9 @@ const ShowVehicle = () => {
                       ) : (
                         ""
                       )}
-                      {userRole.includes("admin") ||
-                      userRole.includes(vehicle.site) ? (
+                      {(userRole.includes("admin") ||
+                        userRole.includes(vehicle.site)) &&
+                      !vehicle.sold ? (
                         <Button
                           sx={{ maxHeight: "20px" }}
                           variant="contained"
@@ -935,18 +1098,18 @@ const ShowVehicle = () => {
                               width: "20%",
                               size: "small",
                               padding: "0px",
-                              margin: "0px",
+                              margin: "0",
                               variant: "standard",
                             },
                             inputAdornment: {
                               padding: "0px",
-                              margin: "0px",
+                              margin: "0",
                             },
                           }}
                           sx={{
                             "& .MuiInputBase-input": {
                               padding: "0px",
-                              margin: "0px",
+                              margin: "0",
                               width: "70%",
                               height: "15px",
                               fontWeight: 800,
@@ -1056,19 +1219,19 @@ const ShowVehicle = () => {
                                 textField: {
                                   width: "20%",
                                   size: "small",
-                                  padding: "0px",
-                                  margin: "0px",
+                                  padding: "0",
+                                  margin: "0",
                                   variant: "standard",
                                 },
                                 inputAdornment: {
-                                  padding: "0px",
-                                  margin: "0px",
+                                  padding: "0",
+                                  margin: "0",
                                 },
                               }}
                               sx={{
                                 "& .MuiInputBase-input": {
-                                  padding: "0px",
-                                  margin: "0px",
+                                  padding: "0",
+                                  margin: "0",
                                   width: "70%",
                                   height: "15px",
                                   fontWeight: 800,
@@ -1177,19 +1340,19 @@ const ShowVehicle = () => {
                               textField: {
                                 width: "20%",
                                 size: "small",
-                                padding: "0px",
-                                margin: "0px",
+                                padding: "0",
+                                margin: "0",
                                 variant: "standard",
                               },
                               inputAdornment: {
-                                padding: "0px",
-                                margin: "0px",
+                                padding: "0",
+                                margin: "0",
                               },
                             }}
                             sx={{
                               "& .MuiInputBase-input": {
                                 padding: "0px",
-                                margin: "0px",
+                                margin: "0",
                                 width: "70%",
                                 height: "15px",
                                 fontWeight: 800,
@@ -1304,19 +1467,19 @@ const ShowVehicle = () => {
                               textField: {
                                 width: "20%",
                                 size: "small",
-                                padding: "0px",
-                                margin: "0px",
+                                padding: "0",
+                                margin: "0",
                                 variant: "standard",
                               },
                               inputAdornment: {
-                                padding: "0px",
-                                margin: "0px",
+                                padding: "0",
+                                margin: "0",
                               },
                             }}
                             sx={{
                               "& .MuiInputBase-input": {
-                                padding: "0px",
-                                margin: "0px",
+                                padding: "0",
+                                margin: "0",
                                 width: "70%",
                                 height: "15px",
                                 fontWeight: 800,
@@ -1410,7 +1573,7 @@ const ShowVehicle = () => {
                         {edit ? (
                           <Checkbox
                             sx={{
-                              margin: "0",
+                              // margin: "0",
                               padding: "0",
                               paddingLeft: "2px",
                             }}
@@ -1450,18 +1613,18 @@ const ShowVehicle = () => {
                                   width: "20%",
                                   size: "small",
                                   padding: "0px",
-                                  margin: "0px",
+                                  margin: "0",
                                   variant: "standard",
                                 },
                                 inputAdornment: {
                                   padding: "0px",
-                                  margin: "0px",
+                                  margin: "0",
                                 },
                               }}
                               sx={{
                                 "& .MuiInputBase-input": {
                                   padding: "0px",
-                                  margin: "0px",
+                                  margin: "0",
                                   width: "70%",
                                   height: "15px",
                                   fontWeight: 800,
@@ -1508,7 +1671,7 @@ const ShowVehicle = () => {
                           : {}
                       }
                     >
-                      <Box sx={{ color: "gray" }}>Каско № Полица</Box>
+                      <Box>Каско № Полица</Box>
                       <Box>
                         <TextField
                           value={!vehicle.kasko ? "НЯМА" : vehicle.kaskoNum}
@@ -1541,7 +1704,7 @@ const ShowVehicle = () => {
                 <Grid container spacing={2}>
                   <Grid item sm={3} xs={12}>
                     <ItemStacked>
-                      <Box>Дата на покупка:</Box>
+                      <Box sx={{ color: "gray" }}>Дата на покупка:</Box>
                       <Box>
                         {" "}
                         <DemoContainer components={["DatePicker, DatePicker"]}>
@@ -1550,19 +1713,19 @@ const ShowVehicle = () => {
                               textField: {
                                 width: "20%",
                                 size: "small",
-                                padding: "0px",
-                                margin: "0px",
+                                padding: "0",
+                                margin: "0",
                                 variant: "standard",
                               },
                               inputAdornment: {
-                                padding: "0px",
-                                margin: "0px",
+                                padding: "0",
+                                margin: "0",
                               },
                             }}
                             sx={{
                               "& .MuiInputBase-input": {
-                                padding: "0px",
-                                margin: "0px",
+                                padding: "0",
+                                margin: "0",
                                 width: "70%",
                                 height: "15px",
                                 fontWeight: 800,
@@ -1602,7 +1765,7 @@ const ShowVehicle = () => {
                   </Grid>
                   <Grid item sm={3} xs={12}>
                     <ItemStacked>
-                      <Box>Първи ремонт:</Box>
+                      <Box sx={{ color: "gray" }}>Първи ремонт:</Box>
                       <Box>
                         {" "}
                         <DemoContainer components={["DatePicker, DatePicker"]}>
@@ -1611,19 +1774,19 @@ const ShowVehicle = () => {
                               textField: {
                                 width: "20%",
                                 size: "small",
-                                padding: "0px",
-                                margin: "0px",
+                                padding: "0",
+                                margin: "0",
                                 variant: "standard",
                               },
                               inputAdornment: {
-                                padding: "0px",
-                                margin: "0px",
+                                padding: "0",
+                                margin: "0",
                               },
                             }}
                             sx={{
                               "& .MuiInputBase-input": {
                                 padding: "0px",
-                                margin: "0px",
+                                margin: "0",
                                 width: "70%",
                                 height: "15px",
                                 fontWeight: 800,
@@ -1666,11 +1829,14 @@ const ShowVehicle = () => {
                       <Box sx={{ color: "gray" }}>Начални километри:</Box>
                       <Box sx={{ display: "flex", flexDirection: "row" }}>
                         <TextField
+                          inputProps={{ maxLength: 7 }}
                           value={
                             vehicle.startKm
-                              ? vehicle.startKm.toString().slice(0, -3) +
-                                " " +
-                                vehicle.startKm.toString().slice(-3)
+                              ? !edit
+                                ? vehicle.startKm.toString().slice(0, -3) +
+                                  " " +
+                                  vehicle.startKm.toString().slice(-3)
+                                : vehicle.startKm
                               : !edit
                               ? "НЯМА ДАННИ"
                               : ""
@@ -1701,11 +1867,14 @@ const ShowVehicle = () => {
                       <Box sx={{ color: "gray" }}>Цена на покупка:</Box>
                       <Box sx={{ display: "flex", flexDirection: "row" }}>
                         <TextField
+                          inputProps={{ maxLength: 7 }}
                           value={
                             vehicle.price
-                              ? vehicle.price.toString().slice(0, -3) +
-                                " " +
-                                vehicle.price.toString().slice(-3)
+                              ? !edit
+                                ? vehicle.price.toString().slice(0, -3) +
+                                  " " +
+                                  vehicle.price.toString().slice(-3)
+                                : vehicle.price
                               : !edit
                               ? "НЯМА ДАННИ"
                               : ""
@@ -1731,87 +1900,22 @@ const ShowVehicle = () => {
                       </Box>
                     </ItemStacked>
                   </Grid>
-                  {/* {vehicle.sold.bool && (
-                    <Grid item sm={4} xs={12}>
-                      <ItemStacked>
-                        <Box>Дата на продажба:</Box>
-                        <Box>
-                          {" "}
-                          <DemoContainer
-                            components={["DatePicker, DatePicker"]}
-                          >
-                            <DatePicker
-                              slotProps={{
-                                textField: {
-                                  width: "20%",
-                                  size: "small",
-                                  padding: "0px",
-                                  margin: "0px",
-                                  variant: "standard",
-                                },
-                                inputAdornment: {
-                                  padding: "0px",
-                                  margin: "0px",
-                                },
-                              }}
-                              sx={{
-                                "& .MuiInputBase-input": {
-                                  padding: "0px",
-                                  margin: "0px",
-                                  width: "70%",
-                                  height: "15px",
-                                  fontWeight: 800,
-                                },
-                                "& .MuiInputBase-root": {
-                                  padding: 0,
-                                  margin: 0,
-
-                                  "& .MuiButtonBase-root": {
-                                    padding: 0,
-                                    margin: 0,
-                                  },
-                                  "& .MuiInputBase-input.Mui-disabled": {
-                                    WebkitTextFillColor: "black", //Adjust text color here
-                                  },
-                                },
-                              }}
-                              disabled={edit ? false : true}
-                              format="DD/MM/YYYY"
-                              id="purchaseDate"
-                              value={
-                                vehicle.sold.date
-                                  ? dayjs(vehicle.sold.date)
-                                  : dayjs()
-                              }
-                              name="purchaseDate"
-                              onChange={(newValue) => {
-                                setVehicle({
-                                  ...vehicle,
-                                  sold: { ...vehicle.sold, date: newValue },
-                                });
-                              }}
-                            />
-                          </DemoContainer>
-                        </Box>
-                      </ItemStacked>
-                    </Grid>
-                  )}
-                  {vehicle.sold.bool && (
-                    <Grid item sm={4} xs={12}>
+                  {vehicle.sold && (
+                    <Grid item sm={3} xs={12}>
                       <ItemStacked>
                         <Box sx={{ color: "gray" }}>Цена на продажба:</Box>
                         <Box sx={{ display: "flex", flexDirection: "row" }}>
                           <TextField
+                            disabled
+                            inputProps={{ maxLength: 7 }}
                             value={
-                              vehicle.sold.bool
-                                ? vehicle.sold.price
-                                : !edit
-                                ? "НЯМА ДАННИ"
-                                : ""
+                              // vehicle.soldPrice
+                              //   ? vehicle.soldPrice.toString().slice(0, -3) +
+                              //     " " +
+                              //     vehicle.soldPrice.toString().slice(-3)
+                              //   : ""
+                              vehicle.soldPrice
                             }
-                            disabled={!edit}
-                            name="sold.price"
-                            onChange={handleChange}
                             variant="standard"
                             sx={{
                               "& .MuiInputBase-input": {
@@ -1831,33 +1935,39 @@ const ShowVehicle = () => {
                       </ItemStacked>
                     </Grid>
                   )}
-                  {edit && (
-                    <Grid item sm={4} xs={12}>
+                  {vehicle.sold && (
+                    <Grid item sm={3} xs={12}>
                       <ItemStacked>
-                        <Box>
-                          Автомобилът е продаден
-                          {edit ? (
-                            <Checkbox
-                              sx={{
-                                margin: "0",
-                                padding: "0",
-                                paddingLeft: "2px",
-                              }}
-                              checked={vehicle.kasko}
-                              onChange={handleKasko}
-                            />
-                          ) : (
-                            ""
-                          )}
+                        <Box sx={{ color: "gray" }}>Дата на продажба:</Box>
+                        <Box sx={{ display: "flex", flexDirection: "row" }}>
+                          <TextField
+                            disabled
+                            value={dayjs(vehicle.soldDate).format("DD/MM/YYYY")}
+                            variant="standard"
+                            sx={{
+                              "& .MuiInputBase-input": {
+                                fontSize: 18,
+                                height: 4,
+                                padding: 1,
+                                fontWeight: 800,
+                                textAlign: "center",
+                              },
+                              "& .MuiInputBase-input.Mui-disabled": {
+                                WebkitTextFillColor: "black", //Adjust text color here
+                              },
+                            }}
+                          />
                         </Box>
                       </ItemStacked>
                     </Grid>
-                  )} */}
+                  )}
                 </Grid>
               </div>
 
-              {userRole.includes("admin") || userRole.includes(vehicle.site) ? (
-                <div className="flex justify-end">
+              {(userRole.includes("admin") ||
+                userRole.includes(vehicle.site)) &&
+              !vehicle.sold ? (
+                <Box className="flex justify-end">
                   {edit ? (
                     <ButtonGroup variant="contained">
                       <Button onClick={handleSave}>
@@ -1872,7 +1982,7 @@ const ShowVehicle = () => {
                       <EditIcon /> РЕДАКТИРАНЕ
                     </Button>
                   )}
-                </div>
+                </Box>
               ) : (
                 ""
               )}
@@ -1895,11 +2005,6 @@ const ShowVehicle = () => {
               <Button
                 variant="contained"
                 color={tab === "problem" ? "secondary" : "primary"}
-                sx={[
-                  problems && problems.data.filter((item) => item.done).length
-                    ? { backgroundColor: "#f44336" }
-                    : "",
-                ]}
                 onClick={() => {
                   if (tab === "problem") {
                     setTab("");
@@ -1908,8 +2013,17 @@ const ShowVehicle = () => {
                   }
                 }}
               >
-                Забележки
-                <WarningIcon />
+                {vehicle.issue ? (
+                  <BlinkedBox>
+                    Забележки
+                    <WarningIcon />
+                  </BlinkedBox>
+                ) : (
+                  <Box>
+                    Забележки
+                    <WarningIcon />
+                  </Box>
+                )}
               </Button>
               <Button
                 variant="contained"
@@ -2085,20 +2199,36 @@ const ShowVehicle = () => {
               <span className="text-xl mr-4 text-gray-500">ID:</span>
               <span>{vehicle._id}</span>
             </div>
-            <div>
-              {userRole.includes("admin") || userRole.includes(vehicle.site) ? (
-                <Button
-                  onClick={verifyDelete}
-                  color="error"
-                  variant="contained"
-                >
-                  ИзтриЙ
-                  <DeleteForeverIcon />
-                </Button>
-              ) : (
-                ""
-              )}
-            </div>
+            <Box>
+              <ButtonGroup>
+                {userRole.includes("admin") ? (
+                  <Button
+                    onClick={verifyDelete}
+                    color="error"
+                    variant="contained"
+                  >
+                    ИзтриЙ
+                    <DeleteForeverIcon />
+                  </Button>
+                ) : (
+                  ""
+                )}
+                {(userRole.includes("admin") ||
+                  userRole.includes(vehicle.site)) &&
+                !vehicle.sold ? (
+                  <Button
+                    onClick={verifySell}
+                    color="warning"
+                    variant="contained"
+                  >
+                    ПРОДАДЕН
+                    <AttachMoneyIcon />
+                  </Button>
+                ) : (
+                  ""
+                )}
+              </ButtonGroup>
+            </Box>
           </div>
         </LocalizationProvider>
       )}

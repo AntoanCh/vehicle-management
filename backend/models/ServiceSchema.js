@@ -17,11 +17,11 @@ export const serviceSchema = mongoose.Schema(
     },
     invoice: {
       type: String,
-      required: true,
+      required: false,
     },
     km: {
       type: Number,
-      required: true,
+      required: false,
     },
     cost: {
       type: Number,

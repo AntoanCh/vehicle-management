@@ -281,16 +281,28 @@ const PickUp = () => {
         }}
         className="  border-2 border-blue-400 rounded-xl  p-4 mx-auto mt-5"
       >
-        <Button
-          sx={{ marginBottom: "10px" }}
-          color="error"
-          variant="contained"
-          onClick={() => navigate("/scan")}
-          autoFocus
-        >
-          <ArrowBackIosIcon />
-          НАЗАД
-        </Button>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Button
+            sx={{ marginBottom: "10px" }}
+            color="error"
+            variant="contained"
+            onClick={() => navigate("/scan")}
+            autoFocus
+          >
+            <ArrowBackIosIcon />
+            НАЗАД
+          </Button>
+          <Button
+            sx={{ marginBottom: "10px" }}
+            color="primary"
+            variant="contained"
+            onClick={() => navigate("/scan")}
+            autoFocus
+          >
+            Върнете автомобил взет от друг водач
+          </Button>
+        </Box>
+
         <TextField
           sx={{
             "& .MuiInputBase-input": {

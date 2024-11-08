@@ -10,8 +10,6 @@ router.post("/", async (req, res) => {
       !req.body.date ||
       !req.body.type ||
       !req.body.desc ||
-      !req.body.invoice ||
-      !req.body.km ||
       !req.body.cost ||
       !req.body.vehicleId
     ) {
@@ -42,8 +40,6 @@ router.put("/:id", async (req, res) => {
       !req.body.date ||
       !req.body.type ||
       !req.body.desc ||
-      !req.body.invoice ||
-      !req.body.km ||
       !req.body.cost ||
       !req.body.vehicleId
     ) {

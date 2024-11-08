@@ -93,18 +93,11 @@ const CreateVehicle = () => {
       !data.year ||
       !data.km ||
       !data.fuel ||
-      !data.engNum ||
       !data.bodyNum ||
-      !data.talonNum ||
       !data.gtp ||
       !data.insDate ||
-      !data.insNum ||
-      !data.tax ||
       !data.owner ||
-      !data.cat ||
-      !data.oil ||
-      !data.oilChange ||
-      !data.tires
+      !data.oilChange
     ) {
       setLoading(false);
       setError([
@@ -278,10 +271,13 @@ const CreateVehicle = () => {
                     <MenuItem key={1} value="ОФИС">
                       Офис
                     </MenuItem>
-                    <MenuItem key={2} value="СКЛАД">
-                      Склад
+                    <MenuItem key={2} value="ВИТАЛИНО">
+                      Виталино
                     </MenuItem>
-                    <MenuItem key={3} value="ДРУГИ">
+                    <MenuItem key={3} value="БОРСА">
+                      Борса
+                    </MenuItem>
+                    <MenuItem key={4} value="ДРУГИ">
                       Други
                     </MenuItem>
                   </TextField>

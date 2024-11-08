@@ -16,20 +16,12 @@ router.post("/", async (req, res) => {
       !req.body.year ||
       !req.body.km ||
       !req.body.fuel ||
-      !req.body.engNum ||
       !req.body.bodyNum ||
-      !req.body.talonNum ||
       !req.body.gtp ||
       !req.body.kaskoDate ||
       !req.body.insDate ||
-      !req.body.insNum ||
-      !req.body.vignetteDate ||
-      !req.body.tax ||
       !req.body.owner ||
-      !req.body.cat ||
-      !req.body.oil ||
-      !req.body.oilChange ||
-      !req.body.tires
+      !req.body.oilChange
     ) {
       return res.status(400).send({
         message: "Send all required fields",
@@ -65,6 +57,10 @@ router.post("/", async (req, res) => {
       startDate: req.body.startDate,
       startKm: req.body.startKm,
       price: req.body.price,
+      sold: req.body.sold,
+      soldPrice: req.body.soldPrice,
+      soldDate: req.body.soldDate,
+      issue: req.body.issue,
       occupied: req.body.occupied,
       checked: new Date().toISOString(),
     };
@@ -120,18 +116,12 @@ router.put("/:id", async (req, res) => {
       !req.body.year ||
       !req.body.km ||
       !req.body.fuel ||
-      !req.body.engNum ||
       !req.body.bodyNum ||
-      !req.body.talonNum ||
       !req.body.gtp ||
+      !req.body.kaskoDate ||
       !req.body.insDate ||
-      !req.body.insNum ||
-      !req.body.tax ||
       !req.body.owner ||
-      !req.body.cat ||
-      !req.body.oil ||
-      !req.body.oilChange ||
-      !req.body.tires
+      !req.body.oilChange
     ) {
       return res.status(400).send({
         message: "Send all required fields",

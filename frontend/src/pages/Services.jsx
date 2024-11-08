@@ -46,15 +46,8 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
     setAdd(true);
   };
   const handleSave = () => {
-    if (
-      !newServ.date ||
-      !newServ.type ||
-      !newServ.desc ||
-      !newServ.invoice ||
-      !newServ.km ||
-      !newServ.cost
-    ) {
-      setError([true, "Всички полета са задължителни"]);
+    if (!newServ.date || !newServ.type || !newServ.desc || !newServ.cost) {
+      setError([true, "Дата, описание, вид и стойност са задължителни полета"]);
     } else {
       setAdd(false);
       axios
@@ -74,6 +67,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
         });
       if (
         !vehicle.startKm ||
+        vehicle.startKm === 0 ||
         parseInt(vehicle.startKm) > parseInt(newServ.km)
       ) {
         vehicle.startKm = newServ.km.toString();
@@ -87,7 +81,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       }
       if (
         !vehicle.startDate ||
-        vehicle.startDate > newServ.date.$d.toISOString()
+        dayjs(vehicle.startDate).diff(dayjs(newServ.date)) > 1
       ) {
         vehicle.startDate = newServ.date;
         axios
@@ -105,24 +99,17 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
     }
   };
   const handleSaveEdit = () => {
-    if (
-      !newServ.date ||
-      !newServ.type ||
-      !newServ.desc ||
-      !newServ.invoice ||
-      !newServ.km ||
-      !newServ.cost
-    ) {
-      setError([true, "Всички полета са задължителни"]);
+    if (!edit[1].date || !edit[1].type || !edit[1].desc || !edit[1].cost) {
+      setError([true, "Дата, описание, вид и стойност са задължителни полета"]);
     } else {
       setAdd(false);
       axios
-        .put(`http://192.168.0.147:5555/services/:${newServ._id}`, newServ)
+        .put(`http://192.168.0.147:5555/services/${edit[1]._id}`, edit[1])
         .then(() => {
           axios.post(`http://192.168.0.147:5555/logs`, {
             date: dayjs(),
             user: username,
-            changed: { newServ: [newServ.invoice, newServ.desc] },
+            changed: { newServ: [edit[1].invoice, edit[1].desc] },
             vehicleId: vehicle._id,
           });
         })
@@ -133,9 +120,10 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
         });
       if (
         !vehicle.startKm ||
-        parseInt(vehicle.startKm) > parseInt(newServ.km)
+        vehicle.startKm === "0" ||
+        parseInt(vehicle.startKm) > parseInt(edit[1].km)
       ) {
-        vehicle.startKm = newServ.km.toString();
+        vehicle.startKm = edit[1].km.toString();
         axios
           .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
           .then(() => {})
@@ -146,9 +134,9 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       }
       if (
         !vehicle.startDate ||
-        vehicle.startDate > newServ.date.$d.toISOString()
+        dayjs(vehicle.startDate).diff(dayjs(edit[1].date)) > 1
       ) {
-        vehicle.startDate = newServ.date;
+        vehicle.startDate = edit[1].date;
         axios
           .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
           .then(() => {})
@@ -163,6 +151,9 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       }, 1000);
     }
   };
+
+  console.log(`data ${vehicle.startDate}`);
+  console.log(`data ${dayjs(vehicle.startDate).diff(dayjs(edit[1].date))}`);
   const handleClose = () => {
     setAdd(false);
   };
@@ -203,7 +194,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
     setNewServ({ ...newData });
   };
   const handleChangeEdit = (e) => {
-    const newData = { ...newServ };
+    const newData = { ...edit[1] };
     if (e.target.id === "km") {
       e.target.value = parseInt(e.target.value);
       if (e.target.value === "NaN") {
@@ -233,7 +224,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       newData[e.target.id] = e.target.value;
     }
 
-    setNewServ({ ...newData });
+    setEdit([true, { ...newData }]);
   };
 
   const handleCloseDelete = () => {
@@ -428,14 +419,17 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
               <DemoContainer components={["DatePicker, DatePicker"]}>
                 <DatePicker
                   fullWidth
-                  format="DD/MM/YYYY"
                   id="date"
                   label="Дата:"
-                  value={dayjs(edit[1].date).add(3, "hour")}
+                  value={
+                    dayjs(edit[1].date)
+                    // .add(3, "hour")
+                  }
                   onChange={(newValue) => {
-                    const newData = { ...newServ };
-                    newData.date = newValue;
-                    setNewServ({ ...newData });
+                    // const newData = { ...newServ };
+                    // newData.date = newValue;
+                    // setNewServ({ ...newData });
+                    setEdit([true, { ...edit[1], date: newValue }]);
                   }}
                 />
               </DemoContainer>
@@ -461,7 +455,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
             <div className="my-4">
               <TextField
                 fullWidth
-                onChange={handleChange}
+                onChange={handleChangeEdit}
                 value={edit[1].desc}
                 name="desc"
                 id="desc"
@@ -471,7 +465,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
             <div className="my-4">
               <TextField
                 fullWidth
-                onChange={handleChange}
+                onChange={handleChangeEdit}
                 value={edit[1].invoice}
                 name="invoice"
                 id="invoice"
@@ -481,7 +475,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
             <div className="my-4">
               <TextField
                 fullWidth
-                onChange={handleChange}
+                onChange={handleChangeEdit}
                 value={edit[1].km}
                 name="km"
                 id="km"
@@ -491,7 +485,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
             <div className="my-4">
               <TextField
                 fullWidth
-                onChange={handleChange}
+                onChange={handleChangeEdit}
                 value={edit[1].cost}
                 name="cost"
                 id="cost"
@@ -509,7 +503,7 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
               Отказ
             </Button>
             <Button variant="contained" onClick={handleSaveEdit} autoFocus>
-              Добави
+              Запази
             </Button>
           </DialogActions>
         </Dialog>
@@ -635,7 +629,8 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
           <CircularProgress />
         ) : (
           <div className="my-4">
-            {userRole.includes("admin") || userRole.includes(vehicle.site) ? (
+            {(userRole.includes("admin") || userRole.includes(vehicle.site)) &&
+            !vehicle.sold ? (
               <Button
                 fullWidth
                 variant="contained"

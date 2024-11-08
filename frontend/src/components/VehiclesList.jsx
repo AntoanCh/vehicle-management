@@ -1,29 +1,12 @@
 import * as React from "react";
-import PropTypes from "prop-types";
 import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import Paper from "@mui/material/Paper";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
-import { visuallyHidden } from "@mui/utils";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import { Button, TextField, MenuItem } from "@mui/material";
+import { Button, TextField, MenuItem, ButtonGroup } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import SearchIcon from "@mui/icons-material/Search";
-import InputAdornment from "@mui/material/InputAdornment";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import { Link } from "react-router-dom";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -34,152 +17,23 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import CreateVehicle from "../pages/CreateVehicle";
+import { keyframes } from "@mui/system";
+import { styled } from "@mui/material/styles";
 
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
+const blink = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
 
-function getComparator(order, orderBy) {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
+const BlinkedBox = styled("div")({
+  // backgroundColor: "pink",
+  color: "#f6685e",
+  display: "flex",
 
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
+  animation: `${blink} 1s ease infinite`,
+});
 
-const headCells = [
-  {
-    id: "model",
-    numeric: false,
-    disablePadding: false,
-    label: "Марка/Модел",
-  },
-  {
-    id: "reg",
-    numeric: false,
-    disablePadding: false,
-    label: "Рег. №",
-  },
-
-  {
-    id: "insDate",
-    numeric: true,
-    disablePadding: false,
-    label: "ГО до:",
-  },
-  {
-    id: "kaskoDate",
-    numeric: false,
-    disablePadding: false,
-    label: "Каско до:",
-  },
-  {
-    id: "gtp",
-    numeric: true,
-    disablePadding: false,
-    label: "ГТП до:",
-  },
-  {
-    id: "tax",
-    numeric: true,
-    disablePadding: false,
-    label: "Данък за:",
-  },
-  {
-    id: "oil",
-    numeric: false,
-    disablePadding: false,
-    label: "Масло преди:",
-  },
-  {
-    id: "checked",
-    numeric: true,
-    disablePadding: false,
-    label: "Проверен на:",
-  },
-];
-
-function EnhancedTableHead(props) {
-  const {
-    order,
-    orderBy,
-
-    rowCount,
-    onRequestSort,
-  } = props;
-  const createSortHandler = (property) => (event) => {
-    onRequestSort(event, property);
-  };
-
-  return (
-    <TableHead>
-      <TableRow sx={{ backgroundColor: "#2196f3" }}>
-        {headCells.map((headCell) => (
-          <TableCell
-            sx={{ fontWeight: 800 }}
-            key={headCell.id}
-            padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
-}
-
-EnhancedTableHead.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(["asc", "desc"]).isRequired,
-  orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
-};
-
-export default function VehiclesList({ data }) {
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("model");
-  const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(25);
-  const [filter, setFilter] = React.useState("all");
-  const [searched, setSearched] = useState("");
-  const [rows, setRows] = useState(data);
-  const [copyList, setCopyList] = useState();
+export default function VehiclesList({ data, filter, setFilter }) {
   const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
   const [add, setAdd] = useState(false);
@@ -202,117 +56,22 @@ export default function VehiclesList({ data }) {
     };
     verifyUser();
   }, [token, navigate]);
-  const bgToLatin = {
-    А: "A",
-    В: "B",
-    Н: "H",
-    Р: "P",
-    Т: "T",
-    Е: "E",
-    К: "K",
-    М: "M",
-    О: "O",
-    С: "C",
-    Х: "X",
-    У: "Y",
-  };
-  const requestSearch = (searched) => {
-    if (!searched.match(/[a-z,A-Z,0-9]{1,2}[0-9]{0,4}[a-z,A-Z]{0,2}$/)) {
-      searched = searched
-        .toUpperCase()
-        .split("")
-        .map((char) => bgToLatin[char])
-        .join("");
-    }
-    if (searched) {
-      setCopyList(
-        data.filter((item) =>
-          // item.make.toUpperCase().includes(searched.toUpperCase()) ||
-          // item.model.toUpperCase().includes(searched.toUpperCase()) ||
-          item.reg.toUpperCase().includes(searched.toUpperCase())
-        )
-      );
-    } else {
-      setCopyList();
-    }
-  };
+
   const handleCloseAdd = () => {
     setAdd(false);
-  };
-
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
   };
 
   React.useEffect(() => {
     setFilter(filter.slice());
   }, [filter]);
-  const location = useLocation();
 
-  const handleFilter = (e) => {
-    setFilter(e.target.value);
-    if (!e.target.value || e.target.value === "all") {
-      setCopyList();
-    } else {
-      setCopyList(data.filter((item) => item.site === e.target.value));
-    }
+  const handleFilter = (val) => {
+    setFilter(val);
   };
 
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelected = data.map((n) => n.id);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event, id) => {
+  const handleClick = (id) => {
     navigate(`/vehicles/details/${id}`);
   };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleChangeDense = (event) => {
-    setDense(event.target.checked);
-  };
-
-  const isSelected = (id) => selected.indexOf(id) !== -1;
-
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
-
-  const visibleRows = React.useMemo(
-    () => {
-      if (copyList) {
-        return stableSort(copyList, getComparator(order, orderBy)).slice(
-          page * rowsPerPage,
-          page * rowsPerPage + rowsPerPage
-        );
-      } else {
-        return stableSort(data, getComparator(order, orderBy)).slice(
-          page * rowsPerPage,
-          page * rowsPerPage + rowsPerPage
-        );
-      }
-    },
-    // stableSort(data, getComparator(order, orderBy)).slice(
-    //   page * rowsPerPage,
-    //   page * rowsPerPage + rowsPerPage
-    // ),
-
-    [order, orderBy, page, rowsPerPage]
-  );
 
   const isDue = (dueDate, type, oilChange) => {
     if (type === "date") {
@@ -339,169 +98,354 @@ export default function VehiclesList({ data }) {
       }
     }
   };
-  // const tableData = data.map((obj) => {
-  //   return [
-  //     obj.make + " " + obj.model,
-  //     obj.reg,
-  //     bgDate(obj.insDate.slice(0, 10)),
-  //     bgDate(obj.kaskoDate.slice(0, 10)),
-  //     bgDate(obj.gtp.slice(0, 10)),
-  //     obj.tax,
-  //     obj.km - obj.oil + "km",
-  //     bgDate(obj.checked.slice(0, 10)),
-  //     obj._id,
-  //   ];
-  // });
+  const tableData = data
+    .filter((obj) =>
+      filter === "all" ? obj.site !== "ПРОДАДЕНИ" : obj.site === filter
+    )
+    .map((obj) => {
+      return [
+        obj.make + " " + obj.model,
+        obj.reg,
+        obj.insDate,
+        obj.kaskoDate,
+        obj.gtp,
+        obj.tax,
+        obj.km,
+        obj.oil,
+        obj.oilChange,
+        obj.km - obj.oil,
+        obj.checked,
+        obj._id,
+        obj.site,
+        obj.issue,
+      ];
+    })
+    .sort();
 
-  // const columns = [
-  //   {
-  //     name: "Марка/Модел",
-  //     options: {
-  //       sortDirection: "desc",
-  //     },
-  //   },
-  //   { name: "Рег №" },
-  //   {
-  //     name: "ГО:",
-  //     options: {
-  //       customBodyRender: (value, tableMeta, updateValue) => {
-  //         return (
-  //           <Box
-  //             style={
-  //               isDue(value, "date") === "warning"
-  //                 ? { color: "red" }
-  //                 : isDue(value, "date") === "caution"
-  //                 ? { color: "orange" }
-  //                 : {}
-  //             }
-  //           >
-  //             {isDue(value, "date") ? <WarningAmberIcon /> : ""}
-  //             {value}
-  //           </Box>
-  //         );
-  //       },
-  //     },
-  //   },
-  //   {
-  //     name: "Каско:",
-  //     options: {
-  //       customBodyRender: (value, tableMeta, updateValue) => {
-  //         return (
-  //           <Box
-  //             style={
-  //               isDue(value, "date") === "warning"
-  //                 ? // && row.kasko
-  //                   { color: "red" }
-  //                 : isDue(value, "date") === "caution"
-  //                 ? // && row.kasko
-  //                   { color: "orange" }
-  //                 : {}
-  //             }
-  //           >
-  //             {isDue(value, "date") ? (
-  //               // && row.kasko
-  //               <WarningAmberIcon />
-  //             ) : (
-  //               ""
-  //             )}
-  //             {value == "2001-01-01T00:00:00.000Z" ||
-  //             value == null ||
-  //             value == "31.12.2000"
-  //               ? "Няма"
-  //               : value}
-  //           </Box>
-  //         );
-  //       },
-  //     },
-  //   },
-  //   {
-  //     name: "ГТП:",
-  //     options: {
-  //       customBodyRender: (value, tableMeta, updateValue) => {
-  //         return (
-  //           <Box
-  //             style={
-  //               isDue(value, "date") === "warning"
-  //                 ? { color: "red" }
-  //                 : isDue(value, "date") === "caution"
-  //                 ? { color: "orange" }
-  //                 : {}
-  //             }
-  //           >
-  //             {isDue(value, "date") ? <WarningAmberIcon /> : ""}
-  //             {value}
-  //           </Box>
-  //         );
-  //       },
-  //     },
-  //   },
-  //   { name: "Данък:" },
-  //   { name: "Масло преди:" },
-  //   { name: "Проверен:" },
-  //   {
-  //     name: "ID",
-  //     options: {
-  //       display: false,
-  //     },
-  //   },
-  // ];
-  // const getMuiTheme = () =>
-  //   createTheme({
-  //     overrides: {
-  //       MuiChip: {
-  //         root: {
-  //           backgroundColor: "lightgrey",
-  //         },
-  //       },
-  //     },
-  //     component: {
-  //       MuiTableCell: {
-  //         root: {
-  //           backgroundColor: "green !important",
-  //         },
-  //       },
-  //     },
-  //   });
-  // const options = {
-  //   filterType: "checkbox",
+  const columns = [
+    {
+      name: "Марка/Модел",
+      options: {
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return (
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              {value}
+              {tableMeta.rowData[13] ? (
+                <BlinkedBox>
+                  <WarningAmberIcon />
+                </BlinkedBox>
+              ) : (
+                ""
+              )}
+            </Box>
+          );
+        },
+      },
+    },
+    { name: "Рег №" },
+    {
+      name: "ГО",
+      options: {
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return (
+            <Box
+              style={
+                isDue(value, "date") === "warning"
+                  ? { color: "red" }
+                  : isDue(value, "date") === "caution"
+                  ? { color: "orange" }
+                  : {}
+              }
+            >
+              {dayjs(value).format("DD/MM/YYYY")}
+              {isDue(value, "date") ? <WarningAmberIcon /> : ""}
+            </Box>
+          );
+        },
+        setCellProps: () => {
+          // return { align: "center" };
+        },
+        filter: false,
+      },
+    },
+    {
+      name: "Каско",
+      options: {
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return (
+            <Box
+              style={
+                isDue(value, "date") === "warning"
+                  ? { color: "red" }
+                  : isDue(value, "date") === "caution"
+                  ? { color: "orange" }
+                  : {}
+              }
+            >
+              {dayjs(value).format("DD/MM/YYYY") === "01/01/2001" ||
+              value === null ||
+              value === "31/12/2000"
+                ? "Няма"
+                : dayjs(value).format("DD/MM/YYYY")}
+              {isDue(value, "date") ? <WarningAmberIcon /> : ""}
+            </Box>
+          );
+        },
+        setCellProps: () => {
+          // return { align: "center" };
+        },
+        filter: false,
+      },
+    },
+    {
+      name: "ГТП",
+      options: {
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return (
+            <Box
+              style={
+                isDue(value, "date") === "warning"
+                  ? { color: "red" }
+                  : isDue(value, "date") === "caution"
+                  ? { color: "orange" }
+                  : {}
+              }
+            >
+              {dayjs(value).format("DD/MM/YYYY")}
+              {isDue(value, "date") ? <WarningAmberIcon /> : ""}
+            </Box>
+          );
+        },
+        setCellProps: () => {
+          // return { align: "center" };
+        },
+        filter: false,
+      },
+    },
+    {
+      name: "Данък",
+      options: {
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return (
+            <Box
+              style={
+                isDue(tableMeta.rowData[4], "date") && value < dayjs().year()
+                  ? { color: "red" }
+                  : {}
+              }
+            >
+              {value}
+              {isDue(tableMeta.rowData[4], "date") && value < dayjs().year() ? (
+                <WarningAmberIcon />
+              ) : (
+                ""
+              )}
+            </Box>
+          );
+        },
+        setCellProps: () => {
+          // return { align: "center" };
+        },
+        filter: false,
+      },
+    },
+    {
+      name: "Километри",
+      options: {
+        filter: false,
+        display: false,
+      },
+    },
+    {
+      name: "Масло км",
+      options: {
+        filter: false,
+        display: false,
+      },
+    },
+    {
+      name: "Масло интервал",
+      options: {
+        filter: false,
+        display: false,
+      },
+    },
+    {
+      name: "Масло преди",
+      options: {
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return (
+            <Box
+              style={
+                isDue(
+                  tableMeta.rowData[6] - tableMeta.rowData[7],
+                  "oil",
+                  tableMeta.rowData[8]
+                ) === "warning"
+                  ? { color: "red" }
+                  : isDue(
+                      tableMeta.rowData[6] - tableMeta.rowData[7],
+                      "oil",
+                      tableMeta.rowData[8]
+                    ) === "caution"
+                  ? { color: "orange" }
+                  : {}
+              }
+            >
+              {value}
+              {isDue(
+                tableMeta.rowData[6] - tableMeta.rowData[7],
+                "oil",
+                tableMeta.rowData[8]
+              ) ? (
+                <WarningAmberIcon />
+              ) : (
+                ""
+              )}
+            </Box>
+          );
+        },
+        setCellProps: () => {
+          // return { align: "center" };
+        },
+        filter: false,
+      },
+    },
+    {
+      name: "Проверен",
+      options: {
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return (
+            <Box
+              style={
+                isDue(value, "checked") === "warning"
+                  ? { color: "red" }
+                  : isDue(value, "checked") === "caution"
+                  ? { color: "orange" }
+                  : {}
+              }
+            >
+              {dayjs(value).format("DD/MM/YYYY")}
+              {isDue(value, "checked") ? <WarningAmberIcon /> : ""}
+            </Box>
+          );
+        },
+        setCellProps: () => {
+          // return { align: "center" };
+        },
+        filter: false,
+      },
+    },
+    {
+      name: "ID",
+      options: {
+        display: false,
+        filter: false,
+      },
+    },
+    {
+      name: "Локация",
+      options: {
+        display: false,
+      },
+    },
+    {
+      name: "Локация",
+      options: {
+        filter: false,
+        display: false,
+      },
+    },
+  ];
 
-  //   selectableRows: false,
-  //   download: false,
-  //   onRowClick: (rowData, rowMeta) => handleClick(rowData[8]),
-  //   rowsPerPage: 20,
-  //   rowsPerPageOptions: [20, 50, 100],
-  //   // expandableRowsOnClick: true,
-  //   // expandableRows: true,
-  //   textLabels: {
-  //     body: {
-  //       noMatch: "Нищо не е намерено",
-  //     },
-  //     pagination: {
-  //       next: "Следваща страница",
-  //       previous: "Предишна страница",
-  //       rowsPerPage: "Покажи по:",
-  //       displayRows: "от", // 1-10 of 30
-  //     },
-  //     toolbar: {
-  //       search: "Търсене",
-  //       downloadCsv: "Изтегли CSV",
-  //       print: "Принтирай",
-  //       viewColumns: "Показване на колони",
-  //       filterTable: "Филтри",
-  //     },
-  //     filter: {
-  //       title: "ФИЛТРИ",
-  //       reset: "изчисти",
-  //     },
-  //     viewColumns: {
-  //       title: "Покажи колони",
-  //     },
-  //     selectedRows: {
-  //       text: "rows(s) deleted",
-  //       delete: "Delete",
-  //     },
-  //   },
-  // };
+  const getMuiTheme = () =>
+    createTheme({
+      components: {
+        // MUIDataTableBodyCell: {
+        //   styleOverrides: {
+        //     root: {
+        //       backgroundColor: "#ccc",
+        //       "&:hover": {
+        //         backgroundColor: "#fff",
+        //       },
+        //     },
+        //   },
+        // },
+
+        MUIDataTableBodyRow: {
+          styleOverrides: {
+            root: {
+              backgroundColor: "#ddd",
+              cursor: "pointer",
+            },
+          },
+        },
+        MUIDataTableHeadCell: {
+          styleOverrides: {
+            root: {
+              backgroundColor: "#fff",
+            },
+          },
+        },
+        MUIDataTableToolbar: {
+          styleOverrides: {
+            root: {
+              backgroundColor: "#fff",
+              fontWeight: "800",
+            },
+          },
+        },
+      },
+    });
+  const options = {
+    filterType: "dropdown",
+    rowHover: true,
+    print: false,
+    setRowProps: (row, dataIndex, rowIndex) => {
+      console.log(row);
+      return {
+        style: {},
+      };
+    },
+    selectableRows: false,
+    download: false,
+    onRowClick: (rowData, rowMeta) => {
+      handleClick(rowData[11]);
+    },
+    rowsPerPage: 30,
+    rowsPerPageOptions: [30, 50, 100],
+    // expandableRowsOnClick: true,
+    // expandableRows: true,
+    textLabels: {
+      body: {
+        noMatch: "Нищо не е намерено",
+      },
+      pagination: {
+        next: "Следваща страница",
+        previous: "Предишна страница",
+        rowsPerPage: "Покажи по:",
+        displayRows: "от", // 1-10 of 30
+      },
+      toolbar: {
+        search: "Търсене",
+        downloadCsv: "Изтегли CSV",
+        print: "Принтирай",
+        viewColumns: "Показване на колони",
+        filterTable: "Филтри",
+      },
+      filter: {
+        title: "ФИЛТРИ",
+        reset: "изчисти",
+      },
+      viewColumns: {
+        title: "Покажи колони",
+      },
+      selectedRows: {
+        text: "rows(s) deleted",
+        delete: "Delete",
+      },
+    },
+  };
 
   return (
     <div className="flex justify-center">
@@ -531,264 +475,93 @@ export default function VehiclesList({ data }) {
         </DialogActions>
       </Dialog>{" "}
       <Box sx={{ width: "95%", margin: "25px" }}>
-        {/* <ThemeProvider theme={getMuiTheme()}> */}
-        {/* <MUIDataTable
-            title={""}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            backgroundColor: "#fff",
+            borderRadius: "10px",
+          }}
+        >
+          <Box>
+            <ButtonGroup>
+              <Button
+                sx={{ width: "40%" }}
+                color={filter === "all" ? "secondary" : "primary"}
+                variant={"contained"}
+                onClick={() => handleFilter("all")}
+              >
+                {"Всички"}
+              </Button>
+              <Button
+                sx={{ width: "40%" }}
+                color={filter === "ОФИС" ? "secondary" : "primary"}
+                variant={"contained"}
+                onClick={() => handleFilter("ОФИС")}
+              >
+                {"ОФИС"}
+              </Button>
+              <Button
+                sx={{ width: "40%" }}
+                color={filter === "ВИТАЛИНО" ? "secondary" : "primary"}
+                variant={"contained"}
+                onClick={() => handleFilter("ВИТАЛИНО")}
+              >
+                {"ВИТАЛИНО"}
+              </Button>
+              <Button
+                sx={{ width: "40%" }}
+                color={filter === "БОРСА" ? "secondary" : "primary"}
+                variant={"contained"}
+                onClick={() => handleFilter("БОРСА")}
+              >
+                {"БОРСА"}
+              </Button>
+              <Button
+                sx={{ width: "40%" }}
+                color={filter === "СКЛАД" ? "secondary" : "primary"}
+                variant={"contained"}
+                onClick={() => handleFilter("СКЛАД")}
+              >
+                {"СКЛАД"}
+              </Button>
+              <Button
+                sx={{ width: "40%" }}
+                color={filter === "ДРУГИ" ? "secondary" : "primary"}
+                variant={"contained"}
+                onClick={() => handleFilter("ДРУГИ")}
+              >
+                {"ДРУГИ"}
+              </Button>
+              <Button
+                sx={{ width: "40%" }}
+                color={filter === "ПРОДАДЕНИ" ? "secondary" : "primary"}
+                variant={"contained"}
+                onClick={() => handleFilter("ПРОДАДЕНИ")}
+              >
+                {"ПРОДАДЕНИ"}
+              </Button>
+            </ButtonGroup>
+          </Box>
+          <Button
+            disabled={userRole.length === 0 || !userRole ? true : false}
+            sx={{ width: "10%" }}
+            variant={"contained"}
+            onClick={() => setAdd(true)}
+          >
+            {"ДОБАВИ"}
+            <AddCircleOutlineIcon />
+          </Button>
+        </Box>
+        <ThemeProvider theme={getMuiTheme()}>
+          <MUIDataTable
+            title={"АВТОМОБИЛИ"}
             data={tableData}
             columns={columns}
             options={options}
-          /> */}
-        {/* <TextField
-          placeholder="search..."
-          value={searchedVal}
-          onChange={handleSearch}
-        ></TextField> */}
-
-        <Paper sx={{ width: "100%", mb: 2 }}>
-          <TableContainer
-            sx={{ backgroundColor: "#53c4f7", borderRadius: "5px" }}
-          >
-            <div className="flex">
-              <TextField
-                select
-                size="small"
-                // fullWidth
-                sx={{ width: "46%" }}
-                variant="outlined"
-                placeholder="Регистрационен номер ..."
-                type="search"
-                value={filter}
-                onChange={handleFilter}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FilterListIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              >
-                <MenuItem key={1} value="all">
-                  ВСИЧКИ
-                </MenuItem>
-                <MenuItem key={2} value="ОФИС">
-                  ОФИС
-                </MenuItem>
-                <MenuItem key={3} value="СКЛАД">
-                  СКЛАД
-                </MenuItem>
-                <MenuItem key={4} value="ДРУГИ">
-                  ДРУГИ
-                </MenuItem>
-              </TextField>
-              <TextField
-                size="small"
-                // fullWidth
-                sx={{ width: "46%" }}
-                variant="outlined"
-                placeholder="Регистрационен номер ..."
-                type="search"
-                onInput={(e) => requestSearch(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              <Button
-                disabled={userRole.length === 0 || !userRole ? true : false}
-                sx={{ width: "8%" }}
-                variant={"contained"}
-                // component={Link}
-                // to="/vehicles/create"
-                onClick={() => setAdd(true)}
-              >
-                {"ДОБАВИ"}
-                <AddCircleOutlineIcon />
-
-                {/* <AddIcon /> */}
-              </Button>
-            </div>
-
-            <Table
-              sx={{ minWidth: 750 }}
-              aria-labelledby="tableTitle"
-              size={dense ? "small" : "medium"}
-            >
-              <EnhancedTableHead
-                numSelected={selected.length}
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={data.length}
-              />
-
-              <TableBody>
-                {(copyList ? copyList : visibleRows).map((row, index) => {
-                  const isItemSelected = isSelected(row._id);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-
-                  return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, row._id)}
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row._id}
-                      selected={isItemSelected}
-                      sx={{
-                        cursor: "pointer",
-                        backgroundColor: "#ccc",
-                        "&:hover": {
-                          backgroundColor: "#2196f3 ",
-                          boxShadow: "none",
-                        },
-                      }}
-                    >
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        // padding="5px"
-                      >
-                        {`${row.make} ${row.model}`}
-                      </TableCell>
-                      <TableCell>{row.reg}</TableCell>
-
-                      <TableCell
-                        style={
-                          isDue(row.insDate, "date") === "warning"
-                            ? { color: "red" }
-                            : isDue(row.insDate, "date") === "caution"
-                            ? { color: "orange" }
-                            : {}
-                        }
-                      >
-                        {isDue(row.insDate, "date") ? <WarningAmberIcon /> : ""}
-                        {dayjs(row.insDate).format("DD/MM/YYYY")}
-                      </TableCell>
-                      <TableCell
-                        style={
-                          isDue(row.kaskoDate, "date") === "warning" &&
-                          row.kasko
-                            ? { color: "red" }
-                            : isDue(row.kaskoDate, "date") === "caution" &&
-                              row.kasko
-                            ? { color: "orange" }
-                            : {}
-                        }
-                      >
-                        {isDue(row.kaskoDate, "date") && row.kasko ? (
-                          <WarningAmberIcon />
-                        ) : (
-                          ""
-                        )}
-                        {row.kaskoDate == "2001-01-01T00:00:00.000Z" ||
-                        row.kaskoDate == null ||
-                        dayjs(row.kaskoDate).format("DD/MM/YYYY") ==
-                          "01/01/2001"
-                          ? "Няма"
-                          : dayjs(row.kaskoDate).format("DD/MM/YYYY")}
-                      </TableCell>
-                      <TableCell
-                        style={
-                          isDue(row.gtp, "date") === "warning"
-                            ? { color: "red" }
-                            : isDue(row.gtp, "date") === "caution"
-                            ? { color: "orange" }
-                            : {}
-                        }
-                      >
-                        {isDue(row.gtp, "date") ? <WarningAmberIcon /> : ""}
-                        {dayjs(row.gtp).format("DD/MM/YYYY")}
-                      </TableCell>
-                      <TableCell
-                        style={
-                          isDue(row.gtp, "date") && row.tax < dayjs().year()
-                            ? { color: "red" }
-                            : {}
-                        }
-                      >
-                        {isDue(row.gtp, "date") && row.tax < dayjs().year() ? (
-                          <WarningAmberIcon />
-                        ) : (
-                          ""
-                        )}
-                        {row.tax}
-                      </TableCell>
-                      <TableCell
-                        style={
-                          isDue(row.km - row.oil, "oil", row.oilChange) ===
-                          "warning"
-                            ? { color: "red" }
-                            : isDue(row.km - row.oil, "oil", row.oilChange) ===
-                              "caution"
-                            ? { color: "orange" }
-                            : {}
-                        }
-                      >
-                        {row.km - row.oil + " km"}
-                        {isDue(row.km - row.oil, "oil", row.oilChange) ? (
-                          <WarningAmberIcon />
-                        ) : (
-                          ""
-                        )}
-                      </TableCell>
-                      <TableCell
-                        style={
-                          isDue(row.checked, "checked") === "warning"
-                            ? { color: "red" }
-                            : isDue(row.checked, "checked") === "caution"
-                            ? { color: "orange" }
-                            : {}
-                        }
-                      >
-                        {row.checked
-                          ? dayjs(row.checked).format("DD/MM/YYYY")
-                          : ""}
-                        {isDue(row.checked, "checked") ? (
-                          <WarningAmberIcon />
-                        ) : (
-                          ""
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {emptyRows > 0 && (
-                  <TableRow
-                    style={{
-                      height: (dense ? 33 : 53) * emptyRows,
-                    }}
-                  >
-                    <TableCell colSpan={6} />
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            sx={{ backgroundColor: "#2196f3" }}
-            labelRowsPerPage={"Покажи по:"}
-            labelDisplayedRows={({ from, to, count }) =>
-              `${from}-${to} от ${count !== -1 ? count : `MORE THAN ${to}`}`
-            }
-            rowsPerPageOptions={[10, 25]}
-            component="div"
-            count={data.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
           />
-        </Paper>
-        <FormControlLabel
-          control={<Switch checked={dense} onChange={handleChangeDense} />}
-          label="Смали таблицата"
-        />
+        </ThemeProvider>
+
         {/* </ThemeProvider> */}
       </Box>
     </div>

@@ -71,6 +71,7 @@ import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import FilledInput from "@mui/material/FilledInput";
+import BarChartIcon from "@mui/icons-material/BarChart";
 
 const drawerWidth = 260;
 
@@ -603,6 +604,30 @@ const HeaderMenu = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary={"Автомобили"}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    pl: 4,
+                  }}
+                  component={Link}
+                  to={"/charts"}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {<BarChartIcon />}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={"Справки"}
                     sx={{ opacity: open ? 1 : 0 }}
                   />
                 </ListItemButton>

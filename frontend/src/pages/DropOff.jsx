@@ -59,9 +59,11 @@ const DropOff = () => {
   useEffect(() => {
     setLoading(true);
   }, []);
+
   useEffect(() => {
     setTime(dayjs());
   }, [dayjs()]);
+
   const handleDropOff = () => {
     axios
       .put(`http://192.168.0.147:5555/api/records/${record._id}`, {
@@ -69,6 +71,7 @@ const DropOff = () => {
         dropoffTime: dayjs(),
         dropoffKm: km,
         destination: destination,
+        problem: problems,
       })
       .then((res) => {
         axios
@@ -80,39 +83,55 @@ const DropOff = () => {
           .catch((err) => {
             console.log(err);
           });
-        axios
-          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
-            ...vehicle,
-            occupied: {
-              bool: false,
-              user: "",
-            },
-            km: km,
-          })
-          .then((res) => {})
-          .catch((err) => {
-            console.log(err);
-          });
+
+        if (problems) {
+          axios
+            .post(`http://192.168.0.147:5555/problems`, {
+              date: dayjs(),
+              desc: problems,
+              km: km,
+              vehicleId: vehicle._id,
+              driverName: driver.firstName,
+            })
+            .then((res) => {})
+            .catch((err) => {
+              console.log(err);
+            });
+          axios
+            .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+              ...vehicle,
+              occupied: {
+                bool: false,
+                user: "",
+              },
+              km: km,
+              issue: true,
+            })
+            .then((res) => {})
+            .catch((err) => {
+              console.log(err);
+            });
+        } else {
+          axios
+            .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+              ...vehicle,
+              occupied: {
+                bool: false,
+                user: "",
+              },
+              km: km,
+            })
+            .then((res) => {})
+            .catch((err) => {
+              console.log(err);
+            });
+        }
         setLoading(false);
         navigate("/scan");
       })
       .catch((err) => {
         console.log(err);
       });
-    if (problems) {
-      axios
-        .post(`http://192.168.0.147:5555/problems`, {
-          date: dayjs(),
-          desc: problems,
-          km: km,
-          vehicleId: vehicle._id,
-          driverName: driver.firstName,
-        })
-        .then((res) => {})
-        .catch((err) => {
-          console.log(err);
-        });
-    }
   };
 
   const handleProblems = (e) => {

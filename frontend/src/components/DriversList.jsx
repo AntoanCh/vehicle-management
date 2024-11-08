@@ -257,6 +257,10 @@ const DriversList = ({ drivers }) => {
         },
       },
     },
+    {
+      name: "Забележки",
+      options: {},
+    },
   ];
   const options = {
     filterType: "dropdown",
@@ -444,6 +448,7 @@ const DriversList = ({ drivers }) => {
                     obj.pickupKm,
                     obj.dropoffKm ? obj.dropoffKm : "в движение",
                     obj.destination ? obj.destination : "в движение",
+                    obj.problem,
                   ];
                 })}
                 columns={columns2}

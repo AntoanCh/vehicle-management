@@ -419,7 +419,8 @@ const Fuels = ({ vehicle, services, fuels, userRole, username }) => {
           <CircularProgress />
         ) : (
           <div className="my-4">
-            {userRole.includes("admin") || userRole.includes(vehicle.site) ? (
+            {(userRole.includes("admin") || userRole.includes(vehicle.site)) &&
+            !vehicle.sold ? (
               <Button
                 fullWidth
                 variant="contained"

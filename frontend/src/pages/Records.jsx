@@ -56,7 +56,7 @@ const Records = () => {
       },
     },
     {
-      name: "Шофьор",
+      name: "Водач",
     },
     {
       name: "Кола",
@@ -66,7 +66,7 @@ const Records = () => {
       name: "Километри на тръгване",
       options: {
         setCellProps: () => {
-          return { align: "center" };
+          // return { align: "center" };
         },
         filter: false,
       },
@@ -75,7 +75,7 @@ const Records = () => {
       name: "Километри на връщане",
       options: {
         setCellProps: () => {
-          return { align: "center" };
+          // return { align: "center" };
         },
         customBodyRender: (value) => (value ? value : "в движение"),
         filter: false,
@@ -85,9 +85,17 @@ const Records = () => {
       name: "Маршрут",
       options: {
         setCellProps: () => {
-          return { align: "center" };
+          // return { align: "center" };
         },
         customBodyRender: (value) => (value ? value : "в движение"),
+      },
+    },
+    {
+      name: "Забележки",
+      options: {
+        setCellProps: () => {
+          return { align: "center" };
+        },
       },
     },
   ];
@@ -141,6 +149,7 @@ const Records = () => {
           obj.pickupKm,
           obj.dropoffKm,
           obj.destination,
+          obj.problem,
         ];
       })
     : [];

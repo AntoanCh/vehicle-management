@@ -41,7 +41,7 @@ export const vehicleSchema = mongoose.Schema(
     },
     engNum: {
       type: String,
-      required: true,
+      required: false,
       uppercase: true,
     },
     bodyNum: {
@@ -51,7 +51,7 @@ export const vehicleSchema = mongoose.Schema(
     },
     talonNum: {
       type: String,
-      required: true,
+      required: false,
     },
     gtp: {
       type: Date,
@@ -81,7 +81,7 @@ export const vehicleSchema = mongoose.Schema(
     },
     tax: {
       type: String,
-      required: true,
+      required: false,
     },
     owner: {
       type: String,
@@ -90,15 +90,15 @@ export const vehicleSchema = mongoose.Schema(
     },
     cat: {
       type: String,
-      required: true,
+      required: false,
     },
     oil: {
       type: String,
-      required: true,
+      required: false,
     },
     tires: {
       type: String,
-      required: true,
+      required: false,
     },
     checked: {
       type: Date,
@@ -126,7 +126,7 @@ export const vehicleSchema = mongoose.Schema(
     },
     vignetteDate: {
       type: Date,
-      required: true,
+      required: false,
     },
     oilChange: {
       type: String,
@@ -139,7 +139,6 @@ export const vehicleSchema = mongoose.Schema(
     occupied: {
       bool: {
         type: Boolean,
-        required: true,
         default: false,
       },
       user: {
@@ -150,16 +149,14 @@ export const vehicleSchema = mongoose.Schema(
       },
     },
     sold: {
-      bool: {
-        type: Boolean,
-        default: false,
-      },
-      soldDate: {
-        type: Date,
-      },
-      soldPrice: {
-        type: String,
-      },
+      type: Boolean,
+      default: false,
+    },
+    soldPrice: {
+      type: Number,
+    },
+    soldDate: {
+      type: Date,
     },
   },
   {

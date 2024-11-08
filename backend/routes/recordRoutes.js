@@ -12,8 +12,7 @@ router.post("/", async (req, res) => {
       !req.body.vehicleId ||
       !req.body.driverName ||
       !req.body.vehicleReg ||
-      !req.body.vehicleModel ||
-      !req.body.pickupKm
+      !req.body.vehicleModel
     ) {
       return res.status(400).send({
         message: "Send all required fields",
@@ -30,6 +29,7 @@ router.post("/", async (req, res) => {
       pickupKm: req.body.pickupKm,
       dropoffKm: req.body.dropoffKm,
       destination: req.body.destination,
+      problem: req.body.problem,
     };
     const record = await Record.create(newRecord);
     return res.status(201).send(record);
@@ -47,8 +47,7 @@ router.put("/:id", async (req, res) => {
       !req.body.vehicleId ||
       !req.body.driverName ||
       !req.body.vehicleReg ||
-      !req.body.vehicleModel ||
-      !req.body.pickupKm
+      !req.body.vehicleModel
     ) {
       return res.status(400).send({
         message: "Send all required fields",

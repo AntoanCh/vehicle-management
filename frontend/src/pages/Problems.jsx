@@ -47,6 +47,17 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
                 done: true,
               })
               .then((res) => {
+                if (problems.data.filter((item) => !item.done).length === 1) {
+                  axios
+                    .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+                      ...vehicle,
+                      issue: false,
+                    })
+                    .then((res) => {})
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                }
                 setTimeout(() => {
                   window.location.reload();
                 }, 1000);

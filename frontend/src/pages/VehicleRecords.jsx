@@ -40,6 +40,7 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
           obj.dropoffKm.toString().slice(-3)
         : "в движение",
       obj.destination ? obj.destination : "в движение",
+      obj.problem,
     ];
   });
 
@@ -90,6 +91,10 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
       options: {
         customBodyRender: (value) => (value ? value : "в движение"),
       },
+    },
+    {
+      name: "Забележки",
+      options: {},
     },
   ];
   const options = {
