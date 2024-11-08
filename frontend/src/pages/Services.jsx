@@ -20,7 +20,15 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 
-const Services = ({ vehicle, services, fuels, userRole, username }) => {
+const Services = ({
+  vehicle,
+  services,
+  fuels,
+  userRole,
+  username,
+  refresh,
+  setRefresh,
+}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState([false, ""]);
   const [verifyDelete, setVerifyDelete] = useState([false, {}]);
@@ -94,7 +102,8 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       }
 
       setTimeout(() => {
-        window.location.reload();
+        // window.location.reload();
+        setRefresh(!refresh);
       }, 1000);
     }
   };
@@ -147,7 +156,8 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
       }
 
       setTimeout(() => {
-        window.location.reload();
+        // window.location.reload();
+        setRefresh(!refresh);
       }, 1000);
     }
   };
@@ -392,7 +402,8 @@ const Services = ({ vehicle, services, fuels, userRole, username }) => {
                       vehicleId: vehicle._id,
                     });
                     setTimeout(() => {
-                      window.location.reload();
+                      // window.location.reload();
+                      setRefresh(!refresh);
                     }, 1000);
                   })
                   .catch((err) => {

@@ -27,6 +27,7 @@ const Scan = () => {
   const [barcode, setBarcode] = useState("");
   const [error, setError] = useState([false, ""]);
   const [driver, setDriver] = useState({});
+  const [blur, setBlur] = useState(false);
   const [agree, setAgree] = useState(false);
   const [select, setSelect] = useState([false, {}]);
   const [loading, setLoading] = useState(false);
@@ -63,7 +64,7 @@ const Scan = () => {
         });
     }, 20000);
     return () => clearInterval(interval);
-  }, []);
+  }, [driver]);
 
   useEffect(() => {
     setTime(dayjs());
@@ -110,6 +111,7 @@ const Scan = () => {
   };
   const handleClose = () => {
     setSelect([false, {}]);
+    setAgree(false);
   };
   const startTimer = () => {
     setTimeout(() => {
@@ -153,7 +155,9 @@ const Scan = () => {
             console.log(err);
           });
         setLoading(false);
-        navigate("/scan");
+        // navigate("/scan");
+        setSelect([false, {}]);
+        setDriver({});
       })
       .catch((err) => {
         console.log(err);
@@ -354,12 +358,12 @@ const Scan = () => {
           backgroundColor: "#ccc",
           width: "80%",
         }}
-        className="  border-2 border-blue-400 rounded-xl w-[800px] p-4 mx-auto mt-5"
+        className="  border-2 border-blue-400 rounded-xl  p-4 mx-auto "
       >
         <h1
           style={{
             fontWeight: 800,
-            fontSize: 24,
+            fontSize: 20,
             margin: "auto",
             textAlign: "center",
           }}
@@ -373,6 +377,9 @@ const Scan = () => {
             }}
           >
             <TextField
+              onBlur={() => setBlur(true)}
+              onFocus={() => setBlur(false)}
+              error={blur}
               autoFocus
               autoComplete="off"
               fullWidth
@@ -460,68 +467,76 @@ const Scan = () => {
             ></TextField>
           )}
         </Box>
-
-        <TextField
-          label=""
-          disabled
-          InputLabelProps={{ shrink: true }}
-          sx={{
-            marginBottom: "10px",
-            "& .MuiInputBase-input": {
-              padding: "8px",
-              fontWeight: 800,
-            },
-            "& .MuiInputBase-input.Mui-disabled": {
-              WebkitTextFillColor: "black", //Adjust text color here
-            },
-          }}
-          variant="standard"
-          value={dayjs().format("DD/MM/YYYY      HH:mm:ss")}
-        />
-        {driver._id && (
-          <Box sx={{ display: "flex" }}>
-            <TextField
-              sx={{
-                marginTop: "10px",
-                width: "50%",
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-              variant="filled"
-              disabled
-              value="ИЗБЕРЕТЕ АВТОМОБИЛ"
-            ></TextField>
-            <Button
-              variant="contained"
-              color="warning"
-              sx={{
-                marginTop: "10px",
-                height: "40px",
-                width: "50%",
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <TextField
+            label=""
+            disabled
+            InputLabelProps={{ shrink: true }}
+            sx={{
+              marginBottom: "10px",
+              "& .MuiInputBase-input": {
+                padding: "8px",
                 fontWeight: 800,
-              }}
-            >
-              ВЪРНЕТЕ АВТОМОБИЛ ВЗЕТ ОТ ДРУГ ВОДАЧ
-            </Button>
-          </Box>
-        )}
+              },
+              "& .MuiInputBase-input.Mui-disabled": {
+                WebkitTextFillColor: "black", //Adjust text color here
+              },
+            }}
+            variant="standard"
+            value={dayjs().format("DD/MM/YYYY      HH:mm:ss")}
+          />
+          {driver._id && (
+            <Box sx={{ display: "flex", width: "70%" }}>
+              <TextField
+                sx={{
+                  marginTop: "10px",
+                  height: "38px",
+                  width: "50%",
+                  "& .MuiInputBase-input": {
+                    padding: 1,
+
+                    fontWeight: 800,
+                    textAlign: "center",
+                    color: "black",
+                  },
+                  "& .MuiInputBase-input.Mui-disabled": {
+                    WebkitTextFillColor: "black", //Adjust text color here
+                  },
+                }}
+                variant="filled"
+                disabled
+                value="ИЗБЕРЕТЕ АВТОМОБИЛ"
+              ></TextField>
+              <Button
+                variant="contained"
+                color="warning"
+                sx={{
+                  marginTop: "10px",
+                  height: "38px",
+                  width: "50%",
+                  fontWeight: 800,
+                }}
+              >
+                ВЪРНЕТЕ АВТОМОБИЛ ВЗЕТ ОТ ДРУГ ВОДАЧ
+              </Button>
+            </Box>
+          )}
+        </Box>
+
         <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} size="large">
+          <Table sx={{ minWidth: 650 }} size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Модел</TableCell>
-                <TableCell align="left">Номер</TableCell>
-                <TableCell align="right">Водач</TableCell>
-                <TableCell align="right">Време на тръгване</TableCell>
+                <TableCell sx={{ fontWeight: 800 }}>Модел</TableCell>
+                <TableCell sx={{ fontWeight: 800 }} align="left">
+                  Номер
+                </TableCell>
+                <TableCell sx={{ fontWeight: 800 }} align="right">
+                  Водач
+                </TableCell>
+                <TableCell sx={{ fontWeight: 800 }} align="right">
+                  Време на тръгване
+                </TableCell>
               </TableRow>
             </TableHead>
             {vehicles &&

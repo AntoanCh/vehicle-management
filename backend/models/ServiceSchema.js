@@ -18,10 +18,12 @@ export const serviceSchema = mongoose.Schema(
     invoice: {
       type: String,
       required: false,
+      default: "0",
     },
     km: {
       type: Number,
       required: false,
+      default: 0,
     },
     cost: {
       type: Number,

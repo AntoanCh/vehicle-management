@@ -160,6 +160,7 @@ const DropOff = () => {
   const handleClose = () => {
     setError(false);
   };
+  const pickup = dayjs(record.pickupTIme).format("DD/MM/YYYY");
   return (
     <div>
       <Dialog
@@ -245,6 +246,7 @@ const DropOff = () => {
               "DD/MM/YYYY     [Час:] HH:mm"
             )}
           />
+
           <TextField
             label="Време на връщане"
             disabled

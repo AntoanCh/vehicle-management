@@ -85,6 +85,7 @@ const ShowVehicle = () => {
   const [showLog, setShowLog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState("");
+  const [refresh, setRefresh] = useState(false);
   const [edit, setEdit] = useState(false);
   const [services, setServices] = useState();
   const [fuels, setFuels] = useState();
@@ -179,7 +180,7 @@ const ShowVehicle = () => {
         console.log(err);
         setLoading(false);
       });
-  }, []);
+  }, [refresh]);
 
   const handleShowLog = () => {
     setShowLog(!showLog);
@@ -235,13 +236,15 @@ const ShowVehicle = () => {
           vehicleId: vehicle._id,
         });
         setTimeout(() => {
-          window.location.reload();
+          // window.location.reload();
+          setRefresh(!refresh);
         }, 1000);
       })
       .catch((err) => {
         alert("Грешка, проверете конзолата");
         console.log(err);
-        window.location.reload();
+        // window.location.reload();
+        setRefresh(!refresh);
       });
   };
   const handleCancelEdit = () => {
@@ -2135,6 +2138,8 @@ const ShowVehicle = () => {
                     vehicle={vehicle}
                     fuels={fuels}
                     services={services}
+                    refresh={refresh}
+                    setRefresh={setRefresh}
                   />
                 )
               ) : (
