@@ -9,7 +9,6 @@ import SaveIcon from "@mui/icons-material/Save";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import Services from "./Services";
 import Ref from "../components/Ref";
-import Fuels from "./Fuels";
 import VehicleRecords from "./VehicleRecords";
 import Problems from "./Problems";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
@@ -2046,20 +2045,7 @@ const ShowVehicle = () => {
                 РАЗХОДИ
                 <CarRepairIcon />
               </Button>
-              <Button
-                variant="contained"
-                color={tab === "fuel" ? "secondary" : "primary"}
-                onClick={() => {
-                  if (tab === "fuel") {
-                    setTab("");
-                  } else {
-                    setTab("fuel");
-                  }
-                }}
-              >
-                Гориво
-                <LocalGasStationIcon />
-              </Button>
+
               <Button
                 variant="contained"
                 color={tab === "ref" ? "secondary" : "primary"}
@@ -2089,20 +2075,7 @@ const ShowVehicle = () => {
                 <HistoryIcon />
               </Button>
             </ButtonGroup>
-            {/* <div>
-              {problemLoading ? (
-                <CircularProgress />
-              ) : (
-                <Problems vehicle={vehicle} problems={problems} />
-              )}
-            </div> */}
-            {/* <div>
-              {fuelLoading ? (
-                <CircularProgress />
-              ) : (
-                <Fuels vehicle={vehicle} fuels={fuels} />
-              )}
-            </div> */}
+
             <div>
               {tab === "record" ? (
                 recordLoading ? (
@@ -2149,16 +2122,7 @@ const ShowVehicle = () => {
               ) : (
                 ""
               )}
-              {tab === "fuel" ? (
-                <Fuels
-                  username={username}
-                  userRole={userRole}
-                  vehicle={vehicle}
-                  fuels={fuels}
-                />
-              ) : (
-                ""
-              )}
+
               {tab === "ref" ? (
                 <Ref
                   username={username}
@@ -2170,14 +2134,7 @@ const ShowVehicle = () => {
               ) : (
                 ""
               )}
-              {/* <Button
-                onClick={handleShowLog}
-                fullWidth
-                variant="contained"
-                style={{}}
-              >
-                {showLog ? "СКРИИ ЛОГ" : "ПОКАЖИ ЛОГ"}
-              </Button> */}
+
               {tab === "log" ? (
                 logLoading ? (
                   <CircularProgress />
