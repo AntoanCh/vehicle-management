@@ -502,11 +502,15 @@ const ShowVehicle = () => {
           <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-full 2xl:w-9/12 p-4">
             {vehicle.issue && (
               <Alert
-                sx={{ marginBottom: "5px", color: "black", fontWeight: 800 }}
+                sx={{
+                  marginBottom: "5px",
+                  color: "black",
+                  fontWeight: 800,
+                }}
                 variant="filled"
                 severity="warning"
               >
-                АВТОМОБИЛЪТ ИМА НЕРАЗРЕШЕНИ ПРОБЛЕМИ
+                АВТОМОБИЛЪТ ИМА НЕРАЗРЕШЕНИ ЗАБЕЛЕЖКИ
               </Alert>
             )}
             {vehicle.sold && (
@@ -2039,7 +2043,7 @@ const ShowVehicle = () => {
                   }
                 }}
               >
-                Сервизна История
+                РАЗХОДИ
                 <CarRepairIcon />
               </Button>
               <Button

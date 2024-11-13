@@ -18,23 +18,21 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import CancelIcon from "@mui/icons-material/Cancel";
 import TableRow from "@mui/material/TableRow";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import InputAdornment from "@mui/material/InputAdornment";
+import CountdownTimer from "../components/CountdownTimer";
+import Pickup from "../components/Pickup";
 
 const Scan = () => {
   const [barcode, setBarcode] = useState("");
   const [error, setError] = useState([false, ""]);
   const [driver, setDriver] = useState({});
   const [blur, setBlur] = useState(false);
-  const [agree, setAgree] = useState(false);
   const [select, setSelect] = useState([false, {}]);
+  const [secondDriver, setSecondDriver] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [changed, setChanged] = useState(false);
   const [vehicles, setVehicles] = useState([]);
   const [time, setTime] = useState(dayjs());
-  const [timer, setTimer] = useState(0);
+  const [stopTimer, setStopTimer] = useState(true);
+
   const handleChange = (e) => {
     setBarcode(e.target.value);
   };
@@ -83,16 +81,13 @@ const Scan = () => {
         const { status, message } = data;
 
         if (data.length !== 0) {
-          if (data[0].occupied) {
+          if (data[0].availability === "occupied") {
             setTimeout(() => {
               navigate(`/drop-off/${data[0]._id}`);
             }, 400);
           } else {
-            // setTimeout(() => {
-            //   navigate(`/pick-up/${data[0]._id}`);
-            // }, 400);
+            setStopTimer(false);
             setDriver(data[0]);
-            startTimer();
           }
         } else {
           setError([true, "Шофьор с такъв номер не съществува"]);
@@ -109,232 +104,33 @@ const Scan = () => {
   const handleClick = (vehicle) => {
     setSelect([true, { ...vehicle }]);
   };
-  const handleClose = () => {
-    setSelect([false, {}]);
-    setAgree(false);
-  };
-  const startTimer = () => {
-    setTimeout(() => {
-      setDriver({});
-      setSelect([false, {}]);
-    }, 30000);
-  };
-  const handlePickUp = (vehicle) => {
+
+  const handleSecondDriver = (vehicle) => {
     axios
-      .post("http://192.168.0.147:5555/api/records", {
-        driverId: driver._id,
-        vehicleId: vehicle._id,
-        vehicleModel: `${vehicle.make} ${vehicle.model}`,
-        vehicleReg: vehicle.reg,
-        driverName: driver.firstName,
-        pickupTime: dayjs(),
-        pickupKm: vehicle.km,
-      })
+      .get(`http://192.168.0.147:5555/api/records/vehicle/${vehicle._id}`)
       .then((res) => {
-        axios
-          .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
-            ...driver,
-            occupied: true,
-            recordId: res.data._id,
-          })
-          .then((res) => {})
-          .catch((err) => {
-            console.log(err);
-          });
-        axios
-          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
-            ...vehicle,
-            occupied: {
-              bool: true,
-              user: driver.firstName,
-              time: dayjs(),
-            },
-          })
-          .then((res) => {})
-          .catch((err) => {
-            console.log(err);
-          });
-        setLoading(false);
-        // navigate("/scan");
-        setSelect([false, {}]);
-        setDriver({});
+        const record = res.data.data.filter((rec) => !rec.dropoffTime)[0];
+        navigate(`/drop-off/${record.driverId}`, {
+          state: { id: 1, secondDriver: driver.firstName },
+        });
       })
       .catch((err) => {
         console.log(err);
       });
   };
-  const handleAgree = () => {
-    setAgree(!agree);
-  };
   return (
     <>
-      <Dialog
-        maxWidth={"xs"}
-        open={select[0]}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"ВЗИМАНЕ НА КОЛА"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            <TextField
-              disabled
-              fullWidth
-              value={select[1].reg}
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
+      {select[0] && (
+        <Pickup
+          open={select[0]}
+          vehicle={select[1]}
+          driver={driver}
+          setDriver={setDriver}
+          setLoading={setLoading}
+          setSelect={setSelect}
+        />
+      )}
 
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <TextField
-              fullWidth
-              disabled
-              value={`${select[1].make} ${select[1].model}`}
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <TextField
-              disabled
-              fullWidth
-              value={select[1].fuel}
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <TextField
-              disabled
-              fullWidth
-              value={
-                select[1].km
-                  ? select[1].km.toString().slice(0, -3) +
-                    " " +
-                    select[1].km.toString().slice(-3) +
-                    " км"
-                  : select[1].km + " км"
-              }
-              variant="standard"
-              inputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">kg</InputAdornment>
-                ),
-              }}
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <TextField
-              disabled
-              fullWidth
-              value={`ГТП:   ${dayjs(select[1].gtp).format("DD/MM/YYYY")}`}
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <TextField
-              disabled
-              fullWidth
-              value={`ГО:   ${dayjs(select[1].insDate).format("DD/MM/YYYY")}`}
-              variant="standard"
-              sx={{
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-            />
-            <FormGroup>
-              <FormControlLabel
-                control={<Checkbox value={agree} onChange={handleAgree} />}
-                label="Съгласен съм, че автомобилът има всички задължителни
-                документи(Годишен технически преглед, малък талон и валидна
-                застраховка 'Гражданска отговорност'), както и принадлежностите
-                аптечка, триъгълник, жилетка и пожарогасител (в срок н годност) и
-                нося отговрност, ако бъда санкциониран от органите на КАТ за
-                липсата на някой от тях"
-              />
-            </FormGroup>
-
-            {/* <span>
-              
-            </span> */}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleClose}
-            autoFocus
-          >
-            Отказ
-          </Button>
-          <Button
-            disabled={agree ? false : true}
-            variant="contained"
-            onClick={() => handlePickUp(select[1])}
-            autoFocus
-          >
-            Взимане
-          </Button>
-        </DialogActions>
-      </Dialog>{" "}
       <Dialog
         open={error[0]}
         onClose={handleError}
@@ -377,8 +173,8 @@ const Scan = () => {
             }}
           >
             <TextField
-              onBlur={() => setBlur(true)}
               onFocus={() => setBlur(false)}
+              inputRef={(input) => input && input.focus()}
               error={blur}
               autoFocus
               autoComplete="off"
@@ -395,6 +191,7 @@ const Scan = () => {
               type="submit"
               onClick={handleSubmit}
               fullWidth
+              color={blur ? "error" : "primary"}
               variant="contained"
             >
               <DoubleArrowIcon />
@@ -403,26 +200,39 @@ const Scan = () => {
         </form>
         <Box sx={{ display: "flex" }}>
           {driver._id && (
-            <Button
-              onClick={() => setDriver({})}
-              sx={{
-                marginTop: "10px",
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-              color="error"
-              variant="contained"
-            >
-              <CancelIcon />
-            </Button>
+            <>
+              <Button
+                onClick={() => {
+                  setStopTimer(true);
+                  setSecondDriver(false);
+                  setDriver({});
+                }}
+                sx={{
+                  marginTop: "10px",
+                  "& .MuiInputBase-input": {
+                    fontSize: 18,
+                    padding: 1,
+                    fontWeight: 800,
+                    textAlign: "center",
+                    color: "black",
+                  },
+                  "& .MuiInputBase-input.Mui-disabled": {
+                    WebkitTextFillColor: "black", //Adjust text color here
+                  },
+                }}
+                color="error"
+                variant="contained"
+              >
+                <CancelIcon />
+              </Button>
+              <CountdownTimer
+                initialSeconds={200}
+                stop={stopTimer}
+                setDriver={setDriver}
+                setSecondDriver={setSecondDriver}
+                setSelect={setSelect}
+              />
+            </>
           )}
 
           <TextField
@@ -445,27 +255,6 @@ const Scan = () => {
             disabled
             value={driver._id ? `${driver.firstName} ${driver.lastName}` : ""}
           ></TextField>
-          {timer && (
-            <TextField
-              sx={{
-                marginTop: "10px",
-                "& .MuiInputBase-input": {
-                  fontSize: 18,
-                  padding: 1,
-
-                  fontWeight: 800,
-                  textAlign: "center",
-                  color: "black",
-                },
-                "& .MuiInputBase-input.Mui-disabled": {
-                  WebkitTextFillColor: "black", //Adjust text color here
-                },
-              }}
-              variant="filled"
-              disabled
-              value={timer}
-            ></TextField>
-          )}
         </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <TextField
@@ -485,6 +274,7 @@ const Scan = () => {
             variant="standard"
             value={dayjs().format("DD/MM/YYYY      HH:mm:ss")}
           />
+
           {driver._id && (
             <Box sx={{ display: "flex", width: "70%" }}>
               <TextField
@@ -507,9 +297,11 @@ const Scan = () => {
                 disabled
                 value="ИЗБЕРЕТЕ АВТОМОБИЛ"
               ></TextField>
+
               <Button
                 variant="contained"
-                color="warning"
+                onClick={() => setSecondDriver(!secondDriver)}
+                color={secondDriver ? "primary" : "warning"}
                 sx={{
                   marginTop: "10px",
                   height: "38px",
@@ -517,7 +309,9 @@ const Scan = () => {
                   fontWeight: 800,
                 }}
               >
-                ВЪРНЕТЕ АВТОМОБИЛ ВЗЕТ ОТ ДРУГ ВОДАЧ
+                {secondDriver
+                  ? "ВЗЕМЕТЕ АВТОМОБИЛ"
+                  : "ВЪРНЕТЕ АВТОМОБИЛ ВЗЕТ ОТ ДРУГ ВОДАЧ"}
               </Button>
             </Box>
           )}
@@ -542,15 +336,15 @@ const Scan = () => {
             {vehicles &&
               vehicles
                 .sort((a, b) => {
-                  if (a.occupied.bool && !b.occupied.bool) {
+                  if (a.availability.status && !b.availability.status) {
                     return 1;
-                  } else if (!a.occupied.bool && b.occupied.bool) {
+                  } else if (!a.availability.status && b.availability.status) {
                     return -1;
-                  } else if (a.occupied.bool && b.occupied.bool) {
-                    if (a.occupied.time < b.occupied.time) {
+                  } else if (a.availability.status && b.availability.status) {
+                    if (a.availability.time < b.availability.time) {
                       return 1;
                     }
-                  } else if (!a.occupied.bool && !b.occupied.bool) {
+                  } else if (!a.availability.status && !b.availability.status) {
                     if (`${a.make} ${a.model}` > `${b.make} ${b.model}`) {
                       return 1;
                     }
@@ -562,11 +356,23 @@ const Scan = () => {
                   <TableBody key={index}>
                     <TableRow
                       onClick={
-                        driver._id ? () => handleClick(vehicle) : undefined
+                        driver._id &&
+                        !secondDriver &&
+                        !vehicle.availability.status
+                          ? () => handleClick(vehicle)
+                          : driver._id &&
+                            secondDriver &&
+                            vehicle.availability.status
+                          ? () => handleSecondDriver(vehicle)
+                          : vehicle.availability.status
+                          ? undefined
+                          : undefined
                       }
                       key={index}
                       sx={[
-                        driver._id && !vehicle.occupied.bool
+                        driver._id &&
+                        !secondDriver &&
+                        !vehicle.availability.status
                           ? {
                               backgroundColor: "#53c4f7",
                               "&:hover": {
@@ -575,8 +381,21 @@ const Scan = () => {
                                 backgroundColor: "#29b6f6",
                               },
                             }
-                          : vehicle.occupied.bool
-                          ? { backgroundColor: "grey" }
+                          : driver._id &&
+                            secondDriver &&
+                            vehicle.availability.status
+                          ? {
+                              backgroundColor: "#9e9e9e",
+                              "&:hover": {
+                                boxShadow: 6,
+                                cursor: "pointer",
+                                backgroundColor: "grey",
+                              },
+                            }
+                          : vehicle.availability.status
+                          ? {
+                              backgroundColor: "grey",
+                            }
                           : { backgroundColor: "#29b6f6" },
                       ]}
                     >
@@ -597,14 +416,14 @@ const Scan = () => {
                         sx={{ fontWeight: 800, fontSize: 18 }}
                         align="right"
                       >
-                        {vehicle.occupied.user}
+                        {vehicle.availability.user}
                       </TableCell>
                       <TableCell
                         sx={{ fontWeight: 800, fontSize: 20 }}
                         align="right"
                       >
-                        {vehicle.occupied.bool
-                          ? dayjs(vehicle.occupied.time).format(
+                        {vehicle.availability.status
+                          ? dayjs(vehicle.availability.time).format(
                               "DD/MM/YYYY - HH:mm"
                             )
                           : ""}

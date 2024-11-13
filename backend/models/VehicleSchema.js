@@ -136,16 +136,19 @@ export const vehicleSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    occupied: {
-      bool: {
-        type: Boolean,
-        default: false,
+    availability: {
+      status: {
+        type: String,
+        default: "",
       },
       user: {
         type: String,
       },
       time: {
         type: Date,
+      },
+      reserved: {
+        type: Boolean,
       },
     },
     sold: {
@@ -157,6 +160,12 @@ export const vehicleSchema = mongoose.Schema(
     },
     soldDate: {
       type: Date,
+    },
+    totalServiceCost: {
+      type: Number,
+    },
+    status: {
+      type: String,
     },
   },
   {

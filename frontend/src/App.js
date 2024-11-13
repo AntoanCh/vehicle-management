@@ -9,7 +9,6 @@ import Office from "./pages/Office.jsx";
 import Scan from "./pages/Scan.jsx";
 import Charts from "./pages/Charts.jsx";
 import Records from "./pages/Records.jsx";
-import PickUp from "./pages/PickUp.jsx";
 import DropOff from "./pages/DropOff.jsx";
 import Drivers from "./pages/Drivers.jsx";
 import Warehouse from "./pages/Warehouse.jsx";
@@ -59,7 +58,6 @@ function App() {
               <Route path="/scan" element={<Scan />} />
               <Route path="/charts" element={<Charts />} />
               <Route path="/records" element={<Records />} />
-              <Route path="/pick-up/:id" element={<PickUp />} />
               <Route path="/drop-off/:id" element={<DropOff />} />
               <Route path="/drivers" element={<Drivers />} />
               <Route path="/hr/create" element={<CreatePerson />} />

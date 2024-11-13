@@ -47,7 +47,7 @@ const CreateVehicle = () => {
     cat: "",
     oil: "",
     oilChange: "",
-    occupied: { bool: false, user: "" },
+    availability: { status: "", user: "" },
     sold: { bool: false, price: "", date: dayjs("01-01-2001") },
     tires: "",
     purchaseDate: dayjs(),

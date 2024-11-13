@@ -56,8 +56,59 @@ const Charts = () => {
   }
 
   return (
-    <Box>
-      <Box>
+    <Box sx={{ display: "flex" }}>
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
+        {" "}
+        <Button
+          // sx={{ width: "40%" }}
+          color={filter === "all" ? "secondary" : "primary"}
+          variant={"contained"}
+          onClick={() => handleFilter("all")}
+        >
+          {"Всички"}
+        </Button>
+        <Button
+          // sx={{ width: "40%" }}
+          color={filter === "ОФИС" ? "secondary" : "primary"}
+          variant={"contained"}
+          onClick={() => handleFilter("ОФИС")}
+        >
+          {"ОФИС"}
+        </Button>
+        <Button
+          // sx={{ width: "40%" }}
+          color={filter === "СКЛАД" ? "secondary" : "primary"}
+          variant={"contained"}
+          onClick={() => handleFilter("СКЛАД")}
+        >
+          {"СКЛАД"}
+        </Button>
+        <Button
+          // sx={{ width: "40%" }}
+          color={filter === "ДРУГИ" ? "secondary" : "primary"}
+          variant={"contained"}
+          onClick={() => handleFilter("ДРУГИ")}
+        >
+          {"ДРУГИ"}
+        </Button>
+        <Button
+          // sx={{ width: "40%" }}
+          color={filter === "ПРОДАДЕНИ" ? "secondary" : "primary"}
+          variant={"contained"}
+          onClick={() => handleFilter("ПРОДАДЕНИ")}
+        >
+          {"ПРОДАДЕНИ"}
+        </Button>
+      </Box>{" "}
+      <Box
+        sx={{
+          width: "80%",
+          margin: "auto",
+          padding: "10px",
+          backgroundColor: "grey",
+        }}
+      >
+        {" "}
         <ButtonGroup>
           <Button
             sx={{ width: "40%" }}
@@ -100,15 +151,6 @@ const Charts = () => {
             {"ПРОДАДЕНИ"}
           </Button>
         </ButtonGroup>
-      </Box>{" "}
-      <Box
-        sx={{
-          width: "80%",
-          margin: "auto",
-          padding: "10px",
-          backgroundColor: "grey",
-        }}
-      >
         <BarChart
           height={500}
           xAxis={[

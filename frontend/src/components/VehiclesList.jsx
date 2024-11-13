@@ -19,6 +19,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import CreateVehicle from "../pages/CreateVehicle";
 import { keyframes } from "@mui/system";
 import { styled } from "@mui/material/styles";
+import AddExpense from "./AddExpense";
 
 const blink = keyframes`
   from { opacity: 0; }
@@ -36,9 +37,12 @@ const BlinkedBox = styled("div")({
 export default function VehiclesList({ data, filter, setFilter }) {
   const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
+  const [expenses, setExpenses] = useState({});
   const [add, setAdd] = useState(false);
   const token = localStorage.getItem("token");
   const { id } = useParams();
+  const [addExpense, setAddExpense] = useState(false);
+  const [expenseVehicle, setExpenseVehicle] = useState({});
   const navigate = useNavigate();
   // Search
 
@@ -106,10 +110,10 @@ export default function VehiclesList({ data, filter, setFilter }) {
       return [
         obj.make + " " + obj.model,
         obj.reg,
+        parseInt(obj.price),
         obj.insDate,
         obj.kaskoDate,
         obj.gtp,
-        obj.tax,
         obj.km,
         obj.oil,
         obj.oilChange,
@@ -118,6 +122,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         obj._id,
         obj.site,
         obj.issue,
+        obj,
       ];
     })
     .sort();
@@ -143,6 +148,8 @@ export default function VehiclesList({ data, filter, setFilter }) {
       },
     },
     { name: "Рег №" },
+    { name: "Цена" },
+
     {
       name: "ГО",
       options: {
@@ -222,33 +229,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         filter: false,
       },
     },
-    {
-      name: "Данък",
-      options: {
-        customBodyRender: (value, tableMeta, updateValue) => {
-          return (
-            <Box
-              style={
-                isDue(tableMeta.rowData[4], "date") && value < dayjs().year()
-                  ? { color: "red" }
-                  : {}
-              }
-            >
-              {value}
-              {isDue(tableMeta.rowData[4], "date") && value < dayjs().year() ? (
-                <WarningAmberIcon />
-              ) : (
-                ""
-              )}
-            </Box>
-          );
-        },
-        setCellProps: () => {
-          // return { align: "center" };
-        },
-        filter: false,
-      },
-    },
+
     {
       name: "Километри",
       options: {
@@ -350,10 +331,42 @@ export default function VehiclesList({ data, filter, setFilter }) {
       },
     },
     {
-      name: "Локация",
+      name: "Забалежки",
       options: {
         filter: false,
         display: false,
+      },
+    },
+    {
+      name: "Разход",
+      options: {
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return (
+            <Button
+              variant="contained"
+              onClick={(e) => {
+                e.stopPropagation();
+
+                axios
+                  .get(
+                    `http://192.168.0.147:5555/services/${tableMeta.rowData[11]}`
+                  )
+                  .then((res) => {
+                    setExpenses(res.data);
+                    setExpenseVehicle({ ...tableMeta.rowData[14] });
+                    setAddExpense(true);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              }}
+            >
+              ДОбави
+            </Button>
+          );
+        },
+        filter: false,
+        display: true,
       },
     },
   ];
@@ -402,7 +415,6 @@ export default function VehiclesList({ data, filter, setFilter }) {
     rowHover: true,
     print: false,
     setRowProps: (row, dataIndex, rowIndex) => {
-      console.log(row);
       return {
         style: {},
       };
@@ -449,6 +461,14 @@ export default function VehiclesList({ data, filter, setFilter }) {
 
   return (
     <div className="flex justify-center">
+      {addExpense && (
+        <AddExpense
+          add={addExpense}
+          setAdd={setAddExpense}
+          vehicle={expenseVehicle}
+          services={expenses}
+        />
+      )}
       <Dialog
         maxWidth={"xl"}
         open={add}

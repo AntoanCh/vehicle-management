@@ -20,9 +20,9 @@ export const driverSchema = mongoose.Schema(
     barcode2: {
       type: String,
     },
-    occupied: {
-      type: Boolean,
-      default: false,
+    availability: {
+      type: String,
+      default: "",
       required: true,
     },
     recordId: {

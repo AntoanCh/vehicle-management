@@ -12,6 +12,8 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { useLocation } from "react-router-dom";
+import CarRepairIcon from "@mui/icons-material/CarRepair";
 
 const DropOff = () => {
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,7 @@ const DropOff = () => {
   const [destination, setDestination] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const location = useLocation();
   useEffect(() => {
     setLoading(true);
     axios
@@ -61,10 +63,12 @@ const DropOff = () => {
   }, []);
 
   useEffect(() => {
-    setTime(dayjs());
-  }, [dayjs()]);
+    setTimeout(() => {
+      setTime(dayjs());
+    }, 20000);
+  }, [time]);
 
-  const handleDropOff = () => {
+  const handleDropOff = (atRepair) => {
     axios
       .put(`http://192.168.0.147:5555/api/records/${record._id}`, {
         ...record,
@@ -72,12 +76,15 @@ const DropOff = () => {
         dropoffKm: km,
         destination: destination,
         problem: problems,
+        driverName: `${record.driverName}${
+          location.state ? ` (${location.state.secondDriver})` : ""
+        }`,
       })
       .then((res) => {
         axios
           .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
             ...driver,
-            occupied: false,
+            availability: "",
           })
           .then((res) => {})
           .catch((err) => {
@@ -100,8 +107,8 @@ const DropOff = () => {
           axios
             .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
               ...vehicle,
-              occupied: {
-                bool: false,
+              availability: {
+                status: atRepair ? "В СЕРВИЗ" : "",
                 user: "",
               },
               km: km,
@@ -115,8 +122,8 @@ const DropOff = () => {
           axios
             .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
               ...vehicle,
-              occupied: {
-                bool: false,
+              availability: {
+                status: atRepair ? "В СЕРВИЗ" : "",
                 user: "",
               },
               km: km,
@@ -151,7 +158,7 @@ const DropOff = () => {
     setKm(e.target.value);
   };
   const validateKm = (e) => {
-    if (e.target.value && e.target.value < vehicle.km) {
+    if (e.target.value && e.target.value < parseInt(vehicle.km)) {
       setKmError(true);
     } else {
       setKmError(false);
@@ -160,7 +167,7 @@ const DropOff = () => {
   const handleClose = () => {
     setError(false);
   };
-  const pickup = dayjs(record.pickupTIme).format("DD/MM/YYYY");
+
   return (
     <div>
       <Dialog
@@ -194,16 +201,33 @@ const DropOff = () => {
         }}
         className="  border-2 border-blue-400 rounded-xl  p-4 mx-auto mt-5"
       >
-        <Button
-          sx={{ marginBottom: "5px" }}
-          color="error"
-          variant="contained"
-          onClick={() => navigate("/scan")}
-          autoFocus
-        >
-          <ArrowBackIosIcon />
-          НАЗАД
-        </Button>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Button
+            sx={{ marginBottom: "5px" }}
+            color="error"
+            variant="contained"
+            onClick={() => navigate("/scan")}
+          >
+            <ArrowBackIosIcon />
+            НАЗАД
+          </Button>
+          <Button
+            sx={{ marginBottom: "5px", fontWeight: 800 }}
+            color="warning"
+            variant="contained"
+            onClick={() => {
+              if (!destination || !km) {
+                setError(true);
+              } else {
+                handleDropOff(true);
+              }
+            }}
+          >
+            <CarRepairIcon />
+            АВТОМОБИЛЪТ Е ОСТАВЕН В СЕРВИЗ
+          </Button>
+        </Box>
+
         <TextField
           sx={{
             "& .MuiInputBase-input": {
@@ -374,6 +398,7 @@ const DropOff = () => {
           >
             <Box sx={{ display: "flex" }}>
               <TextField
+                disabled
                 InputLabelProps={{ shrink: true }}
                 label="КИЛОМЕТРИ НА ВЗИМАНЕ"
                 slotProps={{
@@ -413,7 +438,7 @@ const DropOff = () => {
                 value={km}
                 helperText={
                   kmError
-                    ? "Километрите на връщане не могат да са по-малко от километрите на взимане"
+                    ? "Километрите на връщане са по-малко от километрите на взимане. Вероятна причина е, че предишният водач не е въвел правилни километри"
                     : ""
                 }
                 error={kmError}
@@ -480,10 +505,10 @@ const DropOff = () => {
           variant="contained"
           fullWidth
           onClick={() => {
-            if (!destination || !km || kmError) {
+            if (!destination || !km) {
               setError(true);
             } else {
-              handleDropOff();
+              handleDropOff(false);
             }
           }}
         >
