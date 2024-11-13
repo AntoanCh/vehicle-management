@@ -74,8 +74,8 @@ const DropOff = () => {
         ...record,
         dropoffTime: dayjs(),
         dropoffKm: km,
-        destination: destination,
-        problem: problems,
+        destination: atRepair ? destination + " СЕРВИЗ" : destination,
+        problem: atRepair ? problems + " СЕРВИЗ" : problems,
         driverName: `${record.driverName}${
           location.state ? ` (${location.state.secondDriver})` : ""
         }`,

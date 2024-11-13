@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import { Service } from "./ServiceModel.js";
 import { Log } from "./LogModel.js";
+import { Driver } from "./DriverModel.js";
 
 export const vehicleSchema = mongoose.Schema(
   {
@@ -143,6 +144,10 @@ export const vehicleSchema = mongoose.Schema(
       },
       user: {
         type: String,
+      },
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Driver",
       },
       time: {
         type: Date,

@@ -38,6 +38,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
   const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
   const [expenses, setExpenses] = useState({});
+  const [refresh, setRefresh] = useState(false);
   const [add, setAdd] = useState(false);
   const token = localStorage.getItem("token");
   const { id } = useParams();
@@ -341,32 +342,34 @@ export default function VehiclesList({ data, filter, setFilter }) {
       name: "Разход",
       options: {
         customBodyRender: (value, tableMeta, updateValue) => {
-          return (
-            <Button
-              variant="contained"
-              onClick={(e) => {
-                e.stopPropagation();
+          if (userRole.includes("admin")) {
+            return (
+              <Button
+                variant="contained"
+                onClick={(e) => {
+                  e.stopPropagation();
 
-                axios
-                  .get(
-                    `http://192.168.0.147:5555/services/${tableMeta.rowData[11]}`
-                  )
-                  .then((res) => {
-                    setExpenses(res.data);
-                    setExpenseVehicle({ ...tableMeta.rowData[14] });
-                    setAddExpense(true);
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                  });
-              }}
-            >
-              ДОбави
-            </Button>
-          );
+                  axios
+                    .get(
+                      `http://192.168.0.147:5555/services/${tableMeta.rowData[11]}`
+                    )
+                    .then((res) => {
+                      setExpenses(res.data);
+                      setExpenseVehicle({ ...tableMeta.rowData[14] });
+                      setAddExpense(true);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                }}
+              >
+                ДОбави
+              </Button>
+            );
+          }
         },
         filter: false,
-        display: true,
+        display: userRole.includes("admin") ? true : false,
       },
     },
   ];
@@ -467,6 +470,9 @@ export default function VehiclesList({ data, filter, setFilter }) {
           setAdd={setAddExpense}
           vehicle={expenseVehicle}
           services={expenses}
+          username={username}
+          refresh={refresh}
+          setRefresh={setRefresh}
         />
       )}
       <Dialog

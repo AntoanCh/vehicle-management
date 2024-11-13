@@ -53,5 +53,5 @@ export const recordSchema = mongoose.Schema(
   }
 );
 
-//Creating models for fuel using fuelSchema
+//Creating models for fuel using recordSchema
 export const Record = mongoose.model("Record", recordSchema);

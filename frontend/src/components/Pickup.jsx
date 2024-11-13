@@ -18,6 +18,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import IconButton from "@mui/material/IconButton";
 
 const Pickup = ({
   open,
@@ -77,7 +78,6 @@ const Pickup = ({
             console.log(err);
           });
         setLoading(false);
-        // navigate("/scan");
         setSelect([false, {}]);
         setDriver({});
       })
@@ -97,9 +97,10 @@ const Pickup = ({
       .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
         ...vehicle,
         availability: {
-          status: "ЗАПАЗЕН",
+          status: "РЕЗЕРВИРАН",
           user: driver.firstName,
-          time: dayjs(),
+          time: dayjs().add(1, "hour"),
+          userId: driver._id,
         },
       })
       .then((res) => {})
@@ -120,14 +121,9 @@ const Pickup = ({
     >
       <Box sx={{ display: "flex" }}>
         <Box sx={{ width: "95%" }}></Box>
-        <Button
-          sx={{ width: "5%" }}
-          color="error"
-          variant="contained"
-          onClick={handleClose}
-        >
+        <IconButton sx={{ width: "5%" }} color="error" onClick={handleClose}>
           X
-        </Button>
+        </IconButton>
       </Box>
 
       <DialogTitle id="alert-dialog-title">{"ВЗИМАНЕ НА КОЛА"}</DialogTitle>
@@ -294,27 +290,20 @@ const Pickup = ({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button
-          color="error"
-          variant="contained"
-          onClick={handleClose}
-          autoFocus
-        >
+        <Button color="error" variant="contained" onClick={handleClose}>
           Отказ
         </Button>
         <Button
           color="success"
           variant="contained"
           onClick={() => handleReserve}
-          autoFocus
         >
-          ЗАПАЗИ АВТОМОБИЛ
+          РЕЗЕРВИРАЙ АВТОМОБИЛ
         </Button>
         <Button
           disabled={agree ? false : true}
           variant="contained"
           onClick={() => handlePickUp(vehicle)}
-          autoFocus
         >
           Взимане
         </Button>

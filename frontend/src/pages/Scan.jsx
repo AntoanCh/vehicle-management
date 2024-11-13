@@ -44,6 +44,28 @@ const Scan = () => {
       .get("http://192.168.0.147:5555/vehicle")
       .then((res) => {
         setVehicles(res.data.data.filter((item) => item.site === "ОФИС"));
+
+        vehicles
+          .filter(
+            (veh) =>
+              veh.availability.status === "РЕЗЕРВИРАН" &&
+              dayjs().diff(veh.availability.time) > 1
+          )
+          .map((veh) =>
+            axios
+              .put(`http://192.168.0.147:5555/vehicle/${veh._id}`, {
+                ...veh,
+                availability: {
+                  status: "",
+                  user: "",
+                },
+              })
+              .then((res) => {})
+              .catch((err) => {
+                console.log(err);
+              })
+          );
+
         setLoading(false);
       })
       .catch((err) => {
@@ -55,6 +77,7 @@ const Scan = () => {
         .get("http://192.168.0.147:5555/vehicle")
         .then((res) => {
           setVehicles(res.data.data.filter((item) => item.site === "ОФИС"));
+
           setLoading(false);
         })
         .catch((err) => {
@@ -325,9 +348,11 @@ const Scan = () => {
                 <TableCell sx={{ fontWeight: 800 }} align="left">
                   Номер
                 </TableCell>
+                <TableCell sx={{ fontWeight: 800 }} align="left"></TableCell>
                 <TableCell sx={{ fontWeight: 800 }} align="right">
                   Водач
                 </TableCell>
+
                 <TableCell sx={{ fontWeight: 800 }} align="right">
                   Време на тръгване
                 </TableCell>
@@ -393,9 +418,13 @@ const Scan = () => {
                               },
                             }
                           : vehicle.availability.status
-                          ? {
-                              backgroundColor: "grey",
-                            }
+                          ? vehicle.availability.status === "РЕЗЕРВИРАН"
+                            ? {
+                                backgroundColor: "#80cbc4",
+                              }
+                            : {
+                                backgroundColor: "grey",
+                              }
                           : { backgroundColor: "#29b6f6" },
                       ]}
                     >
@@ -414,18 +443,32 @@ const Scan = () => {
                       </TableCell>
                       <TableCell
                         sx={{ fontWeight: 800, fontSize: 18 }}
+                        align="left"
+                      >
+                        {vehicle.availability.status === "РЕЗЕРВИРАН" ||
+                        vehicle.availability.status === "В СЕРВИЗ"
+                          ? vehicle.availability.status
+                          : ""}
+                      </TableCell>
+                      <TableCell
+                        sx={{ fontWeight: 800, fontSize: 18 }}
                         align="right"
                       >
                         {vehicle.availability.user}
                       </TableCell>
+
                       <TableCell
                         sx={{ fontWeight: 800, fontSize: 20 }}
                         align="right"
                       >
                         {vehicle.availability.status
-                          ? dayjs(vehicle.availability.time).format(
-                              "DD/MM/YYYY - HH:mm"
-                            )
+                          ? vehicle.availability.status === "РЕЗЕРВИРАН"
+                            ? dayjs(vehicle.availability.time).format(
+                                "[ДО ]  HH:mm"
+                              )
+                            : dayjs(vehicle.availability.time).format(
+                                "DD/MM/YYYY - HH:mm"
+                              )
                           : ""}
                       </TableCell>
                     </TableRow>

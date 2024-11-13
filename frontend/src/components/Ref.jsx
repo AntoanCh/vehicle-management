@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 import IconButton from "@mui/material/IconButton";
 import PrintIcon from "@mui/icons-material/Print";
 
-const Ref = ({ vehicle, services, fuels, userRole, username }) => {
+const Ref = ({ vehicle, services, userRole, username }) => {
   const months = dayjs().diff(vehicle.startDate, "month");
   return (
     <div>
@@ -134,65 +134,6 @@ const Ref = ({ vehicle, services, fuels, userRole, username }) => {
                   {vehicle.km - vehicle.startKm
                     ? (
                         services.data.reduce((acc, obj) => acc + obj.cost, 0) /
-                        (vehicle.km - vehicle.startKm)
-                      ).toFixed(2) + " лв."
-                    : "Няма данни"}
-                </TableCell>
-              </TableRow>
-              <TableRow
-                sx={{
-                  "&:last-child td, &:last-child th": {
-                    border: 0,
-                  },
-                }}
-              >
-                <TableCell
-                  sx={{ textAlign: "center", fontWeight: "800" }}
-                  component="th"
-                  scope="row"
-                >
-                  Гориво
-                </TableCell>
-              </TableRow>
-              <TableRow
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  Гориво общо:
-                </TableCell>
-                <TableCell align="right">
-                  {fuels.data
-                    .reduce((acc, obj) => acc + obj.cost, 0)
-                    .toLocaleString()}{" "}
-                  лв.
-                </TableCell>
-              </TableRow>
-
-              <TableRow
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  Среден месечен разход гориво:
-                </TableCell>
-                <TableCell align="right">
-                  {months
-                    ? (
-                        fuels.data.reduce((acc, obj) => acc + obj.cost, 0) /
-                        months
-                      ).toFixed(2) + " лв."
-                    : "Няма данни"}
-                </TableCell>
-              </TableRow>
-              <TableRow
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  Среден разход на км (гориво):
-                </TableCell>
-                <TableCell align="right">
-                  {vehicle.km - vehicle.startKm
-                    ? (
-                        fuels.data.reduce((acc, obj) => acc + obj.cost, 0) /
                         (vehicle.km - vehicle.startKm)
                       ).toFixed(2) + " лв."
                     : "Няма данни"}
