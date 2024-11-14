@@ -14,11 +14,16 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { useLocation } from "react-router-dom";
 import CarRepairIcon from "@mui/icons-material/CarRepair";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Alert from "@mui/material/Alert";
 
 const DropOff = () => {
   const [loading, setLoading] = useState(false);
   const [vehicle, setVehicle] = useState({});
   const [record, setRecord] = useState({});
+  const [atRepair, setAtRepair] = useState(false);
   const [driver, setDriver] = useState({});
   const [time, setTime] = useState(dayjs());
   const [problems, setProblems] = useState("");
@@ -68,7 +73,7 @@ const DropOff = () => {
     }, 20000);
   }, [time]);
 
-  const handleDropOff = (atRepair) => {
+  const handleDropOff = () => {
     axios
       .put(`http://192.168.0.147:5555/api/records/${record._id}`, {
         ...record,
@@ -84,7 +89,7 @@ const DropOff = () => {
         axios
           .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
             ...driver,
-            availability: "",
+            occupied: false,
           })
           .then((res) => {})
           .catch((err) => {
@@ -107,9 +112,9 @@ const DropOff = () => {
           axios
             .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
               ...vehicle,
-              availability: {
-                status: atRepair ? "В СЕРВИЗ" : "",
-                user: "",
+              occupied: {
+                status: false,
+                user: atRepair ? "В СЕРВИЗ" : "",
               },
               km: km,
               issue: true,
@@ -122,9 +127,9 @@ const DropOff = () => {
           axios
             .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
               ...vehicle,
-              availability: {
-                status: atRepair ? "В СЕРВИЗ" : "",
-                user: "",
+              occupied: {
+                status: false,
+                user: atRepair ? "В СЕРВИЗ" : "",
               },
               km: km,
             })
@@ -139,6 +144,9 @@ const DropOff = () => {
       .catch((err) => {
         console.log(err);
       });
+  };
+  const handleAtRepair = () => {
+    setAtRepair(!atRepair);
   };
 
   const handleProblems = (e) => {
@@ -211,21 +219,34 @@ const DropOff = () => {
             <ArrowBackIosIcon />
             НАЗАД
           </Button>
-          <Button
-            sx={{ marginBottom: "5px", fontWeight: 800 }}
-            color="warning"
-            variant="contained"
-            onClick={() => {
-              if (!destination || !km) {
-                setError(true);
-              } else {
-                handleDropOff(true);
-              }
-            }}
-          >
-            <CarRepairIcon />
-            АВТОМОБИЛЪТ Е ОСТАВЕН В СЕРВИЗ
-          </Button>
+          <Box sx={{ display: "flex" }}>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="warning"
+                    value={atRepair}
+                    onChange={handleAtRepair}
+                  />
+                }
+                label=""
+                labelPlacement="end"
+              />
+            </FormGroup>
+            <Alert
+              sx={{
+                fontWeight: 800,
+                paddingTop: 0,
+                paddingBottom: 0,
+                marginBottom: 1,
+              }}
+              variant="filled"
+              icon={<CarRepairIcon />}
+              severity={atRepair ? "warning" : ""}
+            >
+              АВТОМОБИЛЪТ Е ОСТАВЕН В СЕРВИЗ
+            </Alert>
+          </Box>
         </Box>
 
         <TextField

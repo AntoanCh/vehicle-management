@@ -91,7 +91,9 @@ const AddExpense = ({
       axios
         .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
           ...vehicle,
-          totalServiceCost: totalServiceCost + parseFloat(newServ.cost),
+          totalServiceCost: (
+            totalServiceCost + parseFloat(newServ.cost)
+          ).toFixed(2),
         })
         .then(() => {})
         .catch((err) => {

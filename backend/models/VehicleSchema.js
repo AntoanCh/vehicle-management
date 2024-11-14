@@ -137,10 +137,10 @@ export const vehicleSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    availability: {
+    occupied: {
       status: {
-        type: String,
-        default: "",
+        type: Boolean,
+        default: false,
       },
       user: {
         type: String,
@@ -154,6 +154,7 @@ export const vehicleSchema = mongoose.Schema(
       },
       reserved: {
         type: Boolean,
+        default: false,
       },
     },
     sold: {

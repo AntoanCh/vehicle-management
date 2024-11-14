@@ -57,7 +57,7 @@ const Pickup = ({
         axios
           .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
             ...driver,
-            availability: "occupied",
+            occupied: true,
             recordId: res.data._id,
           })
           .then((res) => {})
@@ -67,10 +67,12 @@ const Pickup = ({
         axios
           .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
             ...vehicle,
-            availability: {
-              status: "occupied",
+            occupied: {
+              status: true,
               user: driver.firstName,
               time: dayjs(),
+              userId: driver._id,
+              reserved: false,
             },
           })
           .then((res) => {})
@@ -96,12 +98,22 @@ const Pickup = ({
     axios
       .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
         ...vehicle,
-        availability: {
-          status: "РЕЗЕРВИРАН",
+        occupied: {
+          status: true,
           user: driver.firstName,
           time: dayjs().add(1, "hour"),
           userId: driver._id,
+          reserved: true,
         },
+      })
+      .then((res) => {})
+      .catch((err) => {
+        console.log(err);
+      });
+    axios
+      .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
+        ...driver,
+        occupied: true,
       })
       .then((res) => {})
       .catch((err) => {
@@ -281,6 +293,7 @@ const Pickup = ({
           аптечка, триъгълник, жилетка и пожарогасител (в срок н годност) и
           нося отговрност, ако бъда санкциониран от органите на КАТ за
           липсата на някой от тях"
+              labelPlacement="end"
             />
           </FormGroup>
 
@@ -296,7 +309,7 @@ const Pickup = ({
         <Button
           color="success"
           variant="contained"
-          onClick={() => handleReserve}
+          onClick={() => handleReserve(vehicle)}
         >
           РЕЗЕРВИРАЙ АВТОМОБИЛ
         </Button>

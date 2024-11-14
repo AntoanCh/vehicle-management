@@ -43,28 +43,29 @@ const Scan = () => {
     axios
       .get("http://192.168.0.147:5555/vehicle")
       .then((res) => {
+        console.log("asdasdsad");
         setVehicles(res.data.data.filter((item) => item.site === "ОФИС"));
 
-        vehicles
-          .filter(
-            (veh) =>
-              veh.availability.status === "РЕЗЕРВИРАН" &&
-              dayjs().diff(veh.availability.time) > 1
-          )
-          .map((veh) =>
-            axios
-              .put(`http://192.168.0.147:5555/vehicle/${veh._id}`, {
-                ...veh,
-                availability: {
-                  status: "",
-                  user: "",
-                },
-              })
-              .then((res) => {})
-              .catch((err) => {
-                console.log(err);
-              })
-          );
+        // vehicles
+        //   .filter(
+        //     (veh) =>
+        //       veh.availability.status === "РЕЗЕРВИРАН" &&
+        //       dayjs().diff(veh.availability.time) > 1
+        //   )
+        //   .map((veh) =>
+        //     axios
+        //       .put(`http://192.168.0.147:5555/vehicle/${veh._id}`, {
+        //         ...veh,
+        //         availability: {
+        //           status: "",
+        //           user: "",
+        //         },
+        //       })
+        //       .then((res) => {})
+        //       .catch((err) => {
+        //         console.log(err);
+        //       })
+        //   );
 
         setLoading(false);
       })
@@ -104,7 +105,7 @@ const Scan = () => {
         const { status, message } = data;
 
         if (data.length !== 0) {
-          if (data[0].availability === "occupied") {
+          if (data[0].occupied) {
             setTimeout(() => {
               navigate(`/drop-off/${data[0]._id}`);
             }, 400);
@@ -141,6 +142,7 @@ const Scan = () => {
         console.log(err);
       });
   };
+
   return (
     <>
       {select[0] && (
@@ -348,7 +350,7 @@ const Scan = () => {
                 <TableCell sx={{ fontWeight: 800 }} align="left">
                   Номер
                 </TableCell>
-                <TableCell sx={{ fontWeight: 800 }} align="left"></TableCell>
+
                 <TableCell sx={{ fontWeight: 800 }} align="right">
                   Водач
                 </TableCell>
@@ -361,15 +363,15 @@ const Scan = () => {
             {vehicles &&
               vehicles
                 .sort((a, b) => {
-                  if (a.availability.status && !b.availability.status) {
+                  if (a.occupied.status && !b.occupied.status) {
                     return 1;
-                  } else if (!a.availability.status && b.availability.status) {
+                  } else if (!a.occupied.status && b.occupied.status) {
                     return -1;
-                  } else if (a.availability.status && b.availability.status) {
-                    if (a.availability.time < b.availability.time) {
+                  } else if (a.occupied.status && b.occupied.status) {
+                    if (a.occupied.time < b.occupied.time) {
                       return 1;
                     }
-                  } else if (!a.availability.status && !b.availability.status) {
+                  } else if (!a.occupied.status && !b.occupied.status) {
                     if (`${a.make} ${a.model}` > `${b.make} ${b.model}`) {
                       return 1;
                     }
@@ -381,23 +383,19 @@ const Scan = () => {
                   <TableBody key={index}>
                     <TableRow
                       onClick={
-                        driver._id &&
-                        !secondDriver &&
-                        !vehicle.availability.status
+                        driver._id && !secondDriver && !vehicle.occupied.status
                           ? () => handleClick(vehicle)
                           : driver._id &&
                             secondDriver &&
-                            vehicle.availability.status
+                            vehicle.occupied.status
                           ? () => handleSecondDriver(vehicle)
-                          : vehicle.availability.status
-                          ? undefined
-                          : undefined
+                          : // : vehicle.availability.status
+                            // ? undefined
+                            undefined
                       }
                       key={index}
                       sx={[
-                        driver._id &&
-                        !secondDriver &&
-                        !vehicle.availability.status
+                        driver._id && !secondDriver && !vehicle.occupied.status
                           ? {
                               backgroundColor: "#53c4f7",
                               "&:hover": {
@@ -408,7 +406,7 @@ const Scan = () => {
                             }
                           : driver._id &&
                             secondDriver &&
-                            vehicle.availability.status
+                            vehicle.occupied.status
                           ? {
                               backgroundColor: "#9e9e9e",
                               "&:hover": {
@@ -417,15 +415,19 @@ const Scan = () => {
                                 backgroundColor: "grey",
                               },
                             }
-                          : vehicle.availability.status
-                          ? vehicle.availability.status === "РЕЗЕРВИРАН"
-                            ? {
-                                backgroundColor: "#80cbc4",
-                              }
-                            : {
-                                backgroundColor: "grey",
-                              }
-                          : { backgroundColor: "#29b6f6" },
+                          : vehicle.occupied.status
+                          ? {
+                              backgroundColor: "grey",
+                            }
+                          : // : vehicle.availability.status === "РЕЗЕРВИРАН"
+                            // ? {
+                            //     backgroundColor: "#69f0ae",
+                            //   }
+                            // : vehicle.availability.status === "В СЕРВИЗ"
+                            // ? {
+                            //     backgroundColor: "#ffa726",
+                            //   }
+                            { backgroundColor: "#29b6f6" },
                       ]}
                     >
                       <TableCell
@@ -441,34 +443,22 @@ const Scan = () => {
                       >
                         {vehicle.reg}
                       </TableCell>
-                      <TableCell
-                        sx={{ fontWeight: 800, fontSize: 18 }}
-                        align="left"
-                      >
-                        {vehicle.availability.status === "РЕЗЕРВИРАН" ||
-                        vehicle.availability.status === "В СЕРВИЗ"
-                          ? vehicle.availability.status
-                          : ""}
-                      </TableCell>
+
                       <TableCell
                         sx={{ fontWeight: 800, fontSize: 18 }}
                         align="right"
                       >
-                        {vehicle.availability.user}
+                        {vehicle.occupied.user}
                       </TableCell>
 
                       <TableCell
                         sx={{ fontWeight: 800, fontSize: 20 }}
                         align="right"
                       >
-                        {vehicle.availability.status
-                          ? vehicle.availability.status === "РЕЗЕРВИРАН"
-                            ? dayjs(vehicle.availability.time).format(
-                                "[ДО ]  HH:mm"
-                              )
-                            : dayjs(vehicle.availability.time).format(
-                                "DD/MM/YYYY - HH:mm"
-                              )
+                        {vehicle.occupied.status
+                          ? dayjs(vehicle.occupied.time).format(
+                              "DD/MM/YYYY - HH:mm"
+                            )
                           : ""}
                       </TableCell>
                     </TableRow>

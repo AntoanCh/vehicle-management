@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
       lastName: req.body.lastName,
       barcode: req.body.barcode,
       barcode2: req.body.barcode2,
-      availability: req.body.availability,
+      occupied: req.body.occupied,
       vehicleId: req.body.vehicleId,
     };
     const driver = await Driver.create(newDriver);

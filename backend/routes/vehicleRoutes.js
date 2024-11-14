@@ -61,7 +61,7 @@ router.post("/", async (req, res) => {
       soldPrice: req.body.soldPrice,
       soldDate: req.body.soldDate,
       issue: req.body.issue,
-      availability: req.body.availability,
+      occupied: req.body.occupied,
       totalServiceCost: req.body.totalServiceCost,
       state: req.body.state,
       checked: new Date().toISOString(),
