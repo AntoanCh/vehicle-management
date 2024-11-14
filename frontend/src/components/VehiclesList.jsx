@@ -112,6 +112,11 @@ export default function VehiclesList({ data, filter, setFilter }) {
         obj.make + " " + obj.model,
         obj.reg,
         parseInt(obj.price),
+        dayjs().diff(obj.startDate, "month"),
+        obj.totalServiceCost,
+        (obj.totalServiceCost / dayjs().diff(obj.startDate, "month")).toFixed(
+          2
+        ),
         obj.insDate,
         obj.kaskoDate,
         obj.gtp,
@@ -136,7 +141,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
           return (
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               {value}
-              {tableMeta.rowData[13] ? (
+              {tableMeta.rowData[16] ? (
                 <BlinkedBox>
                   <WarningAmberIcon />
                 </BlinkedBox>
@@ -149,7 +154,42 @@ export default function VehiclesList({ data, filter, setFilter }) {
       },
     },
     { name: "Рег №" },
-    { name: "Цена" },
+    {
+      name: "Цена",
+      options: {
+        setCellProps: () => {
+          return { align: "center" };
+        },
+      },
+    },
+    {
+      name: "Време от 1ви р-т",
+      options: {
+        customBodyRender: (value, tableMeta, updateValue) =>
+          `${Math.floor(value / 12) ? Math.floor(value / 12) + "г. " : ""} ${
+            value % 12
+          }м.`,
+        setCellProps: () => {
+          return { align: "center" };
+        },
+      },
+    },
+    {
+      name: "Разходи Общо",
+      options: {
+        setCellProps: () => {
+          return { align: "center" };
+        },
+      },
+    },
+    {
+      name: "Ср Р-д на мес",
+      options: {
+        setCellProps: () => {
+          return { align: "center" };
+        },
+      },
+    },
 
     {
       name: "ГО",
@@ -202,6 +242,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         setCellProps: () => {
           // return { align: "center" };
         },
+        display: false,
         filter: false,
       },
     },
@@ -260,15 +301,15 @@ export default function VehiclesList({ data, filter, setFilter }) {
             <Box
               style={
                 isDue(
-                  tableMeta.rowData[6] - tableMeta.rowData[7],
+                  tableMeta.rowData[9] - tableMeta.rowData[7],
                   "oil",
-                  tableMeta.rowData[8]
+                  tableMeta.rowData[11]
                 ) === "warning"
                   ? { color: "red" }
                   : isDue(
-                      tableMeta.rowData[6] - tableMeta.rowData[7],
+                      tableMeta.rowData[9] - tableMeta.rowData[7],
                       "oil",
-                      tableMeta.rowData[8]
+                      tableMeta.rowData[11]
                     ) === "caution"
                   ? { color: "orange" }
                   : {}
@@ -276,9 +317,9 @@ export default function VehiclesList({ data, filter, setFilter }) {
             >
               {value}
               {isDue(
-                tableMeta.rowData[6] - tableMeta.rowData[7],
+                tableMeta.rowData[9] - tableMeta.rowData[7],
                 "oil",
-                tableMeta.rowData[8]
+                tableMeta.rowData[11]
               ) ? (
                 <WarningAmberIcon />
               ) : (
@@ -351,11 +392,11 @@ export default function VehiclesList({ data, filter, setFilter }) {
 
                   axios
                     .get(
-                      `http://192.168.0.147:5555/services/${tableMeta.rowData[11]}`
+                      `http://192.168.0.147:5555/services/${tableMeta.rowData[14]}`
                     )
                     .then((res) => {
                       setExpenses(res.data);
-                      setExpenseVehicle({ ...tableMeta.rowData[14] });
+                      setExpenseVehicle({ ...tableMeta.rowData[17] });
                       setAddExpense(true);
                     })
                     .catch((err) => {
@@ -425,7 +466,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
     selectableRows: false,
     download: false,
     onRowClick: (rowData, rowMeta) => {
-      handleClick(rowData[11]);
+      handleClick(rowData[14]);
     },
     rowsPerPage: 30,
     rowsPerPageOptions: [30, 50, 100],

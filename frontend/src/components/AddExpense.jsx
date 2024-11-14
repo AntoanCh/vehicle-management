@@ -153,6 +153,15 @@ const AddExpense = ({
     <Box>
       {services && (
         <Dialog
+          // fullWidth
+          onKeyUp={(e) => {
+            const ENTER = 13;
+            console.log(e.keyCode);
+
+            if (e.keyCode === ENTER) {
+              handleSave();
+            }
+          }}
           open={add}
           onClose={handleClose}
           aria-labelledby="alert-dialog-title"
@@ -163,7 +172,7 @@ const AddExpense = ({
             <DialogContentText id="alert-dialog-description"></DialogContentText>
             <Box>
               {" "}
-              <Box className="my-4">
+              <Box>
                 <DemoContainer components={["DatePicker, DatePicker"]}>
                   <DatePicker
                     fullWidth

@@ -19,6 +19,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
+import Alert from "@mui/material/Alert";
 
 const Pickup = ({
   open,
@@ -137,6 +138,20 @@ const Pickup = ({
           X
         </IconButton>
       </Box>
+      {vehicle.occupied.user === "В СЕРВИЗ" && (
+        <Alert
+          sx={{
+            fontWeight: 800,
+            paddingTop: 0,
+            paddingBottom: 0,
+            marginBottom: 1,
+          }}
+          variant="filled"
+          severity="warning"
+        >
+          АВТОМОБИЛЪТ Е ОСТАВЕН В СЕРВИЗ
+        </Alert>
+      )}
 
       <DialogTitle id="alert-dialog-title">{"ВЗИМАНЕ НА КОЛА"}</DialogTitle>
       <DialogContent>
