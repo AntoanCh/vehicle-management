@@ -3,8 +3,6 @@ dotenv.config();
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import carRoutes from "./routes/carRoutes.js";
-import truckRoutes from "./routes/truckRoutes.js";
 import vehicleRoutes from "./routes/vehicleRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import siteRoutes from "./routes/siteRoutes.js";
@@ -48,8 +46,6 @@ app.use("/problems", problemRoutes);
 app.use("/vehicle", vehicleRoutes);
 app.use("/api/drivers", driverRoutes);
 app.use("/api/records", recordRoutes);
-app.use("/cars", carRoutes);
-app.use("/trucks", truckRoutes);
 app.use("/api/person", personRoutes);
 
 //set static folder
