@@ -37,43 +37,47 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
       obj.desc,
       obj.km + " км",
       obj.done,
-      userRole.includes("admin") || userRole.includes(vehicle.site) ? (
-        <IconButton
-          sx={[obj.done ? { display: "none" } : ""]}
-          onClick={() => {
-            axios
-              .put(`http://192.168.0.147:5555/problems/${obj._id}`, {
-                ...obj,
-                done: true,
-              })
-              .then((res) => {
-                if (problems.data.filter((item) => !item.done).length === 1) {
-                  axios
-                    .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
-                      ...vehicle,
-                      issue: false,
-                    })
-                    .then((res) => {})
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                }
-                setTimeout(() => {
-                  window.location.reload();
-                }, 1000);
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          }}
-          color="success"
-          variant="contained"
-        >
-          <DoneOutlineIcon />
-        </IconButton>
-      ) : (
-        ""
-      ),
+      userRole.includes("admin") || userRole.includes(vehicle.site)
+        ? !obj.done && (
+            <IconButton
+              onClick={() => {
+                axios
+                  .put(`http://192.168.0.147:5555/problems/${obj._id}`, {
+                    ...obj,
+                    done: true,
+                  })
+                  .then((res) => {
+                    if (
+                      problems.data.filter((item) => !item.done).length === 1
+                    ) {
+                      axios
+                        .put(
+                          `http://192.168.0.147:5555/vehicle/${vehicle._id}`,
+                          {
+                            ...vehicle,
+                            issue: false,
+                          }
+                        )
+                        .then((res) => {})
+                        .catch((err) => {
+                          console.log(err);
+                        });
+                    }
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 1000);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              }}
+              color="success"
+              variant="contained"
+            >
+              <DoneOutlineIcon />
+            </IconButton>
+          )
+        : "",
     ];
   });
 

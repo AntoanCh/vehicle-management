@@ -45,27 +45,32 @@ const Scan = () => {
       .get("http://192.168.0.147:5555/vehicle")
       .then((res) => {
         setVehicles(res.data.data.filter((item) => item.site === "ОФИС"));
-
-        // vehicles
-        //   .filter(
-        //     (veh) =>
-        //       veh.occupied.reserved && dayjs().diff(veh.occupied.time) > 1
-        //   )
-        //   .map((veh) =>
-        //     axios
-        //       .put(`http://192.168.0.147:5555/vehicle/${veh._id}`, {
-        //         ...veh,
-        //         occupied: {
-        //           status: false,
-        //           user: "",
-        //           reserved: false,
-        //         },
-        //       })
-        //       .then((res) => {})
-        //       .catch((err) => {
-        //         console.log(err);
-        //       })
-        //   );
+        console.log(
+          vehicles.filter(
+            (veh) =>
+              veh.occupied.reserved && dayjs().diff(veh.occupied.time) > 1
+          )
+        );
+        vehicles
+          .filter(
+            (veh) =>
+              veh.occupied.reserved && dayjs().diff(veh.occupied.time) > 1
+          )
+          .forEach((veh) =>
+            axios
+              .put(`http://192.168.0.147:5555/vehicle/${veh._id}`, {
+                ...veh,
+                occupied: {
+                  status: false,
+                  user: "",
+                  reserved: false,
+                },
+              })
+              .then((res) => {})
+              .catch((err) => {
+                console.log(err);
+              })
+          );
 
         setLoading(false);
       })
@@ -78,47 +83,47 @@ const Scan = () => {
         .get("http://192.168.0.147:5555/vehicle")
         .then((res) => {
           setVehicles(res.data.data.filter((item) => item.site === "ОФИС"));
-          // vehicles
-          //   .filter(
-          //     (veh) =>
-          //       veh.occupied.reserved && dayjs().diff(veh.occupied.time) > 1
-          //   )
-          //   .map((veh) =>
-          //     axios
-          //       .put(`http://192.168.0.147:5555/vehicle/${veh._id}`, {
-          //         ...veh,
-          //         occupied: {
-          //           status: false,
-          //           user: "",
-          //           reserved: false,
-          //         },
-          //       })
-          //       .then((res) => {
-          //         axios
-          //           .put(
-          //             `http://192.168.0.147:5555/api/drivers/${driver._id}`,
-          //             {
-          //               ...driver,
-          //               occupied: false,
-          //             }
-          //           )
-          //           .then((res) => {
-          //             setDriver(driver);
-          //           })
-          //           .catch((err) => {
-          //             console.log(err);
-          //           });
-          //       })
-          //       .catch((err) => {
-          //         console.log(err);
-          //       })
-          //   );
+          vehicles
+            .filter(
+              (veh) =>
+                veh.occupied.reserved && dayjs().diff(veh.occupied.time) > 1
+            )
+            .forEach((veh) =>
+              axios
+                .put(`http://192.168.0.147:5555/vehicle/${veh._id}`, {
+                  ...veh,
+                  occupied: {
+                    status: false,
+                    user: "",
+                    reserved: false,
+                  },
+                })
+                .then((res) => {
+                  axios
+                    .put(
+                      `http://192.168.0.147:5555/api/drivers/${driver._id}`,
+                      {
+                        ...driver,
+                        occupied: false,
+                      }
+                    )
+                    .then((res) => {
+                      setDriver(driver);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                })
+                .catch((err) => {
+                  console.log(err);
+                })
+            );
           setLoading(false);
         })
         .catch((err) => {
           console.log(err);
         });
-    }, 20000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [driver]);
 
@@ -287,6 +292,7 @@ const Scan = () => {
               <CountdownTimer
                 initialSeconds={30}
                 stop={stopTimer}
+                driver={driver}
                 setDriver={setDriver}
                 setSecondDriver={setSecondDriver}
                 setSelect={setSelect}
@@ -388,10 +394,14 @@ const Scan = () => {
                   } else if (a.occupied.status && b.occupied.status) {
                     if (a.occupied.time < b.occupied.time) {
                       return 1;
+                    } else {
+                      return -1;
                     }
                   } else if (!a.occupied.status && !b.occupied.status) {
                     if (`${a.make} ${a.model}` > `${b.make} ${b.model}`) {
                       return 1;
+                    } else {
+                      return -1;
                     }
                   } else {
                     return 0;
@@ -458,7 +468,7 @@ const Scan = () => {
                               backgroundColor: "grey",
                             }
                           : vehicle.occupied.user === "В СЕРВИЗ"
-                          ? { backgroundColor: "#5c6bc0" }
+                          ? { backgroundColor: "#ffb74d" }
                           : { backgroundColor: "#29b6f6" },
                       ]}
                     >

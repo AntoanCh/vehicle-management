@@ -8,10 +8,12 @@ const CountdownTimer = ({
   stop,
   setSecondDriver,
   setDriver,
+  driver,
   setSelect,
 }) => {
   const [seconds, setSeconds] = useState(initialSeconds);
 
+  useEffect(() => setSeconds(initialSeconds), [driver]);
   useEffect(() => {
     if (stop) {
       return;

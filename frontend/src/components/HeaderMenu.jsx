@@ -603,11 +603,11 @@ const HeaderMenu = () => {
                     {<TimeToLeaveIcon />}
                   </ListItemIcon>
                   <ListItemText
-                    primary={"Автомобили"}
+                    primary={"Списък Автомобили"}
                     sx={{ opacity: open ? 1 : 0 }}
                   />
                 </ListItemButton>
-                <ListItemButton
+                {/* <ListItemButton
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
@@ -630,7 +630,7 @@ const HeaderMenu = () => {
                     primary={"Справки"}
                     sx={{ opacity: open ? 1 : 0 }}
                   />
-                </ListItemButton>
+                </ListItemButton> */}
                 <ListItemButton
                   sx={{
                     minHeight: 48,
@@ -651,7 +651,7 @@ const HeaderMenu = () => {
                     {<TimelineIcon />}
                   </ListItemIcon>
                   <ListItemText
-                    primary={"Движение на коли"}
+                    primary={"Движение"}
                     sx={{ opacity: open ? 1 : 0 }}
                   />
                 </ListItemButton>
@@ -678,7 +678,7 @@ const HeaderMenu = () => {
                     {<CarRentalIcon />}
                   </ListItemIcon>
                   <ListItemText
-                    primary={"Взимане на кола"}
+                    primary={"Взимане"}
                     sx={{ opacity: open ? 1 : 0 }}
                   />
                 </ListItemButton>
@@ -705,7 +705,7 @@ const HeaderMenu = () => {
                     {<PersonIcon />}
                   </ListItemIcon>
                   <ListItemText
-                    primary={"Шофьори"}
+                    primary={"Водачи"}
                     sx={{ opacity: open ? 1 : 0 }}
                   />
                 </ListItemButton>

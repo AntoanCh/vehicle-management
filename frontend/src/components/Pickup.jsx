@@ -20,6 +20,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import Alert from "@mui/material/Alert";
+import DraggablePaper from "./DraggablePaper";
 
 const Pickup = ({
   open,
@@ -126,35 +127,53 @@ const Pickup = ({
   };
   return (
     <Dialog
+      PaperComponent={DraggablePaper}
       maxWidth={"md"}
       open={open}
       onClose={handleClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <Box sx={{ display: "flex" }}>
-        <Box sx={{ width: "95%" }}></Box>
-        <IconButton sx={{ width: "5%" }} color="error" onClick={handleClose}>
+      <DialogTitle
+        style={{ cursor: "move", backgroundColor: "#42a5f5" }}
+        sx={
+          vehicle.occupied.user === "В СЕРВИЗ"
+            ? { backgroundColor: "#ffb74d" }
+            : ""
+        }
+        id="draggable-dialog-title"
+      >
+        {"ВЗИМАНЕ НА КОЛА"}
+        <IconButton
+          sx={{ width: "5%", margin: 0, padding: 0, float: "right" }}
+          color="error"
+          onClick={handleClose}
+        >
           X
         </IconButton>
-      </Box>
-      {vehicle.occupied.user === "В СЕРВИЗ" && (
-        <Alert
-          sx={{
-            fontWeight: 800,
-            paddingTop: 0,
-            paddingBottom: 0,
-            marginBottom: 1,
-          }}
-          variant="filled"
-          severity="warning"
-        >
-          АВТОМОБИЛЪТ Е ОСТАВЕН В СЕРВИЗ
-        </Alert>
-      )}
+      </DialogTitle>
 
-      <DialogTitle id="alert-dialog-title">{"ВЗИМАНЕ НА КОЛА"}</DialogTitle>
-      <DialogContent>
+      <DialogContent
+        sx={
+          vehicle.occupied.user === "В СЕРВИЗ"
+            ? { backgroundColor: "#ffb74d" }
+            : ""
+        }
+      >
+        {vehicle.occupied.user === "В СЕРВИЗ" && (
+          <Alert
+            sx={{
+              fontWeight: 800,
+              paddingTop: 0,
+              paddingBottom: 0,
+              marginBottom: 1,
+            }}
+            variant="filled"
+            severity="warning"
+          >
+            АВТОМОБИЛЪТ Е ОСТАВЕН В СЕРВИЗ !!!!!!!!!
+          </Alert>
+        )}
         <DialogContentText id="alert-dialog-description">
           <Box sx={{ display: "flex" }}>
             <Box sx={{ maxWidth: "30%" }}>
@@ -277,23 +296,31 @@ const Pickup = ({
             </Box>
             <Box sx={{ width: "70%" }}>
               {" "}
-              <TableContainer component={Paper}>
-                <Table sx={{}}>
+              <TableContainer component={Paper} sx={{ maxHeight: "300px" }}>
+                <Table
+                  sx={
+                    vehicle.occupied.user === "В СЕРВИЗ"
+                      ? { backgroundColor: "#ffb74d" }
+                      : ""
+                  }
+                >
                   <TableHead>ЗАБЕЛЕЖКИ</TableHead>
                   <TableBody>
-                    {issues.map((row, index) => (
-                      <TableRow
-                        key={index}
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                      >
-                        <TableCell component="th" scope="row">
-                          {row.desc}
-                        </TableCell>
-                        <TableCell>{row.driverName}</TableCell>
-                      </TableRow>
-                    ))}
+                    {issues
+                      .sort((a, b) => new Date(b.date) - new Date(a.date))
+                      .map((row, index) => (
+                        <TableRow
+                          key={index}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell component="th" scope="row">
+                            {row.desc}
+                          </TableCell>
+                          <TableCell>{row.driverName}</TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -311,29 +338,34 @@ const Pickup = ({
               labelPlacement="end"
             />
           </FormGroup>
-
-          {/* <span>
-        
-      </span> */}
         </DialogContentText>
       </DialogContent>
-      <DialogActions>
+      <DialogActions
+        sx={
+          vehicle.occupied.user === "В СЕРВИЗ"
+            ? { backgroundColor: "#ffb74d" }
+            : ""
+        }
+      >
         <Button color="error" variant="contained" onClick={handleClose}>
           Отказ
         </Button>
-        <Button
+        {/* <Button
           color="success"
           variant="contained"
           onClick={() => handleReserve(vehicle)}
         >
           РЕЗЕРВИРАЙ АВТОМОБИЛ
-        </Button>
+        </Button> */}
         <Button
+          color={vehicle.occupied.user === "В СЕРВИЗ" ? "warning" : "primary"}
           disabled={agree ? false : true}
           variant="contained"
           onClick={() => handlePickUp(vehicle)}
         >
-          Взимане
+          {vehicle.occupied.user === "В СЕРВИЗ"
+            ? "ВЗИМАНЕ ОТ СЕРВИЗ"
+            : "ВЗИМАНЕ"}
         </Button>
       </DialogActions>
     </Dialog>

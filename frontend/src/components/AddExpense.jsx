@@ -30,9 +30,11 @@ const AddExpense = ({
   setLoading,
   add,
   setAdd,
+  date,
+  setDate,
 }) => {
   const [newServ, setNewServ] = useState({
-    date: dayjs(),
+    date: date,
     type: "",
     desc: "",
     invoice: "",
@@ -100,6 +102,7 @@ const AddExpense = ({
           alert("Грешка, проверете конзолата 3");
           console.log(err);
         });
+      setDate(newServ.date);
       setTimeout(() => {
         // window.location.reload();
         setRefresh(!refresh);

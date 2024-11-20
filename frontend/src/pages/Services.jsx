@@ -30,19 +30,11 @@ const Services = ({
   refresh,
   setRefresh,
 }) => {
+  const [expenseDate, setExpenseDate] = useState(dayjs());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState([false, ""]);
   const [verifyDelete, setVerifyDelete] = useState([false, {}]);
   const [edit, setEdit] = useState([false, {}]);
-  const [newServ, setNewServ] = useState({
-    date: dayjs(),
-    type: "",
-    desc: "",
-    invoice: "",
-    km: "",
-    cost: "",
-    vehicleId: vehicle._id,
-  });
 
   const [add, setAdd] = useState(false);
 
@@ -54,69 +46,7 @@ const Services = ({
   const handleClick = () => {
     setAdd(true);
   };
-  // const handleSave = () => {
-  //   if (!newServ.date || !newServ.type || !newServ.desc || !newServ.cost) {
-  //     setError([true, "Дата, описание, вид и стойност са задължителни полета"]);
-  //   } else {
-  //     setAdd(false);
-  //     axios
-  //       .post("http://192.168.0.147:5555/services", newServ)
-  //       .then(() => {
-  //         axios.post(`http://192.168.0.147:5555/logs`, {
-  //           date: dayjs(),
-  //           user: username,
-  //           changed: { newServ: [newServ.invoice, newServ.desc] },
-  //           vehicleId: vehicle._id,
-  //         });
-  //       })
-  //       .catch((err) => {
-  //         setLoading(false);
-  //         alert("Грешка, проверете конзолата 1");
-  //         console.log(err);
-  //       });
-  //     if (
-  //       !vehicle.startKm ||
-  //       vehicle.startKm === 0 ||
-  //       parseInt(vehicle.startKm) > parseInt(newServ.km)
-  //     ) {
-  //       vehicle.startKm = newServ.km.toString();
-  //       axios
-  //         .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-  //         .then(() => {})
-  //         .catch((err) => {
-  //           alert("Грешка, проверете конзолата 2");
-  //           console.log(err);
-  //         });
-  //     }
-  //     if (
-  //       !vehicle.startDate ||
-  //       dayjs(vehicle.startDate).diff(dayjs(newServ.date)) > 1
-  //     ) {
-  //       vehicle.startDate = newServ.date;
-  //       axios
-  //         .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-  //         .then(() => {})
-  //         .catch((err) => {
-  //           alert("Грешка, проверете конзолата 3");
-  //           console.log(err);
-  //         });
-  //     }
-  //     axios
-  //       .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
-  //         ...vehicle,
-  //         totalServiceCost: totalServiceCost + newServ.cost,
-  //       })
-  //       .then(() => {})
-  //       .catch((err) => {
-  //         alert("Грешка, проверете конзолата 3");
-  //         console.log(err);
-  //       });
-  //     setTimeout(() => {
-  //       // window.location.reload();
-  //       setRefresh(!refresh);
-  //     }, 1000);
-  //   }
-  // };
+
   const handleSaveEdit = () => {
     if (!edit[1].date || !edit[1].type || !edit[1].desc || !edit[1].cost) {
       setError([true, "Дата, описание, вид и стойност са задължителни полета"]);
@@ -175,45 +105,11 @@ const Services = ({
 
   console.log(`data ${vehicle.startDate}`);
   console.log(`data ${dayjs(vehicle.startDate).diff(dayjs(edit[1].date))}`);
-  // const handleClose = () => {
-  //   setAdd(false);
-  // };
+
   const handleCloseError = () => {
     setError([false, ""]);
   };
-  // const handleChange = (e) => {
-  //   const newData = { ...newServ };
-  //   if (e.target.id === "km") {
-  //     e.target.value = parseInt(e.target.value);
-  //     if (e.target.value === "NaN") {
-  //       e.target.value = "";
-  //     }
-  //   } else if (e.target.id === "cost") {
-  //     if (e.target.value.endsWith(",")) {
-  //       e.target.value = parseFloat(e.target.value).toString() + ".";
-  //     } else if (e.target.value.endsWith(".")) {
-  //       e.target.value = parseFloat(e.target.value).toString() + ".";
-  //     } else if (e.target.value.endsWith(".0")) {
-  //       e.target.value = parseFloat(e.target.value).toString() + ".0";
-  //     } else if (/^[0-9]*\.[0-9]{2,3}$/.test(e.target.value)) {
-  //       e.target.value = Number(parseFloat(e.target.value).toFixed(2));
-  //     } else if (e.nativeEvent.inputType === "insertFromPaste") {
-  //       e.target.value = Number(parseFloat(e.target.value).toFixed(2));
-  //     } else {
-  //       e.target.value = parseFloat(e.target.value);
-  //       if (e.target.value === "NaN") {
-  //         e.target.value = "";
-  //       } //.toString();
-  //     }
-  //   }
-  //   if (e.target.name === "type") {
-  //     newData[e.target.name] = e.target.value;
-  //   } else {
-  //     newData[e.target.id] = e.target.value;
-  //   }
 
-  //   setNewServ({ ...newData });
-  // };
   const handleChangeEdit = (e) => {
     const newData = { ...edit[1] };
     if (e.target.id === "km") {
@@ -292,10 +188,7 @@ const Services = ({
       ),
     ];
   });
-  // const totalServiceCost = services.data.reduce(
-  //   (acc, obj) => acc + obj.cost,
-  //   0
-  // );
+
   const columns = [
     {
       name: "Дата",
@@ -556,15 +449,7 @@ const Services = ({
             </Button>
           </DialogActions>
         </Dialog>
-        {/* <Dialog
-          open={add}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">Добави разход</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description"></DialogContentText> */}
+
         <AddExpense
           vehicle={vehicle}
           refresh={refresh}
@@ -575,102 +460,10 @@ const Services = ({
           setLoading={setLoading}
           add={add}
           setAdd={setAdd}
+          date={expenseDate}
+          setDate={setExpenseDate}
         />
-        {/* <div className="my-4">
-              <DemoContainer components={["DatePicker, DatePicker"]}>
-                <DatePicker
-                  fullWidth
-                  format="DD/MM/YYYY"
-                  id="date"
-                  label="Дата:"
-                  value={newServ.date}
-                  onChange={(newValue) => {
-                    const newData = { ...newServ };
-                    newData.date = newValue;
-                    setNewServ({ ...newData });
-                  }}
-                />
-              </DemoContainer>
-            </div>
-            <div className="my-4">
-              <TextField
-                fullWidth
-                onChange={handleChange}
-                value={newServ.type}
-                name="type"
-                id="type"
-                select
-                label="Вид:"
-              >
-                <MenuItem key={1} value="РЕМОНТ">
-                  РЕМОНТ
-                </MenuItem>
-                <MenuItem key={2} value="КОНСУМАТИВ">
-                  КОНСУМАТИВ
-                </MenuItem>
-                <MenuItem key={3} value="ГУМИ">
-                  ГУМИ
-                </MenuItem>
-                <MenuItem key={4} value="ДРУГИ">
-                  ДРУГИ
-                </MenuItem>
-              </TextField>
-            </div>
-            <div className="my-4">
-              <TextField
-                fullWidth
-                onChange={handleChange}
-                value={newServ.desc}
-                name="desc"
-                id="desc"
-                label="Описание:"
-              />
-            </div>
-            <div className="my-4">
-              <TextField
-                fullWidth
-                onChange={handleChange}
-                value={newServ.invoice}
-                name="invoice"
-                id="invoice"
-                label="Фактура №:"
-              />
-            </div>
-            <div className="my-4">
-              <TextField
-                fullWidth
-                onChange={handleChange}
-                value={newServ.km}
-                name="km"
-                id="km"
-                label="Километри:"
-              />
-            </div>
-            <div className="my-4">
-              <TextField
-                fullWidth
-                onChange={handleChange}
-                value={newServ.cost}
-                name="cost"
-                id="cost"
-                label="Стойност:"
-              />
-            </div> */}
-        {/* </DialogContent>
-          <DialogActions>
-            <Button
-              color="error"
-              variant="contained"
-              onClick={handleClose}
-              autoFocus
-            >
-              Отказ
-            </Button>
-            <Button variant="contained" onClick={handleSave} autoFocus>
-              Добави
-            </Button>
-          </DialogActions>
-        </Dialog> */}
+
         {handleLoading()}
         {loading ? (
           <CircularProgress />

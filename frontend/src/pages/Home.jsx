@@ -12,9 +12,11 @@ const BigButton = styled(Button)({
   fontWeight: 800,
   fontSize: 24,
   padding: 12,
-
   borderRadius: 4,
+  border: "grey solid 4px",
   minHeight: "100%",
+  boxShadow: "5px 3px 3px 3px grey",
+  minHeight: "150px",
 });
 
 const Home = () => {
@@ -56,96 +58,104 @@ const Home = () => {
     navigate("/login");
   };
   return (
-    <>
-      <Box className="flex justify-center">
-        <Box>
-          <h2 className="text-2xl text-center">УПРАВЛЕНИЕ НА АКТИВИТЕ</h2>
-          <Box
-            sx={{ display: "flex", justifyContent: "space-between" }}
-            className="bg-white  border-2 border-blue-400 rounded-xl w-[600px] p-4 mx-auto"
-          >
-            <Grid container spacing={2}>
-              {" "}
-              <Grid item xs={6}>
-                <Box sx={{ height: "100%" }}>
-                  <BigButton
-                    onClick={() => navigate("/vehicles")}
-                    fullWidth
-                    variant="contained"
-                  >
-                    АВТОМОБИЛИ
-                  </BigButton>
-                </Box>
-              </Grid>
-              <Grid item xs={6}>
-                <Box sx={{}}>
-                  <BigButton
-                    disabled={
-                      userRole.includes("it") || userRole.includes("admin")
-                        ? false
-                        : true
-                    }
-                    onClick={() =>
-                      userRole.includes("it") || userRole.includes("admin")
-                        ? navigate("/hr")
-                        : ""
-                    }
-                    fullWidth
-                    color="secondary"
-                    variant="contained"
-                  >
-                    ИТ ТЕХНИКА
-                  </BigButton>
-                </Box>
-              </Grid>
-              <Grid item xs={6}>
-                <Box sx={{}}>
-                  <BigButton
-                    disabled={
-                      userRole.includes("cool") || userRole.includes("admin")
-                        ? false
-                        : true
-                    }
-                    onClick={() =>
-                      userRole.includes("cool") || userRole.includes("admin")
-                        ? navigate("/hr")
-                        : ""
-                    }
-                    fullWidth
-                    color="secondary"
-                    variant="contained"
-                  >
-                    ХЛАДИЛНА ТЕХНИКА
-                  </BigButton>
-                </Box>
-              </Grid>
-              <Grid item xs={6}>
-                <Box sx={{}}>
-                  <BigButton
-                    disabled={
-                      userRole.includes("hr") || userRole.includes("admin")
-                        ? false
-                        : true
-                    }
-                    onClick={() =>
-                      userRole.includes("hr") || userRole.includes("admin")
-                        ? navigate("/hr")
-                        : ""
-                    }
-                    fullWidth
-                    color="secondary"
-                    variant="contained"
-                  >
-                    ЧОВЕШКИ РЕСУРСИ
-                  </BigButton>
-                </Box>
-              </Grid>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <Box sx={{ width: "80%", height: "100%" }}>
+        <h2 className="text-2xl text-center">УПРАВЛЕНИЕ НА АКТИВИТЕ</h2>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "80%",
+            height: "100%",
+            padding: 4,
+            marginX: "auto",
+          }}
+          className="bg-white  border-2 border-blue-400 rounded-xl"
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Box sx={{ height: "100%" }}>
+                <BigButton
+                  onClick={() => navigate("/vehicles")}
+                  fullWidth
+                  variant="contained"
+                >
+                  АВТОМОБИЛИ
+                </BigButton>
+              </Box>
             </Grid>
-          </Box>
+            <Grid item xs={6}>
+              <Box sx={{}}>
+                <BigButton
+                  disabled={
+                    userRole.includes("it") || userRole.includes("admin")
+                      ? false
+                      : true
+                  }
+                  onClick={() =>
+                    userRole.includes("it") || userRole.includes("admin")
+                      ? navigate("/hr")
+                      : ""
+                  }
+                  fullWidth
+                  color="secondary"
+                  variant="contained"
+                >
+                  ИТ ТЕХНИКА
+                </BigButton>
+              </Box>
+            </Grid>
+            <Grid item xs={6}>
+              <Box sx={{}}>
+                <BigButton
+                  disabled={
+                    userRole.includes("cool") || userRole.includes("admin")
+                      ? false
+                      : true
+                  }
+                  onClick={() =>
+                    userRole.includes("cool") || userRole.includes("admin")
+                      ? navigate("/hr")
+                      : ""
+                  }
+                  fullWidth
+                  color="secondary"
+                  variant="contained"
+                >
+                  ХЛАДИЛНА ТЕХНИКА
+                </BigButton>
+              </Box>
+            </Grid>
+            <Grid item xs={6}>
+              <Box sx={{}}>
+                <BigButton
+                  disabled={
+                    userRole.includes("hr") || userRole.includes("admin")
+                      ? false
+                      : true
+                  }
+                  onClick={() =>
+                    userRole.includes("hr") || userRole.includes("admin")
+                      ? navigate("/hr")
+                      : ""
+                  }
+                  fullWidth
+                  color="secondary"
+                  variant="contained"
+                >
+                  ЧОВЕШКИ РЕСУРСИ
+                </BigButton>
+              </Box>
+            </Grid>
+          </Grid>
         </Box>
       </Box>
-      {/* <ToastContainer /> */}
-    </>
+    </Box>
   );
 };
 

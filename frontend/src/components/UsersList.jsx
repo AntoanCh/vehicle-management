@@ -27,6 +27,14 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import MUIDataTable from "mui-datatables";
 import dayjs from "dayjs";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableRow from "@mui/material/TableRow";
+import TableHead from "@mui/material/TableHead";
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import DraggablePaper from "./DraggablePaper";
 
 const Users = ({ users }) => {
   const [loading, setLoading] = useState(false);
@@ -39,12 +47,16 @@ const Users = ({ users }) => {
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleClickChip = () => {
-    console.info("You clicked the Chip.");
+  const handleClickChip = (item) => {
+    const arr = [...editUser.role];
+    arr.push(item);
+    setEditUser({ ...editUser, role: [...arr] });
   };
 
   const handleDeleteChip = (index) => {
-    setEditUser({ ...editUser, role: editUser.role.splice(index, 1) });
+    const arr = [...editUser.role];
+    arr.splice(index, 1);
+    setEditUser({ ...editUser, role: [...arr] });
   };
   const handleLoading = () => {
     setTimeout(() => {
@@ -142,7 +154,16 @@ const Users = ({ users }) => {
   const handleClose = () => {
     setEdit([false, 0, ""]);
   };
-  const roles = ["admin", "hr", "ОФИС", "СКЛАД", "IT", "FREEZER"];
+  const roles = [
+    "admin",
+    "hr",
+    "ОФИС",
+    "ВИТАЛИНО",
+    "БОРСА",
+    "ДРУГИ",
+    "IT",
+    "FREEZER",
+  ];
   const data = users.data
     ? users.data
         .map((obj) => {
@@ -288,51 +309,118 @@ const Users = ({ users }) => {
         </DialogActions>
       </Dialog>
       <Dialog
+        PaperComponent={DraggablePaper}
         open={edit[0]}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        maxWidth={"xl"}
       >
-        <DialogTitle id="alert-dialog-title">
+        <DialogTitle
+          style={{ cursor: "move", backgroundColor: "#42a5f5" }}
+          id="draggable-dialog-title"
+        >
           {editUser ? editUser.username : ""}
+          <IconButton
+            sx={{ width: "5%", margin: 0, padding: 0, float: "right" }}
+            color="error"
+            onClick={handleClose}
+          >
+            X
+          </IconButton>
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
-          <div>
+          <Box>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               <span style={{ color: "red" }}> {caps ? "CAPSLOCK ON" : ""}</span>
             </Box>
-          </div>
+          </Box>
 
           {edit[2] === "role" ? (
             <>
-              <div>
-                <span>Права: </span>
-                <span>
-                  {editUser
-                    ? editUser.role.map((item, index) => (
-                        <Chip
-                          color="primary"
-                          label={item}
-                          variant="outlined"
-                          onDelete={() => handleDeleteChip(index)}
-                        />
-                      ))
-                    : ""}
-                </span>
-              </div>
+              <Box>
+                <Box sx={{ display: "flex", marginTop: "10px" }}>
+                  <TableContainer
+                    component={Paper}
+                    sx={{ backgroundColor: "#bdbdbd", borderRadius: "10px" }}
+                  >
+                    <Table sx={{ minWidth: 300 }} size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>
+                            {editUser
+                              ? `Права на потребител ${editUser.username}`
+                              : ""}
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      {editUser
+                        ? editUser.role.map((item, index) => (
+                            <TableBody key={index}>
+                              <TableRow key={index} sx={{ margin: 0 }}>
+                                <TableCell
+                                  sx={{ fontWeight: 800, fontSize: 18 }}
+                                  component="th"
+                                  scope="row"
+                                >
+                                  {
+                                    <Chip
+                                      color="primary"
+                                      label={item}
+                                      variant="outlined"
+                                      onDelete={() => handleDeleteChip(index)}
+                                    />
+                                  }
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          ))
+                        : ""}
+                    </Table>
+                  </TableContainer>
+                  <Box sx={{ width: "20px" }}></Box>
+                  <TableContainer
+                    component={Paper}
+                    sx={{ backgroundColor: "#b0bec5", borderRadius: "10px" }}
+                  >
+                    <Table sx={{ minWidth: 300 }} size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Изберете права от списъка</TableCell>
+                        </TableRow>
+                      </TableHead>
+
+                      {roles
+                        .filter((item) => !editUser.role.includes(item))
+                        .map((item, index) => (
+                          <TableBody key={index}>
+                            <TableRow key={index} sx={[]}>
+                              <TableCell
+                                sx={{ fontWeight: 800, fontSize: 18 }}
+                                component="th"
+                                scope="row"
+                              >
+                                {
+                                  <Chip
+                                    color="secondary"
+                                    label={item}
+                                    icon={<KeyboardDoubleArrowLeftIcon />}
+                                    variant="outlined"
+                                    onClick={() => handleClickChip(item)}
+                                  />
+                                }
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        ))}
+                    </Table>
+                  </TableContainer>
+                </Box>
+              </Box>
               <div className="my-2">
                 <Stack direction="row" spacing={1}>
-                  {roles
-                    .filter((item) => !editUser.role.includes(item))
-                    .map((item) => (
-                      <Chip
-                        color="secondary"
-                        label={item}
-                        variant="outlined"
-                        onClick={handleClickChip}
-                      />
-                    ))}
+                  {}
                 </Stack>
               </div>
             </>
@@ -413,7 +501,7 @@ const Users = ({ users }) => {
           <Box sx={{ width: "50%", margin: "5px" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
               <MUIDataTable
-                title={"ШОФЬОРИ"}
+                title={"ПОТРЕБИТЕЛИ"}
                 data={data}
                 columns={columns}
                 options={options}

@@ -11,6 +11,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { bgBG } from "@mui/x-data-grid/locales";
+import Box from "@mui/material/Box";
 
 const VehicleRecords = ({ vehicle, userRole, username, records }) => {
   const [loading, setLoading] = useState(false);
@@ -26,77 +29,124 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
     setError([false, ""]);
   };
 
-  const data = records.data.map((obj) => {
-    return [
-      obj.driverName,
-      obj.pickupTime,
-      obj.dropoffTime,
-      obj.pickupKm.toString().slice(0, -3) +
+  const data = records.data.map((obj, index) => {
+    return {
+      id: index,
+      driver: obj.driverName,
+      pickupTime: obj.pickupTime,
+      dropoffTime: obj.dropoffTime,
+      pickupKm:
+        obj.pickupKm.toString().slice(0, -3) +
         " " +
         obj.pickupKm.toString().slice(-3),
-      obj.dropoffKm
+      dropoffKm: obj.dropoffKm
         ? obj.dropoffKm.toString().slice(0, -3) +
           " " +
           obj.dropoffKm.toString().slice(-3)
         : "в движение",
-      obj.destination ? obj.destination : "в движение",
-      obj.problem,
-    ];
+      destination: obj.destination ? obj.destination : "в движение",
+      problem: obj.problem,
+    };
   });
 
+  //
   const columns = [
+    { field: "id", headerName: "ID", width: 50 },
     {
-      name: "Шофьор",
+      field: "driver",
+      headerName: "Водач",
+      width: 150,
+      editable: false,
     },
     {
-      name: "Тръгване",
-      options: {
-        sortDirection: "desc",
-        customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY - HH:mm"),
-        filterOptions: {
-          logic: (date, filters, row) => {
-            console.log(date);
-            if (filters.length) return !date.includes(filters);
-          },
-          names: records.data
-            ? records.data
-                .map((rec) => dayjs(rec.pickupTime).format("DD/MM/YYYY"))
-                .filter((rec, index, records) => records.indexOf(rec) === index)
-            : [],
-        },
-      },
+      field: "pickupTime",
+      headerName: "Тръгване",
+      width: 150,
+      valueFormatter: (value) => dayjs(value).format("DD.MM.YYYY - HH:mm"),
     },
     {
-      name: "Връщане",
-      options: {
-        customBodyRender: (value) =>
-          value ? dayjs(value).format("DD/MM/YYYY - HH:mm") : "в движение",
-      },
+      field: "dropoffTime",
+      headerName: "Връщане",
+      width: 150,
+      valueFormatter: (value) => dayjs(value).format("DD.MM.YYYY - HH:mm"),
     },
     {
-      name: "Километри на тръгване",
-      options: {
-        filter: false,
-      },
+      field: "pickupKm",
+      headerName: "Километри на тръгване",
+      width: 160,
     },
     {
-      name: "Километри на връщане",
-      options: {
-        filter: false,
-      },
-      customBodyRender: (value) => (value ? value : "в движение"),
+      field: "dropoffKm",
+      headerName: "Километри на връщане",
+      width: 160,
     },
     {
-      name: "Маршрут",
-      options: {
-        customBodyRender: (value) => (value ? value : "в движение"),
-      },
+      field: "destination",
+      headerName: "Маршрут",
+      width: 160,
     },
     {
-      name: "Забележки",
-      options: {},
+      field: "problems",
+      headerName: "Забележки",
+      width: 160,
     },
   ];
+
+  //
+
+  // const columns = [
+  //   {
+  //     name: "Шофьор",
+  //   },
+  //   {
+  //     name: "Тръгване",
+  //     options: {
+  //       sortDirection: "desc",
+  //       customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY - HH:mm"),
+  //       filterOptions: {
+  //         logic: (date, filters, row) => {
+  //           console.log(date);
+  //           if (filters.length) return !date.includes(filters);
+  //         },
+  //         names: records.data
+  //           ? records.data
+  //               .map((rec) => dayjs(rec.pickupTime).format("DD/MM/YYYY"))
+  //               .filter((rec, index, records) => records.indexOf(rec) === index)
+  //           : [],
+  //       },
+  //     },
+  //   },
+  //   {
+  //     name: "Връщане",
+  //     options: {
+  //       customBodyRender: (value) =>
+  //         value ? dayjs(value).format("DD/MM/YYYY - HH:mm") : "в движение",
+  //     },
+  //   },
+  //   {
+  //     name: "Километри на тръгване",
+  //     options: {
+  //       filter: false,
+  //     },
+  //   },
+  //   {
+  //     name: "Километри на връщане",
+  //     options: {
+  //       filter: false,
+  //     },
+  //     customBodyRender: (value) => (value ? value : "в движение"),
+  //   },
+  //   {
+  //     name: "Маршрут",
+  //     options: {
+  //       customBodyRender: (value) => (value ? value : "в движение"),
+  //     },
+  //   },
+  //   {
+  //     name: "Забележки",
+  //     options: {},
+  //   },
+  // ];
   const options = {
     filterType: "dropdown",
     selectableRows: false,
@@ -161,14 +211,32 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
         {loading ? (
           <CircularProgress />
         ) : (
-          <div className="my-4">
-            <MUIDataTable
-              title={"ДВИЖЕНИЕ"}
-              data={data}
+          <Box sx={{ backgroundColor: "white" }}>
+            <DataGrid
+              initialState={{
+                sorting: {
+                  sortModel: [{ field: "pickupTime", sort: "desc" }],
+                },
+              }}
+              localeText={bgBG.components.MuiDataGrid.defaultProps.localeText}
+              rows={data}
               columns={columns}
-              options={options}
+              slots={{ toolbar: GridToolbar }}
+              slotProps={{
+                toolbar: {
+                  showQuickFilter: true,
+                },
+              }}
             />
-          </div>
+          </Box>
+          // <div className="my-4">
+          //   <MUIDataTable
+          //     title={"ДВИЖЕНИЕ"}
+          //     data={data}
+          //     columns={columns}
+          //     options={options}
+          //   />
+          // </div>
         )}
       </LocalizationProvider>
     </div>

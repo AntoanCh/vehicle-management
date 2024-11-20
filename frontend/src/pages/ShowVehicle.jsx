@@ -426,29 +426,29 @@ const ShowVehicle = () => {
                           width: "20%",
                           size: "small",
                           padding: "0",
-                          margin: "0",
+                          margin: "none",
                           variant: "standard",
                         },
                         inputAdornment: {
                           padding: "0",
-                          margin: "0",
+                          margin: "none",
                         },
                       }}
                       sx={{
                         "& .MuiInputBase-input": {
                           padding: "0",
-                          margin: "0",
+                          margin: "none",
                           width: "70%",
                           height: "15px",
                           fontWeight: 800,
                         },
                         "& .MuiInputBase-root": {
                           padding: 0,
-                          margin: 0,
+                          margin: "none",
 
                           "& .MuiButtonBase-root": {
                             padding: 0,
-                            margin: 0,
+                            margin: "none",
                           },
                           "& .MuiInputBase-input.Mui-disabled": {
                             WebkitTextFillColor: "black", //Adjust text color here
@@ -1083,7 +1083,7 @@ const ShowVehicle = () => {
                         userRole.includes(vehicle.site)) &&
                       !vehicle.sold ? (
                         <Button
-                          sx={{ maxHeight: "20px" }}
+                          sx={{ maxHeight: "20px", marginLeft: "10px" }}
                           variant="contained"
                           onClick={handleCheck}
                           color="primary"
@@ -1104,29 +1104,29 @@ const ShowVehicle = () => {
                               width: "20%",
                               size: "small",
                               padding: "0px",
-                              margin: "0",
+                              margin: "none",
                               variant: "standard",
                             },
                             inputAdornment: {
                               padding: "0px",
-                              margin: "0",
+                              margin: "none",
                             },
                           }}
                           sx={{
                             "& .MuiInputBase-input": {
                               padding: "0px",
-                              margin: "0",
+                              margin: "none",
                               width: "70%",
                               height: "15px",
                               fontWeight: 800,
                             },
                             "& .MuiInputBase-root": {
                               padding: 0,
-                              margin: 0,
+                              margin: "none",
 
                               "& .MuiButtonBase-root": {
                                 padding: 0,
-                                margin: 0,
+                                margin: "none",
                               },
                               "& .MuiInputBase-input.Mui-disabled": {
                                 WebkitTextFillColor: "black", //Adjust text color here
@@ -1186,7 +1186,7 @@ const ShowVehicle = () => {
                         {edit ? (
                           <Checkbox
                             sx={{
-                              margin: "0",
+                              margin: "none",
                               padding: "0",
                               paddingLeft: "2px",
                             }}
@@ -1226,29 +1226,29 @@ const ShowVehicle = () => {
                                   width: "20%",
                                   size: "small",
                                   padding: "0",
-                                  margin: "0",
+                                  margin: "none",
                                   variant: "standard",
                                 },
                                 inputAdornment: {
                                   padding: "0",
-                                  margin: "0",
+                                  margin: "none",
                                 },
                               }}
                               sx={{
                                 "& .MuiInputBase-input": {
                                   padding: "0",
-                                  margin: "0",
+                                  margin: "none",
                                   width: "70%",
                                   height: "15px",
                                   fontWeight: 800,
                                 },
                                 "& .MuiInputBase-root": {
                                   padding: 0,
-                                  margin: 0,
+                                  margin: "none",
 
                                   "& .MuiButtonBase-root": {
                                     padding: 0,
-                                    margin: 0,
+                                    margin: "none",
                                   },
                                   "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "black", //Adjust text color here
@@ -1347,29 +1347,29 @@ const ShowVehicle = () => {
                                 width: "20%",
                                 size: "small",
                                 padding: "0",
-                                margin: "0",
+                                margin: "none",
                                 variant: "standard",
                               },
                               inputAdornment: {
                                 padding: "0",
-                                margin: "0",
+                                margin: "none",
                               },
                             }}
                             sx={{
                               "& .MuiInputBase-input": {
                                 padding: "0px",
-                                margin: "0",
+                                margin: "none",
                                 width: "70%",
                                 height: "15px",
                                 fontWeight: 800,
                               },
                               "& .MuiInputBase-root": {
                                 padding: 0,
-                                margin: 0,
+                                margin: "none",
 
                                 "& .MuiButtonBase-root": {
                                   padding: 0,
-                                  margin: 0,
+                                  margin: "none",
                                 },
                                 "& .MuiInputBase-input.Mui-disabled": {
                                   WebkitTextFillColor: "black", //Adjust text color here
@@ -1474,29 +1474,29 @@ const ShowVehicle = () => {
                                 width: "20%",
                                 size: "small",
                                 padding: "0",
-                                margin: "0",
+                                margin: "none",
                                 variant: "standard",
                               },
                               inputAdornment: {
                                 padding: "0",
-                                margin: "0",
+                                margin: "none",
                               },
                             }}
                             sx={{
                               "& .MuiInputBase-input": {
                                 padding: "0",
-                                margin: "0",
+                                margin: "none",
                                 width: "70%",
                                 height: "15px",
                                 fontWeight: 800,
                               },
                               "& .MuiInputBase-root": {
                                 padding: 0,
-                                margin: 0,
+                                margin: "none",
 
                                 "& .MuiButtonBase-root": {
                                   padding: 0,
-                                  margin: 0,
+                                  margin: "none",
                                 },
                                 "& .MuiInputBase-input.Mui-disabled": {
                                   WebkitTextFillColor: "black", //Adjust text color here
@@ -1619,29 +1619,29 @@ const ShowVehicle = () => {
                                   width: "20%",
                                   size: "small",
                                   padding: "0px",
-                                  margin: "0",
+                                  margin: "none",
                                   variant: "standard",
                                 },
                                 inputAdornment: {
                                   padding: "0px",
-                                  margin: "0",
+                                  margin: "none",
                                 },
                               }}
                               sx={{
                                 "& .MuiInputBase-input": {
                                   padding: "0px",
-                                  margin: "0",
+                                  margin: "none",
                                   width: "70%",
                                   height: "15px",
                                   fontWeight: 800,
                                 },
                                 "& .MuiInputBase-root": {
                                   padding: 0,
-                                  margin: 0,
+                                  margin: "none",
 
                                   "& .MuiButtonBase-root": {
                                     padding: 0,
-                                    margin: 0,
+                                    margin: "none",
                                   },
                                   "& .MuiInputBase-input.Mui-disabled": {
                                     WebkitTextFillColor: "black", //Adjust text color here
@@ -1720,29 +1720,29 @@ const ShowVehicle = () => {
                                 width: "20%",
                                 size: "small",
                                 padding: "0",
-                                margin: "0",
+                                margin: "none",
                                 variant: "standard",
                               },
                               inputAdornment: {
                                 padding: "0",
-                                margin: "0",
+                                margin: "none",
                               },
                             }}
                             sx={{
                               "& .MuiInputBase-input": {
                                 padding: "0",
-                                margin: "0",
+                                margin: "none",
                                 width: "70%",
                                 height: "15px",
                                 fontWeight: 800,
                               },
                               "& .MuiInputBase-root": {
                                 padding: 0,
-                                margin: 0,
+                                margin: "none",
 
                                 "& .MuiButtonBase-root": {
                                   padding: 0,
-                                  margin: 0,
+                                  margin: "none",
                                 },
                                 "& .MuiInputBase-input.Mui-disabled": {
                                   WebkitTextFillColor: "black", //Adjust text color here
@@ -1781,29 +1781,29 @@ const ShowVehicle = () => {
                                 width: "20%",
                                 size: "small",
                                 padding: "0",
-                                margin: "0",
+                                margin: "none",
                                 variant: "standard",
                               },
                               inputAdornment: {
                                 padding: "0",
-                                margin: "0",
+                                margin: "none",
                               },
                             }}
                             sx={{
                               "& .MuiInputBase-input": {
                                 padding: "0px",
-                                margin: "0",
+                                margin: "none",
                                 width: "70%",
                                 height: "15px",
                                 fontWeight: 800,
                               },
                               "& .MuiInputBase-root": {
                                 padding: 0,
-                                margin: 0,
+                                margin: "none",
 
                                 "& .MuiButtonBase-root": {
                                   padding: 0,
-                                  margin: 0,
+                                  margin: "none",
                                 },
                                 "& .MuiInputBase-input.Mui-disabled": {
                                   WebkitTextFillColor: "black", //Adjust text color here

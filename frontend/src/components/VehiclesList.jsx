@@ -35,6 +35,7 @@ const BlinkedBox = styled("div")({
 });
 
 export default function VehiclesList({ data, filter, setFilter }) {
+  const [expenseDate, setExpenseDate] = useState(dayjs());
   const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
   const [expenses, setExpenses] = useState({});
@@ -107,15 +108,20 @@ export default function VehiclesList({ data, filter, setFilter }) {
     .filter((obj) =>
       filter === "all" ? obj.site !== "ПРОДАДЕНИ" : obj.site === filter
     )
+    .sort((a, b) => a.reg.replace(/\D/g, "") - b.reg.replace(/\D/g, ""))
     .map((obj) => {
       return [
         obj.make + " " + obj.model,
         obj.reg,
         parseInt(obj.price),
         dayjs().diff(obj.startDate, "month"),
-        obj.totalServiceCost,
-        (obj.totalServiceCost / dayjs().diff(obj.startDate, "month")).toFixed(
-          2
+        obj.totalServiceCost ? obj.totalServiceCost : 0,
+        parseFloat(
+          obj.totalServiceCost
+            ? (
+                obj.totalServiceCost / dayjs().diff(obj.startDate, "month")
+              ).toFixed(2)
+            : 0
         ),
         obj.insDate,
         obj.kaskoDate,
@@ -130,8 +136,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         obj.issue,
         obj,
       ];
-    })
-    .sort();
+    });
 
   const columns = [
     {
@@ -153,7 +158,25 @@ export default function VehiclesList({ data, filter, setFilter }) {
         },
       },
     },
-    { name: "Рег №" },
+    {
+      name: "Рег №",
+      options: {
+        sortCompare: (order) => {
+          return (obj1, obj2) => {
+            let val1 = obj1.data.replace(/\D/g, "");
+            let val2 = obj2.data.replace(/\D/g, "");
+
+            return (val1 - val2) * (order === "asc" ? 1 : -1);
+          };
+        },
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return value
+            .split(/(\d{4})/)
+            .join(" ")
+            .trim();
+        },
+      },
+    },
     {
       name: "Цена",
       options: {
@@ -455,6 +478,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
       },
     });
   const options = {
+    resizableColumns: true,
     filterType: "dropdown",
     rowHover: true,
     print: false,
@@ -514,6 +538,8 @@ export default function VehiclesList({ data, filter, setFilter }) {
           username={username}
           refresh={refresh}
           setRefresh={setRefresh}
+          date={expenseDate}
+          setDate={setExpenseDate}
         />
       )}
       <Dialog
