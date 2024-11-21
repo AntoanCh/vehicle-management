@@ -266,7 +266,7 @@ const Scan = () => {
                 <CancelIcon />
               </Button>
               <CountdownTimer
-                initialSeconds={30}
+                initialSeconds={60}
                 stop={stopTimer}
                 driver={driver}
                 setDriver={setDriver}

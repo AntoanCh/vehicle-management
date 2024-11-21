@@ -72,6 +72,8 @@ import FormControl from "@mui/material/FormControl";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import FilledInput from "@mui/material/FilledInput";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import NightlightRoundIcon from "@mui/icons-material/NightlightRound";
+import LightModeIcon from "@mui/icons-material/LightMode";
 
 const drawerWidth = 260;
 
@@ -140,7 +142,7 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-const HeaderMenu = () => {
+const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
   //HEADER
   const [tab, setTab] = useState("");
 
@@ -456,6 +458,13 @@ const HeaderMenu = () => {
           </Box>
 
           <Box>
+            <IconButton
+              variant="outlined"
+              color="white"
+              onClick={() => setDarkTheme((darkTheme) => !darkTheme)}
+            >
+              {darkTheme ? <NightlightRoundIcon /> : <LightModeIcon />}
+            </IconButton>
             <Chip
               size="large"
               variant="contained"

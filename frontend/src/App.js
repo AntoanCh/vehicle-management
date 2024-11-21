@@ -35,34 +35,28 @@ import {
   useColorScheme,
 } from "@mui/material/styles";
 
-const theme = createTheme({
-  colorSchemes: {
-    dark: true,
-  },
-  palette: {
-    // mode: "dark",
-    secondary: {
-      main: "#E33E7F",
-    },
-  },
-});
-
 function App() {
   const [filter, setFilter] = React.useState("all");
-  // const { mode, setMode } = useColorScheme();
-  // if (!mode) {
-  //   return null;
-  // }
+  const [darkTheme, setDarkTheme] = useState(false);
+
+  const theme = createTheme({
+    palette: {
+      mode: darkTheme ? "dark" : "light",
+      secondary: {
+        main: "#E33E7F",
+      },
+    },
+  });
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: "flex" }} className="bg-gray-500">
+      <Box sx={{ display: "flex", backgroundColor: "#78909c" }}>
         <CssBaseline />
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <BrowserRouter>
-            <HeaderMenu />
+            <HeaderMenu setDarkTheme={setDarkTheme} darkTheme={darkTheme} />
             {/* <Header /> */}
             <Box
               sx={{

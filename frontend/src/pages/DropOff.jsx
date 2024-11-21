@@ -296,7 +296,6 @@ const DropOff = () => {
               sx={{
                 "& .MuiInputBase-input": {
                   fontSize: 18,
-
                   padding: 1,
                   fontWeight: 800,
                   textAlign: "center",
@@ -422,6 +421,7 @@ const DropOff = () => {
               />
               <TextField
                 label="КИЛОМЕТРИ НА ВРЪЩАНЕ"
+                autoFocus
                 onChange={handleKm}
                 onBlur={validateKm}
                 InputLabelProps={{ shrink: true }}
@@ -445,7 +445,7 @@ const DropOff = () => {
                     textAlign: "center",
                   },
                   "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "black", //Adjust text color here
+                    WebkitTextFillColor: "black",
                   },
                 }}
               />

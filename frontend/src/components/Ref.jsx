@@ -13,17 +13,32 @@ import Box from "@mui/material/Box";
 import { BarChart } from "@mui/x-charts/BarChart";
 import Typography from "@mui/material/Typography";
 import Slider from "@mui/material/Slider";
+import { Button, ButtonGroup, MenuItem, TextField } from "@mui/material";
+
+function valuetext(slider) {
+  return `${slider}°C`;
+}
 
 const Ref = ({ vehicle, services, userRole, username }) => {
+  const [selected, setSelected] = useState();
+  const [filter, setFilter] = useState("РЕМОНТИ");
+  const [slider, setSlider] = React.useState([0, 0]);
+  const [monthsArr, setMonthsArr] = useState([]);
   const months = dayjs().diff(vehicle.startDate, "month");
   const endDate = dayjs();
   let startDate = dayjs(vehicle.startDate);
-  const monthsArr = [];
-  while (startDate.isBefore(endDate, "month")) {
-    monthsArr.push(startDate.format("MM/YYYY"));
-
-    startDate = startDate.add(1, "month");
-  }
+  // const monthsArr = [];
+  // monthsArr.push(startDate.format("MM/YYYY"));
+  useEffect(() => {
+    const arr = [];
+    let start = startDate;
+    while (start.isBefore(endDate, "month")) {
+      arr.push(start.format("MM/YYYY"));
+      start = start.add(1, "month");
+    }
+    setMonthsArr([...arr]);
+    setSlider([0, months]);
+  }, [monthsArr]);
   //This sums all cost by month and creates an array
   const monthlyCost = monthsArr.map((month) =>
     services.data
@@ -33,9 +48,18 @@ const Ref = ({ vehicle, services, userRole, username }) => {
       .toFixed(2)
   );
 
+  const handleChangeFilter = (e) => {
+    setFilter(e.target.value);
+  };
+
+  const handleChangeSlider = (event, newValue) => {
+    setSlider(newValue);
+  };
   return (
-    <Box>
-      <h1 className="text-center my-4 text-2xl">Справка МПС</h1>
+    <Box sx={{ backgroundColor: "#78909c", borderRadius: "10px" }}>
+      <h1 className="text-center my-4 text-2xl">Справка Разходи</h1>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}></Box>
+
       <Box
         sx={{ display: "flex", width: "100%", justifyContent: "space-around" }}
       >
@@ -80,34 +104,64 @@ const Ref = ({ vehicle, services, userRole, username }) => {
                     {(vehicle.km - vehicle.startKm).toLocaleString()} км.
                   </TableCell>
                 </TableRow>
+
                 <TableRow
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
-                    Общо месеци:
+                    Дата на закупуване:
                   </TableCell>
-                  <TableCell align="right">{months} м.</TableCell>
-                </TableRow>
-                <TableRow
-                  sx={{
-                    "&:last-child td, &:last-child th": {
-                      border: 0,
-                    },
-                  }}
-                >
-                  <TableCell
-                    sx={{ textAlign: "center", fontWeight: "800" }}
-                    component="th"
-                    scope="row"
-                  >
-                    Ремонти
+                  <TableCell align="right">
+                    {dayjs(vehicle.purchaseDate).format("DD.MM.YYYY")}
                   </TableCell>
                 </TableRow>
                 <TableRow
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
-                    Ремонти общо:
+                    Време на притежание:
+                  </TableCell>
+                  <TableCell align="right">
+                    {`${
+                      Math.floor(
+                        dayjs().diff(vehicle.purchaseDate, "month") / 12
+                      )
+                        ? Math.floor(
+                            dayjs().diff(vehicle.purchaseDate, "month") / 12
+                          ) + "г. "
+                        : ""
+                    } ${dayjs().diff(vehicle.purchaseDate, "month") % 12}м.`}
+                  </TableCell>
+                </TableRow>
+                <TableRow
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    Време от 1ви въведен ремонт:
+                  </TableCell>
+                  <TableCell align="right">
+                    {`${
+                      Math.floor(months / 12)
+                        ? Math.floor(months / 12) + "г. "
+                        : ""
+                    } ${months % 12}м.`}
+                  </TableCell>
+                </TableRow>
+                <TableRow
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    Цена на МПС:
+                  </TableCell>
+                  <TableCell align="right">
+                    {parseFloat(vehicle.price).toLocaleString()} лв.
+                  </TableCell>
+                </TableRow>
+                <TableRow
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    Разходи общо:
                   </TableCell>
                   <TableCell align="right">
                     {services.data
@@ -120,26 +174,7 @@ const Ref = ({ vehicle, services, userRole, username }) => {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
-                    Обща стойност МПС:
-                  </TableCell>
-                  <TableCell align="right">
-                    {vehicle.price
-                      ? (
-                          parseFloat(
-                            services.data.reduce(
-                              (acc, obj) => acc + obj.cost,
-                              0
-                            )
-                          ) + parseFloat(vehicle.price)
-                        ).toLocaleString() + " лв."
-                      : "Няма данни"}
-                  </TableCell>
-                </TableRow>
-                <TableRow
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    Среден месечен разход ремонти:
+                    Среден месечен разход:
                   </TableCell>
                   <TableCell align="right">
                     {months
@@ -156,7 +191,7 @@ const Ref = ({ vehicle, services, userRole, username }) => {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
-                    Среден разход на км (ремонти):
+                    Среден разход на км:
                   </TableCell>
                   <TableCell align="right">
                     {vehicle.km - vehicle.startKm
@@ -168,6 +203,73 @@ const Ref = ({ vehicle, services, userRole, username }) => {
                           (vehicle.km - vehicle.startKm)
                         ).toFixed(2) + " лв."
                       : "Няма данни"}
+                  </TableCell>
+                </TableRow>
+                <TableRow
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    Цена + Разходи:
+                  </TableCell>
+                  <TableCell align="right">
+                    {vehicle.price
+                      ? (
+                          parseFloat(
+                            services.data.reduce(
+                              (acc, obj) => acc + obj.cost,
+                              0
+                            )
+                          ) + parseFloat(vehicle.price)
+                        ).toLocaleString() + " лв."
+                      : "Няма данни"}
+                  </TableCell>
+                </TableRow>
+                <TableRow
+                  sx={{
+                    "&:last-child td, &:last-child th": {
+                      border: 0,
+                    },
+                  }}
+                >
+                  <TableCell
+                    sx={{ textAlign: "center", fontWeight: "800" }}
+                    component="th"
+                    scope="row"
+                  >
+                    {`Разходи`}
+                    <TextField
+                      value={filter}
+                      select
+                      SelectProps={{ sx: { width: "200px", height: "20px" } }}
+                      name="site"
+                      onChange={handleChangeFilter}
+                      variant="standard"
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          fontSize: 18,
+                          height: 4,
+                          padding: 1,
+                          fontWeight: 800,
+                          textAlign: "center",
+                        },
+                        "& .MuiInputBase-input.Mui-disabled": {
+                          WebkitTextFillColor: "black", //Adjust text color here
+                        },
+                      }}
+                    >
+                      <MenuItem key={1} value={"РЕМОНТИ"}>
+                        РЕМОНТИ
+                      </MenuItem>
+                      <MenuItem key={2} value={"ГУМИ"}>
+                        ГУМИ
+                      </MenuItem>
+                      <MenuItem key={3} value={"КОНСУМАТИВИ"}>
+                        КОНСУМАТИВИ
+                      </MenuItem>
+                      <MenuItem key={4} value={"ДРУГИ"}>
+                        ДРУГИ
+                      </MenuItem>
+                    </TextField>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -183,6 +285,7 @@ const Ref = ({ vehicle, services, userRole, username }) => {
           }}
         >
           <BarChart
+            // barLabel="value"
             height={400}
             xAxis={[
               {
@@ -192,6 +295,15 @@ const Ref = ({ vehicle, services, userRole, username }) => {
             ]}
             series={[{ data: monthlyCost }]}
             //   {...chartSetting}
+          />
+          <Slider
+            min={0}
+            max={months}
+            // getAriaLabel={() => "Temperature range"}
+            value={slider}
+            onChange={handleChangeSlider}
+            valueLabelDisplay="auto"
+            getAriaValueText={valuetext}
           />
         </Box>
       </Box>
