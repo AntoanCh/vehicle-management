@@ -7,17 +7,13 @@ import * as React from "react";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import Box from "@mui/material/Box";
 import dayjs from "dayjs";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import { useLocation } from "react-router-dom";
 import CarRepairIcon from "@mui/icons-material/CarRepair";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Alert from "@mui/material/Alert";
+import ErrorDialog from "../components/ErrorDialog";
 
 const DropOff = () => {
   const [loading, setLoading] = useState(false);
@@ -29,7 +25,7 @@ const DropOff = () => {
   const [problems, setProblems] = useState("");
   const [km, setKm] = useState("");
   const [kmError, setKmError] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState([false, ""]);
   const [destination, setDestination] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
@@ -172,36 +168,10 @@ const DropOff = () => {
       setKmError(false);
     }
   };
-  const handleClose = () => {
-    setError(false);
-  };
-
   return (
-    <div>
-      <Dialog
-        maxWidth={"xs"}
-        open={error}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"ГРЕШКА"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Моля, попълнете маршрут и километри на връщане
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            autofocus
-            color="primary"
-            variant="contained"
-            onClick={handleClose}
-          >
-            добре
-          </Button>
-        </DialogActions>
-      </Dialog>{" "}
+    <Box>
+      <ErrorDialog error={error} setError={setError} />
+
       <Box
         sx={{
           backgroundColor: "#ccc",
@@ -527,7 +497,10 @@ const DropOff = () => {
           fullWidth
           onClick={() => {
             if (!destination || !km) {
-              setError(true);
+              setError([
+                true,
+                "Моля, попълнете маршрут и километри на връщане",
+              ]);
             } else {
               handleDropOff(false);
             }
@@ -536,7 +509,7 @@ const DropOff = () => {
           ВЪРНИ АВТОМОБИЛ
         </Button>
       </Box>
-    </div>
+    </Box>
   );
 };
 

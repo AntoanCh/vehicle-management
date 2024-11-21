@@ -3,12 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { Button, MenuItem, TextField } from "@mui/material";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Input from "@mui/material/Input";
 import FilledInput from "@mui/material/FilledInput";
 import InputLabel from "@mui/material/InputLabel";
 import { Box } from "@mui/material";
@@ -18,6 +12,7 @@ import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import ErrorDialog from "../components/ErrorDialog";
 
 const Login = () => {
   const [users, setUsers] = useState();
@@ -49,9 +44,6 @@ const Login = () => {
     });
   };
   const handleClickShowPassword = () => setShowPassword((show) => !show);
-  const handleError = () => {
-    setError(false, "");
-  };
 
   const handleSuccess = (msg) =>
     toast.success(msg, {
@@ -92,30 +84,21 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center">
-      <div>
-        <Dialog
-          open={error[0]}
-          onClose={handleError}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{"Грешка"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {error[1]}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button variant="contained" onClick={handleError} autoFocus>
-              Добре
-            </Button>
-          </DialogActions>
-        </Dialog>
+    <Box sx={{ display: "flex", justifyContent: "center" }}>
+      <Box>
+        <ErrorDialog error={error} setError={setError} />
         <h2 className="text-2xl text-center"> Вход Потребител</h2>
         <form action="">
-          <div className="bg-gray-300 flex flex-col border-2 border-blue-400 rounded-xl w-[600px] p-4 mx-auto">
-            <div className="my-4">
+          <Box
+            sx={{
+              padding: "15px",
+              width: "600px",
+              border: "3px solid #29b6f6",
+              borderRadius: "10px",
+              backgroundColor: "#e0e0e0",
+            }}
+          >
+            <Box sx={{ marginY: "5px" }}>
               <TextField
                 fullWidth
                 name="username"
@@ -137,12 +120,12 @@ const Login = () => {
                   </MenuItem>
                 )}
               </TextField>
-            </div>
+            </Box>
             <Box sx={{ display: "flex", flexDirection: "row-reverse" }}>
               <span style={{ color: "red" }}> {caps ? "CAPSLOCK ON" : ""}</span>
             </Box>
 
-            <div className="my-4">
+            <Box sx={{ marginY: "15px" }}>
               <FormControl fullWidth variant="filled">
                 <InputLabel htmlFor="filled-adornment-password">
                   Парола:
@@ -183,8 +166,8 @@ const Login = () => {
                 onChange={handleChange}
                 variant="filled"
               /> */}
-            </div>
-            <div className="my-4">
+            </Box>
+            <Box sx={{ marginY: "15px" }}>
               <Button
                 type="submit"
                 onClick={handleSubmit}
@@ -193,11 +176,11 @@ const Login = () => {
               >
                 ВЛЕЗ
               </Button>
-            </div>
-          </div>
+            </Box>
+          </Box>
         </form>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

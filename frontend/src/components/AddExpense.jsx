@@ -153,126 +153,128 @@ const AddExpense = ({
   };
 
   return (
-    <Box>
-      {services && (
-        <Dialog
-          // fullWidth
-          onKeyUp={(e) => {
-            const ENTER = 13;
-            console.log(e.keyCode);
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
+      <Box>
+        {services && (
+          <Dialog
+            // fullWidth
+            onKeyUp={(e) => {
+              const ENTER = 13;
+              console.log(e.keyCode);
 
-            if (e.keyCode === ENTER) {
-              handleSave();
-            }
-          }}
-          open={add}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">Добави разход</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description"></DialogContentText>
-            <Box>
-              {" "}
+              if (e.keyCode === ENTER) {
+                handleSave();
+              }
+            }}
+            open={add}
+            onClose={handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">Добави разход</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description"></DialogContentText>
               <Box>
-                <DemoContainer components={["DatePicker, DatePicker"]}>
-                  <DatePicker
+                {" "}
+                <Box>
+                  <DemoContainer components={["DatePicker, DatePicker"]}>
+                    <DatePicker
+                      fullWidth
+                      format="DD/MM/YYYY"
+                      id="date"
+                      label="Дата:"
+                      value={newServ.date}
+                      onChange={(newValue) => {
+                        const newData = { ...newServ };
+                        newData.date = newValue;
+                        setNewServ({ ...newData });
+                      }}
+                    />
+                  </DemoContainer>
+                </Box>
+                <Box className="my-4">
+                  <TextField
                     fullWidth
-                    format="DD/MM/YYYY"
-                    id="date"
-                    label="Дата:"
-                    value={newServ.date}
-                    onChange={(newValue) => {
-                      const newData = { ...newServ };
-                      newData.date = newValue;
-                      setNewServ({ ...newData });
-                    }}
+                    onChange={handleChange}
+                    value={newServ.type}
+                    name="type"
+                    id="type"
+                    select
+                    label="Вид:"
+                  >
+                    <MenuItem key={1} value="РЕМОНТ">
+                      РЕМОНТ
+                    </MenuItem>
+                    <MenuItem key={2} value="КОНСУМАТИВ">
+                      КОНСУМАТИВ
+                    </MenuItem>
+                    <MenuItem key={3} value="ГУМИ">
+                      ГУМИ
+                    </MenuItem>
+                    <MenuItem key={4} value="ДРУГИ">
+                      ДРУГИ
+                    </MenuItem>
+                  </TextField>
+                </Box>
+                <Box className="my-4">
+                  <TextField
+                    fullWidth
+                    onChange={handleChange}
+                    value={newServ.desc}
+                    name="desc"
+                    id="desc"
+                    label="Описание:"
                   />
-                </DemoContainer>
+                </Box>
+                <Box className="my-4">
+                  <TextField
+                    fullWidth
+                    onChange={handleChange}
+                    value={newServ.invoice}
+                    name="invoice"
+                    id="invoice"
+                    label="Фактура №:"
+                  />
+                </Box>
+                <Box className="my-4">
+                  <TextField
+                    fullWidth
+                    onChange={handleChange}
+                    value={newServ.km}
+                    name="km"
+                    id="km"
+                    label="Километри:"
+                  />
+                </Box>
+                <Box className="my-4">
+                  <TextField
+                    fullWidth
+                    onChange={handleChange}
+                    value={newServ.cost}
+                    name="cost"
+                    id="cost"
+                    label="Стойност:"
+                  />
+                </Box>
               </Box>
-              <Box className="my-4">
-                <TextField
-                  fullWidth
-                  onChange={handleChange}
-                  value={newServ.type}
-                  name="type"
-                  id="type"
-                  select
-                  label="Вид:"
-                >
-                  <MenuItem key={1} value="РЕМОНТ">
-                    РЕМОНТ
-                  </MenuItem>
-                  <MenuItem key={2} value="КОНСУМАТИВ">
-                    КОНСУМАТИВ
-                  </MenuItem>
-                  <MenuItem key={3} value="ГУМИ">
-                    ГУМИ
-                  </MenuItem>
-                  <MenuItem key={4} value="ДРУГИ">
-                    ДРУГИ
-                  </MenuItem>
-                </TextField>
-              </Box>
-              <Box className="my-4">
-                <TextField
-                  fullWidth
-                  onChange={handleChange}
-                  value={newServ.desc}
-                  name="desc"
-                  id="desc"
-                  label="Описание:"
-                />
-              </Box>
-              <Box className="my-4">
-                <TextField
-                  fullWidth
-                  onChange={handleChange}
-                  value={newServ.invoice}
-                  name="invoice"
-                  id="invoice"
-                  label="Фактура №:"
-                />
-              </Box>
-              <Box className="my-4">
-                <TextField
-                  fullWidth
-                  onChange={handleChange}
-                  value={newServ.km}
-                  name="km"
-                  id="km"
-                  label="Километри:"
-                />
-              </Box>
-              <Box className="my-4">
-                <TextField
-                  fullWidth
-                  onChange={handleChange}
-                  value={newServ.cost}
-                  name="cost"
-                  id="cost"
-                  label="Стойност:"
-                />
-              </Box>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              color="error"
-              variant="contained"
-              onClick={handleClose}
-              autoFocus
-            >
-              Отказ
-            </Button>
-            <Button variant="contained" onClick={handleSave} autoFocus>
-              Добави
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
-    </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                color="error"
+                variant="contained"
+                onClick={handleClose}
+                autoFocus
+              >
+                Отказ
+              </Button>
+              <Button variant="contained" onClick={handleSave} autoFocus>
+                Добави
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
+      </Box>
+    </LocalizationProvider>
   );
 };
 

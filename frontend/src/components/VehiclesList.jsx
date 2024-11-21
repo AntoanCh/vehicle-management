@@ -170,10 +170,14 @@ export default function VehiclesList({ data, filter, setFilter }) {
           };
         },
         customBodyRender: (value, tableMeta, updateValue) => {
-          return value
-            .split(/(\d{4})/)
-            .join(" ")
-            .trim();
+          return (
+            <Box>
+              {value
+                .split(/(\d{4})/)
+                .join(" ")
+                .trim()}
+            </Box>
+          );
         },
       },
     },
@@ -182,6 +186,9 @@ export default function VehiclesList({ data, filter, setFilter }) {
       options: {
         setCellProps: () => {
           return { align: "center" };
+        },
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return value + " лв";
         },
       },
     },
@@ -203,6 +210,9 @@ export default function VehiclesList({ data, filter, setFilter }) {
         setCellProps: () => {
           return { align: "center" };
         },
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return value + " лв";
+        },
       },
     },
     {
@@ -210,6 +220,9 @@ export default function VehiclesList({ data, filter, setFilter }) {
       options: {
         setCellProps: () => {
           return { align: "center" };
+        },
+        customBodyRender: (value, tableMeta, updateValue) => {
+          return value + " лв";
         },
       },
     },
@@ -319,6 +332,9 @@ export default function VehiclesList({ data, filter, setFilter }) {
     {
       name: "Масло преди",
       options: {
+        setCellProps: () => {
+          return { align: "center" };
+        },
         customBodyRender: (value, tableMeta, updateValue) => {
           return (
             <Box
@@ -338,7 +354,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
                   : {}
               }
             >
-              {value}
+              {value + " км"}
               {isDue(
                 tableMeta.rowData[9] - tableMeta.rowData[7],
                 "oil",
@@ -351,9 +367,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
             </Box>
           );
         },
-        setCellProps: () => {
-          // return { align: "center" };
-        },
+
         filter: false,
       },
     },
@@ -451,7 +465,6 @@ export default function VehiclesList({ data, filter, setFilter }) {
         //     },
         //   },
         // },
-
         MUIDataTableBodyRow: {
           styleOverrides: {
             root: {
@@ -463,15 +476,15 @@ export default function VehiclesList({ data, filter, setFilter }) {
         MUIDataTableHeadCell: {
           styleOverrides: {
             root: {
-              backgroundColor: "#fff",
+              // backgroundColor: "#fff",
             },
           },
         },
         MUIDataTableToolbar: {
           styleOverrides: {
             root: {
-              backgroundColor: "#fff",
-              fontWeight: "800",
+              // backgroundColor: "#fff",
+              // fontWeight: "800",
             },
           },
         },
@@ -482,11 +495,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
     filterType: "dropdown",
     rowHover: true,
     print: false,
-    setRowProps: (row, dataIndex, rowIndex) => {
-      return {
-        style: {},
-      };
-    },
+
     selectableRows: false,
     download: false,
     onRowClick: (rowData, rowMeta) => {
@@ -542,7 +551,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
           setDate={setExpenseDate}
         />
       )}
-      <Dialog
+      {/* <Dialog
         maxWidth={"xl"}
         open={add}
         onClose={handleCloseAdd}
@@ -553,9 +562,9 @@ export default function VehiclesList({ data, filter, setFilter }) {
           {`Добавяне на нов автомобил`}
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description"></DialogContentText>
-          <CreateVehicle />
-        </DialogContent>
+          <DialogContentText id="alert-dialog-description"></DialogContentText> */}
+      <CreateVehicle add={add} setAdd={setAdd} />
+      {/* </DialogContent>
         <DialogActions>
           <Button
             color="error"
@@ -566,7 +575,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
             Отказ
           </Button>
         </DialogActions>
-      </Dialog>{" "}
+      </Dialog>{" "} */}
       <Box sx={{ width: "95%", margin: "25px" }}>
         <Box
           sx={{
@@ -646,14 +655,14 @@ export default function VehiclesList({ data, filter, setFilter }) {
             <AddCircleOutlineIcon />
           </Button>
         </Box>
-        <ThemeProvider theme={getMuiTheme()}>
-          <MUIDataTable
-            title={"АВТОМОБИЛИ"}
-            data={tableData}
-            columns={columns}
-            options={options}
-          />
-        </ThemeProvider>
+        {/* <ThemeProvider theme={getMuiTheme()}> */}
+        <MUIDataTable
+          title={"АВТОМОБИЛИ"}
+          data={tableData}
+          columns={columns}
+          options={options}
+        />
+        {/* </ThemeProvider> */}
 
         {/* </ThemeProvider> */}
       </Box>

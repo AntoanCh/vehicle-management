@@ -6,14 +6,10 @@ import "dayjs/locale/bg";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MUIDataTable from "mui-datatables";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { bgBG } from "@mui/x-data-grid/locales";
 import Box from "@mui/material/Box";
+import ErrorDialog from "../components/ErrorDialog";
 
 const VehicleRecords = ({ vehicle, userRole, username, records }) => {
   const [loading, setLoading] = useState(false);
@@ -188,24 +184,7 @@ const VehicleRecords = ({ vehicle, userRole, username, records }) => {
   return (
     <div>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
-        <Dialog
-          open={error[0]}
-          onClose={handleCloseError}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{"Грешка"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {error[1]}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button variant="contained" onClick={handleCloseError} autoFocus>
-              Добре
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <ErrorDialog error={error} setError={setError} />
 
         {handleLoading()}
         {loading ? (

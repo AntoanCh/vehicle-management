@@ -4,12 +4,7 @@ import { Button, TextField } from "@mui/material";
 import axios from "axios";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
-import Dialog from "@mui/material/Dialog";
 import Paper from "@mui/material/Paper";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -21,6 +16,7 @@ import TableRow from "@mui/material/TableRow";
 import CountdownTimer from "../components/CountdownTimer";
 import Pickup from "../components/Pickup";
 import Clock from "../components/Clock";
+import ErrorDialog from "../components/ErrorDialog";
 
 const Scan = () => {
   const [barcode, setBarcode] = useState("");
@@ -161,9 +157,7 @@ const Scan = () => {
       setBarcode("");
     }
   };
-  const handleError = () => {
-    setError(false, "");
-  };
+
   const handleClick = (vehicle) => {
     setSelect([true, { ...vehicle }]);
   };
@@ -194,25 +188,7 @@ const Scan = () => {
           setSelect={setSelect}
         />
       )}
-
-      <Dialog
-        open={error[0]}
-        onClose={handleError}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"Грешка"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {error[1]}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="contained" onClick={handleError} autoFocus>
-            Добре
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ErrorDialog error={error} setError={setError} />
       <Box
         sx={{
           backgroundColor: "#ccc",
@@ -400,6 +376,10 @@ const Scan = () => {
                   } else if (!a.occupied.status && !b.occupied.status) {
                     if (`${a.make} ${a.model}` > `${b.make} ${b.model}`) {
                       return 1;
+                    } else if (
+                      `${a.make} ${a.model}` === `${b.make} ${b.model}`
+                    ) {
+                      return 0;
                     } else {
                       return -1;
                     }
@@ -483,7 +463,10 @@ const Scan = () => {
                         sx={{ fontWeight: 800, fontSize: 18 }}
                         align="left"
                       >
-                        {vehicle.reg}
+                        {vehicle.reg
+                          .split(/(\d{4})/)
+                          .join(" ")
+                          .trim()}
                       </TableCell>
 
                       <TableCell

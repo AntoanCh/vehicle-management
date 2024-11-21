@@ -15,17 +15,13 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import InputAdornment from "@mui/material/InputAdornment";
 import Checkbox from "@mui/material/Checkbox";
 import { ToastContainer, toast } from "react-toastify";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import { useLocation } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import ErrorDialog from "../components/ErrorDialog";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#ccc",
@@ -266,27 +262,10 @@ const CreatePerson = ({ siteId, siteName }) => {
     ));
 
   return (
-    <div className="p-4">
+    <Box className="p-4">
       <h1 className="text-center text-3xl my-4">{`НОВ СЛУЖИТЕЛ ЗА ${siteName}`}</h1>
-      <Dialog
-        open={error[0]}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"Грешка"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {error[1]}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="contained" onClick={handleClose} autoFocus>
-            Добре
-          </Button>
-        </DialogActions>
-      </Dialog>
-      ;{loading ? <CircularProgress /> : ""}
+      <ErrorDialog error={error} setError={setError} />;
+      {loading ? <CircularProgress /> : ""}
       <Box className="bg-gray-300 flex flex-col border-2 border-blue-400 rounded-xl w-[1200px] p-4 mx-auto">
         <Box
           component="form"
@@ -629,7 +608,7 @@ const CreatePerson = ({ siteId, siteName }) => {
         </form>
       </Box>
       <ToastContainer />
-    </div>
+    </Box>
   );
 };
 

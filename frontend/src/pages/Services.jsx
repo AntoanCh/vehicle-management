@@ -20,6 +20,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 import AddExpense from "../components/AddExpense";
+import ErrorDialog from "../components/ErrorDialog";
 
 const Services = ({
   vehicle,
@@ -101,13 +102,6 @@ const Services = ({
         setEdit([false, {}]);
       }, 100);
     }
-  };
-
-  console.log(`data ${vehicle.startDate}`);
-  console.log(`data ${dayjs(vehicle.startDate).diff(dayjs(edit[1].date))}`);
-
-  const handleCloseError = () => {
-    setError([false, ""]);
   };
 
   const handleChangeEdit = (e) => {
@@ -431,24 +425,7 @@ const Services = ({
             </Button>
           </DialogActions>
         </Dialog>
-        <Dialog
-          open={error[0]}
-          onClose={handleCloseError}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{"Грешка"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {error[1]}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button variant="contained" onClick={handleCloseError} autoFocus>
-              Добре
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <ErrorDialog error={error} setError={setError} />
 
         <AddExpense
           vehicle={vehicle}

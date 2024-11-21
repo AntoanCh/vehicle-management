@@ -21,6 +21,7 @@ import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import Alert from "@mui/material/Alert";
 import DraggablePaper from "./DraggablePaper";
+import CloseIcon from "@mui/icons-material/Close";
 
 const Pickup = ({
   open,
@@ -136,20 +137,24 @@ const Pickup = ({
     >
       <DialogTitle
         style={{ cursor: "move", backgroundColor: "#42a5f5" }}
+        id="draggable-dialog-title"
         sx={
           vehicle.occupied.user === "В СЕРВИЗ"
             ? { backgroundColor: "#ffb74d" }
             : ""
         }
-        id="draggable-dialog-title"
       >
         {"ВЗИМАНЕ НА КОЛА"}
         <IconButton
-          sx={{ width: "5%", margin: 0, padding: 0, float: "right" }}
+          sx={{
+            margin: 0,
+            padding: 0,
+            float: "right",
+          }}
           color="error"
           onClick={handleClose}
         >
-          X
+          <CloseIcon />
         </IconButton>
       </DialogTitle>
 

@@ -8,14 +8,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import MUIDataTable from "mui-datatables";
 import DoneOutlineIcon from "@mui/icons-material/DoneOutline";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
+import ErrorDialog from "../components/ErrorDialog";
 
-// test
 const Problems = ({ vehicle, userRole, username, problems }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState([false, ""]);
@@ -24,10 +19,6 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
     setTimeout(() => {
       setLoading(false);
     }, 2000);
-  };
-
-  const handleCloseError = () => {
-    setError([false, ""]);
   };
 
   const data = problems.data.map((obj) => {
@@ -156,25 +147,7 @@ const Problems = ({ vehicle, userRole, username, problems }) => {
   return (
     <div>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
-        <Dialog
-          open={error[0]}
-          onClose={handleCloseError}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{"Грешка"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {error[1]}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button variant="contained" onClick={handleCloseError} autoFocus>
-              Добре
-            </Button>
-          </DialogActions>
-        </Dialog>
-
+        <ErrorDialog error={error} setError={setError} />
         {handleLoading()}
         {loading ? (
           <CircularProgress />

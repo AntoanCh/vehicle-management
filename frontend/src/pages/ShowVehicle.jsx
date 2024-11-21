@@ -355,8 +355,7 @@ const ShowVehicle = () => {
               <DialogContentText id="alert-dialog-description"></DialogContentText>
               {`ВНИМАНИЕ! \nСигурен ли сте, че искате да изтриете автомобил ${
                 vehicle.make + " " + vehicle.model
-              } с Номер ${
-                vehicle.reg
+              } с Номер ${vehicle.reg}
               }\n Всички данни за автомобила, включително сервизната история ще бъдат премахнати завинаги
               \n Ако автомобилът е продаден, моля използвайте бутонът ПРОДАДЕН
               `}
@@ -525,7 +524,7 @@ const ShowVehicle = () => {
               <div>
                 <Stack spacing={2}>
                   <Box>
-                    <div className="w-fit input-box" style={{ width: "100%" }}>
+                    <Box className="input-box" sx={{ width: "100%" }}>
                       <input
                         className="registration-ui"
                         autoComplete="off"
@@ -535,7 +534,7 @@ const ShowVehicle = () => {
                         disabled
                       />
                       <span className="unit">BG</span>
-                    </div>
+                    </Box>
                   </Box>
                   <ItemInline
                     sx={{

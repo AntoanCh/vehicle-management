@@ -35,6 +35,7 @@ import TableRow from "@mui/material/TableRow";
 import TableHead from "@mui/material/TableHead";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import DraggablePaper from "./DraggablePaper";
+import CloseIcon from "@mui/icons-material/Close";
 
 const Users = ({ users }) => {
   const [loading, setLoading] = useState(false);
@@ -322,11 +323,15 @@ const Users = ({ users }) => {
         >
           {editUser ? editUser.username : ""}
           <IconButton
-            sx={{ width: "5%", margin: 0, padding: 0, float: "right" }}
+            sx={{
+              margin: 0,
+              padding: 0,
+              float: "right",
+            }}
             color="error"
             onClick={handleClose}
           >
-            X
+            <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent>
