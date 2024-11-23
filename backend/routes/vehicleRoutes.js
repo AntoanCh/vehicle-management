@@ -65,6 +65,8 @@ router.post("/", async (req, res) => {
       totalServiceCost: req.body.totalServiceCost,
       state: req.body.state,
       checked: new Date().toISOString(),
+      location: req.body.location,
+      totalExpenseCost: req.body.totalExpenseCost,
     };
 
     const existingVehicle = await Vehicle.findOne({ reg: req.body.reg });

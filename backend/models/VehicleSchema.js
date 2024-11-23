@@ -170,7 +170,13 @@ export const vehicleSchema = mongoose.Schema(
     totalServiceCost: {
       type: Number,
     },
+    totalExpenseCost: {
+      type: Number,
+    },
     status: {
+      type: String,
+    },
+    location: {
       type: String,
     },
   },
