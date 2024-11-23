@@ -348,7 +348,15 @@ const Users = ({ users }) => {
                 <Box sx={{ display: "flex", marginTop: "10px" }}>
                   <TableContainer
                     component={Paper}
-                    sx={{ backgroundColor: "#bdbdbd", borderRadius: "10px" }}
+                    sx={[
+                      (theme) => ({
+                        backgroundColor: "#bdbdbd",
+                        borderRadius: "10px",
+                        ...theme.applyStyles("dark", {
+                          backgroundColor: "#424242",
+                        }),
+                      }),
+                    ]}
                   >
                     <Table sx={{ minWidth: 300 }} size="small">
                       <TableHead>
@@ -387,7 +395,15 @@ const Users = ({ users }) => {
                   <Box sx={{ width: "20px" }}></Box>
                   <TableContainer
                     component={Paper}
-                    sx={{ backgroundColor: "#b0bec5", borderRadius: "10px" }}
+                    sx={[
+                      (theme) => ({
+                        backgroundColor: "#bdbdbd",
+                        borderRadius: "10px",
+                        ...theme.applyStyles("dark", {
+                          backgroundColor: "#424242",
+                        }),
+                      }),
+                    ]}
                   >
                     <Table sx={{ minWidth: 300 }} size="small">
                       <TableHead>

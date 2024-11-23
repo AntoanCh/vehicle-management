@@ -74,6 +74,8 @@ import FilledInput from "@mui/material/FilledInput";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import NightlightRoundIcon from "@mui/icons-material/NightlightRound";
 import LightModeIcon from "@mui/icons-material/LightMode";
+import { blue } from "@mui/material/colors";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
 
 const drawerWidth = 260;
 
@@ -129,6 +131,7 @@ const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
   width: drawerWidth,
+
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
@@ -435,7 +438,7 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
         }
       >
         <Toolbar sx={{ margin: "-5px" }}>
-          <Box display="flex" flexGrow={1}>
+          <Box display="flex" flexGrow={1} justifyContent={"space-between"}>
             <IconButton
               color="inherit"
               aria-label="open drawer"
@@ -455,6 +458,17 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
             <Typography variant="h6" noWrap component="div">
               {/* Mini variant drawer */}
             </Typography>
+            {/* <Box>
+              <Breadcrumbs aria-label="breadcrumb">
+                <Link underline="hover" color="inherit" href="/">
+                  asd
+                </Link>
+                <Link underline="hover" color="inherit" href="/">
+                  asd
+                </Link>
+              </Breadcrumbs>
+            </Box> */}
+            <Box></Box>
           </Box>
 
           <Box>
@@ -500,11 +514,9 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
         variant="permanent"
         open={open}
         sx={[username === "USER" && { display: "none" }]}
-        PaperProps={{
-          sx: {
-            backgroundColor: "lightgray",
-          },
-        }}
+        // PaperProps={{
+
+        // }
       >
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>

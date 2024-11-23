@@ -23,22 +23,26 @@ const Ref = ({ vehicle, services, userRole, username }) => {
   const [selected, setSelected] = useState();
   const [filter, setFilter] = useState("РЕМОНТИ");
   const [slider, setSlider] = React.useState([0, 0]);
-  const [monthsArr, setMonthsArr] = useState([]);
+  // const [monthsArr, setMonthsArr] = useState([]);
   const months = dayjs().diff(vehicle.startDate, "month");
   const endDate = dayjs();
   let startDate = dayjs(vehicle.startDate);
-  // const monthsArr = [];
-  // monthsArr.push(startDate.format("MM/YYYY"));
-  useEffect(() => {
-    const arr = [];
-    let start = startDate;
-    while (start.isBefore(endDate, "month")) {
-      arr.push(start.format("MM/YYYY"));
-      start = start.add(1, "month");
-    }
-    setMonthsArr([...arr]);
-    setSlider([0, months]);
-  }, [monthsArr]);
+  const monthsArr = [];
+  while (startDate.isBefore(endDate, "month")) {
+    monthsArr.push(startDate.format("MM/YYYY"));
+    startDate = startDate.add(1, "month");
+  }
+
+  // useEffect(() => {
+  //   const arr = [];
+  //   let start = startDate;
+  //   while (start.isBefore(endDate, "month")) {
+  //     arr.push(start.format("MM/YYYY"));
+  //     start = start.add(1, "month");
+  //   }
+  //   setMonthsArr([...arr]);
+  //   setSlider([0, months]);
+  // }, [monthsArr]);
   //This sums all cost by month and creates an array
   const monthlyCost = monthsArr.map((month) =>
     services.data
@@ -277,12 +281,18 @@ const Ref = ({ vehicle, services, userRole, username }) => {
           </TableContainer>
         </Box>
         <Box
-          sx={{
-            width: "60%",
-            margin: "10px",
-            padding: "10px",
-            backgroundColor: "white",
-          }}
+          sx={[
+            (theme) => ({
+              width: "60%",
+              margin: "10px",
+              borderRadius: "5px",
+              padding: "10px",
+              backgroundColor: "white",
+              ...theme.applyStyles("dark", {
+                backgroundColor: "#212121",
+              }),
+            }),
+          ]}
         >
           <BarChart
             // barLabel="value"

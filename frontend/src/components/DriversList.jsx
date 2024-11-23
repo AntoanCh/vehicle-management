@@ -18,7 +18,6 @@ import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
 import TimelineIcon from "@mui/icons-material/Timeline";
-import { DataGrid } from "@mui/x-data-grid";
 
 const DriversList = ({ drivers }) => {
   const [loading, setLoading] = useState(false);

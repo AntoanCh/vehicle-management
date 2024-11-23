@@ -191,10 +191,11 @@ const Scan = () => {
       <ErrorDialog error={error} setError={setError} />
       <Box
         sx={{
-          backgroundColor: "#ccc",
+          // backgroundColor: "#ccc",
           width: "80%",
+          margin: "auto",
         }}
-        className="  border-2 border-blue-400 rounded-xl  p-4 mx-auto "
+        // className="  border-2 border-blue-400 rounded-xl  p-4 mx-auto "
       >
         <h1
           style={{

@@ -188,7 +188,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
           return { align: "center" };
         },
         customBodyRender: (value, tableMeta, updateValue) => {
-          return value + " лв";
+          return value.toFixed(2) + " лв";
         },
       },
     },
@@ -211,7 +211,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
           return { align: "center" };
         },
         customBodyRender: (value, tableMeta, updateValue) => {
-          return value + " лв";
+          return value.toFixed(2) + " лв";
         },
       },
     },
@@ -222,7 +222,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
           return { align: "center" };
         },
         customBodyRender: (value, tableMeta, updateValue) => {
-          return value + " лв";
+          return value.toFixed(2) + " лв";
         },
       },
     },
@@ -585,7 +585,12 @@ export default function VehiclesList({ data, filter, setFilter }) {
             borderRadius: "10px",
           }}
         >
-          <Box>
+          <Box
+            sx={{
+              width: "100%",
+              backgroundColor: (theme) => theme.palette.primary.main,
+            }}
+          >
             <ButtonGroup>
               <Button
                 sx={{ width: "40%" }}

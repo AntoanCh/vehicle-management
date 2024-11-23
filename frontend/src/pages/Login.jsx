@@ -91,11 +91,13 @@ const Login = () => {
         <form action="">
           <Box
             sx={{
-              padding: "15px",
               width: "600px",
-              border: "3px solid #29b6f6",
-              borderRadius: "10px",
-              backgroundColor: "#e0e0e0",
+              height: "100%",
+              // padding: "15px",
+              // width: "600px",
+              // border: "3px solid #29b6f6",
+              // borderRadius: "10px",
+              // backgroundColor: "#e0e0e0",
             }}
           >
             <Box sx={{ marginY: "5px" }}>

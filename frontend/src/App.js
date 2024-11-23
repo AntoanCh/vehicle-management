@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import CreateVehicle from "./pages/CreateVehicle.jsx";
 import ShowVehicle from "./pages/ShowVehicle.jsx";
 import PersonCard from "./pages/PersonCard.jsx";
 import Home from "./pages/Home.jsx";
@@ -28,6 +27,7 @@ import Box from "@mui/material/Box";
 import HeaderMenu from "./components/HeaderMenu.jsx";
 import { useState } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
+import { bgBG } from "@mui/material/locale";
 
 import {
   createTheme,
@@ -42,18 +42,49 @@ function App() {
   const theme = createTheme({
     palette: {
       mode: darkTheme ? "dark" : "light",
-      secondary: {
-        main: "#E33E7F",
+
+      background: {
+        default: "#222222",
+      },
+      tertiary: {
+        main: "#FFE461",
+        dark: "#FED047",
+        light: "#FFEC92",
+      },
+    },
+  });
+
+  const themeLight = createTheme({
+    ...theme,
+    palette: {
+      mode: darkTheme ? "dark" : "light",
+      background: {
+        default: "#bdbdbd",
+      },
+    },
+  });
+  const themeDark = createTheme({
+    ...theme,
+    palette: {
+      mode: darkTheme ? "dark" : "light",
+      background: {
+        default: "#424242",
       },
     },
   });
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider
+      theme={
+        darkTheme ? createTheme(themeDark, bgBG) : createTheme(themeLight, bgBG)
+      }
+    >
       <CssBaseline />
-      <Box sx={{ display: "flex", backgroundColor: "#78909c" }}>
-        <CssBaseline />
-
+      <Box
+        sx={{
+          display: "flex",
+        }}
+      >
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <BrowserRouter>
             <HeaderMenu setDarkTheme={setDarkTheme} darkTheme={darkTheme} />

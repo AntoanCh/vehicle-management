@@ -66,6 +66,49 @@ const ItemStacked = styled(Paper)(({ theme }) => ({
   justifyContent: "space-between",
   color: theme.palette.text.primary,
 }));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  ...theme.typography.body2,
+  "& .MuiInputBase-input": {
+    fontSize: 18,
+    height: "20px",
+    padding: 1,
+    fontWeight: 800,
+    textAlign: "center",
+  },
+  "& .MuiInputBase-input.Mui-disabled": {
+    WebkitTextFillColor: theme.palette.mode === "dark" ? "white" : "black",
+  },
+}));
+
+const StyledDatePicker = styled(DatePicker)(({ theme }) => ({
+  "& .MuiInputBase-input": {
+    padding: "0px",
+    margin: "none",
+    width: "70%",
+    height: "15px",
+    fontWeight: 800,
+  },
+  "& .MuiInputBase-root": {
+    padding: 0,
+    margin: "none",
+
+    "& .MuiButtonBase-root": {
+      padding: 0,
+      margin: "none",
+    },
+    "& .MuiInputBase-input.Mui-disabled": {
+      WebkitTextFillColor: theme.palette.mode === "dark" ? "white" : "black",
+    },
+  },
+}));
+
+const StyledInput = styled("input")(({ theme }) => ({
+  ...theme.applyStyles("dark", {
+    color: "black",
+  }),
+}));
+
 const blink = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
@@ -336,10 +379,7 @@ const ShowVehicle = () => {
   };
   console.log(problems ? problems.data.filter((item) => item.done).length : "");
   return (
-    <div className="p-4">
-      <h1 className="text-3xl m-auto text-center my-4">
-        {vehicle.type === "Truck" ? "Товарен автомобил" : "Лек Автомобил"}
-      </h1>
+    <Box className="p-4">
       {loading ? (
         <CircularProgress />
       ) : (
@@ -393,7 +433,7 @@ const ShowVehicle = () => {
               <Box>
                 <ItemStacked>
                   <Box sx={{ color: "gray" }}>Цена:</Box>
-                  <TextField
+                  <StyledTextField
                     value={sell[1]}
                     name="sold.price"
                     onChange={(e) => {
@@ -402,24 +442,12 @@ const ShowVehicle = () => {
                       setSell([...newArr]);
                     }}
                     variant="standard"
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        fontSize: 18,
-                        height: 4,
-                        padding: 1,
-                        fontWeight: 800,
-                        textAlign: "center",
-                      },
-                      "& .MuiInputBase-input.Mui-disabled": {
-                        WebkitTextFillColor: "black", //Adjust text color here
-                      },
-                    }}
                   />
                 </ItemStacked>
                 <ItemStacked>
                   <Box sx={{ color: "gray" }}>Дата:</Box>
                   <DemoContainer components={["DatePicker, DatePicker"]}>
-                    <DatePicker
+                    <StyledDatePicker
                       slotProps={{
                         textField: {
                           width: "20%",
@@ -431,27 +459,6 @@ const ShowVehicle = () => {
                         inputAdornment: {
                           padding: "0",
                           margin: "none",
-                        },
-                      }}
-                      sx={{
-                        "& .MuiInputBase-input": {
-                          padding: "0",
-                          margin: "none",
-                          width: "70%",
-                          height: "15px",
-                          fontWeight: 800,
-                        },
-                        "& .MuiInputBase-root": {
-                          padding: 0,
-                          margin: "none",
-
-                          "& .MuiButtonBase-root": {
-                            padding: 0,
-                            margin: "none",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
                         },
                       }}
                       format="DD/MM/YYYY"
@@ -497,7 +504,7 @@ const ShowVehicle = () => {
               </Button>
             </DialogActions>
           </Dialog>
-          <div className="bg-gray-400 m-auto rounded-xl flex flex-col border-2 border-gray-600 w-full 2xl:w-9/12 p-4">
+          <Box sx={{ width: "90%", margin: "auto" }}>
             {vehicle.issue && (
               <Alert
                 sx={{
@@ -520,12 +527,15 @@ const ShowVehicle = () => {
                 ПРОДАДЕН!
               </Alert>
             )}
+            <h1 className="text-3xl m-auto text-center my-4">
+              {vehicle.type === "Truck" ? "Товарен автомобил" : "Лек Автомобил"}
+            </h1>
             <Box sx={{ display: { sm: "flex", xs: "" } }}>
-              <div>
+              <Box>
                 <Stack spacing={2}>
                   <Box>
                     <Box className="input-box" sx={{ width: "100%" }}>
-                      <input
+                      <StyledInput
                         className="registration-ui"
                         autoComplete="off"
                         type="text"
@@ -539,7 +549,6 @@ const ShowVehicle = () => {
                   <ItemInline
                     sx={{
                       width: "95%",
-                      // backgroundColor: "rgb(156 163 175)",
                       backgroundColor: "black",
                     }}
                   >
@@ -569,7 +578,7 @@ const ShowVehicle = () => {
                       color: "white",
                     }}
                   >
-                    <TextField
+                    <StyledTextField
                       inputProps={{ maxLength: 7 }}
                       value={
                         !edit
@@ -584,48 +593,36 @@ const ShowVehicle = () => {
                       name="km"
                       onChange={handleChange}
                       variant="standard"
-                      sx={{
-                        "& .MuiInputBase-input": {
-                          fontSize: 18,
-                          height: 4,
-                          padding: 1,
-                          fontWeight: 800,
-                          textAlign: "center",
-                          color: "white",
-                        },
-                        "& .MuiInputBase-input.Mui-disabled": {
-                          WebkitTextFillColor: "white", //Adjust text color here
-                        },
-                      }}
+                      // sx={{
+                      //   "& .MuiInputBase-input": {
+                      //     fontSize: 18,
+                      //     height: 4,
+                      //     padding: 1,
+                      //     fontWeight: 800,
+                      //     textAlign: "center",
+                      //     color: "white",
+                      //   },
+                      //   "& .MuiInputBase-input.Mui-disabled": {
+                      //     WebkitTextFillColor: "white", //Adjust text color here
+                      //   },
+                      // }}
                     />
                     <span>KM</span>
                   </ItemInline>
                 </Stack>
-              </div>
+              </Box>
 
               <Grid container spacing={2}>
                 <Grid item lg={3} sm={6} xs={12}>
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>Година:</Box>
                     <Box>
-                      <TextField
+                      <StyledTextField
                         value={vehicle.year}
                         disabled
                         name="km"
                         onChange={handleChange}
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       />
                     </Box>
                   </ItemStacked>
@@ -635,24 +632,12 @@ const ShowVehicle = () => {
                     <Box sx={{ color: "gray" }}>Гориво:</Box>
                     <Box>
                       {" "}
-                      <TextField
+                      <StyledTextField
                         value={vehicle.fuel}
                         disabled
                         name="fuel"
                         onChange={handleChange}
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       />
                     </Box>
                   </ItemStacked>
@@ -662,24 +647,12 @@ const ShowVehicle = () => {
                     <Box sx={{ color: "gray" }}>№ ДВГ</Box>
                     <Box>
                       {" "}
-                      <TextField
+                      <StyledTextField
                         value={vehicle.engNum}
                         disabled={!edit}
                         name="engNum"
                         onChange={handleChange}
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       />
                     </Box>
                   </ItemStacked>
@@ -689,25 +662,13 @@ const ShowVehicle = () => {
                     <Box sx={{ color: "gray" }}>Гуми Размер</Box>
                     <Box>
                       {" "}
-                      <TextField
+                      <StyledTextField
                         inputProps={{ maxLength: 9 }}
                         value={vehicle.tires}
                         disabled={!edit}
                         name="tires"
                         onChange={handleChange}
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       />
                     </Box>
                   </ItemStacked>
@@ -717,7 +678,7 @@ const ShowVehicle = () => {
                     <Box sx={{ color: "gray" }}>Отговорник:</Box>
                     <Box>
                       {" "}
-                      <TextField
+                      <StyledTextField
                         fullWidth
                         value={vehicle.site}
                         disabled={!edit}
@@ -726,18 +687,6 @@ const ShowVehicle = () => {
                         name="site"
                         onChange={handleChange}
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       >
                         <MenuItem key={1} value={"ОФИС"}>
                           ОФИС
@@ -751,7 +700,7 @@ const ShowVehicle = () => {
                         <MenuItem key={4} value={"ДРУГИ"}>
                           ДРУГИ
                         </MenuItem>
-                      </TextField>
+                      </StyledTextField>
                     </Box>
                   </ItemStacked>
                 </Grid>
@@ -760,24 +709,12 @@ const ShowVehicle = () => {
                     <Box sx={{ color: "gray" }}>№ Талон</Box>
                     <Box>
                       {" "}
-                      <TextField
+                      <StyledTextField
                         value={vehicle.talonNum}
                         disabled
                         name="talonNum"
                         onChange={handleChange}
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       />
                     </Box>
                   </ItemStacked>
@@ -787,24 +724,12 @@ const ShowVehicle = () => {
                     <Box sx={{ color: "gray" }}>№ Рама</Box>
                     <Box>
                       {" "}
-                      <TextField
+                      <StyledTextField
                         value={vehicle.bodyNum}
                         disabled
                         name="bodyNum"
                         onChange={handleChange}
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       />
                     </Box>
                   </ItemStacked>
@@ -814,7 +739,7 @@ const ShowVehicle = () => {
                     <Box sx={{ color: "gray" }}>Собственик</Box>
                     <Box>
                       {" "}
-                      <TextField
+                      <StyledTextField
                         fullWidth
                         value={vehicle.owner}
                         disabled={!edit}
@@ -823,18 +748,6 @@ const ShowVehicle = () => {
                         name="owner"
                         onChange={handleChange}
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       >
                         <MenuItem key={1} value={"НИКОН-НК"}>
                           НИКОН-НК
@@ -848,7 +761,7 @@ const ShowVehicle = () => {
                         <MenuItem key={4} value={"ДАРИНКА ВУТЕВА"}>
                           ДАРИНКА ВУТЕВА
                         </MenuItem>
-                      </TextField>
+                      </StyledTextField>
                     </Box>
                   </ItemStacked>
                 </Grid>
@@ -861,7 +774,7 @@ const ShowVehicle = () => {
                   <ItemStacked>
                     <Box sx={{ color: "gray" }}>Масла/ф-ри:</Box>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
-                      <TextField
+                      <StyledTextField
                         inputProps={{ maxLength: 7 }}
                         value={
                           vehicle.oil && !edit
@@ -874,18 +787,6 @@ const ShowVehicle = () => {
                         name="oil"
                         onChange={handleChange}
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       />
                       <span>KM</span>
                     </Box>
@@ -923,7 +824,7 @@ const ShowVehicle = () => {
                     </Box>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       {" "}
-                      <TextField
+                      <StyledTextField
                         inputProps={{ maxLength: 7 }}
                         value={
                           vehicle.km &&
@@ -933,18 +834,6 @@ const ShowVehicle = () => {
                         }
                         disabled
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       />
                       <span>KM</span>
                     </Box>
@@ -982,7 +871,7 @@ const ShowVehicle = () => {
                     </Box>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       {" "}
-                      <TextField
+                      <StyledTextField
                         inputProps={{ maxLength: 7 }}
                         value={
                           vehicle.oilChange - (vehicle.km - vehicle.oil) &&
@@ -996,18 +885,6 @@ const ShowVehicle = () => {
                         }
                         disabled
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       />
                       <span>KM</span>
                     </Box>
@@ -1018,7 +895,7 @@ const ShowVehicle = () => {
                     <Box sx={{ color: "gray" }}>Интервал</Box>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       {" "}
-                      <TextField
+                      <StyledTextField
                         inputProps={{ maxLength: 5 }}
                         value={
                           !edit
@@ -1032,18 +909,6 @@ const ShowVehicle = () => {
                         name="oilChange"
                         onChange={handleChange}
                         variant="standard"
-                        sx={{
-                          "& .MuiInputBase-input": {
-                            fontSize: 18,
-                            height: 4,
-                            padding: 1,
-                            fontWeight: 800,
-                            textAlign: "center",
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "black", //Adjust text color here
-                          },
-                        }}
                       />
                       <span>KM</span>
                     </Box>
@@ -1097,7 +962,7 @@ const ShowVehicle = () => {
                     <Box>
                       {" "}
                       <DemoContainer components={["DatePicker, DatePicker"]}>
-                        <DatePicker
+                        <StyledDatePicker
                           slotProps={{
                             textField: {
                               width: "20%",
@@ -1109,27 +974,6 @@ const ShowVehicle = () => {
                             inputAdornment: {
                               padding: "0px",
                               margin: "none",
-                            },
-                          }}
-                          sx={{
-                            "& .MuiInputBase-input": {
-                              padding: "0px",
-                              margin: "none",
-                              width: "70%",
-                              height: "15px",
-                              fontWeight: 800,
-                            },
-                            "& .MuiInputBase-root": {
-                              padding: 0,
-                              margin: "none",
-
-                              "& .MuiButtonBase-root": {
-                                padding: 0,
-                                margin: "none",
-                              },
-                              "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "black", //Adjust text color here
-                              },
                             },
                           }}
                           disabled={edit ? false : true}
@@ -1198,28 +1042,16 @@ const ShowVehicle = () => {
                       </Box>
                       <Box>
                         {!vehicle.vignette ? (
-                          <TextField
+                          <StyledTextField
                             disabled
                             value={"НЯМА"}
                             variant="standard"
-                            sx={{
-                              "& .MuiInputBase-input": {
-                                fontSize: 18,
-                                height: 4,
-                                padding: 1,
-                                fontWeight: 800,
-                                textAlign: "center",
-                              },
-                              "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "black", //Adjust text color here
-                              },
-                            }}
                           />
                         ) : (
                           <DemoContainer
                             components={["DatePicker, DatePicker"]}
                           >
-                            <DatePicker
+                            <StyledDatePicker
                               slotProps={{
                                 textField: {
                                   width: "20%",
@@ -1231,27 +1063,6 @@ const ShowVehicle = () => {
                                 inputAdornment: {
                                   padding: "0",
                                   margin: "none",
-                                },
-                              }}
-                              sx={{
-                                "& .MuiInputBase-input": {
-                                  padding: "0",
-                                  margin: "none",
-                                  width: "70%",
-                                  height: "15px",
-                                  fontWeight: 800,
-                                },
-                                "& .MuiInputBase-root": {
-                                  padding: 0,
-                                  margin: "none",
-
-                                  "& .MuiButtonBase-root": {
-                                    padding: 0,
-                                    margin: "none",
-                                  },
-                                  "& .MuiInputBase-input.Mui-disabled": {
-                                    WebkitTextFillColor: "black", //Adjust text color here
-                                  },
                                 },
                               }}
                               disabled={edit ? !vehicle.vignette : true}
@@ -1280,7 +1091,7 @@ const ShowVehicle = () => {
                       <Box sx={{ color: "gray" }}>Данък:</Box>
                       <Box>
                         {" "}
-                        <TextField
+                        <StyledTextField
                           fullWidth
                           value={vehicle.tax}
                           disabled={!edit}
@@ -1289,18 +1100,6 @@ const ShowVehicle = () => {
                           name="tax"
                           onChange={handleChange}
                           variant="standard"
-                          sx={{
-                            "& .MuiInputBase-input": {
-                              fontSize: 18,
-                              height: 4,
-                              padding: 1,
-                              fontWeight: 800,
-                              textAlign: "center",
-                            },
-                            "& .MuiInputBase-input.Mui-disabled": {
-                              WebkitTextFillColor: "black", //Adjust text color here
-                            },
-                          }}
                         >
                           <MenuItem key={1} value={dayjs().year() - 1}>
                             {dayjs().year() - 1}
@@ -1311,7 +1110,7 @@ const ShowVehicle = () => {
                           <MenuItem key={3} value={dayjs().year() + 1}>
                             {dayjs().year() + 1}
                           </MenuItem>
-                        </TextField>
+                        </StyledTextField>
                       </Box>
                     </ItemStacked>
                   </Grid>
@@ -1340,7 +1139,7 @@ const ShowVehicle = () => {
                       <Box>
                         {" "}
                         <DemoContainer components={["DatePicker, DatePicker"]}>
-                          <DatePicker
+                          <StyledDatePicker
                             slotProps={{
                               textField: {
                                 width: "20%",
@@ -1352,27 +1151,6 @@ const ShowVehicle = () => {
                               inputAdornment: {
                                 padding: "0",
                                 margin: "none",
-                              },
-                            }}
-                            sx={{
-                              "& .MuiInputBase-input": {
-                                padding: "0px",
-                                margin: "none",
-                                width: "70%",
-                                height: "15px",
-                                fontWeight: 800,
-                              },
-                              "& .MuiInputBase-root": {
-                                padding: 0,
-                                margin: "none",
-
-                                "& .MuiButtonBase-root": {
-                                  padding: 0,
-                                  margin: "none",
-                                },
-                                "& .MuiInputBase-input.Mui-disabled": {
-                                  WebkitTextFillColor: "black", //Adjust text color here
-                                },
                               },
                             }}
                             disabled={edit ? false : true}
@@ -1393,7 +1171,7 @@ const ShowVehicle = () => {
                       <Box sx={{ color: "gray" }}>ЕКО Група:</Box>
                       <Box>
                         {" "}
-                        <TextField
+                        <StyledTextField
                           fullWidth
                           value={vehicle.cat}
                           disabled={!edit}
@@ -1402,18 +1180,6 @@ const ShowVehicle = () => {
                           name="cat"
                           onChange={handleChange}
                           variant="standard"
-                          sx={{
-                            "& .MuiInputBase-input": {
-                              fontSize: 18,
-                              height: 4,
-                              padding: 1,
-                              fontWeight: 800,
-                              textAlign: "center",
-                            },
-                            "& .MuiInputBase-input.Mui-disabled": {
-                              WebkitTextFillColor: "black", //Adjust text color here
-                            },
-                          }}
                         >
                           <MenuItem key={1} value={1}>
                             1
@@ -1430,7 +1196,7 @@ const ShowVehicle = () => {
                           <MenuItem key={3} value={5}>
                             5
                           </MenuItem>
-                        </TextField>
+                        </StyledTextField>
                       </Box>
                     </ItemStacked>
                   </Grid>
@@ -1467,7 +1233,7 @@ const ShowVehicle = () => {
                       <Box>
                         {" "}
                         <DemoContainer components={["DatePicker, DatePicker"]}>
-                          <DatePicker
+                          <StyledDatePicker
                             slotProps={{
                               textField: {
                                 width: "20%",
@@ -1479,27 +1245,6 @@ const ShowVehicle = () => {
                               inputAdornment: {
                                 padding: "0",
                                 margin: "none",
-                              },
-                            }}
-                            sx={{
-                              "& .MuiInputBase-input": {
-                                padding: "0",
-                                margin: "none",
-                                width: "70%",
-                                height: "15px",
-                                fontWeight: 800,
-                              },
-                              "& .MuiInputBase-root": {
-                                padding: 0,
-                                margin: "none",
-
-                                "& .MuiButtonBase-root": {
-                                  padding: 0,
-                                  margin: "none",
-                                },
-                                "& .MuiInputBase-input.Mui-disabled": {
-                                  WebkitTextFillColor: "black", //Adjust text color here
-                                },
                               },
                             }}
                             disabled={edit ? false : true}
@@ -1522,24 +1267,12 @@ const ShowVehicle = () => {
                       <Box sx={{ color: "gray" }}>ГО № Полица</Box>
                       <Box>
                         {" "}
-                        <TextField
+                        <StyledTextField
                           value={vehicle.insNum}
                           disabled={!edit}
                           name="insNum"
                           onChange={handleChange}
                           variant="standard"
-                          sx={{
-                            "& .MuiInputBase-input": {
-                              fontSize: 18,
-                              height: 4,
-                              padding: 1,
-                              fontWeight: 800,
-                              textAlign: "center",
-                            },
-                            "& .MuiInputBase-input.Mui-disabled": {
-                              WebkitTextFillColor: "black", //Adjust text color here
-                            },
-                          }}
                         />
                       </Box>
                     </ItemStacked>
@@ -1591,28 +1324,16 @@ const ShowVehicle = () => {
                       </Box>
                       <Box>
                         {!vehicle.kasko ? (
-                          <TextField
+                          <StyledTextField
                             disabled
                             value={"НЯМА"}
                             variant="standard"
-                            sx={{
-                              "& .MuiInputBase-input": {
-                                fontSize: 18,
-                                height: 4,
-                                padding: 1,
-                                fontWeight: 800,
-                                textAlign: "center",
-                              },
-                              "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "black", //Adjust text color here
-                              },
-                            }}
                           />
                         ) : (
                           <DemoContainer
                             components={["DatePicker, DatePicker"]}
                           >
-                            <DatePicker
+                            <StyledDatePicker
                               slotProps={{
                                 textField: {
                                   width: "20%",
@@ -1624,27 +1345,6 @@ const ShowVehicle = () => {
                                 inputAdornment: {
                                   padding: "0px",
                                   margin: "none",
-                                },
-                              }}
-                              sx={{
-                                "& .MuiInputBase-input": {
-                                  padding: "0px",
-                                  margin: "none",
-                                  width: "70%",
-                                  height: "15px",
-                                  fontWeight: 800,
-                                },
-                                "& .MuiInputBase-root": {
-                                  padding: 0,
-                                  margin: "none",
-
-                                  "& .MuiButtonBase-root": {
-                                    padding: 0,
-                                    margin: "none",
-                                  },
-                                  "& .MuiInputBase-input.Mui-disabled": {
-                                    WebkitTextFillColor: "black", //Adjust text color here
-                                  },
                                 },
                               }}
                               disabled={edit ? !vehicle.kasko : true}
@@ -1678,7 +1378,7 @@ const ShowVehicle = () => {
                     >
                       <Box>Каско № Полица</Box>
                       <Box>
-                        <TextField
+                        <StyledTextField
                           value={!vehicle.kasko ? "НЯМА" : vehicle.kaskoNum}
                           disabled={
                             !edit ? true : !vehicle.kasko ? true : false
@@ -1686,18 +1386,6 @@ const ShowVehicle = () => {
                           name="kaskoNum"
                           onChange={handleChange}
                           variant="standard"
-                          sx={{
-                            "& .MuiInputBase-input": {
-                              fontSize: 18,
-                              height: 4,
-                              padding: 1,
-                              fontWeight: 800,
-                              textAlign: "center",
-                            },
-                            "& .MuiInputBase-input.Mui-disabled": {
-                              WebkitTextFillColor: "black", //Adjust text color here
-                            },
-                          }}
                         />
                       </Box>
                     </ItemStacked>
@@ -1713,7 +1401,7 @@ const ShowVehicle = () => {
                       <Box>
                         {" "}
                         <DemoContainer components={["DatePicker, DatePicker"]}>
-                          <DatePicker
+                          <StyledDatePicker
                             slotProps={{
                               textField: {
                                 width: "20%",
@@ -1725,27 +1413,6 @@ const ShowVehicle = () => {
                               inputAdornment: {
                                 padding: "0",
                                 margin: "none",
-                              },
-                            }}
-                            sx={{
-                              "& .MuiInputBase-input": {
-                                padding: "0",
-                                margin: "none",
-                                width: "70%",
-                                height: "15px",
-                                fontWeight: 800,
-                              },
-                              "& .MuiInputBase-root": {
-                                padding: 0,
-                                margin: "none",
-
-                                "& .MuiButtonBase-root": {
-                                  padding: 0,
-                                  margin: "none",
-                                },
-                                "& .MuiInputBase-input.Mui-disabled": {
-                                  WebkitTextFillColor: "black", //Adjust text color here
-                                },
                               },
                             }}
                             disabled={edit ? false : true}
@@ -1774,7 +1441,7 @@ const ShowVehicle = () => {
                       <Box>
                         {" "}
                         <DemoContainer components={["DatePicker, DatePicker"]}>
-                          <DatePicker
+                          <StyledDatePicker
                             slotProps={{
                               textField: {
                                 width: "20%",
@@ -1786,27 +1453,6 @@ const ShowVehicle = () => {
                               inputAdornment: {
                                 padding: "0",
                                 margin: "none",
-                              },
-                            }}
-                            sx={{
-                              "& .MuiInputBase-input": {
-                                padding: "0px",
-                                margin: "none",
-                                width: "70%",
-                                height: "15px",
-                                fontWeight: 800,
-                              },
-                              "& .MuiInputBase-root": {
-                                padding: 0,
-                                margin: "none",
-
-                                "& .MuiButtonBase-root": {
-                                  padding: 0,
-                                  margin: "none",
-                                },
-                                "& .MuiInputBase-input.Mui-disabled": {
-                                  WebkitTextFillColor: "black", //Adjust text color here
-                                },
                               },
                             }}
                             disabled={edit ? false : true}
@@ -1833,7 +1479,7 @@ const ShowVehicle = () => {
                     <ItemStacked>
                       <Box sx={{ color: "gray" }}>Начални километри:</Box>
                       <Box sx={{ display: "flex", flexDirection: "row" }}>
-                        <TextField
+                        <StyledTextField
                           inputProps={{ maxLength: 7 }}
                           value={
                             vehicle.startKm
@@ -1850,18 +1496,6 @@ const ShowVehicle = () => {
                           name="startKm"
                           onChange={handleChange}
                           variant="standard"
-                          sx={{
-                            "& .MuiInputBase-input": {
-                              fontSize: 18,
-                              height: 4,
-                              padding: 1,
-                              fontWeight: 800,
-                              textAlign: "center",
-                            },
-                            "& .MuiInputBase-input.Mui-disabled": {
-                              WebkitTextFillColor: "black", //Adjust text color here
-                            },
-                          }}
                         />
                         <span>KM</span>
                       </Box>
@@ -1871,7 +1505,7 @@ const ShowVehicle = () => {
                     <ItemStacked>
                       <Box sx={{ color: "gray" }}>Цена на покупка:</Box>
                       <Box sx={{ display: "flex", flexDirection: "row" }}>
-                        <TextField
+                        <StyledTextField
                           inputProps={{ maxLength: 7 }}
                           value={
                             vehicle.price
@@ -1888,18 +1522,6 @@ const ShowVehicle = () => {
                           name="price"
                           onChange={handleChange}
                           variant="standard"
-                          sx={{
-                            "& .MuiInputBase-input": {
-                              fontSize: 18,
-                              height: 4,
-                              padding: 1,
-                              fontWeight: 800,
-                              textAlign: "center",
-                            },
-                            "& .MuiInputBase-input.Mui-disabled": {
-                              WebkitTextFillColor: "black", //Adjust text color here
-                            },
-                          }}
                         />
                         <span>ЛВ</span>
                       </Box>
@@ -1910,7 +1532,7 @@ const ShowVehicle = () => {
                       <ItemStacked>
                         <Box sx={{ color: "gray" }}>Цена на продажба:</Box>
                         <Box sx={{ display: "flex", flexDirection: "row" }}>
-                          <TextField
+                          <StyledTextField
                             disabled
                             inputProps={{ maxLength: 7 }}
                             value={
@@ -1922,18 +1544,6 @@ const ShowVehicle = () => {
                               vehicle.soldPrice
                             }
                             variant="standard"
-                            sx={{
-                              "& .MuiInputBase-input": {
-                                fontSize: 18,
-                                height: 4,
-                                padding: 1,
-                                fontWeight: 800,
-                                textAlign: "center",
-                              },
-                              "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "black", //Adjust text color here
-                              },
-                            }}
                           />
                           <span>ЛВ</span>
                         </Box>
@@ -1945,22 +1555,10 @@ const ShowVehicle = () => {
                       <ItemStacked>
                         <Box sx={{ color: "gray" }}>Дата на продажба:</Box>
                         <Box sx={{ display: "flex", flexDirection: "row" }}>
-                          <TextField
+                          <StyledTextField
                             disabled
                             value={dayjs(vehicle.soldDate).format("DD/MM/YYYY")}
                             variant="standard"
-                            sx={{
-                              "& .MuiInputBase-input": {
-                                fontSize: 18,
-                                height: 4,
-                                padding: 1,
-                                fontWeight: 800,
-                                textAlign: "center",
-                              },
-                              "& .MuiInputBase-input.Mui-disabled": {
-                                WebkitTextFillColor: "black", //Adjust text color here
-                              },
-                            }}
                           />
                         </Box>
                       </ItemStacked>
@@ -2194,10 +1792,10 @@ const ShowVehicle = () => {
                 )}
               </ButtonGroup>
             </Box>
-          </div>
+          </Box>
         </LocalizationProvider>
       )}
-    </div>
+    </Box>
   );
 };
 

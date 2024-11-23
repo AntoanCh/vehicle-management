@@ -15,8 +15,10 @@ const BigButton = styled(Button)({
   borderRadius: 4,
   border: "grey solid 4px",
   minHeight: "100%",
-  boxShadow: "5px 3px 3px 3px grey",
   minHeight: "150px",
+  "&:Hover": {
+    boxShadow: "5px 3px 3px 3px white",
+  },
 });
 
 const Home = () => {
@@ -65,7 +67,7 @@ const Home = () => {
       }}
     >
       <Box sx={{ width: "80%", height: "100%" }}>
-        <h2 className="text-2xl text-center">УПРАВЛЕНИЕ НА АКТИВИТЕ</h2>
+        <h2 style={{ textAlign: "center" }}>УПРАВЛЕНИЕ НА АКТИВИТЕ</h2>
         <Box
           sx={{
             display: "flex",
@@ -75,7 +77,6 @@ const Home = () => {
             padding: 4,
             marginX: "auto",
           }}
-          className="bg-white  border-2 border-blue-400 rounded-xl"
         >
           <Grid container spacing={2}>
             <Grid item xs={6}>

@@ -38,7 +38,7 @@ const AddExpense = ({
     type: "",
     desc: "",
     invoice: "",
-    km: "",
+    km: 0,
     cost: "",
     vehicleId: vehicle._id,
   });
@@ -205,13 +205,19 @@ const AddExpense = ({
                     <MenuItem key={1} value="РЕМОНТ">
                       РЕМОНТ
                     </MenuItem>
-                    <MenuItem key={2} value="КОНСУМАТИВ">
-                      КОНСУМАТИВ
+                    <MenuItem key={2} value="ОБСЛУЖВАНЕ">
+                      ОБСЛУЖВАНЕ
                     </MenuItem>
                     <MenuItem key={3} value="ГУМИ">
                       ГУМИ
                     </MenuItem>
-                    <MenuItem key={4} value="ДРУГИ">
+                    <MenuItem key={4} value="КОНСУМАТИВ">
+                      КОНСУМАТИВ
+                    </MenuItem>
+                    <MenuItem key={5} value="ГОРИВО">
+                      ГОРИВО
+                    </MenuItem>
+                    <MenuItem key={6} value="ДРУГИ">
                       ДРУГИ
                     </MenuItem>
                   </TextField>
