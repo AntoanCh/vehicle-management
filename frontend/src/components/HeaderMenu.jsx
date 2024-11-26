@@ -148,7 +148,6 @@ const Drawer = styled(MuiDrawer, {
 const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
   //HEADER
   const [tab, setTab] = useState("");
-
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [userRole, setUserRole] = useState([]);
@@ -475,7 +474,11 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
             <IconButton
               variant="outlined"
               color="white"
-              onClick={() => setDarkTheme((darkTheme) => !darkTheme)}
+              onClick={() => {
+                console.log(darkTheme);
+                setDarkTheme((darkTheme) => !darkTheme);
+                localStorage.setItem("darkTheme", !darkTheme);
+              }}
             >
               {darkTheme ? <NightlightRoundIcon /> : <LightModeIcon />}
             </IconButton>

@@ -75,7 +75,7 @@ const Records = () => {
       name: "Километри на връщане",
       options: {
         setCellProps: () => {
-          // return { align: "center" };
+          return { align: "center" };
         },
         customBodyRender: (value) => (value ? value : "в движение"),
         filter: false,

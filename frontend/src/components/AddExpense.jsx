@@ -10,7 +10,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Box from "@mui/material/Box";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import { DeleteForever, Close, Edit } from "@mui/icons-material/";
 import MUIDataTable from "mui-datatables";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -18,7 +18,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import EditIcon from "@mui/icons-material/Edit";
+import DraggablePaper from "../components/DraggablePaper";
 
 const AddExpense = ({
   vehicle,
@@ -157,6 +157,7 @@ const AddExpense = ({
       <Box>
         {services && (
           <Dialog
+            PaperComponent={DraggablePaper}
             // fullWidth
             onKeyUp={(e) => {
               const ENTER = 13;
@@ -171,11 +172,28 @@ const AddExpense = ({
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
           >
-            <DialogTitle id="alert-dialog-title">Добави разход</DialogTitle>
+            <DialogTitle
+              style={{ cursor: "move", backgroundColor: "#42a5f5" }}
+              id="draggable-dialog-title"
+            >
+              {"Добави разход"}
+              <IconButton
+                sx={{
+                  margin: 0,
+                  padding: 0,
+                  float: "right",
+                }}
+                color="error"
+                onClick={handleClose}
+              >
+                <Close />
+              </IconButton>
+            </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description"></DialogContentText>
               <Box>
-                {" "}
+                <h1 style={{ textAlign: "center" }}>{vehicle.reg}</h1>
+
                 <Box>
                   <DemoContainer components={["DatePicker, DatePicker"]}>
                     <DatePicker
@@ -192,7 +210,7 @@ const AddExpense = ({
                     />
                   </DemoContainer>
                 </Box>
-                <Box className="my-4">
+                <Box sx={{ marginY: "15px" }}>
                   <TextField
                     fullWidth
                     onChange={handleChange}
@@ -222,7 +240,7 @@ const AddExpense = ({
                     </MenuItem>
                   </TextField>
                 </Box>
-                <Box className="my-4">
+                <Box sx={{ marginY: "15px" }}>
                   <TextField
                     fullWidth
                     onChange={handleChange}
@@ -232,7 +250,17 @@ const AddExpense = ({
                     label="Описание:"
                   />
                 </Box>
-                <Box className="my-4">
+                <Box sx={{ marginY: "15px" }}>
+                  <TextField
+                    fullWidth
+                    onChange={handleChange}
+                    value={newServ.cost}
+                    name="cost"
+                    id="cost"
+                    label="Стойност:"
+                  />
+                </Box>
+                <Box sx={{ marginY: "15px" }}>
                   <TextField
                     fullWidth
                     onChange={handleChange}
@@ -242,7 +270,7 @@ const AddExpense = ({
                     label="Фактура №:"
                   />
                 </Box>
-                <Box className="my-4">
+                <Box sx={{ marginY: "15px" }}>
                   <TextField
                     fullWidth
                     onChange={handleChange}
@@ -250,16 +278,6 @@ const AddExpense = ({
                     name="km"
                     id="km"
                     label="Километри:"
-                  />
-                </Box>
-                <Box className="my-4">
-                  <TextField
-                    fullWidth
-                    onChange={handleChange}
-                    value={newServ.cost}
-                    name="cost"
-                    id="cost"
-                    label="Стойност:"
                   />
                 </Box>
               </Box>

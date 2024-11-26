@@ -25,8 +25,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Box from "@mui/material/Box";
 import HeaderMenu from "./components/HeaderMenu.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
+import { useTheme } from "@mui/material";
 import { bgBG } from "@mui/material/locale";
 
 import {
@@ -39,6 +40,12 @@ function App() {
   const [filter, setFilter] = React.useState("all");
   const [darkTheme, setDarkTheme] = useState(false);
 
+  useEffect(() => {
+    console.log(darkTheme);
+    if (localStorage.getItem("darkTheme") === "true") {
+      setDarkTheme(true);
+    }
+  }, []);
   const theme = createTheme({
     palette: {
       mode: darkTheme ? "dark" : "light",
@@ -75,9 +82,7 @@ function App() {
 
   return (
     <ThemeProvider
-      theme={
-        darkTheme ? createTheme(themeDark, bgBG) : createTheme(themeLight, bgBG)
-      }
+      theme={darkTheme ? createTheme(themeDark, bgBG) : createTheme(themeLight)}
     >
       <CssBaseline />
       <Box
@@ -125,7 +130,6 @@ function App() {
             <Footer />
           </BrowserRouter>
         </LocalizationProvider>
-        {/* </ThemeProvider> */}
       </Box>
     </ThemeProvider>
   );

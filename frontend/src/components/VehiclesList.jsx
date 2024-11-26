@@ -3,8 +3,15 @@ import Box from "@mui/material/Box";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import { Button, TextField, MenuItem, ButtonGroup } from "@mui/material";
+import VehicleRecords from "./VehicleRecords";
+import {
+  Button,
+  TextField,
+  MenuItem,
+  ButtonGroup,
+  IconButton,
+  setRef,
+} from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -20,6 +27,45 @@ import CreateVehicle from "../pages/CreateVehicle";
 import { keyframes } from "@mui/system";
 import { styled } from "@mui/material/styles";
 import AddExpense from "./AddExpense";
+import Stack from "@mui/material/Stack";
+import { useMemo } from "react";
+import { MRT_Localization_BG } from "material-react-table/locales/bg";
+import {
+  darken,
+  lighten,
+  useTheme,
+  Typography,
+  ListItemIcon,
+} from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import Link from "@mui/material/Link";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import {
+  History,
+  QueryStats,
+  CarRepair,
+  DeleteForever,
+  Cancel,
+  Timeline,
+  Close,
+  Save,
+  AccountCircle,
+  Send,
+  WarningAmber,
+} from "@mui/icons-material";
+import LinearProgress from "@mui/material/LinearProgress";
+import DraggablePaper from "../components/DraggablePaper";
+
+//MRT Imports
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ColumnDef,
+  MRT_GlobalFilterTextField,
+  MRT_ToggleFiltersButton,
+} from "material-react-table";
+import VehicleDetails from "./VehicleDetails";
 
 const blink = keyframes`
   from { opacity: 0; }
@@ -41,12 +87,20 @@ export default function VehiclesList({ data, filter, setFilter }) {
   const [expenses, setExpenses] = useState({});
   const [refresh, setRefresh] = useState(false);
   const [add, setAdd] = useState(false);
+  const [action, setAction] = useState({ show: false, type: "", vehicle: {} });
   const token = localStorage.getItem("token");
   const { id } = useParams();
   const [addExpense, setAddExpense] = useState(false);
   const [expenseVehicle, setExpenseVehicle] = useState({});
   const navigate = useNavigate();
-  // Search
+
+  const theme = useTheme();
+  const baseBackgroundColor =
+    theme.palette.mode === "dark"
+      ? "#212121"
+      : // "rgba(3, 44, 43, 1)"
+        "#fff";
+  // "rgba(244, 255, 233, 1)"
 
   useEffect(() => {
     const verifyUser = async () => {
@@ -70,8 +124,10 @@ export default function VehiclesList({ data, filter, setFilter }) {
   React.useEffect(() => {
     setFilter(filter.slice());
   }, [filter]);
+  setTimeout(() => setRefresh(false), 1500);
 
   const handleFilter = (val) => {
+    setRefresh(!refresh);
     setFilter(val);
   };
 
@@ -104,440 +160,600 @@ export default function VehiclesList({ data, filter, setFilter }) {
       }
     }
   };
-  const tableData = data
-    .filter((obj) =>
+
+  const tableData = useMemo(() => {
+    return data.filter((obj) =>
       filter === "all" ? obj.site !== "ПРОДАДЕНИ" : obj.site === filter
-    )
-    .sort((a, b) => a.reg.replace(/\D/g, "") - b.reg.replace(/\D/g, ""))
-    .map((obj) => {
-      return [
-        obj.make + " " + obj.model,
-        obj.reg,
-        parseInt(obj.price),
-        dayjs().diff(obj.startDate, "month"),
-        obj.totalServiceCost ? obj.totalServiceCost : 0,
-        parseFloat(
-          obj.totalServiceCost
-            ? (
-                obj.totalServiceCost / dayjs().diff(obj.startDate, "month")
-              ).toFixed(2)
-            : 0
-        ),
-        obj.insDate,
-        obj.kaskoDate,
-        obj.gtp,
-        obj.km,
-        obj.oil,
-        obj.oilChange,
-        obj.km - obj.oil,
-        obj.checked,
-        obj._id,
-        obj.site,
-        obj.issue,
-        obj,
-      ];
-    });
+    );
+  }, [filter]);
 
-  const columns = [
-    {
-      name: "Марка/Модел",
-      options: {
-        customBodyRender: (value, tableMeta, updateValue) => {
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "reg",
+        header: "Номер",
+        size: 170,
+        enableColumnFilter: false,
+        Cell: ({ cell, row }) => {
           return (
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              {value}
-              {tableMeta.rowData[16] ? (
-                <BlinkedBox>
-                  <WarningAmberIcon />
-                </BlinkedBox>
-              ) : (
-                ""
-              )}
+            <Box sx={{ display: "flex" }}>
+              <Link
+                href={`/vehicles/details/${row.original._id}`}
+                sx={{ display: "flex" }}
+              >
+                {cell
+                  .getValue()
+                  .split(/(\d{4})/)
+                  .join(" ")
+                  .trim()}
+
+                {row.original.issue ? (
+                  <BlinkedBox>
+                    <WarningAmber />
+                  </BlinkedBox>
+                ) : (
+                  ""
+                )}
+              </Link>
+              {
+                <IconButton
+                  sx={{ padding: "0", margin: "0", marginLeft: "5px" }}
+                  variant="contained"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (userRole.includes("admin")) {
+                      axios
+                        .get(
+                          `http://192.168.0.147:5555/services/${row.original._id}`
+                        )
+                        .then((res) => {
+                          setExpenses(res.data);
+                          setExpenseVehicle({ ...row.original });
+                          setAddExpense(true);
+                        })
+                        .catch((err) => {
+                          console.log(err);
+                        });
+                    } else {
+                    }
+                  }}
+                >
+                  <AttachMoneyIcon />
+                </IconButton>
+              }
             </Box>
           );
         },
-      },
-    },
-    {
-      name: "Рег №",
-      options: {
-        sortCompare: (order) => {
-          return (obj1, obj2) => {
-            let val1 = obj1.data.replace(/\D/g, "");
-            let val2 = obj2.data.replace(/\D/g, "");
-
-            return (val1 - val2) * (order === "asc" ? 1 : -1);
-          };
+        sortingFn: (rowA, rowB, columnId) => {
+          let val1 = rowA.original.reg.replace(/\D/g, "");
+          let val2 = rowB.original.reg.replace(/\D/g, "");
+          return val1 - val2;
         },
-        customBodyRender: (value, tableMeta, updateValue) => {
+      },
+      {
+        accessorFn: (row) => `${row.make} ${row.model}`,
+        id: "model",
+        header: "Марка/модел",
+        size: 160,
+        filterVariant: "select",
+        editable: false,
+      },
+      {
+        accessorKey: "price",
+        header: "Цена",
+        size: 130,
+        filterVariant: "range-slider",
+        filterFn: "betweenInclusive",
+        muiFilterSliderProps: {
+          //no need to specify min/max/step if using faceted values
+          marks: true,
+          step: 5_000,
+          valueLabelFormat: (value) =>
+            value.toLocaleString("bg-BG", {
+              style: "currency",
+              currency: "BGN",
+            }),
+        },
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) => parseFloat(cell.getValue()).toFixed(2) + " лв",
+        Footer: () => {
+          const total = tableData.reduce(
+            (acc, row) => acc + parseFloat(row.price),
+            0
+          );
           return (
-            <Box>
-              {value
-                .split(/(\d{4})/)
-                .join(" ")
-                .trim()}
-            </Box>
+            <Stack
+              sx={{
+                margin: "auto",
+              }}
+            >
+              <Box color="warning.main">{total.toLocaleString() + " лв"}</Box>
+            </Stack>
           );
         },
       },
-    },
-    {
-      name: "Цена",
-      options: {
-        setCellProps: () => {
-          return { align: "center" };
+      {
+        accessorFn: (row) => dayjs().diff(row.startDate, "month"),
+        id: "months",
+        header: "Време от 1ви р-т",
+        size: 110,
+        enableGlobalFilter: false,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
         },
-        customBodyRender: (value, tableMeta, updateValue) => {
-          return value.toFixed(2) + " лв";
+        Cell: ({ cell }) =>
+          `${
+            Math.floor(cell.getValue() / 12)
+              ? Math.floor(cell.getValue() / 12) + "г. "
+              : ""
+          } ${cell.getValue() % 12}м.`,
+      },
+      {
+        accessorFn: (row) => (row.totalServiceCost ? row.totalServiceCost : 0),
+        id: "totalExpense",
+        header: "Разходи",
+        size: 130,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) => parseFloat(cell.getValue()).toFixed(2) + " лв",
+        Footer: () => {
+          const total = tableData.reduce(
+            (acc, row) =>
+              parseFloat(
+                (
+                  acc +
+                  (row.totalServiceCost ? parseFloat(row.totalServiceCost) : 0)
+                ).toFixed(2)
+              ),
+            0
+          );
+          return (
+            <Stack
+              sx={{
+                margin: "auto",
+              }}
+            >
+              <Box color="warning.main">{total.toLocaleString() + " лв"}</Box>
+            </Stack>
+          );
         },
       },
-    },
-    {
-      name: "Време от 1ви р-т",
-      options: {
-        customBodyRender: (value, tableMeta, updateValue) =>
-          `${Math.floor(value / 12) ? Math.floor(value / 12) + "г. " : ""} ${
-            value % 12
-          }м.`,
-        setCellProps: () => {
-          return { align: "center" };
+      {
+        accessorFn: (row) =>
+          parseFloat(
+            row.totalServiceCost
+              ? (
+                  row.totalServiceCost / dayjs().diff(row.startDate, "month")
+                ).toFixed(2)
+              : 0
+          ),
+        id: "expensePerMonth",
+        header: "Р-д/Мес",
+        size: 130,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) => parseFloat(cell.getValue()).toFixed(2) + " лв",
+        Footer: () => {
+          const total = tableData.reduce(
+            (acc, row) =>
+              parseFloat(
+                (
+                  acc +
+                  (row.totalServiceCost
+                    ? parseFloat(
+                        row.totalServiceCost /
+                          dayjs().diff(row.startDate, "month")
+                      )
+                    : 0)
+                ).toFixed(2)
+              ),
+            0
+          );
+          return (
+            <Stack
+              sx={{
+                margin: "auto",
+              }}
+            >
+              <Box color="warning.main">{total.toLocaleString() + " лв"}</Box>
+            </Stack>
+          );
         },
       },
-    },
-    {
-      name: "Разходи Общо",
-      options: {
-        setCellProps: () => {
-          return { align: "center" };
+      {
+        accessorKey: "insDate",
+        header: "ГО",
+        size: 110,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
         },
-        customBodyRender: (value, tableMeta, updateValue) => {
-          return value.toFixed(2) + " лв";
-        },
-      },
-    },
-    {
-      name: "Ср Р-д на мес",
-      options: {
-        setCellProps: () => {
-          return { align: "center" };
-        },
-        customBodyRender: (value, tableMeta, updateValue) => {
-          return value.toFixed(2) + " лв";
-        },
-      },
-    },
-
-    {
-      name: "ГО",
-      options: {
-        customBodyRender: (value, tableMeta, updateValue) => {
+        Cell: ({ cell }) => {
           return (
             <Box
               style={
-                isDue(value, "date") === "warning"
+                isDue(cell.getValue(), "date") === "warning"
                   ? { color: "red" }
-                  : isDue(value, "date") === "caution"
+                  : isDue(cell.getValue(), "date") === "caution"
                   ? { color: "orange" }
                   : {}
               }
             >
-              {dayjs(value).format("DD/MM/YYYY")}
-              {isDue(value, "date") ? <WarningAmberIcon /> : ""}
+              {dayjs(cell.getValue()).format("DD/MM/YYYY")}
+              {isDue(cell.getValue(), "date") ? <WarningAmber /> : ""}
             </Box>
           );
         },
-        setCellProps: () => {
-          // return { align: "center" };
-        },
-        filter: false,
       },
-    },
-    {
-      name: "Каско",
-      options: {
-        customBodyRender: (value, tableMeta, updateValue) => {
+      {
+        accessorKey: "kaskoDate",
+        header: "Каско",
+        size: 110,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) => {
           return (
             <Box
               style={
-                isDue(value, "date") === "warning"
+                isDue(cell.getValue(), "date") === "warning"
                   ? { color: "red" }
-                  : isDue(value, "date") === "caution"
+                  : isDue(cell.getValue(), "date") === "caution"
                   ? { color: "orange" }
                   : {}
               }
             >
-              {dayjs(value).format("DD/MM/YYYY") === "01/01/2001" ||
-              value === null ||
-              value === "31/12/2000"
+              {cell.getValue() === null ||
+              cell.getValue() === "2000-12-31T22:00:00.000Z"
                 ? "Няма"
-                : dayjs(value).format("DD/MM/YYYY")}
-              {isDue(value, "date") ? <WarningAmberIcon /> : ""}
+                : dayjs(cell.getValue()).format("DD/MM/YYYY")}
+              {isDue(cell.getValue(), "date") ? <WarningAmber /> : ""}
             </Box>
           );
         },
-        setCellProps: () => {
-          // return { align: "center" };
-        },
-        display: false,
-        filter: false,
       },
-    },
-    {
-      name: "ГТП",
-      options: {
-        customBodyRender: (value, tableMeta, updateValue) => {
+      {
+        accessorKey: "gtp",
+        header: "ГТП",
+        size: 110,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) => {
           return (
             <Box
               style={
-                isDue(value, "date") === "warning"
+                isDue(cell.getValue(), "date") === "warning"
                   ? { color: "red" }
-                  : isDue(value, "date") === "caution"
+                  : isDue(cell.getValue(), "date") === "caution"
                   ? { color: "orange" }
                   : {}
               }
             >
-              {dayjs(value).format("DD/MM/YYYY")}
-              {isDue(value, "date") ? <WarningAmberIcon /> : ""}
+              {dayjs(cell.getValue()).format("DD/MM/YYYY")}
+              {isDue(cell.getValue(), "date") ? <WarningAmber /> : ""}
             </Box>
           );
         },
-        setCellProps: () => {
-          // return { align: "center" };
+      },
+      {
+        accessorKey: "oil",
+        header: "Масло-км",
+        size: 110,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
         },
-        filter: false,
       },
-    },
-
-    {
-      name: "Километри",
-      options: {
-        filter: false,
-        display: false,
-      },
-    },
-    {
-      name: "Масло км",
-      options: {
-        filter: false,
-        display: false,
-      },
-    },
-    {
-      name: "Масло интервал",
-      options: {
-        filter: false,
-        display: false,
-      },
-    },
-    {
-      name: "Масло преди",
-      options: {
-        setCellProps: () => {
-          return { align: "center" };
+      {
+        accessorKey: "oilChange",
+        header: "Масло интервал",
+        size: 110,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
         },
-        customBodyRender: (value, tableMeta, updateValue) => {
+      },
+      {
+        accessorFn: (row) => row.km - row.oil,
+        id: "oilPast",
+        header: "Масло на",
+        size: 110,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell, row }) => {
           return (
             <Box
               style={
                 isDue(
-                  tableMeta.rowData[9] - tableMeta.rowData[7],
+                  row.original.km - row.original.oil,
                   "oil",
-                  tableMeta.rowData[11]
+                  row.original.oilChange
                 ) === "warning"
                   ? { color: "red" }
                   : isDue(
-                      tableMeta.rowData[9] - tableMeta.rowData[7],
+                      row.original.km - row.original.oil,
                       "oil",
-                      tableMeta.rowData[11]
+                      row.original.oilChange
                     ) === "caution"
                   ? { color: "orange" }
                   : {}
               }
             >
-              {value + " км"}
+              {cell.getValue() + " км"}
               {isDue(
-                tableMeta.rowData[9] - tableMeta.rowData[7],
+                row.original.km - row.original.oil,
                 "oil",
-                tableMeta.rowData[11]
+                row.original.oilChange
               ) ? (
-                <WarningAmberIcon />
+                <WarningAmber />
               ) : (
                 ""
               )}
             </Box>
           );
         },
-
-        filter: false,
       },
-    },
-    {
-      name: "Проверен",
-      options: {
-        customBodyRender: (value, tableMeta, updateValue) => {
+      {
+        accessorKey: "checked",
+        header: "Проверен",
+        size: 110,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) => {
           return (
             <Box
               style={
-                isDue(value, "checked") === "warning"
+                isDue(cell.getValue(), "checked") === "warning"
                   ? { color: "red" }
-                  : isDue(value, "checked") === "caution"
+                  : isDue(cell.getValue(), "checked") === "caution"
                   ? { color: "orange" }
                   : {}
               }
             >
-              {dayjs(value).format("DD/MM/YYYY")}
-              {isDue(value, "checked") ? <WarningAmberIcon /> : ""}
+              {dayjs(cell.getValue()).format("DD/MM/YYYY")}
+              {isDue(cell.getValue(), "checked") ? <WarningAmber /> : ""}
             </Box>
           );
         },
-        setCellProps: () => {
-          // return { align: "center" };
+      },
+      {
+        accessorKey: "km",
+        header: "Километри",
+        size: 110,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
         },
-        filter: false,
       },
-    },
-    {
-      name: "ID",
-      options: {
-        display: false,
-        filter: false,
-      },
-    },
-    {
-      name: "Локация",
-      options: {
-        display: false,
-      },
-    },
-    {
-      name: "Забалежки",
-      options: {
-        filter: false,
-        display: false,
-      },
-    },
-    {
-      name: "Разход",
-      options: {
-        customBodyRender: (value, tableMeta, updateValue) => {
-          if (userRole.includes("admin")) {
-            return (
-              <Button
-                variant="contained"
-                onClick={(e) => {
-                  e.stopPropagation();
-
-                  axios
-                    .get(
-                      `http://192.168.0.147:5555/services/${tableMeta.rowData[14]}`
-                    )
-                    .then((res) => {
-                      setExpenses(res.data);
-                      setExpenseVehicle({ ...tableMeta.rowData[17] });
-                      setAddExpense(true);
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                }}
-              >
-                ДОбави
-              </Button>
-            );
-          }
+      {
+        accessorKey: "site",
+        header: "Отговорник",
+        size: 110,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
         },
-        filter: false,
-        display: userRole.includes("admin") ? true : false,
+        filterVariant: "multi-select",
+      },
+      {
+        accessorKey: "issue",
+        header: "Забележки",
+        size: 160,
+        enableGlobalFilter: false,
+      },
+    ],
+    [refresh]
+  );
+
+  const table = useMaterialReactTable({
+    columns,
+    data: tableData,
+    // enableRowVirtualization: true,
+    enableExpandAll: false,
+    localization: { ...MRT_Localization_BG },
+    enableStickyHeader: true,
+    enableStickyFooter: true,
+    enableFacetedValues: true,
+    enableRowNumbers: true,
+    enableRowActions: true,
+    muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    initialState: {
+      sorting: [
+        {
+          id: "reg",
+          desc: false,
+        },
+        {
+          id: "model",
+          desc: false,
+        },
+      ],
+      columnVisibility: {
+        kaskoDate: false,
+        oil: false,
+        site: false,
+        issue: false,
+        oilChange: false,
+        km: false,
+      },
+      pagination: { pageSize: 30, pageIndex: 0 },
+      showGlobalFilter: true,
+      showColumnFilters: true,
+      density: "compact",
+      columnPinning: {
+        left: ["mrt-row-expand", "mrt-row-actions", "reg"],
+        right: ["mrt-row-select"],
       },
     },
-  ];
+    paginationDisplayMode: "pages",
+    positionToolbarAlertBanner: "bottom",
+    muiSearchTextFieldProps: {
+      size: "small",
+      variant: "outlined",
+    },
+    muiPaginationProps: {
+      color: "secondary",
+      rowsPerPageOptions: [10, 20, 30, 50],
+      shape: "rounded",
+      variant: "outlined",
+    },
+    enableColumnResizing: true,
+    enableRowSelection: true,
+    muiTablePaperProps: {
+      elevation: 0,
+      sx: {
+        borderRadius: "0",
+      },
+    },
+    renderDetailPanel: ({ row }) => (
+      <Box
+        sx={{
+          alignItems: "center",
+          display: "flex",
+          justifyContent: "space-around",
+          left: "30px",
+          maxWidth: "1000px",
+          position: "sticky",
+          width: "100%",
+        }}
+      >
+        <VehicleDetails id={row.original._id} />
+      </Box>
+    ),
+    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+      <MenuItem
+        key={0}
+        onClick={() => {
+          setAction({
+            show: true,
+            type: "records",
+            vehicle: { ...row.original },
+          });
+          closeMenu();
+        }}
+        sx={{ m: 0 }}
+      >
+        <ListItemIcon>
+          <Timeline />
+        </ListItemIcon>
+        Движение
+      </MenuItem>,
 
-  const getMuiTheme = () =>
-    createTheme({
-      components: {
-        // MUIDataTableBodyCell: {
-        //   styleOverrides: {
-        //     root: {
-        //       backgroundColor: "#ccc",
-        //       "&:hover": {
-        //         backgroundColor: "#fff",
-        //       },
-        //     },
-        //   },
-        // },
-        MUIDataTableBodyRow: {
-          styleOverrides: {
-            root: {
-              backgroundColor: "#ddd",
-              cursor: "pointer",
-            },
+      <MenuItem
+        key={1}
+        onClick={() => {
+          setAction({
+            show: true,
+            type: "issues",
+            vehicle: { ...row.original },
+          });
+          closeMenu();
+        }}
+        sx={{ m: 0 }}
+      >
+        <ListItemIcon>
+          <WarningAmber />
+        </ListItemIcon>
+        Забележки
+      </MenuItem>,
+      <MenuItem
+        key={2}
+        onClick={() => {
+          setAction({
+            show: true,
+            type: "expenses",
+            vehicle: { ...row.original },
+          });
+          closeMenu();
+        }}
+        sx={{ m: 0 }}
+      >
+        <ListItemIcon>
+          <CarRepair />
+        </ListItemIcon>
+        Разходи
+      </MenuItem>,
+      <MenuItem
+        key={3}
+        onClick={() => {
+          setAction({
+            show: true,
+            type: "history",
+            vehicle: { ...row.original },
+          });
+          closeMenu();
+        }}
+        sx={{ m: 0 }}
+      >
+        <ListItemIcon>
+          <History />
+        </ListItemIcon>
+        Лог
+      </MenuItem>,
+    ],
+    renderTopToolbar: ({ table }) => {
+      const handleDeactivate = () => {
+        table.getSelectedRowModel().flatRows.map((row) => {
+          alert("deactivating " + row.getValue("name"));
+        });
+      };
+
+      const handleActivate = () => {
+        table.getSelectedRowModel().flatRows.map((row) => {
+          alert("activating " + row.getValue("name"));
+        });
+      };
+
+      const handleContact = () => {
+        table.getSelectedRowModel().flatRows.map((row) => {
+          alert("contact " + row.getValue("name"));
+        });
+      };
+    },
+    muiTableBodyProps: {
+      sx: (theme) => ({
+        '& tr:nth-of-type(odd):not([data-selected="true"]):not([data-pinned="true"]) > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.1),
           },
-        },
-        MUIDataTableHeadCell: {
-          styleOverrides: {
-            root: {
-              // backgroundColor: "#fff",
-            },
+        '& tr:nth-of-type(odd):not([data-selected="true"]):not([data-pinned="true"]):hover > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.2),
           },
-        },
-        MUIDataTableToolbar: {
-          styleOverrides: {
-            root: {
-              // backgroundColor: "#fff",
-              // fontWeight: "800",
-            },
+        '& tr:nth-of-type(even):not([data-selected="true"]):not([data-pinned="true"]) > td':
+          {
+            backgroundColor: lighten(baseBackgroundColor, 0.1),
           },
-        },
-      },
-    });
-  const options = {
-    resizableColumns: true,
-    filterType: "dropdown",
-    rowHover: true,
-    print: false,
-
-    selectableRows: false,
-    download: false,
-    onRowClick: (rowData, rowMeta) => {
-      handleClick(rowData[14]);
+        '& tr:nth-of-type(even):not([data-selected="true"]):not([data-pinned="true"]):hover > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.2),
+          },
+      }),
     },
-    rowsPerPage: 30,
-    rowsPerPageOptions: [30, 50, 100],
-    // expandableRowsOnClick: true,
-    // expandableRows: true,
-    textLabels: {
-      body: {
-        noMatch: "Нищо не е намерено",
-      },
-      pagination: {
-        next: "Следваща страница",
-        previous: "Предишна страница",
-        rowsPerPage: "Покажи по:",
-        displayRows: "от", // 1-10 of 30
-      },
-      toolbar: {
-        search: "Търсене",
-        downloadCsv: "Изтегли CSV",
-        print: "Принтирай",
-        viewColumns: "Показване на колони",
-        filterTable: "Филтри",
-      },
-      filter: {
-        title: "ФИЛТРИ",
-        reset: "изчисти",
-      },
-      viewColumns: {
-        title: "Покажи колони",
-      },
-      selectedRows: {
-        text: "rows(s) deleted",
-        delete: "Delete",
-      },
-    },
-  };
-
+    mrtTheme: (theme) => ({
+      baseBackgroundColor: baseBackgroundColor,
+      draggingBorderColor: theme.palette.secondary.main,
+    }),
+  });
   return (
-    <div className="flex justify-center">
+    <Box
+    // sx={{ width: "100%" }}
+    >
       {addExpense && (
         <AddExpense
           add={addExpense}
@@ -551,126 +767,155 @@ export default function VehiclesList({ data, filter, setFilter }) {
           setDate={setExpenseDate}
         />
       )}
-      {/* <Dialog
-        maxWidth={"xl"}
-        open={add}
-        onClose={handleCloseAdd}
+      <CreateVehicle add={add} setAdd={setAdd} />
+      <Dialog
+        PaperComponent={DraggablePaper}
+        // maxWidth={"xl"}
+        fullScreen
+        open={action.show}
+        onClose={() => setAction({ show: false, type: "", vehicle: {} })}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {`Добавяне на нов автомобил`}
+        <DialogTitle
+          style={{ cursor: "move", backgroundColor: "#42a5f5" }}
+          id="draggable-dialog-title"
+        >
+          {`${action.vehicle.reg} ${action.vehicle.make} ${action.vehicle.model}`}
+          <IconButton
+            sx={{
+              margin: 0,
+              padding: 0,
+              float: "right",
+            }}
+            color="error"
+            onClick={() => setAction({ show: false, type: "", vehicle: {} })}
+          >
+            <Close />
+          </IconButton>
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description"></DialogContentText> */}
-      <CreateVehicle add={add} setAdd={setAdd} />
-      {/* </DialogContent>
-        <DialogActions>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={() => setAdd(false)}
-            autoFocus
-          >
-            Отказ
-          </Button>
-        </DialogActions>
-      </Dialog>{" "} */}
-      <Box sx={{ width: "95%", margin: "25px" }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            backgroundColor: "#fff",
-            borderRadius: "10px",
-          }}
-        >
-          <Box
-            sx={{
-              width: "100%",
-              backgroundColor: (theme) => theme.palette.primary.main,
-            }}
-          >
-            <ButtonGroup>
-              <Button
-                sx={{ width: "40%" }}
-                color={filter === "all" ? "secondary" : "primary"}
-                variant={"contained"}
-                onClick={() => handleFilter("all")}
-              >
-                {"Всички"}
-              </Button>
-              <Button
-                sx={{ width: "40%" }}
-                color={filter === "ОФИС" ? "secondary" : "primary"}
-                variant={"contained"}
-                onClick={() => handleFilter("ОФИС")}
-              >
-                {"ОФИС"}
-              </Button>
-              <Button
-                sx={{ width: "40%" }}
-                color={filter === "ВИТАЛИНО" ? "secondary" : "primary"}
-                variant={"contained"}
-                onClick={() => handleFilter("ВИТАЛИНО")}
-              >
-                {"ВИТАЛИНО"}
-              </Button>
-              <Button
-                sx={{ width: "40%" }}
-                color={filter === "БОРСА" ? "secondary" : "primary"}
-                variant={"contained"}
-                onClick={() => handleFilter("БОРСА")}
-              >
-                {"БОРСА"}
-              </Button>
-              <Button
-                sx={{ width: "40%" }}
-                color={filter === "СКЛАД" ? "secondary" : "primary"}
-                variant={"contained"}
-                onClick={() => handleFilter("СКЛАД")}
-              >
-                {"СКЛАД"}
-              </Button>
-              <Button
-                sx={{ width: "40%" }}
-                color={filter === "ДРУГИ" ? "secondary" : "primary"}
-                variant={"contained"}
-                onClick={() => handleFilter("ДРУГИ")}
-              >
-                {"ДРУГИ"}
-              </Button>
-              <Button
-                sx={{ width: "40%" }}
-                color={filter === "ПРОДАДЕНИ" ? "secondary" : "primary"}
-                variant={"contained"}
-                onClick={() => handleFilter("ПРОДАДЕНИ")}
-              >
-                {"ПРОДАДЕНИ"}
-              </Button>
-            </ButtonGroup>
-          </Box>
-          <Button
-            disabled={userRole.length === 0 || !userRole ? true : false}
-            sx={{ width: "10%" }}
-            variant={"contained"}
-            onClick={() => setAdd(true)}
-          >
-            {"ДОБАВИ"}
-            <AddCircleOutlineIcon />
-          </Button>
+          <VehicleRecords
+            username={username}
+            userRole={userRole}
+            vehicle={action.vehicle}
+          />
+        </DialogContent>
+      </Dialog>
+      {refresh ? (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgress variant="determinate" />
         </Box>
-        {/* <ThemeProvider theme={getMuiTheme()}> */}
-        <MUIDataTable
-          title={"АВТОМОБИЛИ"}
-          data={tableData}
-          columns={columns}
-          options={options}
-        />
-        {/* </ThemeProvider> */}
+      ) : (
+        ""
+      )}
 
-        {/* </ThemeProvider> */}
+      <Box sx={{ maxHeight: "100px" }}>
+        <Box
+          sx={(theme) => ({
+            backgroundColor: lighten(
+              theme.palette.mode === "dark" ? "#212121" : "#fff",
+              0.05
+            ),
+            display: "flex",
+            gap: "0.5rem",
+            p: "8px",
+            justifyContent: "space-between",
+          })}
+        >
+          <Box sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+            {/* import MRT sub-components */}
+
+            <Box>
+              <ButtonGroup>
+                <Button
+                  sx={{ width: "40%" }}
+                  color={filter === "all" ? "secondary" : "primary"}
+                  variant={"contained"}
+                  onClick={() => handleFilter("all")}
+                >
+                  {"Всички"}
+                </Button>
+                <Button
+                  sx={{ width: "40%" }}
+                  color={filter === "ОФИС" ? "secondary" : "primary"}
+                  variant={"contained"}
+                  onClick={() => handleFilter("ОФИС")}
+                >
+                  {"ОФИС"}
+                </Button>
+                <Button
+                  sx={{ width: "40%" }}
+                  color={filter === "ВИТАЛИНО" ? "secondary" : "primary"}
+                  variant={"contained"}
+                  onClick={() => handleFilter("ВИТАЛИНО")}
+                >
+                  {"ВИТАЛИНО"}
+                </Button>
+                <Button
+                  sx={{ width: "40%" }}
+                  color={filter === "БОРСА" ? "secondary" : "primary"}
+                  variant={"contained"}
+                  onClick={() => handleFilter("БОРСА")}
+                >
+                  {"БОРСА"}
+                </Button>
+                <Button
+                  sx={{ width: "40%" }}
+                  color={filter === "ДРУГИ" ? "secondary" : "primary"}
+                  variant={"contained"}
+                  onClick={() => handleFilter("ДРУГИ")}
+                >
+                  {"ДРУГИ"}
+                </Button>
+                <Button
+                  sx={{ width: "40%" }}
+                  color={filter === "ПРОДАДЕНИ" ? "secondary" : "primary"}
+                  variant={"contained"}
+                  onClick={() => handleFilter("ПРОДАДЕНИ")}
+                >
+                  {"ПРОДАДЕНИ"}
+                </Button>
+              </ButtonGroup>
+            </Box>
+            <MRT_GlobalFilterTextField table={table} />
+          </Box>
+
+          <Box>
+            <Box sx={{ display: "flex", gap: "0.5rem" }}>
+              <Button
+                color="error"
+                disabled={!table.getIsSomeRowsSelected()}
+                // onClick={handleDeactivate}
+                variant="contained"
+              >
+                Deactivate
+              </Button>
+
+              <Button
+                color="success"
+                disabled={!table.getIsSomeRowsSelected()}
+                // onClick={handleActivate}
+                variant="contained"
+              >
+                Activate
+              </Button>
+
+              <Button
+                disabled={userRole.length === 0 || !userRole ? true : false}
+                variant={"contained"}
+                onClick={() => setAdd(true)}
+              >
+                {"ДОБАВИ"}
+                <AddCircleOutlineIcon />
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <MaterialReactTable table={table} />
+        </LocalizationProvider>
       </Box>
-    </div>
+    </Box>
   );
 }

@@ -4,22 +4,31 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Button, ButtonGroup, MenuItem, TextField } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
-import TimelineIcon from "@mui/icons-material/Timeline";
+import {
+  Edit,
+  Save,
+  Timeline,
+  WarningAmber,
+  Warning,
+  Cancel,
+  DeleteForever,
+  LocalGasStation,
+  CarRepair,
+  QueryStats,
+  History,
+  DoneAll,
+  AttachMoney,
+} from "@mui/icons-material";
+
 import Services from "./Services";
 import Ref from "../components/Ref";
-import VehicleRecords from "./VehicleRecords";
+import VehicleRecords from "../components/VehicleRecords";
 import Problems from "./Problems";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import WarningIcon from "@mui/icons-material/Warning";
-import CancelIcon from "@mui/icons-material/Cancel";
 import dayjs from "dayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { useNavigate } from "react-router-dom";
 import Log from "../components/Log";
 import Checkbox from "@mui/material/Checkbox";
@@ -28,18 +37,12 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
-import CarRepairIcon from "@mui/icons-material/CarRepair";
-import QueryStatsIcon from "@mui/icons-material/QueryStats";
-import HistoryIcon from "@mui/icons-material/History";
-import DoneAllIcon from "@mui/icons-material/DoneAll";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
 import Grid from "@mui/material/Grid";
 import InputAdornment from "@mui/material/InputAdornment";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import Alert from "@mui/material/Alert";
 import { keyframes } from "@mui/system";
 
@@ -817,7 +820,7 @@ const ShowVehicle = () => {
                     >
                       Изминати км:
                       {isDue(vehicle.km - vehicle.oil, "oil") ? (
-                        <WarningAmberIcon />
+                        <WarningAmber />
                       ) : (
                         ""
                       )}
@@ -864,7 +867,7 @@ const ShowVehicle = () => {
                     >
                       Оставащи км:{" "}
                       {isDue(vehicle.km - vehicle.oil, "oil") ? (
-                        <WarningAmberIcon />
+                        <WarningAmber />
                       ) : (
                         ""
                       )}
@@ -939,7 +942,7 @@ const ShowVehicle = () => {
                     >
                       Проверен на:
                       {isDue(vehicle.checked, "checked") ? (
-                        <WarningAmberIcon />
+                        <WarningAmber />
                       ) : (
                         ""
                       )}
@@ -953,7 +956,7 @@ const ShowVehicle = () => {
                           color="primary"
                           aria-label="add"
                         >
-                          <DoneAllIcon />
+                          <DoneAll />
                         </Button>
                       ) : (
                         ""
@@ -1022,7 +1025,7 @@ const ShowVehicle = () => {
                         {!vehicle.vignette ? (
                           ""
                         ) : isDue(vehicle.vignetteDate, "date") ? (
-                          <WarningAmberIcon />
+                          <WarningAmber />
                         ) : (
                           ""
                         )}
@@ -1134,7 +1137,7 @@ const ShowVehicle = () => {
                         }
                       >
                         ГТП:
-                        {isDue(vehicle.gtp, "date") ? <WarningAmberIcon /> : ""}
+                        {isDue(vehicle.gtp, "date") ? <WarningAmber /> : ""}
                       </Box>
                       <Box>
                         {" "}
@@ -1224,11 +1227,7 @@ const ShowVehicle = () => {
                         }
                       >
                         ГО до:
-                        {isDue(vehicle.insDate, "date") ? (
-                          <WarningAmberIcon />
-                        ) : (
-                          ""
-                        )}
+                        {isDue(vehicle.insDate, "date") ? <WarningAmber /> : ""}
                       </Box>
                       <Box>
                         {" "}
@@ -1304,7 +1303,7 @@ const ShowVehicle = () => {
                         {!vehicle.kasko ? (
                           ""
                         ) : isDue(vehicle.kaskoDate, "date") ? (
-                          <WarningAmberIcon />
+                          <WarningAmber />
                         ) : (
                           ""
                         )}
@@ -1574,15 +1573,15 @@ const ShowVehicle = () => {
                   {edit ? (
                     <ButtonGroup variant="contained">
                       <Button onClick={handleSave}>
-                        <SaveIcon /> ЗАПИШИ
+                        <Save /> ЗАПИШИ
                       </Button>
                       <Button color="warning" onClick={handleCancelEdit}>
-                        <CancelIcon /> ОТКАЖИ
+                        <Cancel /> ОТКАЖИ
                       </Button>
                     </ButtonGroup>
                   ) : (
                     <Button variant="contained" onClick={handleEdit}>
-                      <EditIcon /> РЕДАКТИРАНЕ
+                      <Edit /> РЕДАКТИРАНЕ
                     </Button>
                   )}
                 </Box>
@@ -1603,7 +1602,7 @@ const ShowVehicle = () => {
                 }}
               >
                 Движение
-                <TimelineIcon />
+                <Timeline />
               </Button>
               <Button
                 variant="contained"
@@ -1619,12 +1618,12 @@ const ShowVehicle = () => {
                 {vehicle.issue ? (
                   <BlinkedBox>
                     Забележки
-                    <WarningIcon />
+                    <Warning />
                   </BlinkedBox>
                 ) : (
                   <Box>
                     Забележки
-                    <WarningIcon />
+                    <Warning />
                   </Box>
                 )}
               </Button>
@@ -1640,7 +1639,7 @@ const ShowVehicle = () => {
                 }}
               >
                 РАЗХОДИ
-                <CarRepairIcon />
+                <CarRepair />
               </Button>
 
               <Button
@@ -1655,7 +1654,7 @@ const ShowVehicle = () => {
                 }}
               >
                 Справки
-                <QueryStatsIcon />
+                <QueryStats />
               </Button>
               <Button
                 variant="contained"
@@ -1669,7 +1668,7 @@ const ShowVehicle = () => {
                 }}
               >
                 Лог
-                <HistoryIcon />
+                <History />
               </Button>
             </ButtonGroup>
 
@@ -1771,7 +1770,7 @@ const ShowVehicle = () => {
                     variant="contained"
                   >
                     ИзтриЙ
-                    <DeleteForeverIcon />
+                    <DeleteForever />
                   </Button>
                 ) : (
                   ""
@@ -1785,7 +1784,7 @@ const ShowVehicle = () => {
                     variant="contained"
                   >
                     ПРОДАДЕН
-                    <AttachMoneyIcon />
+                    <AttachMoney />
                   </Button>
                 ) : (
                   ""

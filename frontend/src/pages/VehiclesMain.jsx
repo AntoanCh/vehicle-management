@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import VehiclesList from "../components/VehiclesList.jsx";
+import Box from "@mui/material/Box";
 
 const VehiclesMain = ({ filter, setFilter }) => {
   const [vehicles, setVehicles] = useState([]);
@@ -20,13 +21,13 @@ const VehiclesMain = ({ filter, setFilter }) => {
       });
   }, []);
   return (
-    <div className="home">
+    <Box>
       {loading ? (
         <CircularProgress />
       ) : (
         <VehiclesList data={vehicles} filter={filter} setFilter={setFilter} />
       )}
-    </div>
+    </Box>
   );
 };
 
