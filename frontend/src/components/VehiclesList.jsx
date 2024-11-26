@@ -258,7 +258,11 @@ export default function VehiclesList({ data, filter, setFilter }) {
         muiTableBodyCellProps: {
           align: "center",
         },
-        Cell: ({ cell }) => parseFloat(cell.getValue()).toFixed(2) + " лв",
+        Cell: ({ cell }) =>
+          parseFloat(cell.getValue()).toLocaleString("bg-BG", {
+            style: "currency",
+            currency: "BGN",
+          }),
         Footer: () => {
           const total = tableData.reduce(
             (acc, row) => acc + parseFloat(row.price),
@@ -270,7 +274,12 @@ export default function VehiclesList({ data, filter, setFilter }) {
                 margin: "auto",
               }}
             >
-              <Box color="warning.main">{total.toLocaleString() + " лв"}</Box>
+              <Box color="warning.main">
+                {total.toLocaleString("bg-BG", {
+                  style: "currency",
+                  currency: "BGN",
+                })}
+              </Box>
             </Stack>
           );
         },
@@ -293,15 +302,32 @@ export default function VehiclesList({ data, filter, setFilter }) {
           } ${cell.getValue() % 12}м.`,
       },
       {
-        accessorFn: (row) => (row.totalServiceCost ? row.totalServiceCost : 0),
+        accessorFn: (row) =>
+          row.totalServiceCost ? row.totalServiceCost.toFixed(2) : "0",
         id: "totalExpense",
         header: "Разходи",
         size: 130,
+        filterVariant: "range-slider",
+        filterFn: "betweenInclusive",
+        muiFilterSliderProps: {
+          //no need to specify min/max/step if using faceted values
+          marks: true,
+          step: 2_000,
+          valueLabelFormat: (value) =>
+            value.toLocaleString("bg-BG", {
+              style: "currency",
+              currency: "BGN",
+            }),
+        },
         enableGlobalFilter: false,
         muiTableBodyCellProps: {
           align: "center",
         },
-        Cell: ({ cell }) => parseFloat(cell.getValue()).toFixed(2) + " лв",
+        Cell: ({ cell }) =>
+          parseFloat(cell.getValue()).toLocaleString("bg-BG", {
+            style: "currency",
+            currency: "BGN",
+          }),
         Footer: () => {
           const total = tableData.reduce(
             (acc, row) =>
@@ -319,28 +345,47 @@ export default function VehiclesList({ data, filter, setFilter }) {
                 margin: "auto",
               }}
             >
-              <Box color="warning.main">{total.toLocaleString() + " лв"}</Box>
+              <Box color="warning.main">
+                {total.toLocaleString("bg-BG", {
+                  style: "currency",
+                  currency: "BGN",
+                })}
+              </Box>
             </Stack>
           );
         },
       },
       {
         accessorFn: (row) =>
-          parseFloat(
-            row.totalServiceCost
-              ? (
-                  row.totalServiceCost / dayjs().diff(row.startDate, "month")
-                ).toFixed(2)
-              : 0
-          ),
+          row.totalServiceCost
+            ? (
+                row.totalServiceCost / dayjs().diff(row.startDate, "month")
+              ).toFixed(2)
+            : "0",
         id: "expensePerMonth",
         header: "Р-д/Мес",
         size: 130,
+        filterVariant: "range-slider",
+        filterFn: "betweenInclusive",
+        muiFilterSliderProps: {
+          //no need to specify min/max/step if using faceted values
+          marks: true,
+          step: 1_00,
+          valueLabelFormat: (value) =>
+            value.toLocaleString("bg-BG", {
+              style: "currency",
+              currency: "BGN",
+            }),
+        },
         enableGlobalFilter: false,
         muiTableBodyCellProps: {
           align: "center",
         },
-        Cell: ({ cell }) => parseFloat(cell.getValue()).toFixed(2) + " лв",
+        Cell: ({ cell }) =>
+          parseFloat(cell.getValue()).toLocaleString("bg-BG", {
+            style: "currency",
+            currency: "BGN",
+          }),
         Footer: () => {
           const total = tableData.reduce(
             (acc, row) =>
@@ -363,7 +408,12 @@ export default function VehiclesList({ data, filter, setFilter }) {
                 margin: "auto",
               }}
             >
-              <Box color="warning.main">{total.toLocaleString() + " лв"}</Box>
+              <Box color="warning.main">
+                {total.toLocaleString("bg-BG", {
+                  style: "currency",
+                  currency: "BGN",
+                })}
+              </Box>
             </Stack>
           );
         },
@@ -510,6 +560,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         accessorKey: "checked",
         header: "Проверен",
         size: 110,
+        enableColumnFilter: false,
         enableGlobalFilter: false,
         muiTableBodyCellProps: {
           align: "center",
@@ -889,7 +940,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
                 // onClick={handleDeactivate}
                 variant="contained"
               >
-                Deactivate
+                ИЗТРИЙ
               </Button>
 
               <Button
@@ -898,7 +949,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
                 // onClick={handleActivate}
                 variant="contained"
               >
-                Activate
+                ПРОДАДЕНА
               </Button>
 
               <Button

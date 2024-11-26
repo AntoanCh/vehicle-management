@@ -1,19 +1,12 @@
-import { useEffect, useState } from "react";
-import CircularProgress from "@mui/material/CircularProgress";
-import { Button } from "@mui/material";
-import dayjs from "dayjs";
+import React, { useEffect } from "react";
+import MUIDataTable from "mui-datatables";
 import axios from "axios";
-import "dayjs/locale/bg";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Box from "@mui/material/Box";
-import ErrorDialog from "./ErrorDialog";
+import dayjs from "dayjs";
+import { useState } from "react";
 import { useMemo } from "react";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import { darken, lighten, useTheme } from "@mui/material";
-import { IconButton, Tooltip } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
-
 //MRT Imports
 import {
   MaterialReactTable,
@@ -23,13 +16,12 @@ import {
   MRT_ToggleFiltersButton,
 } from "material-react-table";
 
-const VehicleRecords = ({ vehicle, userRole, username }) => {
+const Records = () => {
   const [loading, setLoading] = useState(false);
+  const [records, setRecords] = useState({});
   const [error, setError] = useState([false, ""]);
-  const [records, setRecords] = useState([]);
   const [refetching, setRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
-
   useEffect(() => {
     const fetchData = async () => {
       if (!records.length) {
@@ -39,7 +31,7 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
       }
 
       axios
-        .get(`http://192.168.0.147:5555/api/records/vehicle/${vehicle._id}`)
+        .get(`http://192.168.0.147:5555/api/records/`)
         .then((res) => {
           setRecords(res.data.data);
           setRowCount(res.data.count);
@@ -56,53 +48,15 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
     fetchData();
   }, []);
 
-  const handleLoading = () => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  };
-
-  const handleCloseError = () => {
-    setError([false, ""]);
-  };
   const theme = useTheme();
   const baseBackgroundColor =
     theme.palette.mode === "dark"
       ? "#212121"
       : // "rgba(3, 44, 43, 1)"
         "#fff";
-  // "rgba(244, 255, 233, 1)"
-  // const tableData = useMemo(() => {
-  //   return records.map((obj, index) => {
-  //     return {
-  //       driver: obj.driverName,
-  //       pickupTime: obj.pickupTime,
-  //       dropoffTime: obj.dropoffTime,
-  //       pickupKm:
-  //         obj.pickupKm.toString().slice(0, -3) +
-  //         " " +
-  //         obj.pickupKm.toString().slice(-3),
-  //       dropoffKm: obj.dropoffKm
-  //         ? obj.dropoffKm.toString().slice(0, -3) +
-  //           " " +
-  //           obj.dropoffKm.toString().slice(-3)
-  //         : "в движение",
-  //       destination: obj.destination ? obj.destination : "в движение",
-  //       problem: obj.problem,
-  //     };
-  //   });
-  // }, [records]);
 
-  //
   const columns = useMemo(
     () => [
-      {
-        accessorKey: "driverName",
-        header: "Водач",
-        size: 200,
-        editable: false,
-        filterVariant: "multi-select",
-      },
       {
         accessorFn: (row) => dayjs(row.pickupTime).format("DD.MM.YYYY - HH:ss"),
         id: "pickupTime",
@@ -130,6 +84,30 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
           align: "center",
         },
       },
+      {
+        accessorKey: "driverName",
+        header: "Водач",
+        size: 200,
+        editable: false,
+        enableGlobalFilter: false,
+        filterVariant: "multi-select",
+      },
+      {
+        accessorKey: "vehicleModel",
+        header: "Автомобил",
+        size: 200,
+        editable: false,
+        enableGlobalFilter: false,
+        filterVariant: "select",
+      },
+      {
+        accessorKey: "vehicleReg",
+        header: "Номер",
+        size: 200,
+        editable: false,
+        filterVariant: "select",
+      },
+
       {
         accessorKey: "pickupKm",
         header: "Тръгване(км)",
@@ -251,22 +229,12 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
       draggingBorderColor: theme.palette.secondary.main,
     }),
   });
-  return (
-    <Box sx={{ maxHeight: "100px" }}>
-      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
-        <ErrorDialog error={error} setError={setError} />
 
-        {handleLoading()}
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Box sx={{ backgroundColor: "white" }}>
-            <MaterialReactTable table={table} />
-          </Box>
-        )}
-      </LocalizationProvider>
+  return (
+    <Box sx={{ margin: "5px", maxHeight: "100px", maxWidth: "95%" }}>
+      <MaterialReactTable table={table} />
     </Box>
   );
 };
 
-export default VehicleRecords;
+export default Records;

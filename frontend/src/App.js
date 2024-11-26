@@ -7,7 +7,7 @@ import Register from "./pages/Register.jsx";
 import Office from "./pages/Office.jsx";
 import Scan from "./pages/Scan.jsx";
 import Charts from "./pages/Charts.jsx";
-import Records from "./pages/Records.jsx";
+import Records from "./components/Records.jsx";
 import DropOff from "./pages/DropOff.jsx";
 import Drivers from "./pages/Drivers.jsx";
 import Warehouse from "./pages/Warehouse.jsx";

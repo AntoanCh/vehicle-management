@@ -60,10 +60,7 @@ const Ref = ({ vehicle, services, userRole, username }) => {
     setSlider(newValue);
   };
   return (
-    <Box sx={{ backgroundColor: "#78909c", borderRadius: "10px" }}>
-      <h1 className="text-center my-4 text-2xl">Справка Разходи</h1>
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}></Box>
-
+    <Box sx={{ backgroundColor: "#78909c" }}>
       <Box
         sx={{ display: "flex", width: "100%", justifyContent: "space-around" }}
       >
@@ -73,15 +70,6 @@ const Ref = ({ vehicle, services, userRole, username }) => {
             component={Paper}
           >
             <Table sx={{ minWidth: "200px" }} aria-label="simple table">
-              {/* <div className="flex justify-between">
-              <IconButton>
-                <PrintIcon />
-              </IconButton>
-              <IconButton>
-                <PrintIcon />
-              </IconButton>
-            </div> */}
-
               <TableBody>
                 <TableRow
                   sx={{
@@ -304,16 +292,6 @@ const Ref = ({ vehicle, services, userRole, username }) => {
               },
             ]}
             series={[{ data: monthlyCost }]}
-            //   {...chartSetting}
-          />
-          <Slider
-            min={0}
-            max={months}
-            // getAriaLabel={() => "Temperature range"}
-            value={slider}
-            onChange={handleChangeSlider}
-            valueLabelDisplay="auto"
-            getAriaValueText={valuetext}
           />
         </Box>
       </Box>
