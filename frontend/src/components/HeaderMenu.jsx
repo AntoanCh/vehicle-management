@@ -131,7 +131,6 @@ const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
   width: drawerWidth,
-
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
@@ -425,17 +424,7 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
           </Button>
         </DialogActions>
       </Dialog>{" "}
-      <AppBar
-        position="fixed"
-        open={open}
-        sx={
-          {
-            // display: "flex",
-            // bgcolor: "gray",
-            // height: "50px",
-          }
-        }
-      >
+      <AppBar position="fixed" open={open}>
         <Toolbar sx={{ margin: "-5px" }}>
           <Box display="flex" flexGrow={1} justifyContent={"space-between"}>
             <IconButton

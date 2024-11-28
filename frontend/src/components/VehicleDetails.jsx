@@ -48,7 +48,7 @@ const VehicleDetails = ({ id }) => {
   }, []);
   return (
     <Box display={"flex"}>
-      <Box>
+      {/* <Box>
         {Object.keys(vehicle).map((key) => (
           <StyledTextField
             value={vehicle[key]}
@@ -57,7 +57,7 @@ const VehicleDetails = ({ id }) => {
             //   onChange={handleChange}
           />
         ))}
-      </Box>
+      </Box> */}
       <Box sx={{ width: "1000px" }}>
         {loading ? (
           <CircularProgress />

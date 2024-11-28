@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Button } from "@mui/material";
 import dayjs from "dayjs";
-import axios from "axios";
 import "dayjs/locale/bg";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
 import ErrorDialog from "./ErrorDialog";
 import { useMemo } from "react";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import { darken, lighten, useTheme } from "@mui/material";
-import { IconButton, Tooltip } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import { Box } from "@mui/material";
+import { Edit, Delete, DoneOutline } from "@mui/icons-material";
 
 //MRT Imports
 import {
@@ -23,25 +23,31 @@ import {
   MRT_ToggleFiltersButton,
 } from "material-react-table";
 
-const VehicleRecords = ({ vehicle, userRole, username }) => {
+const Issues = ({ vehicle, userRole, username }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState([false, ""]);
-  const [records, setRecords] = useState([]);
+  const [issues, setissues] = useState([]);
   const [refetching, setRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
 
+  const handleLoading = () => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      if (!records.length) {
+      if (!issues.length) {
         setLoading(true);
       } else {
         setRefetching(true);
       }
 
       axios
-        .get(`http://192.168.0.147:5555/api/records/vehicle/${vehicle._id}`)
+        .get(`http://192.168.0.147:5555/problems/${vehicle._id}`)
         .then((res) => {
-          setRecords(res.data.data);
+          setissues(res.data.data);
           setRowCount(res.data.count);
         })
         .catch((err) => {
@@ -56,56 +62,18 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
     fetchData();
   }, []);
 
-  const handleLoading = () => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  };
-
-  const handleCloseError = () => {
-    setError([false, ""]);
-  };
   const theme = useTheme();
   const baseBackgroundColor =
     theme.palette.mode === "dark"
       ? "#212121"
       : // "rgba(3, 44, 43, 1)"
         "#fff";
-  // "rgba(244, 255, 233, 1)"
-  // const tableData = useMemo(() => {
-  //   return records.map((obj, index) => {
-  //     return {
-  //       driver: obj.driverName,
-  //       pickupTime: obj.pickupTime,
-  //       dropoffTime: obj.dropoffTime,
-  //       pickupKm:
-  //         obj.pickupKm.toString().slice(0, -3) +
-  //         " " +
-  //         obj.pickupKm.toString().slice(-3),
-  //       dropoffKm: obj.dropoffKm
-  //         ? obj.dropoffKm.toString().slice(0, -3) +
-  //           " " +
-  //           obj.dropoffKm.toString().slice(-3)
-  //         : "в движение",
-  //       destination: obj.destination ? obj.destination : "в движение",
-  //       problem: obj.problem,
-  //     };
-  //   });
-  // }, [records]);
 
-  //
   const columns = useMemo(
     () => [
       {
-        accessorKey: "driverName",
-        header: "Водач",
-        size: 200,
-        editable: false,
-        filterVariant: "multi-select",
-      },
-      {
-        accessorKey: "pickupTime",
-        header: "Тръгване",
+        accessorKey: "date",
+        header: "Дата",
         size: 180,
         enableGlobalFilter: false,
         filterVariant: "date",
@@ -118,24 +86,8 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
         },
       },
       {
-        accessorKey: "dropoffTime",
-        header: "Връщане",
-        filterVariant: "datetime",
-        filterFn: "stringDateFn",
-        size: 180,
-        enableGlobalFilter: false,
-        muiTableBodyCellProps: {
-          align: "center",
-        },
-        Cell: ({ cell }) => {
-          return cell.getValue()
-            ? dayjs(cell.getValue()).format("DD.MM.YYYY - HH:ss")
-            : "в движение";
-        },
-      },
-      {
-        accessorKey: "pickupKm",
-        header: "Тръгване(км)",
+        accessorKey: "km",
+        header: "км",
         size: 160,
         enableGlobalFilter: false,
         enableColumnFilter: false,
@@ -145,30 +97,15 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
         },
       },
       {
-        accessorKey: "dropoffKm",
-        header: "Връщане(км)",
-        size: 160,
-        enableGlobalFilter: false,
-        enableColumnFilter: false,
-        Cell: ({ cell }) =>
-          cell.getValue()
-            ? cell.getValue().toLocaleString() + " км"
-            : "в движение",
-        muiTableBodyCellProps: {
-          align: "center",
-        },
-      },
-
-      {
-        accessorKey: "destination",
-        header: "Маршрут",
-        size: 350,
-        enableColumnFilter: false,
-        Cell: ({ cell }) => (cell.getValue() ? cell.getValue() : "в движение"),
+        accessorKey: "driverName",
+        header: "Водач",
+        size: 200,
+        editable: false,
+        filterVariant: "multi-select",
       },
       {
-        accessorKey: "problem",
-        header: "Забележки",
+        accessorKey: "desc",
+        header: "Забележка",
         size: 450,
         enableColumnFilter: false,
       },
@@ -178,7 +115,7 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
   const table = useMaterialReactTable({
     columns,
     localization: { ...MRT_Localization_BG },
-    data: records,
+    data: issues,
     rowCount,
     filterFns: {
       stringDateFn: (row, id, filterValue) => {
@@ -192,37 +129,46 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
     enableFacetedValues: true,
     enableHiding: false,
     enableColumnResizing: true,
+    enableColumnResizing: true,
     enableRowPinning: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <Box>
+        <IconButton color="success" onClick={() => console.info("Edit")}>
+          <DoneOutline />
+        </IconButton>
+      </Box>
+    ),
     muiTableContainerProps: { sx: { maxHeight: "600px" } },
     initialState: {
       sorting: [
         {
-          id: "pickupTime",
+          id: "date",
           desc: true,
         },
-        {
-          id: "dropoffTime",
-          desc: true,
-        },
+        // {
+        //   id: "dropoffTime",
+        //   desc: true,
+        // },
       ],
+
       pagination: { pageSize: 50, pageIndex: 0 },
       showGlobalFilter: true,
       showColumnFilters: true,
       density: "compact",
+      positionToolbarAlertBanner: "bottom",
     },
-    positionToolbarAlertBanner: "bottom",
     muiSearchTextFieldProps: {
       size: "small",
       variant: "outlined",
     },
+    paginationDisplayMode: "pages",
     muiPaginationProps: {
       color: "secondary",
       rowsPerPageOptions: [30, 50, 100, 200],
       shape: "rounded",
       variant: "outlined",
     },
-    enableColumnResizing: true,
-    paginationDisplayMode: "pages",
     muiTablePaperProps: {
       elevation: 0,
       sx: {
@@ -254,21 +200,73 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
       draggingBorderColor: theme.palette.secondary.main,
     }),
   });
+
+  //     userRole.includes("admin") || userRole.includes(vehicle.site)
+  //       ? !obj.done && (
+  //           <IconButton
+  //             onClick={() => {
+  //               axios
+  //                 .put(`http://192.168.0.147:5555/problems/${obj._id}`, {
+  //                   ...obj,
+  //                   done: true,
+  //                 })
+  //                 .then((res) => {
+  //                   if (
+  //                     problems.data.filter((item) => !item.done).length === 1
+  //                   ) {
+  //                     axios
+  //                       .put(
+  //                         `http://192.168.0.147:5555/vehicle/${vehicle._id}`,
+  //                         {
+  //                           ...vehicle,
+  //                           issue: false,
+  //                         }
+  //                       )
+  //                       .then((res) => {})
+  //                       .catch((err) => {
+  //                         console.log(err);
+  //                       });
+  //                   }
+  //                   setTimeout(() => {
+  //                     window.location.reload();
+  //                   }, 1000);
+  //                 })
+  //                 .catch((err) => {
+  //                   console.log(err);
+  //                 });
+  //             }}
+  //             color="success"
+  //             variant="contained"
+  //           >
+  //             <DoneOutlineIcon />
+  //           </IconButton>
+  //         )
+  //       : "",
+  //   ];
+  // });
+
+  //   { name: "Шофьор" },
+  //   { name: "Забележка", options: { filter: false, sort: false } },
+  //   { name: "Километри", options: { filter: false } },
+  //   { name: "", options: { filter: false, sort: false } },
+  //   { name: "", options: { filter: false, sort: false } },
+  // ];
+
   return (
-    <Box sx={{ maxHeight: "100px" }}>
+    <div>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
         <ErrorDialog error={error} setError={setError} />
         {handleLoading()}
         {loading ? (
           <CircularProgress />
         ) : (
-          <Box sx={{ backgroundColor: "white" }}>
+          <Box sx={{ marginY: "15px" }}>
             <MaterialReactTable table={table} />
           </Box>
         )}
       </LocalizationProvider>
-    </Box>
+    </div>
   );
 };
 
-export default VehicleRecords;
+export default Issues;

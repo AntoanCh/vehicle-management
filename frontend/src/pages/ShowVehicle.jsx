@@ -22,7 +22,7 @@ import {
 import Services from "./Services";
 import Ref from "../components/Ref";
 import VehicleRecords from "../components/VehicleRecords";
-import Problems from "./Problems";
+import Issues from "../components/Issues";
 import dayjs from "dayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -133,7 +133,7 @@ const ShowVehicle = () => {
   const [edit, setEdit] = useState(false);
   const [services, setServices] = useState();
   const [fuels, setFuels] = useState();
-  const [problems, setProblems] = useState();
+  const [issues, setIssues] = useState();
   const [records, setRecords] = useState();
   const [verDelete, setVerDelete] = useState(false);
   const [sell, setSell] = useState([false, 0, dayjs()]);
@@ -142,7 +142,7 @@ const ShowVehicle = () => {
   const [fuelLoading, setFuelLoading] = useState(true);
   const [logLoading, setLogLoading] = useState(true);
   const [recordLoading, setRecordLoading] = useState(true);
-  const [problemLoading, setProblemLoading] = useState(true);
+  const [issuesLoading, setIssuesLoading] = useState(true);
   const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
   const token = localStorage.getItem("token");
@@ -192,12 +192,12 @@ const ShowVehicle = () => {
         axios
           .get(`http://192.168.0.147:5555/problems/${res.data._id}`)
           .then((res) => {
-            setProblems(res.data);
-            setProblemLoading(false);
+            setIssues(res.data);
+            setIssuesLoading(false);
           })
           .catch((err) => {
             console.log(err);
-            setProblemLoading(false);
+            setIssuesLoading(false);
           });
         axios
           .get(`http://192.168.0.147:5555/logs/${res.data._id}`)
@@ -379,7 +379,7 @@ const ShowVehicle = () => {
         window.location.reload();
       });
   };
-  console.log(problems ? problems.data.filter((item) => item.done).length : "");
+  console.log(issues ? issues.data.filter((item) => item.done).length : "");
   return (
     <Box className="p-4">
       {loading ? (
@@ -990,6 +990,34 @@ const ShowVehicle = () => {
                           }}
                         />
                       </DemoContainer>
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item sm={9} xs={48}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>Статус</Box>
+                    <Box sx={{ display: "flex", flexDirection: "row" }}>
+                      <StyledTextField
+                        fullWidth
+                        value={vehicle.status}
+                        disabled={!edit}
+                        select={edit}
+                        SelectProps={{ sx: { height: "25px" } }}
+                        name="status"
+                        onChange={handleChange}
+                        variant="standard"
+                      >
+                        <MenuItem key={1} value={"АКТИВЕН"}>
+                          АКТИВЕН
+                        </MenuItem>
+                        <MenuItem key={2} value={"НЕАКТИВЕН"}>
+                          НЕАКТИВЕН
+                        </MenuItem>
+                        <MenuItem key={3} value={"СЕРВИЗ"}>
+                          СЕРВИЗ
+                        </MenuItem>
+                      </StyledTextField>
+                      <span>KM</span>
                     </Box>
                   </ItemStacked>
                 </Grid>
@@ -1605,12 +1633,12 @@ const ShowVehicle = () => {
               </Button>
               <Button
                 variant="contained"
-                color={tab === "problem" ? "secondary" : "primary"}
+                color={tab === "issues" ? "secondary" : "primary"}
                 onClick={() => {
-                  if (tab === "problem") {
+                  if (tab === "issues") {
                     setTab("");
                   } else {
-                    setTab("problem");
+                    setTab("issues");
                   }
                 }}
               >
@@ -1686,15 +1714,15 @@ const ShowVehicle = () => {
               ) : (
                 ""
               )}
-              {tab === "problem" ? (
-                problemLoading ? (
+              {tab === "Issues" ? (
+                issuesLoading ? (
                   <CircularProgress />
                 ) : (
-                  <Problems
+                  <Issues
                     username={username}
                     userRole={userRole}
                     vehicle={vehicle}
-                    problems={problems}
+                    issues={issues}
                   />
                 )
               ) : (

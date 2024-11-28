@@ -60,16 +60,20 @@ const Ref = ({ vehicle, services, userRole, username }) => {
     setSlider(newValue);
   };
   return (
-    <Box sx={{ backgroundColor: "#78909c" }}>
+    <Box>
       <Box
-        sx={{ display: "flex", width: "100%", justifyContent: "space-around" }}
+        sx={{ display: "flex", width: "100%", justifyContent: "space-between" }}
       >
-        <Box>
+        {/* <Box>
           <TableContainer
             sx={{ maxWidth: "600px", margin: "10px", minWidth: "20%" }}
             component={Paper}
           >
-            <Table sx={{ minWidth: "200px" }} aria-label="simple table">
+            <Table
+              sx={{ minWidth: "200px" }}
+              size="small"
+              aria-label="simple table"
+            >
               <TableBody>
                 <TableRow
                   sx={{
@@ -222,52 +226,11 @@ const Ref = ({ vehicle, services, userRole, username }) => {
                       border: 0,
                     },
                   }}
-                >
-                  <TableCell
-                    sx={{ textAlign: "center", fontWeight: "800" }}
-                    component="th"
-                    scope="row"
-                  >
-                    {`Разходи`}
-                    <TextField
-                      value={filter}
-                      select
-                      SelectProps={{ sx: { width: "200px", height: "20px" } }}
-                      name="site"
-                      onChange={handleChangeFilter}
-                      variant="standard"
-                      sx={{
-                        "& .MuiInputBase-input": {
-                          fontSize: 18,
-                          height: 4,
-                          padding: 1,
-                          fontWeight: 800,
-                          textAlign: "center",
-                        },
-                        "& .MuiInputBase-input.Mui-disabled": {
-                          WebkitTextFillColor: "black", //Adjust text color here
-                        },
-                      }}
-                    >
-                      <MenuItem key={1} value={"РЕМОНТИ"}>
-                        РЕМОНТИ
-                      </MenuItem>
-                      <MenuItem key={2} value={"ГУМИ"}>
-                        ГУМИ
-                      </MenuItem>
-                      <MenuItem key={3} value={"КОНСУМАТИВИ"}>
-                        КОНСУМАТИВИ
-                      </MenuItem>
-                      <MenuItem key={4} value={"ДРУГИ"}>
-                        ДРУГИ
-                      </MenuItem>
-                    </TextField>
-                  </TableCell>
-                </TableRow>
+                ></TableRow>
               </TableBody>
             </Table>
           </TableContainer>
-        </Box>
+        </Box> */}
         <Box
           sx={[
             (theme) => ({
@@ -284,7 +247,7 @@ const Ref = ({ vehicle, services, userRole, username }) => {
         >
           <BarChart
             // barLabel="value"
-            height={400}
+            height={250}
             xAxis={[
               {
                 data: monthsArr,

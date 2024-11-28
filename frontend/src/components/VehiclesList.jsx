@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import VehicleRecords from "./VehicleRecords";
+import Issues from "./Issues";
 import {
   Button,
   TextField,
@@ -56,6 +57,7 @@ import {
 } from "@mui/icons-material";
 import LinearProgress from "@mui/material/LinearProgress";
 import DraggablePaper from "../components/DraggablePaper";
+import Chip from "@mui/material/Chip";
 
 //MRT Imports
 import {
@@ -127,7 +129,6 @@ export default function VehiclesList({ data, filter, setFilter }) {
   setTimeout(() => setRefresh(false), 1500);
 
   const handleFilter = (val) => {
-    setRefresh(!refresh);
     setFilter(val);
   };
 
@@ -177,24 +178,6 @@ export default function VehiclesList({ data, filter, setFilter }) {
         Cell: ({ cell, row }) => {
           return (
             <Box sx={{ display: "flex" }}>
-              <Link
-                href={`/vehicles/details/${row.original._id}`}
-                sx={{ display: "flex" }}
-              >
-                {cell
-                  .getValue()
-                  .split(/(\d{4})/)
-                  .join(" ")
-                  .trim()}
-
-                {row.original.issue ? (
-                  <BlinkedBox>
-                    <WarningAmber />
-                  </BlinkedBox>
-                ) : (
-                  ""
-                )}
-              </Link>
               {
                 <IconButton
                   sx={{ padding: "0", margin: "0", marginLeft: "5px" }}
@@ -221,6 +204,24 @@ export default function VehiclesList({ data, filter, setFilter }) {
                   <AttachMoneyIcon />
                 </IconButton>
               }
+              <Link
+                href={`/vehicles/details/${row.original._id}`}
+                sx={{ display: "flex" }}
+              >
+                {cell
+                  .getValue()
+                  .split(/(\d{4})/)
+                  .join(" ")
+                  .trim()}
+
+                {row.original.issue ? (
+                  <BlinkedBox>
+                    <WarningAmber />
+                  </BlinkedBox>
+                ) : (
+                  ""
+                )}
+              </Link>
             </Box>
           );
         },
@@ -237,6 +238,41 @@ export default function VehiclesList({ data, filter, setFilter }) {
         size: 160,
         filterVariant: "select",
         editable: false,
+      },
+      {
+        accessorKey: "site",
+        header: "Отговорник",
+        size: 110,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        filterVariant: "multi-select",
+      },
+      {
+        accessorKey: "status",
+        header: "Статус",
+        size: 120,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        filterVariant: "select",
+        Cell: ({ cell }) => {
+          return (
+            <Chip
+              sx={{ fontWeight: 800, fontSize: 12 }}
+              label={cell.getValue()}
+              color={
+                cell.getValue() === "АКТИВЕН"
+                  ? "success"
+                  : cell.getValue() === "НЕАКТИВЕН"
+                  ? "error"
+                  : "warning"
+              }
+            />
+          );
+        },
       },
       {
         accessorKey: "price",
@@ -263,31 +299,65 @@ export default function VehiclesList({ data, filter, setFilter }) {
             style: "currency",
             currency: "BGN",
           }),
-        Footer: () => {
-          const total = tableData.reduce(
-            (acc, row) => acc + parseFloat(row.price),
-            0
-          );
+        Footer: ({ table }) => {
+          const total = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (total, row) => total + parseFloat(row.getValue("price")),
+              0
+            );
           return (
-            <Stack
-              sx={{
-                margin: "auto",
-              }}
-            >
+            <Box sx={{ margin: "auto" }}>
+              {"Тотал:"}
               <Box color="warning.main">
                 {total.toLocaleString("bg-BG", {
                   style: "currency",
                   currency: "BGN",
                 })}
               </Box>
-            </Stack>
+            </Box>
+          );
+        },
+      },
+      {
+        accessorFn: (row) => dayjs().diff(row.purchaseDate, "month"),
+        id: "own",
+        header: "Притежание",
+        size: 110,
+        enableGlobalFilter: false,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) =>
+          `${
+            Math.floor(cell.getValue() / 12)
+              ? Math.floor(cell.getValue() / 12) + "г. "
+              : ""
+          } ${cell.getValue() % 12}м.`,
+        Footer: ({ table }) => {
+          const total = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (total, row) =>
+                total + (row.getValue("own") ? row.getValue("own") : 0),
+              0
+            );
+          const length = table.getFilteredRowModel().rows.length;
+          return (
+            <Box sx={{ margin: "auto" }}>
+              {"Средно:"}
+              <Box color="warning.main">
+                {Math.floor(total / length / 12) + "г. " + (total % 12) + "м."}
+              </Box>
+            </Box>
           );
         },
       },
       {
         accessorFn: (row) => dayjs().diff(row.startDate, "month"),
         id: "months",
-        header: "Време от 1ви р-т",
+        header: "1ви р-т време",
         size: 110,
         enableGlobalFilter: false,
         enableColumnFilter: false,
@@ -303,7 +373,9 @@ export default function VehiclesList({ data, filter, setFilter }) {
       },
       {
         accessorFn: (row) =>
-          row.totalServiceCost ? row.totalServiceCost.toFixed(2) : "0",
+          row.totalServiceCost
+            ? parseFloat(row.totalServiceCost.toFixed(2))
+            : 0,
         id: "totalExpense",
         header: "Разходи",
         size: 130,
@@ -328,30 +400,27 @@ export default function VehiclesList({ data, filter, setFilter }) {
             style: "currency",
             currency: "BGN",
           }),
-        Footer: () => {
-          const total = tableData.reduce(
-            (acc, row) =>
-              parseFloat(
-                (
-                  acc +
-                  (row.totalServiceCost ? parseFloat(row.totalServiceCost) : 0)
-                ).toFixed(2)
-              ),
-            0
-          );
+        Footer: ({ table }) => {
+          const total = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (total, row) =>
+                total +
+                (row.getValue("totalExpense")
+                  ? row.getValue("totalExpense")
+                  : 0),
+              0
+            );
           return (
-            <Stack
-              sx={{
-                margin: "auto",
-              }}
-            >
+            <Box sx={{ margin: "auto" }}>
+              {"Тотал:"}
               <Box color="warning.main">
                 {total.toLocaleString("bg-BG", {
                   style: "currency",
                   currency: "BGN",
                 })}
               </Box>
-            </Stack>
+            </Box>
           );
         },
       },
@@ -386,35 +455,28 @@ export default function VehiclesList({ data, filter, setFilter }) {
             style: "currency",
             currency: "BGN",
           }),
-        Footer: () => {
-          const total = tableData.reduce(
-            (acc, row) =>
-              parseFloat(
-                (
-                  acc +
-                  (row.totalServiceCost
-                    ? parseFloat(
-                        row.totalServiceCost /
-                          dayjs().diff(row.startDate, "month")
-                      )
-                    : 0)
-                ).toFixed(2)
-              ),
-            0
-          );
+        Footer: ({ table }) => {
+          const total = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (total, row) =>
+                total +
+                (row.getValue("totalExpense")
+                  ? row.getValue("totalExpense") /
+                    dayjs().diff(row.original.startDate, "month")
+                  : 0),
+              0
+            );
           return (
-            <Stack
-              sx={{
-                margin: "auto",
-              }}
-            >
+            <Box sx={{ margin: "auto" }}>
+              {"Тотал:"}
               <Box color="warning.main">
                 {total.toLocaleString("bg-BG", {
                   style: "currency",
                   currency: "BGN",
                 })}
               </Box>
-            </Stack>
+            </Box>
           );
         },
       },
@@ -423,6 +485,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         header: "ГО",
         size: 110,
         enableGlobalFilter: false,
+        enableColumnFilter: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -448,6 +511,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         header: "Каско",
         size: 110,
         enableGlobalFilter: false,
+        enableColumnFilter: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -476,6 +540,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         header: "ГТП",
         size: 110,
         enableGlobalFilter: false,
+        enableColumnFilter: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -501,6 +566,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         header: "Масло-км",
         size: 110,
         enableGlobalFilter: false,
+        enableColumnFilter: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -510,6 +576,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         header: "Масло интервал",
         size: 110,
         enableGlobalFilter: false,
+        enableColumnFilter: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -520,6 +587,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         header: "Масло на",
         size: 110,
         enableGlobalFilter: false,
+        enableColumnFilter: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -587,25 +655,18 @@ export default function VehiclesList({ data, filter, setFilter }) {
         header: "Километри",
         size: 110,
         enableGlobalFilter: false,
+        enableColumnFilter: false,
         muiTableBodyCellProps: {
           align: "center",
         },
       },
-      {
-        accessorKey: "site",
-        header: "Отговорник",
-        size: 110,
-        enableGlobalFilter: false,
-        muiTableBodyCellProps: {
-          align: "center",
-        },
-        filterVariant: "multi-select",
-      },
+
       {
         accessorKey: "issue",
         header: "Забележки",
-        size: 160,
+        size: 20,
         enableGlobalFilter: false,
+        enableColumnFilter: false,
       },
     ],
     [refresh]
@@ -620,6 +681,10 @@ export default function VehiclesList({ data, filter, setFilter }) {
     enableStickyHeader: true,
     enableStickyFooter: true,
     enableFacetedValues: true,
+    enableColumnResizing: true,
+    enableRowSelection: true,
+    enableSelectAll: false,
+    enableMultiRowSelection: false,
     enableRowNumbers: true,
     enableRowActions: true,
     muiTableContainerProps: { sx: { maxHeight: "600px" } },
@@ -637,7 +702,6 @@ export default function VehiclesList({ data, filter, setFilter }) {
       columnVisibility: {
         kaskoDate: false,
         oil: false,
-        site: false,
         issue: false,
         oilChange: false,
         km: false,
@@ -663,8 +727,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
       shape: "rounded",
       variant: "outlined",
     },
-    enableColumnResizing: true,
-    enableRowSelection: true,
+
     muiTablePaperProps: {
       elevation: 0,
       sx: {
@@ -686,6 +749,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         <VehicleDetails id={row.original._id} />
       </Box>
     ),
+
     renderRowActionMenuItems: ({ row, table, closeMenu }) => [
       <MenuItem
         key={0}
@@ -754,9 +818,10 @@ export default function VehiclesList({ data, filter, setFilter }) {
         <ListItemIcon>
           <History />
         </ListItemIcon>
-        Лог
+        История
       </MenuItem>,
     ],
+
     renderTopToolbar: ({ table }) => {
       const handleDeactivate = () => {
         table.getSelectedRowModel().flatRows.map((row) => {
@@ -803,7 +868,10 @@ export default function VehiclesList({ data, filter, setFilter }) {
   });
   return (
     <Box
-    // sx={{ width: "100%" }}
+      sx={{
+        width: "96%",
+        // "calc(100% - 260px)"
+      }}
     >
       {addExpense && (
         <AddExpense
@@ -846,16 +914,39 @@ export default function VehiclesList({ data, filter, setFilter }) {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <VehicleRecords
-            username={username}
-            userRole={userRole}
-            vehicle={action.vehicle}
-          />
+          {action.type === "records" && (
+            <VehicleRecords
+              username={username}
+              userRole={userRole}
+              vehicle={action.vehicle}
+            />
+          )}
+          {action.type === "issues" && (
+            <Issues
+              username={username}
+              userRole={userRole}
+              vehicle={action.vehicle}
+            />
+          )}
+          {action.type === "expenses" && (
+            <Issues
+              username={username}
+              userRole={userRole}
+              vehicle={action.vehicle}
+            />
+          )}
+          {action.type === "history" && (
+            <Issues
+              username={username}
+              userRole={userRole}
+              vehicle={action.vehicle}
+            />
+          )}
         </DialogContent>
       </Dialog>
       {refresh ? (
         <Box sx={{ width: "100%" }}>
-          <LinearProgress variant="determinate" />
+          <LinearProgress />
         </Box>
       ) : (
         ""

@@ -116,10 +116,12 @@ export const vehicleSchema = mongoose.Schema(
     startKm: {
       type: String,
       required: false,
+      default: "0",
     },
     price: {
       type: String,
       required: false,
+      default: "0",
     },
     vignette: {
       type: Boolean,
@@ -169,9 +171,23 @@ export const vehicleSchema = mongoose.Schema(
     },
     totalServiceCost: {
       type: Number,
+      default: 0,
     },
     totalExpenseCost: {
       type: Number,
+      default: 0,
+    },
+    totalTireCost: {
+      type: Number,
+      default: 0,
+    },
+    totalTireCost: {
+      type: Number,
+      default: 0,
+    },
+    totalRepairCost: {
+      type: Number,
+      default: 0,
     },
     status: {
       type: String,
