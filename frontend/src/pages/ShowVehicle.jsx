@@ -19,7 +19,7 @@ import {
   DoneAll,
   AttachMoney,
 } from "@mui/icons-material";
-import Services from "./Services";
+import Expenses from "../components/Expenses";
 import Ref from "../components/Ref";
 import VehicleRecords from "../components/VehicleRecords";
 import Issues from "../components/Issues";
@@ -385,7 +385,7 @@ const ShowVehicle = () => {
       {loading ? (
         <CircularProgress />
       ) : (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
           <Dialog
             open={verDelete}
             onClose={handleClose}
@@ -774,7 +774,7 @@ const ShowVehicle = () => {
               <Grid container spacing={2} columns={48}>
                 <Grid item sm={9} xs={48}>
                   <ItemStacked>
-                    <Box sx={{ color: "gray" }}>Масла/ф-ри:</Box>
+                    <Box sx={{ color: "gray" }}>Обслужвен на:</Box>
                     <Box sx={{ display: "flex", flexDirection: "row" }}>
                       <StyledTextField
                         inputProps={{ maxLength: 7 }}
@@ -787,6 +787,30 @@ const ShowVehicle = () => {
                         }
                         disabled={!edit}
                         name="oil"
+                        onChange={handleChange}
+                        variant="standard"
+                      />
+                      <span>KM</span>
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item sm={9} xs={48}>
+                  <ItemStacked>
+                    <Box sx={{ color: "gray" }}>Обслужване Интервал</Box>
+                    <Box sx={{ display: "flex", flexDirection: "row" }}>
+                      {" "}
+                      <StyledTextField
+                        inputProps={{ maxLength: 5 }}
+                        value={
+                          !edit
+                            ? vehicle.oilChange &&
+                              vehicle.oilChange.toString().slice(0, -3) +
+                                " " +
+                                vehicle.oilChange.toString().slice(-3)
+                            : vehicle.oilChange
+                        }
+                        disabled={!edit}
+                        name="oilChange"
                         onChange={handleChange}
                         variant="standard"
                       />
@@ -864,7 +888,7 @@ const ShowVehicle = () => {
                           : { color: "gray", display: "flex" }
                       }
                     >
-                      Оставащи км:{" "}
+                      Обслужване след:{" "}
                       {isDue(vehicle.km - vehicle.oil, "oil") ? (
                         <WarningAmber />
                       ) : (
@@ -892,30 +916,7 @@ const ShowVehicle = () => {
                     </Box>
                   </ItemStacked>
                 </Grid>
-                <Grid item sm={9} xs={48}>
-                  <ItemStacked>
-                    <Box sx={{ color: "gray" }}>Интервал</Box>
-                    <Box sx={{ display: "flex", flexDirection: "row" }}>
-                      {" "}
-                      <StyledTextField
-                        inputProps={{ maxLength: 5 }}
-                        value={
-                          !edit
-                            ? vehicle.oilChange &&
-                              vehicle.oilChange.toString().slice(0, -3) +
-                                " " +
-                                vehicle.oilChange.toString().slice(-3)
-                            : vehicle.oilChange
-                        }
-                        disabled={!edit}
-                        name="oilChange"
-                        onChange={handleChange}
-                        variant="standard"
-                      />
-                      <span>KM</span>
-                    </Box>
-                  </ItemStacked>
-                </Grid>
+
                 <Grid item sm={12} xs={48}>
                   <ItemStacked
                     sx={
@@ -1714,7 +1715,7 @@ const ShowVehicle = () => {
               ) : (
                 ""
               )}
-              {tab === "Issues" ? (
+              {tab === "issues" ? (
                 issuesLoading ? (
                   <CircularProgress />
                 ) : (
@@ -1732,7 +1733,7 @@ const ShowVehicle = () => {
                 servLoading ? (
                   <CircularProgress />
                 ) : (
-                  <Services
+                  <Expenses
                     username={username}
                     userRole={userRole}
                     vehicle={vehicle}

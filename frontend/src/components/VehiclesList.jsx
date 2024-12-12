@@ -5,6 +5,8 @@ import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import VehicleRecords from "./VehicleRecords";
 import Issues from "./Issues";
+import Expenses from "./Expenses";
+import Log from "./Log";
 import {
   Button,
   TextField,
@@ -42,6 +44,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Link from "@mui/material/Link";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import Badge from "@mui/material/Badge";
 import {
   History,
   QueryStats,
@@ -51,6 +54,8 @@ import {
   Timeline,
   Close,
   Save,
+  Edit,
+  Delete,
   AccountCircle,
   Send,
   WarningAmber,
@@ -82,10 +87,18 @@ const BlinkedBox = styled("div")({
   animation: `${blink} 1s ease infinite`,
 });
 
-export default function VehiclesList({ data, filter, setFilter }) {
+export default function VehiclesList({
+  username,
+  userRole,
+  setUserRole,
+  setUsername,
+  data,
+  filter,
+  setFilter,
+  customFilter,
+  setCustomFilter,
+}) {
   const [expenseDate, setExpenseDate] = useState(dayjs());
-  const [userRole, setUserRole] = useState([]);
-  const [username, setUsername] = useState();
   const [expenses, setExpenses] = useState({});
   const [refresh, setRefresh] = useState(false);
   const [add, setAdd] = useState(false);
@@ -94,6 +107,17 @@ export default function VehiclesList({ data, filter, setFilter }) {
   const { id } = useParams();
   const [addExpense, setAddExpense] = useState(false);
   const [expenseVehicle, setExpenseVehicle] = useState({});
+  const [columnVisibility, setColumnVisibility] = useState({
+    price: false,
+    own: false,
+    months: false,
+    totalExpense: false,
+    expensePerMonth: false,
+    totalsFilter: false,
+    expensePerMonthFilter: false,
+    issue: false,
+  });
+  const [showExpense, setShowExpense] = useState(false);
   const navigate = useNavigate();
 
   const theme = useTheme();
@@ -103,7 +127,6 @@ export default function VehiclesList({ data, filter, setFilter }) {
       : // "rgba(3, 44, 43, 1)"
         "#fff";
   // "rgba(244, 255, 233, 1)"
-
   useEffect(() => {
     const verifyUser = async () => {
       if (!token) {
@@ -123,9 +146,14 @@ export default function VehiclesList({ data, filter, setFilter }) {
     setAdd(false);
   };
 
-  React.useEffect(() => {
-    setFilter(filter.slice());
-  }, [filter]);
+  // React.useEffect(() => {
+  //   setFilter(filter.slice());
+  // }, [filter]);
+
+  // React.useEffect(() => {
+  //   setCustomFilter(customFilter.slice());
+  // }, [customFilter]);
+
   setTimeout(() => setRefresh(false), 1500);
 
   const handleFilter = (val) => {
@@ -134,6 +162,10 @@ export default function VehiclesList({ data, filter, setFilter }) {
 
   const handleClick = (id) => {
     navigate(`/vehicles/details/${id}`);
+  };
+
+  const handleChangeCustomFilter = (e) => {
+    setCustomFilter(e.target.value);
   };
 
   const isDue = (dueDate, type, oilChange) => {
@@ -162,11 +194,12 @@ export default function VehiclesList({ data, filter, setFilter }) {
     }
   };
 
+  //To rerender the table pass variables to dependencies arrayin this variable
   const tableData = useMemo(() => {
     return data.filter((obj) =>
       filter === "all" ? obj.site !== "ПРОДАДЕНИ" : obj.site === filter
     );
-  }, [filter]);
+  }, [filter, customFilter]);
 
   const columns = useMemo(
     () => [
@@ -178,32 +211,30 @@ export default function VehiclesList({ data, filter, setFilter }) {
         Cell: ({ cell, row }) => {
           return (
             <Box sx={{ display: "flex" }}>
-              {
+              {userRole.includes("admin") && (
                 <IconButton
                   sx={{ padding: "0", margin: "0", marginLeft: "5px" }}
                   variant="contained"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (userRole.includes("admin")) {
-                      axios
-                        .get(
-                          `http://192.168.0.147:5555/services/${row.original._id}`
-                        )
-                        .then((res) => {
-                          setExpenses(res.data);
-                          setExpenseVehicle({ ...row.original });
-                          setAddExpense(true);
-                        })
-                        .catch((err) => {
-                          console.log(err);
-                        });
-                    } else {
-                    }
+
+                    axios
+                      .get(
+                        `http://192.168.0.147:5555/services/${row.original._id}`
+                      )
+                      .then((res) => {
+                        setExpenses(res.data);
+                        setExpenseVehicle({ ...row.original });
+                        setAddExpense(true);
+                      })
+                      .catch((err) => {
+                        console.log(err);
+                      });
                   }}
                 >
-                  <AttachMoneyIcon />
+                  <AttachMoneyIcon color="success" />
                 </IconButton>
-              }
+              )}
               <Link
                 href={`/vehicles/details/${row.original._id}`}
                 sx={{ display: "flex" }}
@@ -229,6 +260,70 @@ export default function VehiclesList({ data, filter, setFilter }) {
           let val1 = rowA.original.reg.replace(/\D/g, "");
           let val2 = rowB.original.reg.replace(/\D/g, "");
           return val1 - val2;
+        },
+      },
+      {
+        accessorFn: (row) => row._id,
+        id: "edit",
+        header: "",
+        size: 55,
+        enableGlobalFilter: false,
+        enableColumnFilter: false,
+        enableSorting: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell, row }) => {
+          return (
+            <Box>
+              {userRole.includes("admin") && (
+                <Box>
+                  <IconButton
+                    sx={{ padding: "0", margin: "0", marginLeft: "5px" }}
+                    variant="contained"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      axios
+                        .get(
+                          `http://192.168.0.147:5555/services/${row.original._id}`
+                        )
+                        .then((res) => {
+                          setExpenses(res.data);
+                          setExpenseVehicle({ ...row.original });
+                          setAddExpense(true);
+                        })
+                        .catch((err) => {
+                          console.log(err);
+                        });
+                    }}
+                  >
+                    <Edit />
+                  </IconButton>
+                  <IconButton
+                    sx={{ padding: "0", margin: "0", marginLeft: "5px" }}
+                    variant="contained"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      axios
+                        .get(
+                          `http://192.168.0.147:5555/services/${row.original._id}`
+                        )
+                        .then((res) => {
+                          setExpenses(res.data);
+                          setExpenseVehicle({ ...row.original });
+                          setAddExpense(true);
+                        })
+                        .catch((err) => {
+                          console.log(err);
+                        });
+                    }}
+                  >
+                    <Cancel />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
+          );
         },
       },
       {
@@ -373,8 +468,8 @@ export default function VehiclesList({ data, filter, setFilter }) {
       },
       {
         accessorFn: (row) =>
-          row.totalServiceCost
-            ? parseFloat(row.totalServiceCost.toFixed(2))
+          row.totalExpenseCost
+            ? parseFloat(row.totalExpenseCost.toFixed(2))
             : 0,
         id: "totalExpense",
         header: "Разходи",
@@ -481,6 +576,152 @@ export default function VehiclesList({ data, filter, setFilter }) {
         },
       },
       {
+        accessorFn: (row) => {
+          if (customFilter === "РЕМОНТ") {
+            return row.totalRepairCost
+              ? parseFloat(row.totalRepairCost.toFixed(2))
+              : 0;
+          }
+          if (customFilter === "ГУМИ") {
+            return row.totalTireCost
+              ? parseFloat(row.totalTireCost.toFixed(2))
+              : 0;
+          }
+          if (customFilter === "ОБСЛУЖВАНЕ") {
+            return row.totalServiceCost
+              ? parseFloat(row.totalServiceCost.toFixed(2))
+              : 0;
+          }
+        },
+
+        id: "totalsFilter",
+        header: "Разходи по вид",
+        size: 150,
+        filterVariant: "select",
+        filterSelectOptions: [
+          "РЕМОНТ",
+          "ОБСЛУЖВАНЕ",
+          "ГУМИ",
+          "КОНСУМАТИВ",
+          "ДРУГИ",
+        ],
+
+        Filter: ({ column, header, table }) => {
+          return (
+            <TextField
+              size="small"
+              variant="standard"
+              select
+              defaultValue={customFilter}
+              fullWidth
+              onChange={handleChangeCustomFilter}
+            >
+              <MenuItem value="РЕМОНТ">РЕМОНТ</MenuItem>
+              <MenuItem value="ОБСЛУЖВАНЕ">ОБСЛУЖВАНЕ</MenuItem>
+              <MenuItem value="ГУМИ">ГУМИ</MenuItem>
+            </TextField>
+          );
+
+          // table.getState().columnFilters[0];
+        },
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) =>
+          parseFloat(cell.getValue()).toLocaleString("bg-BG", {
+            style: "currency",
+            currency: "BGN",
+          }),
+        Footer: ({ table }) => {
+          const total = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (total, row) =>
+                total +
+                (row.getValue("totalsFilter")
+                  ? row.getValue("totalsFilter")
+                  : 0),
+              0
+            );
+          return (
+            <Box sx={{ margin: "auto" }}>
+              {"Тотал:"}
+              <Box color="warning.main">
+                {total.toLocaleString("bg-BG", {
+                  style: "currency",
+                  currency: "BGN",
+                })}
+              </Box>
+            </Box>
+          );
+        },
+      },
+      {
+        accessorFn: (row) => {
+          if (customFilter === "РЕМОНТ") {
+            return row.totalRepairCost
+              ? (
+                  row.totalRepairCost / dayjs().diff(row.startDate, "month")
+                ).toFixed(2)
+              : 0;
+          }
+          if (customFilter === "ГУМИ") {
+            return row.totalTireCost
+              ? (
+                  row.totalTireCost / dayjs().diff(row.startDate, "month")
+                ).toFixed(2)
+              : 0;
+          }
+          if (customFilter === "ОБСЛУЖВАНЕ") {
+            return row.totalServiceCost
+              ? (
+                  row.totalServiceCost / dayjs().diff(row.startDate, "month")
+                ).toFixed(2)
+              : 0;
+          }
+        },
+
+        id: "expensePerMonthFilter",
+        header: "Р-д/Мес по вид",
+        size: 130,
+
+        enableGlobalFilter: false,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) =>
+          parseFloat(cell.getValue()).toLocaleString("bg-BG", {
+            style: "currency",
+            currency: "BGN",
+          }),
+        Footer: ({ table }) => {
+          const total = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (total, row) =>
+                total +
+                (row.getValue("totalsFilter")
+                  ? row.getValue("totalsFilter") /
+                    dayjs().diff(row.original.startDate, "month")
+                  : 0),
+              0
+            );
+          return (
+            <Box sx={{ margin: "auto" }}>
+              {"Тотал:"}
+              <Box color="warning.main">
+                {total.toLocaleString("bg-BG", {
+                  style: "currency",
+                  currency: "BGN",
+                })}
+              </Box>
+            </Box>
+          );
+        },
+      },
+      {
         accessorKey: "insDate",
         header: "ГО",
         size: 110,
@@ -502,6 +743,32 @@ export default function VehiclesList({ data, filter, setFilter }) {
             >
               {dayjs(cell.getValue()).format("DD/MM/YYYY")}
               {isDue(cell.getValue(), "date") ? <WarningAmber /> : ""}
+            </Box>
+          );
+        },
+        Footer: ({ table }) => {
+          const warning = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(row.getValue("insDate"), "date") === "warning" ? 1 : 0),
+              0
+            );
+          const caution = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(row.getValue("insDate"), "date") === "caution" ? 1 : 0),
+              0
+            );
+          return (
+            <Box sx={{ margin: "auto" }}>
+              <Badge color="error" variant="dot" />: {warning}
+              <Box>
+                <Badge color="warning" variant="dot" />: {caution}
+              </Box>
             </Box>
           );
         },
@@ -534,6 +801,36 @@ export default function VehiclesList({ data, filter, setFilter }) {
             </Box>
           );
         },
+        Footer: ({ table }) => {
+          const warning = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(row.getValue("kaskoDate"), "date") === "warning"
+                  ? 1
+                  : 0),
+              0
+            );
+          const caution = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(row.getValue("kaskoDate"), "date") === "caution"
+                  ? 1
+                  : 0),
+              0
+            );
+          return (
+            <Box sx={{ margin: "auto" }}>
+              <Badge color="error" variant="dot" />: {warning}
+              <Box>
+                <Badge color="warning" variant="dot" />: {caution}
+              </Box>
+            </Box>
+          );
+        },
       },
       {
         accessorKey: "gtp",
@@ -560,31 +857,137 @@ export default function VehiclesList({ data, filter, setFilter }) {
             </Box>
           );
         },
-      },
-      {
-        accessorKey: "oil",
-        header: "Масло-км",
-        size: 110,
-        enableGlobalFilter: false,
-        enableColumnFilter: false,
-        muiTableBodyCellProps: {
-          align: "center",
+        Footer: ({ table }) => {
+          const warning = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(row.getValue("gtp"), "date") === "warning" ? 1 : 0),
+              0
+            );
+          const caution = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(row.getValue("gtp"), "date") === "caution" ? 1 : 0),
+              0
+            );
+          return (
+            <Box sx={{ margin: "auto" }}>
+              <Badge color="error" variant="dot" />: {warning}
+              <Box>
+                <Badge color="warning" variant="dot" />: {caution}
+              </Box>
+            </Box>
+          );
         },
       },
       {
-        accessorKey: "oilChange",
-        header: "Масло интервал",
-        size: 110,
+        accessorKey: "cat",
+        header: "Група",
         enableGlobalFilter: false,
-        enableColumnFilter: false,
+        filterVariant: "multi-select",
         muiTableBodyCellProps: {
           align: "center",
         },
+        size: 60,
+        Cell: ({ cell }) => {
+          return (
+            <Box
+              sx={
+                cell.getValue() === "1" || cell.getValue() === "2"
+                  ? { fontWeight: 800, color: "red" }
+                  : cell.getValue() === "3"
+                  ? { fontWeight: 800, color: "orange" }
+                  : theme.palette.mode === "dark"
+                  ? { fontWeight: 800, color: theme.palette.success.light }
+                  : { fontWeight: 800, color: theme.palette.success.dark }
+              }
+            >
+              {cell.getValue()}
+            </Box>
+          );
+        },
+        Footer: ({ table }) => {
+          const warning = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (row.getValue("cat") === "1" || row.getValue("cat") === "2"
+                  ? 1
+                  : 0),
+              0
+            );
+          const caution = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) => count + (row.getValue("cat") === "3" ? 1 : 0),
+              0
+            );
+          return (
+            <Box sx={{ margin: "auto" }}>
+              <Badge color="error" variant="dot" />: {warning}
+              <Box>
+                <Badge color="warning" variant="dot" />: {caution}
+              </Box>
+            </Box>
+          );
+        },
       },
       {
-        accessorFn: (row) => row.km - row.oil,
-        id: "oilPast",
-        header: "Масло на",
+        accessorKey: "tax",
+        header: "Данък",
+        size: 100,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        filterVariant: "select",
+        Cell: ({ cell, row }) => (
+          <Box
+            sx={
+              isDue(row.original.gtp, "date") &&
+              parseInt(cell.getValue()) < dayjs().$y
+                ? { color: "red" }
+                : {}
+            }
+          >
+            {cell.getValue()}
+            {isDue(row.original.gtp, "date") &&
+            parseInt(cell.getValue()) < dayjs().$y ? (
+              <WarningAmber />
+            ) : (
+              ""
+            )}
+          </Box>
+        ),
+        Footer: ({ table }) => {
+          const warning = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(row.getValue("gtp"), "date") &&
+                parseInt(row.getValue("tax")) < dayjs().$y
+                  ? 1
+                  : 0),
+              0
+            );
+
+          return (
+            <Box sx={{ margin: "auto" }}>
+              <Badge color="error" variant="dot" />: {warning}
+            </Box>
+          );
+        },
+      },
+
+      {
+        accessorKey: "serviceDue",
+        header: "Обсл след",
         size: 110,
         enableGlobalFilter: false,
         enableColumnFilter: false,
@@ -610,7 +1013,9 @@ export default function VehiclesList({ data, filter, setFilter }) {
                   : {}
               }
             >
-              {cell.getValue() + " км"}
+              {row.original.oilChange -
+                (row.original.km - row.original.oil) +
+                " км"}
               {isDue(
                 row.original.km - row.original.oil,
                 "oil",
@@ -620,6 +1025,44 @@ export default function VehiclesList({ data, filter, setFilter }) {
               ) : (
                 ""
               )}
+            </Box>
+          );
+        },
+        Footer: ({ table }) => {
+          const warning = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(
+                  row.getValue("km") - row.original.oil,
+                  "oil",
+                  row.getValue("oilChange")
+                ) === "warning"
+                  ? 1
+                  : 0),
+              0
+            );
+          const caution = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(
+                  row.getValue("km") - row.original.oil,
+                  "oil",
+                  row.getValue("oilChange")
+                ) === "caution"
+                  ? 1
+                  : 0),
+              0
+            );
+          return (
+            <Box sx={{ margin: "auto" }}>
+              <Badge color="error" variant="dot" />: {warning}
+              <Box>
+                <Badge color="warning" variant="dot" />: {caution}
+              </Box>
             </Box>
           );
         },
@@ -649,6 +1092,46 @@ export default function VehiclesList({ data, filter, setFilter }) {
             </Box>
           );
         },
+        Footer: ({ table }) => {
+          const warning = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(row.getValue("checked"), "checked") === "warning"
+                  ? 1
+                  : 0),
+              0
+            );
+          const caution = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (count, row) =>
+                count +
+                (isDue(row.getValue("checked"), "checked") === "caution"
+                  ? 1
+                  : 0),
+              0
+            );
+          return (
+            <Box sx={{ margin: "auto" }}>
+              <Badge color="error" variant="dot" />: {warning}
+              <Box>
+                <Badge color="warning" variant="dot" />: {caution}
+              </Box>
+            </Box>
+          );
+        },
+      },
+      {
+        accessorKey: "oilChange",
+        header: "Интервал обсл",
+        size: 110,
+        enableGlobalFilter: false,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
       },
       {
         accessorKey: "km",
@@ -669,7 +1152,7 @@ export default function VehiclesList({ data, filter, setFilter }) {
         enableColumnFilter: false,
       },
     ],
-    [refresh]
+    [refresh, customFilter]
   );
 
   const table = useMaterialReactTable({
@@ -681,13 +1164,27 @@ export default function VehiclesList({ data, filter, setFilter }) {
     enableStickyHeader: true,
     enableStickyFooter: true,
     enableFacetedValues: true,
+    enableColumnActions: false,
     enableColumnResizing: true,
-    enableRowSelection: true,
+    enableDensityToggle: false,
+    enableRowSelection: false,
     enableSelectAll: false,
     enableMultiRowSelection: false,
     enableRowNumbers: true,
     enableRowActions: true,
     muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    displayColumnDefOptions: {
+      "mrt-row-actions": {
+        size: 100,
+      },
+    },
+    state: {
+      columnVisibility: {
+        ...columnVisibility,
+        edit: userRole.includes("admin") ? true : false,
+      },
+    },
+    onColumnVisibilityChange: setColumnVisibility,
     initialState: {
       sorting: [
         {
@@ -699,20 +1196,13 @@ export default function VehiclesList({ data, filter, setFilter }) {
           desc: false,
         },
       ],
-      columnVisibility: {
-        kaskoDate: false,
-        oil: false,
-        issue: false,
-        oilChange: false,
-        km: false,
-      },
+
       pagination: { pageSize: 30, pageIndex: 0 },
       showGlobalFilter: true,
       showColumnFilters: true,
       density: "compact",
       columnPinning: {
-        left: ["mrt-row-expand", "mrt-row-actions", "reg"],
-        right: ["mrt-row-select"],
+        left: ["mrt-row-expand", "mrt-row-actions", "edit", "reg"],
       },
     },
     paginationDisplayMode: "pages",
@@ -749,7 +1239,16 @@ export default function VehiclesList({ data, filter, setFilter }) {
         <VehicleDetails id={row.original._id} />
       </Box>
     ),
-
+    // renderRowActions: ({ row, table }) => (
+    //   <Box>
+    //     <IconButton onClick={() => console.info("Edit")}>
+    //       <Edit />
+    //     </IconButton>
+    //     <IconButton onClick={() => console.info("Delete")}>
+    //       <Delete />
+    //     </IconButton>
+    //   </Box>
+    // ),
     renderRowActionMenuItems: ({ row, table, closeMenu }) => [
       <MenuItem
         key={0}
@@ -867,197 +1366,227 @@ export default function VehiclesList({ data, filter, setFilter }) {
     }),
   });
   return (
-    <Box
-      sx={{
-        width: "96%",
-        // "calc(100% - 260px)"
-      }}
-    >
-      {addExpense && (
-        <AddExpense
-          add={addExpense}
-          setAdd={setAddExpense}
-          vehicle={expenseVehicle}
-          services={expenses}
-          username={username}
-          refresh={refresh}
-          setRefresh={setRefresh}
-          date={expenseDate}
-          setDate={setExpenseDate}
-        />
-      )}
-      <CreateVehicle add={add} setAdd={setAdd} />
-      <Dialog
-        PaperComponent={DraggablePaper}
-        // maxWidth={"xl"}
-        fullScreen
-        open={action.show}
-        onClose={() => setAction({ show: false, type: "", vehicle: {} })}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
+      <Box
+        sx={{
+          width: "96%",
+          // "calc(100% - 260px)"
+        }}
       >
-        <DialogTitle
-          style={{ cursor: "move", backgroundColor: "#42a5f5" }}
-          id="draggable-dialog-title"
+        {addExpense && (
+          <AddExpense
+            add={addExpense}
+            setAdd={setAddExpense}
+            vehicle={expenseVehicle}
+            services={expenses}
+            username={username}
+            refresh={refresh}
+            setRefresh={setRefresh}
+            date={expenseDate}
+            setDate={setExpenseDate}
+          />
+        )}
+        <CreateVehicle add={add} setAdd={setAdd} />
+        <Dialog
+          PaperComponent={DraggablePaper}
+          // maxWidth={"xl"}
+          fullScreen
+          open={action.show}
+          onClose={() => setAction({ show: false, type: "", vehicle: {} })}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
         >
-          {`${action.vehicle.reg} ${action.vehicle.make} ${action.vehicle.model}`}
-          <IconButton
-            sx={{
-              margin: 0,
-              padding: 0,
-              float: "right",
-            }}
-            color="error"
-            onClick={() => setAction({ show: false, type: "", vehicle: {} })}
+          <DialogTitle
+            style={{ cursor: "move", backgroundColor: "#42a5f5" }}
+            id="draggable-dialog-title"
           >
-            <Close />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          {action.type === "records" && (
-            <VehicleRecords
-              username={username}
-              userRole={userRole}
-              vehicle={action.vehicle}
-            />
-          )}
-          {action.type === "issues" && (
-            <Issues
-              username={username}
-              userRole={userRole}
-              vehicle={action.vehicle}
-            />
-          )}
-          {action.type === "expenses" && (
-            <Issues
-              username={username}
-              userRole={userRole}
-              vehicle={action.vehicle}
-            />
-          )}
-          {action.type === "history" && (
-            <Issues
-              username={username}
-              userRole={userRole}
-              vehicle={action.vehicle}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-      {refresh ? (
-        <Box sx={{ width: "100%" }}>
-          <LinearProgress />
-        </Box>
-      ) : (
-        ""
-      )}
+            {`${action.vehicle.reg} ${action.vehicle.make} ${action.vehicle.model}`}
+            <IconButton
+              sx={{
+                margin: 0,
+                padding: 0,
+                float: "right",
+              }}
+              color="error"
+              onClick={() => setAction({ show: false, type: "", vehicle: {} })}
+            >
+              <Close />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            {action.type === "records" && (
+              <VehicleRecords
+                username={username}
+                userRole={userRole}
+                vehicle={action.vehicle}
+              />
+            )}
+            {action.type === "issues" && (
+              <Issues
+                username={username}
+                userRole={userRole}
+                vehicle={action.vehicle}
+              />
+            )}
+            {action.type === "expenses" && (
+              <Expenses
+                username={username}
+                userRole={userRole}
+                vehicle={action.vehicle}
+              />
+            )}
+            {action.type === "history" && (
+              <Log
+                username={username}
+                userRole={userRole}
+                vehicle={action.vehicle}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+        {refresh ? (
+          <Box sx={{ width: "100%" }}>
+            <LinearProgress />
+          </Box>
+        ) : (
+          ""
+        )}
 
-      <Box sx={{ maxHeight: "100px" }}>
-        <Box
-          sx={(theme) => ({
-            backgroundColor: lighten(
-              theme.palette.mode === "dark" ? "#212121" : "#fff",
-              0.05
-            ),
-            display: "flex",
-            gap: "0.5rem",
-            p: "8px",
-            justifyContent: "space-between",
-          })}
-        >
-          <Box sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-            {/* import MRT sub-components */}
+        <Box sx={{ minWidth: "100%" }}>
+          <Box
+            sx={(theme) => ({
+              backgroundColor: lighten(
+                theme.palette.mode === "dark" ? "#212121" : "#fff",
+                0.05
+              ),
+              display: "flex",
+              gap: "0.5rem",
+              p: "8px",
+              justifyContent: "space-between",
+            })}
+          >
+            <Box sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+              {/* import MRT sub-components */}
+
+              <Box>
+                <ButtonGroup>
+                  <Button
+                    sx={{ width: "40%" }}
+                    color={filter === "all" ? "secondary" : "primary"}
+                    variant={"contained"}
+                    onClick={() => handleFilter("all")}
+                  >
+                    {"Всички"}
+                  </Button>
+                  <Button
+                    sx={{ width: "40%" }}
+                    color={filter === "ОФИС" ? "secondary" : "primary"}
+                    variant={"contained"}
+                    onClick={() => handleFilter("ОФИС")}
+                  >
+                    {"ОФИС"}
+                  </Button>
+                  <Button
+                    sx={{ width: "40%" }}
+                    color={filter === "ВИТАЛИНО" ? "secondary" : "primary"}
+                    variant={"contained"}
+                    onClick={() => handleFilter("ВИТАЛИНО")}
+                  >
+                    {"ВИТАЛИНО"}
+                  </Button>
+                  <Button
+                    sx={{ width: "40%" }}
+                    color={filter === "БОРСА" ? "secondary" : "primary"}
+                    variant={"contained"}
+                    onClick={() => handleFilter("БОРСА")}
+                  >
+                    {"БОРСА"}
+                  </Button>
+                  <Button
+                    sx={{ width: "40%" }}
+                    color={filter === "ДРУГИ" ? "secondary" : "primary"}
+                    variant={"contained"}
+                    onClick={() => handleFilter("ДРУГИ")}
+                  >
+                    {"ДРУГИ"}
+                  </Button>
+                  <Button
+                    sx={{ width: "40%" }}
+                    color={filter === "ПРОДАДЕНИ" ? "secondary" : "primary"}
+                    variant={"contained"}
+                    onClick={() => handleFilter("ПРОДАДЕНИ")}
+                  >
+                    {"ПРОДАДЕНИ"}
+                  </Button>
+                </ButtonGroup>
+              </Box>
+              <MRT_GlobalFilterTextField table={table} />
+            </Box>
 
             <Box>
-              <ButtonGroup>
-                <Button
-                  sx={{ width: "40%" }}
-                  color={filter === "all" ? "secondary" : "primary"}
-                  variant={"contained"}
-                  onClick={() => handleFilter("all")}
-                >
-                  {"Всички"}
-                </Button>
-                <Button
-                  sx={{ width: "40%" }}
-                  color={filter === "ОФИС" ? "secondary" : "primary"}
-                  variant={"contained"}
-                  onClick={() => handleFilter("ОФИС")}
-                >
-                  {"ОФИС"}
-                </Button>
-                <Button
-                  sx={{ width: "40%" }}
-                  color={filter === "ВИТАЛИНО" ? "secondary" : "primary"}
-                  variant={"contained"}
-                  onClick={() => handleFilter("ВИТАЛИНО")}
-                >
-                  {"ВИТАЛИНО"}
-                </Button>
-                <Button
-                  sx={{ width: "40%" }}
-                  color={filter === "БОРСА" ? "secondary" : "primary"}
-                  variant={"contained"}
-                  onClick={() => handleFilter("БОРСА")}
-                >
-                  {"БОРСА"}
-                </Button>
-                <Button
-                  sx={{ width: "40%" }}
-                  color={filter === "ДРУГИ" ? "secondary" : "primary"}
-                  variant={"contained"}
-                  onClick={() => handleFilter("ДРУГИ")}
-                >
-                  {"ДРУГИ"}
-                </Button>
-                <Button
-                  sx={{ width: "40%" }}
-                  color={filter === "ПРОДАДЕНИ" ? "secondary" : "primary"}
-                  variant={"contained"}
-                  onClick={() => handleFilter("ПРОДАДЕНИ")}
-                >
-                  {"ПРОДАДЕНИ"}
-                </Button>
-              </ButtonGroup>
-            </Box>
-            <MRT_GlobalFilterTextField table={table} />
-          </Box>
-
-          <Box>
-            <Box sx={{ display: "flex", gap: "0.5rem" }}>
               <Button
-                color="error"
-                disabled={!table.getIsSomeRowsSelected()}
-                // onClick={handleDeactivate}
+                color={showExpense ? "secondary" : "primary"}
+                onClick={() => {
+                  setShowExpense(!showExpense);
+                  if (!showExpense) {
+                    setColumnVisibility({
+                      kaskoDate: false,
+                      issue: false,
+                    });
+                  } else {
+                    setColumnVisibility({
+                      price: false,
+                      own: false,
+                      months: false,
+                      totalExpense: false,
+                      expensePerMonth: false,
+                      totalsFilter: false,
+                      expensePerMonthFilter: false,
+                      issue: false,
+                    });
+                  }
+                }}
                 variant="contained"
               >
-                ИЗТРИЙ
-              </Button>
-
-              <Button
-                color="success"
-                disabled={!table.getIsSomeRowsSelected()}
-                // onClick={handleActivate}
-                variant="contained"
-              >
-                ПРОДАДЕНА
-              </Button>
-
-              <Button
-                disabled={userRole.length === 0 || !userRole ? true : false}
-                variant={"contained"}
-                onClick={() => setAdd(true)}
-              >
-                {"ДОБАВИ"}
-                <AddCircleOutlineIcon />
+                {showExpense ? "Скрий разходите" : "Покажи разходите"}
               </Button>
             </Box>
+            <Box>
+              <Box sx={{ display: "flex", gap: "0.5rem" }}>
+                <Button
+                  color="error"
+                  disabled={!table.getIsSomeRowsSelected()}
+                  // onClick={handleDeactivate}
+                  variant="contained"
+                >
+                  ИЗТРИЙ
+                </Button>
+
+                <Button
+                  color="success"
+                  disabled={!table.getIsSomeRowsSelected()}
+                  // onClick={handleActivate}
+                  variant="contained"
+                >
+                  ПРОДАДЕНА
+                </Button>
+
+                <Button
+                  disabled={userRole.length === 0 || !userRole ? true : false}
+                  variant={"contained"}
+                  onClick={() => setAdd(true)}
+                >
+                  {"ДОБАВИ"}
+                  <AddCircleOutlineIcon />
+                </Button>
+              </Box>
+            </Box>
           </Box>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <MaterialReactTable table={table} />
+          </LocalizationProvider>
         </Box>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <MaterialReactTable table={table} />
-        </LocalizationProvider>
       </Box>
-    </Box>
+    </LocalizationProvider>
   );
 }

@@ -238,6 +238,7 @@ const Ref = ({ vehicle, services, userRole, username }) => {
               margin: "10px",
               borderRadius: "5px",
               padding: "10px",
+
               backgroundColor: "white",
               ...theme.applyStyles("dark", {
                 backgroundColor: "#212121",

@@ -134,12 +134,51 @@ const Issues = ({ vehicle, userRole, username }) => {
     enableRowActions: true,
     renderRowActions: ({ row }) => (
       <Box>
-        <IconButton color="success" onClick={() => console.info("Edit")}>
-          <DoneOutline />
-        </IconButton>
+        {!row.original.done && (
+          <IconButton
+            color="success"
+            onClick={() => {
+              axios
+                .put(`http://192.168.0.147:5555/problems/${row.original._id}`, {
+                  ...row.original,
+                  done: true,
+                })
+                .then((res) => {
+                  if (issues.filter((item) => !item.done).length === 1) {
+                    axios
+                      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+                        ...vehicle,
+                        issue: false,
+                      })
+                      .then((res) => {})
+                      .catch((err) => {
+                        console.log(err);
+                      });
+                  }
+                  setTimeout(() => {
+                    // window.location.reload();
+                  }, 1000);
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
+            }}
+          >
+            <DoneOutline />
+          </IconButton>
+        )}
       </Box>
     ),
     muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    muiTableBodyRowProps: ({ isDetailPanel, row, table }) => {
+      if (row.original.done) {
+        return {
+          sx: {
+            textDecoration: "line-through",
+          },
+        };
+      }
+    },
     initialState: {
       sorting: [
         {
@@ -200,57 +239,6 @@ const Issues = ({ vehicle, userRole, username }) => {
       draggingBorderColor: theme.palette.secondary.main,
     }),
   });
-
-  //     userRole.includes("admin") || userRole.includes(vehicle.site)
-  //       ? !obj.done && (
-  //           <IconButton
-  //             onClick={() => {
-  //               axios
-  //                 .put(`http://192.168.0.147:5555/problems/${obj._id}`, {
-  //                   ...obj,
-  //                   done: true,
-  //                 })
-  //                 .then((res) => {
-  //                   if (
-  //                     problems.data.filter((item) => !item.done).length === 1
-  //                   ) {
-  //                     axios
-  //                       .put(
-  //                         `http://192.168.0.147:5555/vehicle/${vehicle._id}`,
-  //                         {
-  //                           ...vehicle,
-  //                           issue: false,
-  //                         }
-  //                       )
-  //                       .then((res) => {})
-  //                       .catch((err) => {
-  //                         console.log(err);
-  //                       });
-  //                   }
-  //                   setTimeout(() => {
-  //                     window.location.reload();
-  //                   }, 1000);
-  //                 })
-  //                 .catch((err) => {
-  //                   console.log(err);
-  //                 });
-  //             }}
-  //             color="success"
-  //             variant="contained"
-  //           >
-  //             <DoneOutlineIcon />
-  //           </IconButton>
-  //         )
-  //       : "",
-  //   ];
-  // });
-
-  //   { name: "Шофьор" },
-  //   { name: "Забележка", options: { filter: false, sort: false } },
-  //   { name: "Километри", options: { filter: false } },
-  //   { name: "", options: { filter: false, sort: false } },
-  //   { name: "", options: { filter: false, sort: false } },
-  // ];
 
   return (
     <div>

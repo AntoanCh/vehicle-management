@@ -169,10 +169,7 @@ export const vehicleSchema = mongoose.Schema(
     soldDate: {
       type: Date,
     },
-    totalServiceCost: {
-      type: Number,
-      default: 0,
-    },
+
     totalExpenseCost: {
       type: Number,
       default: 0,
@@ -181,11 +178,11 @@ export const vehicleSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
-    totalTireCost: {
+    totalRepairCost: {
       type: Number,
       default: 0,
     },
-    totalRepairCost: {
+    totalServiceCost: {
       type: Number,
       default: 0,
     },

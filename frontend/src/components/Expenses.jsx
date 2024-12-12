@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Button, IconButton, MenuItem } from "@mui/material";
 import dayjs from "dayjs";
@@ -19,10 +19,22 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
-import AddExpense from "../components/AddExpense";
-import ErrorDialog from "../components/ErrorDialog";
+import AddExpense from "./AddExpense";
+import ErrorDialog from "./ErrorDialog";
+import { useMemo } from "react";
+import { MRT_Localization_BG } from "material-react-table/locales/bg";
+import { darken, lighten, useTheme } from "@mui/material";
+import { Edit, Delete, DoneOutline } from "@mui/icons-material";
 
-const Services = ({
+//MRT Imports
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ColumnDef,
+  MRT_GlobalFilterTextField,
+  MRT_ToggleFiltersButton,
+} from "material-react-table";
+const Expenses = ({
   vehicle,
   services,
   fuels,
@@ -36,8 +48,10 @@ const Services = ({
   const [error, setError] = useState([false, ""]);
   const [verifyDelete, setVerifyDelete] = useState([false, {}]);
   const [edit, setEdit] = useState([false, {}]);
-
   const [add, setAdd] = useState(false);
+  const [refetching, setRefetching] = useState(false);
+  const [rowCount, setRowCount] = useState(0);
+  const [expenses, setExpenses] = useState({});
 
   const handleLoading = () => {
     setTimeout(() => {
@@ -47,6 +61,32 @@ const Services = ({
   const handleClick = () => {
     setAdd(true);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!expenses.length) {
+        setLoading(true);
+      } else {
+        setRefetching(true);
+      }
+
+      axios
+        .get(`http://192.168.0.147:5555/services/${vehicle._id}`)
+        .then((res) => {
+          setExpenses(res.data.data);
+          setRowCount(res.data.count);
+        })
+        .catch((err) => {
+          setError([true, err]);
+          console.error(err);
+          return;
+        });
+      setError([false, ""]);
+      setLoading(false);
+      setRefetching(false);
+    };
+    fetchData();
+  }, []);
 
   const handleSaveEdit = () => {
     if (!edit[1].date || !edit[1].type || !edit[1].desc || !edit[1].cost) {
@@ -98,7 +138,7 @@ const Services = ({
 
       setTimeout(() => {
         // window.location.reload();
-        setRefresh(!refresh);
+        // setRefresh(!refresh);
         setEdit([false, {}]);
       }, 100);
     }
@@ -145,113 +185,300 @@ const Services = ({
     setEdit([false, {}]);
   };
 
-  const data = services.data.map((obj) => {
-    return [
-      obj.date,
-      obj.type,
-      obj.desc,
-      obj.invoice,
-      obj.km.toString().slice(0, -3) +
-        " " +
-        obj.km.toString().slice(-3) +
-        " км",
-      obj.cost + " лв",
-      userRole.includes("admin") || userRole.includes(vehicle.site) ? (
-        <Box>
-          <IconButton
-            onClick={() => {
-              setEdit([true, obj]);
-            }}
-            color="warning"
-            variant="contained"
-          >
-            <EditIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              setVerifyDelete([true, obj]);
-            }}
-            color="error"
-            variant="contained"
-          >
-            <DeleteForeverIcon />
-          </IconButton>
-        </Box>
-      ) : (
-        ""
-      ),
-    ];
-  });
+  // const data = services.data.map((obj) => {
+  //   return [
+  //     obj.date,
+  //     obj.type,
+  //     obj.desc,
+  //     obj.invoice,
+  //     obj.km.toString().slice(0, -3) +
+  //       " " +
+  //       obj.km.toString().slice(-3) +
+  //       " км",
+  //     obj.cost + " лв",
+  //     userRole.includes("admin") || userRole.includes(vehicle.site) ? (
+  //       <Box>
+  //         <IconButton
+  //           onClick={() => {
+  //             setEdit([true, obj]);
+  //           }}
+  //           color="warning"
+  //           variant="contained"
+  //         >
+  //           <EditIcon />
+  //         </IconButton>
+  //         <IconButton
+  //           onClick={() => {
+  //             setVerifyDelete([true, obj]);
+  //           }}
+  //           color="error"
+  //           variant="contained"
+  //         >
+  //           <DeleteForeverIcon />
+  //         </IconButton>
+  //       </Box>
+  //     ) : (
+  //       ""
+  //     ),
+  //   ];
+  // });
 
-  const columns = [
-    {
-      name: "Дата",
-      options: {
-        sortDirection: "desc",
-        customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY"),
-        filterOptions: {
-          logic: (date, filters, row) => {
-            console.log(date);
-            if (filters.length) return !date.includes(filters);
-          },
-          names: services.data
-            ? services.data
-                .map((serv) => dayjs(serv.date).format("DD/MM/YYYY"))
-                .filter(
-                  (serv, index, services) => services.indexOf(serv) === index
-                )
-            : [],
+  // const columns = [
+  //   {
+  //     name: "Дата",
+  //     options: {
+  //       sortDirection: "desc",
+  //       customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY"),
+  //       filterOptions: {
+  //         logic: (date, filters, row) => {
+  //           console.log(date);
+  //           if (filters.length) return !date.includes(filters);
+  //         },
+  //         names: services.data
+  //           ? services.data
+  //               .map((serv) => dayjs(serv.date).format("DD/MM/YYYY"))
+  //               .filter(
+  //                 (serv, index, services) => services.indexOf(serv) === index
+  //               )
+  //           : [],
+  //       },
+  //     },
+  //   },
+  //   { name: "Вид" },
+  //   { name: "Описание", options: { filter: false } },
+  //   { name: "Фактура №", options: { filter: false } },
+  //   { name: "Километри", options: { filter: false } },
+  //   { name: "Стойност", options: { filter: false } },
+  //   { name: "Действия", options: { filter: false, sort: false } },
+  // ];
+  // const options = {
+  //   filterType: "dropdown",
+  //   selectableRows: false,
+  //   download: false,
+  //   print: false,
+  //   rowsPerPage: 30,
+  //   rowsPerPageOptions: [30, 50, 100],
+  //   // expandableRowsOnClick: true,
+  //   // expandableRows: true,
+  //   textLabels: {
+  //     body: {
+  //       noMatch: "Нищо не е намерено",
+  //     },
+  //     pagination: {
+  //       next: "Следваща страница",
+  //       previous: "Предишна страница",
+  //       rowsPerPage: "Покажи по:",
+  //       displayRows: "от", // 1-10 of 30
+  //     },
+  //     toolbar: {
+  //       search: "Търсене",
+  //       downloadCsv: "Изтегли CSV",
+  //       print: "Принтирай",
+  //       viewColumns: "Показване на колони",
+  //       filterTable: "Филтри",
+  //     },
+  //     filter: {
+  //       title: "ФИЛТРИ",
+  //       reset: "изчисти",
+  //     },
+  //     viewColumns: {
+  //       title: "Покажи колони",
+  //     },
+  //     selectedRows: {
+  //       text: "rows(s) deleted",
+  //       delete: "Delete",
+  //     },
+  //   },
+  // };
+
+  const theme = useTheme();
+  const baseBackgroundColor =
+    theme.palette.mode === "dark"
+      ? "#212121"
+      : // "rgba(3, 44, 43, 1)"
+        "#fff";
+
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "date",
+        header: "Дата",
+        size: 180,
+        enableGlobalFilter: false,
+        filterVariant: "date",
+        filterFn: "stringDateFn",
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) => {
+          return dayjs(cell.getValue()).format("DD.MM.YYYY - HH:ss");
         },
       },
+      {
+        accessorKey: "type",
+        header: "Вид",
+        size: 100,
+        enableGlobalFilter: false,
+        filterVariant: "select",
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
+      {
+        accessorKey: "desc",
+        header: "Описание",
+        size: 750,
+        editable: false,
+        enableColumnFilter: false,
+        filterVariant: "multi-select",
+      },
+      {
+        accessorKey: "invoice",
+        header: "Фактура",
+        size: 150,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
+      {
+        accessorKey: "km",
+        header: "Километри",
+        size: 150,
+        enableColumnFilter: false,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
+      {
+        accessorKey: "cost",
+        header: "Стойност",
+        size: 150,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) =>
+          parseFloat(cell.getValue()).toLocaleString("bg-BG", {
+            style: "currency",
+            currency: "BGN",
+          }),
+      },
+    ],
+    []
+  );
+
+  const table = useMaterialReactTable({
+    columns,
+    localization: { ...MRT_Localization_BG },
+    data: expenses,
+    rowCount,
+    filterFns: {
+      stringDateFn: (row, id, filterValue) => {
+        return dayjs(row.original[id])
+          .format("DD.MM.YYYY")
+          .includes(dayjs(filterValue).format("DD.MM.YYYY"));
+      },
     },
-    { name: "Вид" },
-    { name: "Описание", options: { filter: false } },
-    { name: "Фактура №", options: { filter: false } },
-    { name: "Километри", options: { filter: false } },
-    { name: "Стойност", options: { filter: false } },
-    { name: "Действия", options: { filter: false, sort: false } },
-  ];
-  const options = {
-    filterType: "dropdown",
-    selectableRows: false,
-    download: false,
-    print: false,
-    rowsPerPage: 30,
-    rowsPerPageOptions: [30, 50, 100],
-    // expandableRowsOnClick: true,
-    // expandableRows: true,
-    textLabels: {
-      body: {
-        noMatch: "Нищо не е намерено",
+    enableFullScreenToggle: false,
+    enableStickyHeader: true,
+    enableFacetedValues: true,
+    enableHiding: false,
+    enableColumnResizing: true,
+    enableColumnResizing: true,
+    enableRowPinning: true,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <Box>
+        <IconButton
+          onClick={() => {
+            setEdit([true, row.original]);
+          }}
+          color="warning"
+          variant="contained"
+        >
+          <EditIcon />
+        </IconButton>
+        <IconButton
+          onClick={() => {
+            setVerifyDelete([true, row.original]);
+          }}
+          color="error"
+          variant="contained"
+        >
+          <DeleteForeverIcon />
+        </IconButton>
+      </Box>
+    ),
+    muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    initialState: {
+      sorting: [
+        {
+          id: "date",
+          desc: true,
+        },
+        // {
+        //   id: "dropoffTime",
+        //   desc: true,
+        // },
+      ],
+
+      pagination: { pageSize: 50, pageIndex: 0 },
+      showGlobalFilter: true,
+      showColumnFilters: true,
+      density: "compact",
+      columnPinning: {
+        left: [],
+        right: ["mrt-row-actions"],
       },
-      pagination: {
-        next: "Следваща страница",
-        previous: "Предишна страница",
-        rowsPerPage: "Покажи по:",
-        displayRows: "от", // 1-10 of 30
-      },
-      toolbar: {
-        search: "Търсене",
-        downloadCsv: "Изтегли CSV",
-        print: "Принтирай",
-        viewColumns: "Показване на колони",
-        filterTable: "Филтри",
-      },
-      filter: {
-        title: "ФИЛТРИ",
-        reset: "изчисти",
-      },
-      viewColumns: {
-        title: "Покажи колони",
-      },
-      selectedRows: {
-        text: "rows(s) deleted",
-        delete: "Delete",
+      positionToolbarAlertBanner: "bottom",
+    },
+    muiSearchTextFieldProps: {
+      size: "small",
+      variant: "outlined",
+    },
+    paginationDisplayMode: "pages",
+    muiPaginationProps: {
+      color: "secondary",
+      rowsPerPageOptions: [30, 50, 100, 200],
+      shape: "rounded",
+      variant: "outlined",
+    },
+    muiTablePaperProps: {
+      elevation: 0,
+      sx: {
+        borderRadius: "0",
       },
     },
-  };
+    muiTableBodyProps: {
+      sx: (theme) => ({
+        '& tr:nth-of-type(odd):not([data-selected="true"]):not([data-pinned="true"]) > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.1),
+          },
+        '& tr:nth-of-type(odd):not([data-selected="true"]):not([data-pinned="true"]):hover > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.2),
+          },
+        '& tr:nth-of-type(even):not([data-selected="true"]):not([data-pinned="true"]) > td':
+          {
+            backgroundColor: lighten(baseBackgroundColor, 0.1),
+          },
+        '& tr:nth-of-type(even):not([data-selected="true"]):not([data-pinned="true"]):hover > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.2),
+          },
+      }),
+    },
+    mrtTheme: (theme) => ({
+      baseBackgroundColor: baseBackgroundColor,
+      draggingBorderColor: theme.palette.secondary.main,
+    }),
+  });
+
   return (
-    <div>
+    <Box>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
         <Dialog
           open={verifyDelete[0]}
@@ -327,7 +554,7 @@ const Services = ({
           <DialogContent>
             <DialogContentText id="alert-dialog-description"></DialogContentText>
 
-            <div className="my-4">
+            <Box className="my-4">
               <DemoContainer components={["DatePicker, DatePicker"]}>
                 <DatePicker
                   fullWidth
@@ -345,8 +572,8 @@ const Services = ({
                   }}
                 />
               </DemoContainer>
-            </div>
-            <div className="my-4">
+            </Box>
+            <Box className="my-4">
               <TextField
                 fullWidth
                 onChange={handleChangeEdit}
@@ -369,8 +596,8 @@ const Services = ({
                   ДРУГИ
                 </MenuItem>
               </TextField>
-            </div>
-            <div className="my-4">
+            </Box>
+            <Box className="my-4">
               <TextField
                 fullWidth
                 onChange={handleChangeEdit}
@@ -379,8 +606,8 @@ const Services = ({
                 id="desc"
                 label="Описание:"
               />
-            </div>
-            <div className="my-4">
+            </Box>
+            <Box className="my-4">
               <TextField
                 fullWidth
                 onChange={handleChangeEdit}
@@ -389,8 +616,8 @@ const Services = ({
                 id="invoice"
                 label="Фактура №:"
               />
-            </div>
-            <div className="my-4">
+            </Box>
+            <Box className="my-4">
               <TextField
                 fullWidth
                 onChange={handleChangeEdit}
@@ -399,8 +626,8 @@ const Services = ({
                 id="km"
                 label="Километри:"
               />
-            </div>
-            <div className="my-4">
+            </Box>
+            <Box className="my-4">
               <TextField
                 fullWidth
                 onChange={handleChangeEdit}
@@ -409,7 +636,7 @@ const Services = ({
                 id="cost"
                 label="Стойност:"
               />
-            </div>
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button
@@ -426,26 +653,27 @@ const Services = ({
           </DialogActions>
         </Dialog>
         <ErrorDialog error={error} setError={setError} />
-
-        <AddExpense
-          vehicle={vehicle}
-          refresh={refresh}
-          setRefresh={setRefresh}
-          username={username}
-          services={services}
-          setError={setError}
-          setLoading={setLoading}
-          add={add}
-          setAdd={setAdd}
-          date={expenseDate}
-          setDate={setExpenseDate}
-        />
+        {/* {Object.keys(expenses).length !== 0 && (
+          <AddExpense
+            vehicle={vehicle}
+            refresh={refresh}
+            setRefresh={setRefresh}
+            username={username}
+            services={expenses}
+            setError={setError}
+            setLoading={setLoading}
+            add={add}
+            setAdd={setAdd}
+            date={expenseDate}
+            setDate={setExpenseDate}
+          />
+        )} */}
 
         {handleLoading()}
         {loading ? (
           <CircularProgress />
         ) : (
-          <div className="my-4">
+          <Box sx={{ marginY: "15px" }}>
             {(userRole.includes("admin") || userRole.includes(vehicle.site)) &&
             !vehicle.sold ? (
               <Button
@@ -459,18 +687,18 @@ const Services = ({
             ) : (
               ""
             )}
-
-            <MUIDataTable
+            <MaterialReactTable table={table} />
+            {/* <MUIDataTable
               title={"РАЗХОДИ"}
               data={data}
               columns={columns}
               options={options}
-            />
-          </div>
+            /> */}
+          </Box>
         )}
       </LocalizationProvider>
-    </div>
+    </Box>
   );
 };
 
-export default Services;
+export default Expenses;

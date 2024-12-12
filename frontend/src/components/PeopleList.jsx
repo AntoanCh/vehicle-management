@@ -7,7 +7,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Button, MenuItem } from "@mui/material";
 import PropTypes from "prop-types";
@@ -15,173 +15,48 @@ import Box from "@mui/material/Box";
 import TablePagination from "@mui/material/TablePagination";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import { visuallyHidden } from "@mui/utils";
-import CancelIcon from "@mui/icons-material/Cancel";
-import AddBusinessIcon from "@mui/icons-material/AddBusiness";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import dayjs from "dayjs";
+import {
+  AddBusiness,
+  Edit,
+  Delete,
+  Cancel,
+  Search,
+  TransferWithinAStation,
+  AddCircleOutline,
+  PersonAddAlt1,
+  LockReset,
+} from "@mui/icons-material/";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
-import LockResetIcon from "@mui/icons-material/LockReset";
-import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
-import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Link } from "react-router-dom";
-import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
 import CreatePerson from "../pages/CreatePerson";
 import { styled } from "@mui/system";
+import { MRT_Localization_BG } from "material-react-table/locales/bg";
+import {
+  darken,
+  lighten,
+  useTheme,
+  Typography,
+  ListItemIcon,
+} from "@mui/material";
 
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-const TableCellNarrow = styled(TableCell)`
-  :last-of-type {
-    width: 80;
-    max-width: 80;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
-function getComparator(order, orderBy) {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
-
-const headCells = [
-  {
-    id: "name",
-    numeric: true,
-    disablePadding: false,
-    label: "Име",
-  },
-  {
-    id: "site",
-    numeric: false,
-    disablePadding: false,
-    label: "Обект",
-  },
-  {
-    id: "job",
-    numeric: false,
-    disablePadding: false,
-    label: "Длъжност",
-  },
-  {
-    id: "employmentDate",
-    numeric: false,
-    disablePadding: false,
-    label: "Дата на постъпване:",
-  },
-
-  {
-    id: "phone",
-    numeric: true,
-    disablePadding: false,
-    label: "Телефон:",
-  },
-  {
-    id: "email",
-    numeric: false,
-    disablePadding: false,
-    label: "Email",
-  },
-  {
-    id: "address",
-    numeric: true,
-    disablePadding: false,
-    label: "Адрес",
-  },
-
-  {
-    id: "actions",
-    numeric: false,
-    disablePadding: false,
-    label: "Дейстия",
-  },
-];
-
-function EnhancedTableHead(props) {
-  const { order, orderBy, onRequestSort } = props;
-  const createSortHandler = (property) => (event) => {
-    onRequestSort(event, property);
-  };
-  return (
-    <TableHead>
-      <TableRow sx={{ backgroundColor: "grey" }}>
-        {headCells.map((headCell) => (
-          <TableCell
-            sx={{ fontWeight: 800 }}
-            style={
-              headCell.id === "site"
-                ? {
-                    width: 100,
-                    maxWidth: 100,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    borderStyle: "border-box",
-                  }
-                : {}
-            }
-            align={headCell.id === "actions" ? "right" : "left"}
-            key={headCell.id}
-            padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === "name" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
-}
-EnhancedTableHead.propTypes = {
-  onRequestSort: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(["asc", "desc"]).isRequired,
-  orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
-};
+//MRT Imports
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ColumnDef,
+  MRT_GlobalFilterTextField,
+  MRT_ToggleFiltersButton,
+} from "material-react-table";
 
 const PeopleList = ({ sites, people, siteName, siteId }) => {
   const [loading, setLoading] = useState(false);
@@ -196,54 +71,15 @@ const PeopleList = ({ sites, people, siteName, siteId }) => {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
 
-  const requestSearch = (searched) => {
-    if (searched) {
-      setCopyList(
-        people.data.filter(
-          (item) =>
-            item.firstName.toUpperCase().includes(searched.toUpperCase()) ||
-            item.middleName.toUpperCase().includes(searched.toUpperCase()) ||
-            item.lastName.toUpperCase().includes(searched.toUpperCase())
-        )
-      );
-    } else {
-      setCopyList();
-    }
-  };
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-  const emptyRows =
-    page > 0
-      ? Math.max(
-          0,
-          (1 + page) * rowsPerPage - (people ? people.data.length : 0)
-        )
-      : 0;
-  setTimeout(() => {}, 1000);
-  const visibleRows = React.useMemo(() => {
-    if (copyList) {
-      return stableSort(copyList, getComparator(order, orderBy)).slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-      );
-    } else {
-      return stableSort(people.data, getComparator(order, orderBy)).slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage
-      );
-    }
-  }, [order, orderBy, page, rowsPerPage]);
-  //
+  console.log(people);
+  const theme = useTheme();
+  const baseBackgroundColor =
+    theme.palette.mode === "dark"
+      ? "#212121"
+      : // "rgba(3, 44, 43, 1)"
+        "#fff";
+  // "rgba(244, 255, 233, 1)"
+
   const navigate = useNavigate();
   const [input, setInput] = useState({
     name: "",
@@ -345,11 +181,226 @@ const PeopleList = ({ sites, people, siteName, siteId }) => {
   const handleClick = (event, id) => {
     navigate(`/people/details/${id}`);
   };
-  const bgDate = (date) => {
-    let [yyyy, mm, dd] = date.split("-");
-    let newDate = `${dd}.${mm}.${yyyy}`;
-    return newDate;
-  };
+
+  const columns = useMemo(
+    () => [
+      {
+        accessorFn: (row) =>
+          `${row.firstName} ${row.middleName} ${row.lastName}`,
+        id: "name",
+        header: "Име",
+        size: 280,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "site",
+        header: "Обект",
+        size: 160,
+        filterVariant: "select",
+        enableGlobalFilter: false,
+        editable: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
+      {
+        accessorKey: "job",
+        header: "Длъжност",
+        size: 220,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        filterVariant: "multi-select",
+      },
+      {
+        accessorKey: "employmentDate",
+        header: "Дата на постъпване",
+        size: 120,
+        enableGlobalFilter: false,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        filterVariant: "select",
+        Cell: ({ cell }) => dayjs(cell.getValue()).format("DD.MM.YYYY"),
+      },
+      {
+        accessorKey: "phone",
+        header: "Телефон",
+        size: 150,
+        enableColumnFilter: false,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) => `+359 ${cell.getValue()}`,
+      },
+
+      {
+        accessorKey: "email",
+        header: "Email",
+        size: 200,
+        enableGlobalFilter: false,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
+
+      {
+        accessorKey: "address",
+        header: "Адрес",
+        size: 200,
+        enableGlobalFilter: false,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
+    ],
+    []
+  );
+
+  const table = useMaterialReactTable({
+    columns,
+    data: people.data,
+    // enableRowVirtualization: true,
+    enableExpandAll: false,
+    localization: { ...MRT_Localization_BG },
+    enableStickyHeader: true,
+    enableStickyFooter: true,
+    enableFacetedValues: true,
+    enableColumnActions: false,
+    enableColumnResizing: true,
+    enableRowSelection: false,
+    enableSelectAll: false,
+    enableMultiRowSelection: false,
+    enableRowNumbers: true,
+    enableRowActions: true,
+    muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    displayColumnDefOptions: {
+      "mrt-row-actions": {
+        size: 150, //make actions column wider
+      },
+    },
+    initialState: {
+      sorting: [
+        {
+          id: "reg",
+          desc: false,
+        },
+        {
+          id: "model",
+          desc: false,
+        },
+      ],
+      columnVisibility: {
+        kaskoDate: false,
+        oil: false,
+        issue: false,
+        oilChange: false,
+        km: false,
+      },
+      pagination: { pageSize: 30, pageIndex: 0 },
+      showGlobalFilter: true,
+      showColumnFilters: true,
+      density: "compact",
+      columnPinning: {
+        left: ["mrt-row-expand", "mrt-row-actions", "reg"],
+        right: ["mrt-row-select"],
+      },
+    },
+    paginationDisplayMode: "pages",
+    positionToolbarAlertBanner: "bottom",
+    muiSearchTextFieldProps: {
+      size: "small",
+      variant: "outlined",
+    },
+    muiPaginationProps: {
+      color: "secondary",
+      rowsPerPageOptions: [10, 20, 30, 50],
+      shape: "rounded",
+      variant: "outlined",
+    },
+
+    muiTablePaperProps: {
+      elevation: 0,
+      sx: {
+        borderRadius: "0",
+      },
+    },
+    renderDetailPanel: ({ row }) => <Box></Box>,
+    renderRowActions: ({ row, table }) => (
+      <Box>
+        <IconButton onClick={() => console.info("Edit")}>
+          <Edit />
+        </IconButton>
+        <IconButton
+          onClick={(e) => {
+            e.stopPropagation();
+            setVerifyDelete([true, row]);
+          }}
+          color="error"
+        >
+          <Delete />
+        </IconButton>
+        <IconButton
+          onClick={(e) => {
+            e.stopPropagation();
+            setTransfer([true, row]);
+          }}
+          color="success"
+        >
+          <TransferWithinAStation />
+        </IconButton>
+      </Box>
+    ),
+
+    renderTopToolbar: ({ table }) => {
+      const handleDeactivate = () => {
+        table.getSelectedRowModel().flatRows.map((row) => {
+          alert("deactivating " + row.getValue("name"));
+        });
+      };
+
+      const handleActivate = () => {
+        table.getSelectedRowModel().flatRows.map((row) => {
+          alert("activating " + row.getValue("name"));
+        });
+      };
+
+      const handleContact = () => {
+        table.getSelectedRowModel().flatRows.map((row) => {
+          alert("contact " + row.getValue("name"));
+        });
+      };
+    },
+    muiTableBodyProps: {
+      sx: (theme) => ({
+        '& tr:nth-of-type(odd):not([data-selected="true"]):not([data-pinned="true"]) > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.1),
+          },
+        '& tr:nth-of-type(odd):not([data-selected="true"]):not([data-pinned="true"]):hover > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.2),
+          },
+        '& tr:nth-of-type(even):not([data-selected="true"]):not([data-pinned="true"]) > td':
+          {
+            backgroundColor: lighten(baseBackgroundColor, 0.1),
+          },
+        '& tr:nth-of-type(even):not([data-selected="true"]):not([data-pinned="true"]):hover > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.2),
+          },
+      }),
+    },
+    mrtTheme: (theme) => ({
+      baseBackgroundColor: baseBackgroundColor,
+      draggingBorderColor: theme.palette.secondary.main,
+    }),
+  });
   return (
     <Box>
       <Dialog
@@ -478,169 +529,7 @@ const PeopleList = ({ sites, people, siteName, siteId }) => {
         </DialogActions>
       </Dialog>{" "}
       {handleLoading()}
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        <Box className="my-4 flex flex-col items-center">
-          <Box sx={{ width: "100%", margin: "5px" }}>
-            <Paper sx={{ width: "100%", mb: 2 }}>
-              <TableContainer sx={{ borderRadius: "3px" }}>
-                <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: "grey" }}>
-                      <TableCell sx={{ fontWeight: "800", fontSize: "20px" }}>
-                        {`ПЕРСОНАЛ НА ${siteName}`}
-                      </TableCell>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
-                      <TableCell>
-                        <TextField
-                          size="small"
-                          sx={{
-                            backgroundColor: "#bdbdbd",
-                          }}
-                          variant="outlined"
-                          placeholder="Търси..."
-                          type="search"
-                          onInput={(e) => requestSearch(e.target.value)}
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <SearchIcon />
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {" "}
-                        <Button
-                          onClick={() => setAdd(true)}
-                          // onClick={() =>
-                          //   navigate("/hr/create", {
-                          //     state: { siteName, siteId },
-                          //   })
-                          // }
-                          variant="contained"
-                        >
-                          ДОБАВИ <AddCircleOutlineIcon />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  {people && (
-                    <EnhancedTableHead
-                      order={order}
-                      orderBy={orderBy}
-                      onRequestSort={handleRequestSort}
-                      rowCount={people.data.length}
-                    />
-                  )}
-
-                  {people && (
-                    <TableBody>
-                      {(copyList ? copyList : visibleRows).map((row, index) => {
-                        const labelId = `enhanced-table-checkbox-${index}`;
-
-                        return (
-                          <TableRow
-                            sx={{
-                              cursor: "pointer",
-                              backgroundColor: "#ccc",
-                              "&:hover": {
-                                backgroundColor: "#000000",
-                                boxShadow: "none",
-                              },
-                            }}
-                            hover
-                            onClick={(event) => handleClick(event, row._id)}
-                            key={row._id}
-                          >
-                            <TableCell
-                              sx={{ fontWeight: "800" }}
-                              component="th"
-                              id={labelId}
-                              scope="row"
-                            >
-                              {`${row.firstName} ${row.middleName} ${row.lastName}`}
-                            </TableCell>
-                            <TableCell>{row.site}</TableCell>
-                            <TableCell>{row.job}</TableCell>
-                            <TableCell align="left">
-                              {
-                                bgDate(row.employmentDate.slice(0, 10))
-                                // row.employmentDate
-                              }
-                            </TableCell>
-                            <TableCell align="left">{`+359 ${row.phone}`}</TableCell>
-                            <TableCell align="left">{row.email}</TableCell>
-                            <TableCell align="left">
-                              {row.addressReal}
-                            </TableCell>
-
-                            <TableCell align="right">
-                              <IconButton
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setTransfer([true, row]);
-                                }}
-                                color="success"
-                                variant="contained"
-                              >
-                                <TransferWithinAStationIcon />
-                              </IconButton>
-                              <IconButton
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setVerifyDelete([true, row]);
-                                }}
-                                color="error"
-                                variant="contained"
-                              >
-                                <DeleteForeverIcon />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-
-                      {emptyRows > 0 && (
-                        <TableRow
-                          style={{
-                            height: (dense ? 33 : 53) * emptyRows,
-                          }}
-                        >
-                          <TableCell colSpan={6} />
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  )}
-                </Table>
-              </TableContainer>
-
-              <TablePagination
-                labelRowsPerPage={"Покажи по:"}
-                labelDisplayedRows={({ from, to, count }) =>
-                  `${from}-${to} от ${count !== -1 ? count : `MORE THAN ${to}`}`
-                }
-                rowsPerPageOptions={[10, 25, 50]}
-                component="div"
-                count={people ? people.data.length : 0}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            </Paper>
-
-            {/* )}
-             */}
-          </Box>
-        </Box>
-      )}
+      {loading ? <CircularProgress /> : <MaterialReactTable table={table} />}
     </Box>
   );
 };

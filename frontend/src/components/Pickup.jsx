@@ -298,6 +298,32 @@ const Pickup = ({
                   },
                 }}
               />
+              <TextField
+                disabled
+                fullWidth
+                value={`Група:   ${vehicle.cat}`}
+                variant="standard"
+                sx={{
+                  "& .MuiInputBase-input": {
+                    fontSize: 18,
+                    padding: 1,
+                    fontWeight: 800,
+                    textAlign: "center",
+                    color: vehicle.cat === "1" ? "red" : "black",
+                  },
+                  "& .MuiInputBase-input.Mui-disabled": {
+                    WebkitTextFillColor: vehicle.cat === "1" ? "red" : "black", //Adjust text color here
+                  },
+                }}
+                error
+                helperText={
+                  vehicle.cat === "2"
+                    ? "Този автомобил няма право да се движи в МАЛКИЯ РИНГ на нискоемисионните зони в София"
+                    : vehicle.cat === "1"
+                    ? "Този автомобил няма право да се движи в ГОЛЕМИЯ РИНГ на нискоемисионните зони в София"
+                    : ""
+                }
+              />
             </Box>
             <Box sx={{ width: "70%" }}>
               {" "}

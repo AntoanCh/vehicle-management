@@ -23,6 +23,7 @@ import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import "dayjs/locale/bg";
 import Box from "@mui/material/Box";
 import HeaderMenu from "./components/HeaderMenu.jsx";
 import { useState, useEffect } from "react";
@@ -38,10 +39,10 @@ import {
 
 function App() {
   const [filter, setFilter] = React.useState("all");
+  const [customFilter, setCustomFilter] = useState("РЕМОНТ");
   const [darkTheme, setDarkTheme] = useState(false);
 
   useEffect(() => {
-    console.log(darkTheme);
     if (localStorage.getItem("darkTheme") === "true") {
       setDarkTheme(true);
     }
@@ -90,7 +91,7 @@ function App() {
           display: "flex",
         }}
       >
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
           <BrowserRouter>
             <HeaderMenu setDarkTheme={setDarkTheme} darkTheme={darkTheme} />
             {/* <Header /> */}
@@ -119,7 +120,12 @@ function App() {
                 <Route
                   path="/vehicles"
                   element={
-                    <VehiclesMain filter={filter} setFilter={setFilter} />
+                    <VehiclesMain
+                      customFilter={customFilter}
+                      setCustomFilter={setCustomFilter}
+                      filter={filter}
+                      setFilter={setFilter}
+                    />
                   }
                 />
                 <Route path="/vehicles/details/:id" element={<ShowVehicle />} />

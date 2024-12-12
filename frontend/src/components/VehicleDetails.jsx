@@ -5,6 +5,7 @@ import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import { styled } from "@mui/material/styles";
 import { Button, ButtonGroup, MenuItem, TextField } from "@mui/material";
+import InputAdornment from "@mui/material/InputAdornment";
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   ...theme.typography.body2,
@@ -14,6 +15,9 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
     padding: 1,
     fontWeight: 800,
     textAlign: "center",
+  },
+  "& .MuiFormLabel-root": {
+    fontWeight: 800,
   },
   "& .MuiInputBase-input.Mui-disabled": {
     WebkitTextFillColor: theme.palette.mode === "dark" ? "white" : "black",
@@ -48,16 +52,71 @@ const VehicleDetails = ({ id }) => {
   }, []);
   return (
     <Box display={"flex"}>
-      {/* <Box>
-        {Object.keys(vehicle).map((key) => (
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
+        <Box sx={{ margin: "5px" }}>
           <StyledTextField
-            value={vehicle[key]}
+            InputLabelProps={{ shrink: true }}
+            label="Година"
+            value={vehicle.year}
+            disabled
+            name="year"
+          />
+        </Box>
+        <Box sx={{ margin: "5px" }}>
+          <StyledTextField
+            InputLabelProps={{ shrink: true }}
+            label="Гориво"
+            value={vehicle.fuel}
+            disabled
+            name="fuel"
+          />
+        </Box>
+        <Box sx={{ margin: "5px" }}>
+          <StyledTextField
+            InputLabelProps={{ shrink: true }}
+            label="№ ДВГ"
+            value={vehicle.engNum}
+            disabled
+            name="engNum"
+          />
+        </Box>
+        <Box sx={{ margin: "5px" }}>
+          <StyledTextField
+            InputLabelProps={{ shrink: true }}
+            label="№ Рама"
+            value={vehicle.bodyNum}
+            disabled
+            name="bodyNum"
+          />
+        </Box>
+        <Box sx={{ margin: "5px" }}>
+          <StyledTextField
+            InputLabelProps={{ shrink: true }}
+            label="№ талон"
+            value={vehicle.talonNum}
             disabled
             name="talonNum"
-            //   onChange={handleChange}
           />
-        ))}
-      </Box> */}
+        </Box>
+        <Box sx={{ margin: "5px" }}>
+          <StyledTextField
+            InputLabelProps={{ shrink: true }}
+            label="Размер Гуми"
+            value={vehicle.tires}
+            disabled
+            name="tires"
+          />
+        </Box>
+        <Box sx={{ margin: "5px" }}>
+          <StyledTextField
+            InputLabelProps={{ shrink: true }}
+            label="Собственик"
+            value={vehicle.owner}
+            disabled
+            name="owner"
+          />
+        </Box>
+      </Box>
       <Box sx={{ width: "1000px" }}>
         {loading ? (
           <CircularProgress />

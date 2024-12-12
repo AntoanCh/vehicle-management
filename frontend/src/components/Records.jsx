@@ -58,8 +58,7 @@ const Records = () => {
   const columns = useMemo(
     () => [
       {
-        accessorFn: (row) => dayjs(row.pickupTime).format("DD.MM.YYYY - HH:ss"),
-        id: "pickupTime",
+        accessorKey: "pickupTime",
         header: "Тръгване",
         size: 180,
         enableGlobalFilter: false,
@@ -68,18 +67,22 @@ const Records = () => {
         muiTableBodyCellProps: {
           align: "center",
         },
+        Cell: ({ cell }) => {
+          return dayjs(cell.getValue()).format("DD.MM.YYYY - HH:ss");
+        },
       },
       {
-        accessorFn: (row) =>
-          row.dropoffTime
-            ? dayjs(row.dropoffTime).format("DD.MM.YYYY - HH:ss")
-            : "в движение",
-        id: "dropoffTime",
+        accessorKey: "dropoffTime",
         header: "Връщане",
         filterVariant: "datetime",
         filterFn: "stringDateFn",
         size: 180,
         enableGlobalFilter: false,
+        Cell: ({ cell }) => {
+          return cell.getValue()
+            ? dayjs(cell.getValue()).format("DD.MM.YYYY - HH:ss")
+            : "в движение";
+        },
         muiTableBodyCellProps: {
           align: "center",
         },
