@@ -379,7 +379,7 @@ const ShowVehicle = () => {
         window.location.reload();
       });
   };
-  console.log(issues ? issues.data.filter((item) => item.done).length : "");
+
   return (
     <Box className="p-4">
       {loading ? (

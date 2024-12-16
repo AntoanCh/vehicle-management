@@ -57,7 +57,7 @@ const Hr = () => {
   useEffect(() => {
     if (sites.length !== 0) {
       const val = JSON.parse(window.sessionStorage.getItem("value"));
-      console.log(val);
+
       setValue(val);
       isFirst.current = true;
     }

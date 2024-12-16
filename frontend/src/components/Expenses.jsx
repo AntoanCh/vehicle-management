@@ -93,6 +93,7 @@ const Expenses = ({
       setError([true, "Дата, описание, вид и стойност са задължителни полета"]);
     } else {
       setAdd(false);
+
       axios
         .put(`http://192.168.0.147:5555/services/${edit[1]._id}`, edit[1])
         .then(() => {
@@ -144,6 +145,9 @@ const Expenses = ({
     }
   };
 
+  const handleClose = () => {
+    setAdd(false);
+  };
   const handleChangeEdit = (e) => {
     const newData = { ...edit[1] };
     if (e.target.id === "km") {
@@ -185,112 +189,6 @@ const Expenses = ({
     setEdit([false, {}]);
   };
 
-  // const data = services.data.map((obj) => {
-  //   return [
-  //     obj.date,
-  //     obj.type,
-  //     obj.desc,
-  //     obj.invoice,
-  //     obj.km.toString().slice(0, -3) +
-  //       " " +
-  //       obj.km.toString().slice(-3) +
-  //       " км",
-  //     obj.cost + " лв",
-  //     userRole.includes("admin") || userRole.includes(vehicle.site) ? (
-  //       <Box>
-  //         <IconButton
-  //           onClick={() => {
-  //             setEdit([true, obj]);
-  //           }}
-  //           color="warning"
-  //           variant="contained"
-  //         >
-  //           <EditIcon />
-  //         </IconButton>
-  //         <IconButton
-  //           onClick={() => {
-  //             setVerifyDelete([true, obj]);
-  //           }}
-  //           color="error"
-  //           variant="contained"
-  //         >
-  //           <DeleteForeverIcon />
-  //         </IconButton>
-  //       </Box>
-  //     ) : (
-  //       ""
-  //     ),
-  //   ];
-  // });
-
-  // const columns = [
-  //   {
-  //     name: "Дата",
-  //     options: {
-  //       sortDirection: "desc",
-  //       customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY"),
-  //       filterOptions: {
-  //         logic: (date, filters, row) => {
-  //           console.log(date);
-  //           if (filters.length) return !date.includes(filters);
-  //         },
-  //         names: services.data
-  //           ? services.data
-  //               .map((serv) => dayjs(serv.date).format("DD/MM/YYYY"))
-  //               .filter(
-  //                 (serv, index, services) => services.indexOf(serv) === index
-  //               )
-  //           : [],
-  //       },
-  //     },
-  //   },
-  //   { name: "Вид" },
-  //   { name: "Описание", options: { filter: false } },
-  //   { name: "Фактура №", options: { filter: false } },
-  //   { name: "Километри", options: { filter: false } },
-  //   { name: "Стойност", options: { filter: false } },
-  //   { name: "Действия", options: { filter: false, sort: false } },
-  // ];
-  // const options = {
-  //   filterType: "dropdown",
-  //   selectableRows: false,
-  //   download: false,
-  //   print: false,
-  //   rowsPerPage: 30,
-  //   rowsPerPageOptions: [30, 50, 100],
-  //   // expandableRowsOnClick: true,
-  //   // expandableRows: true,
-  //   textLabels: {
-  //     body: {
-  //       noMatch: "Нищо не е намерено",
-  //     },
-  //     pagination: {
-  //       next: "Следваща страница",
-  //       previous: "Предишна страница",
-  //       rowsPerPage: "Покажи по:",
-  //       displayRows: "от", // 1-10 of 30
-  //     },
-  //     toolbar: {
-  //       search: "Търсене",
-  //       downloadCsv: "Изтегли CSV",
-  //       print: "Принтирай",
-  //       viewColumns: "Показване на колони",
-  //       filterTable: "Филтри",
-  //     },
-  //     filter: {
-  //       title: "ФИЛТРИ",
-  //       reset: "изчисти",
-  //     },
-  //     viewColumns: {
-  //       title: "Покажи колони",
-  //     },
-  //     selectedRows: {
-  //       text: "rows(s) deleted",
-  //       delete: "Delete",
-  //     },
-  //   },
-  // };
-
   const theme = useTheme();
   const baseBackgroundColor =
     theme.palette.mode === "dark"
@@ -327,7 +225,7 @@ const Expenses = ({
       {
         accessorKey: "desc",
         header: "Описание",
-        size: 750,
+        size: 900,
         editable: false,
         enableColumnFilter: false,
         filterVariant: "multi-select",
@@ -412,6 +310,11 @@ const Expenses = ({
       </Box>
     ),
     muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    displayColumnDefOptions: {
+      "mrt-row-actions": {
+        size: 120,
+      },
+    },
     initialState: {
       sorting: [
         {
@@ -428,6 +331,7 @@ const Expenses = ({
       showGlobalFilter: true,
       showColumnFilters: true,
       density: "compact",
+
       columnPinning: {
         left: [],
         right: ["mrt-row-actions"],

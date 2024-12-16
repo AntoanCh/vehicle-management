@@ -51,9 +51,6 @@ const Charts = () => {
     .map((vehicle) => vehicle.price);
 
   dayjs.extend(relativeTime);
-  if (vehicles[0]) {
-    console.log(dayjs(vehicles[0].purchaseDate).fromNow());
-  }
 
   return (
     <Box sx={{ display: "flex" }}>

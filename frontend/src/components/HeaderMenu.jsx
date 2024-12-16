@@ -464,7 +464,6 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
               variant="outlined"
               color="white"
               onClick={() => {
-                console.log(darkTheme);
                 setDarkTheme((darkTheme) => !darkTheme);
                 localStorage.setItem("darkTheme", !darkTheme);
               }}

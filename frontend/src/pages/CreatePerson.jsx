@@ -171,8 +171,6 @@ const CreatePerson = ({ siteId, siteName }) => {
   const handlePhoto = (e) => {
     setData({ ...data, photo: e.target.files[0] });
     setImageFeedback(true);
-    // console.log(e.target.files);
-    // console.log(data.photo);
   };
   const handleChange = (e) => {
     if (!e.target.value) {

@@ -7,10 +7,12 @@ import VehicleRecords from "./VehicleRecords";
 import Issues from "./Issues";
 import Expenses from "./Expenses";
 import Log from "./Log";
+import Tooltip from "@mui/material/Tooltip";
 import {
   Button,
   TextField,
   MenuItem,
+  Menu,
   ButtonGroup,
   IconButton,
   setRef,
@@ -58,6 +60,7 @@ import {
   Delete,
   AccountCircle,
   Send,
+  Menu as MenuIcon,
   WarningAmber,
 } from "@mui/icons-material";
 import LinearProgress from "@mui/material/LinearProgress";
@@ -100,6 +103,8 @@ export default function VehiclesList({
 }) {
   const [expenseDate, setExpenseDate] = useState(dayjs());
   const [expenses, setExpenses] = useState({});
+  const [anchorEl, setAnchorEl] = useState([null, {}]);
+  const openActionMenu = Boolean(anchorEl[0]);
   const [refresh, setRefresh] = useState(false);
   const [add, setAdd] = useState(false);
   const [action, setAction] = useState({ show: false, type: "", vehicle: {} });
@@ -208,6 +213,7 @@ export default function VehiclesList({
         header: "Номер",
         size: 170,
         enableColumnFilter: false,
+        enableEditing: false,
         Cell: ({ cell, row }) => {
           return (
             <Box sx={{ display: "flex" }}>
@@ -263,75 +269,12 @@ export default function VehiclesList({
         },
       },
       {
-        accessorFn: (row) => row._id,
-        id: "edit",
-        header: "",
-        size: 55,
-        enableGlobalFilter: false,
-        enableColumnFilter: false,
-        enableSorting: false,
-        muiTableBodyCellProps: {
-          align: "center",
-        },
-        Cell: ({ cell, row }) => {
-          return (
-            <Box>
-              {userRole.includes("admin") && (
-                <Box>
-                  <IconButton
-                    sx={{ padding: "0", margin: "0", marginLeft: "5px" }}
-                    variant="contained"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      axios
-                        .get(
-                          `http://192.168.0.147:5555/services/${row.original._id}`
-                        )
-                        .then((res) => {
-                          setExpenses(res.data);
-                          setExpenseVehicle({ ...row.original });
-                          setAddExpense(true);
-                        })
-                        .catch((err) => {
-                          console.log(err);
-                        });
-                    }}
-                  >
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    sx={{ padding: "0", margin: "0", marginLeft: "5px" }}
-                    variant="contained"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      axios
-                        .get(
-                          `http://192.168.0.147:5555/services/${row.original._id}`
-                        )
-                        .then((res) => {
-                          setExpenses(res.data);
-                          setExpenseVehicle({ ...row.original });
-                          setAddExpense(true);
-                        })
-                        .catch((err) => {
-                          console.log(err);
-                        });
-                    }}
-                  >
-                    <Cancel />
-                  </IconButton>
-                </Box>
-              )}
-            </Box>
-          );
-        },
-      },
-      {
         accessorFn: (row) => `${row.make} ${row.model}`,
         id: "model",
         header: "Марка/модел",
         size: 160,
         filterVariant: "select",
+        enableEditing: false,
         editable: false,
       },
       {
@@ -339,6 +282,20 @@ export default function VehiclesList({
         header: "Отговорник",
         size: 110,
         enableGlobalFilter: false,
+        editVariant: "select",
+        muiEditTextFieldProps: {
+          // type: 'email',
+          select: true,
+          required: true,
+          // error: !!validationErrors?.email,
+          // helperText: validationErrors?.email,
+          //remove any previous validation errors when user focuses on the input
+          // onFocus: () =>
+          //   setValidationErrors({
+          //     ...validationErrors,
+          //     email: undefined,
+          //   }),
+        },
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -421,6 +378,7 @@ export default function VehiclesList({
         size: 110,
         enableGlobalFilter: false,
         enableColumnFilter: false,
+        enableEditing: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -456,6 +414,7 @@ export default function VehiclesList({
         size: 110,
         enableGlobalFilter: false,
         enableColumnFilter: false,
+        enableEditing: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -487,6 +446,7 @@ export default function VehiclesList({
             }),
         },
         enableGlobalFilter: false,
+        enableEditing: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -542,6 +502,7 @@ export default function VehiclesList({
             }),
         },
         enableGlobalFilter: false,
+        enableEditing: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -625,6 +586,7 @@ export default function VehiclesList({
           // table.getState().columnFilters[0];
         },
         enableGlobalFilter: false,
+        enableEditing: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -688,6 +650,7 @@ export default function VehiclesList({
 
         enableGlobalFilter: false,
         enableColumnFilter: false,
+        enableEditing: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -991,6 +954,7 @@ export default function VehiclesList({
         size: 110,
         enableGlobalFilter: false,
         enableColumnFilter: false,
+        enableEditing: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -1162,6 +1126,8 @@ export default function VehiclesList({
     enableExpandAll: false,
     localization: { ...MRT_Localization_BG },
     enableStickyHeader: true,
+    editDisplayMode: "row",
+    enableEditing: true,
     enableStickyFooter: true,
     enableFacetedValues: true,
     enableColumnActions: false,
@@ -1202,7 +1168,7 @@ export default function VehiclesList({
       showColumnFilters: true,
       density: "compact",
       columnPinning: {
-        left: ["mrt-row-expand", "mrt-row-actions", "edit", "reg"],
+        left: ["mrt-row-expand", "mrt-row-actions", "reg"],
       },
     },
     paginationDisplayMode: "pages",
@@ -1239,87 +1205,178 @@ export default function VehiclesList({
         <VehicleDetails id={row.original._id} />
       </Box>
     ),
-    // renderRowActions: ({ row, table }) => (
-    //   <Box>
-    //     <IconButton onClick={() => console.info("Edit")}>
-    //       <Edit />
-    //     </IconButton>
-    //     <IconButton onClick={() => console.info("Delete")}>
-    //       <Delete />
-    //     </IconButton>
-    //   </Box>
-    // ),
-    renderRowActionMenuItems: ({ row, table, closeMenu }) => [
-      <MenuItem
-        key={0}
-        onClick={() => {
-          setAction({
-            show: true,
-            type: "records",
-            vehicle: { ...row.original },
-          });
-          closeMenu();
-        }}
-        sx={{ m: 0 }}
-      >
-        <ListItemIcon>
-          <Timeline />
-        </ListItemIcon>
-        Движение
-      </MenuItem>,
+    renderRowActions: ({ row, table }) => (
+      <Box sx={{ display: "flex", flexWrap: "nowrap", gap: "8px" }}>
+        {userRole.includes("admin") && (
+          <Box>
+            {" "}
+            <IconButton onClick={() => table.setEditingRow(row)}>
+              <Edit />
+            </IconButton>
+          </Box>
+        )}
 
-      <MenuItem
-        key={1}
-        onClick={() => {
-          setAction({
-            show: true,
-            type: "issues",
-            vehicle: { ...row.original },
-          });
-          closeMenu();
-        }}
-        sx={{ m: 0 }}
-      >
-        <ListItemIcon>
-          <WarningAmber />
-        </ListItemIcon>
-        Забележки
-      </MenuItem>,
-      <MenuItem
-        key={2}
-        onClick={() => {
-          setAction({
-            show: true,
-            type: "expenses",
-            vehicle: { ...row.original },
-          });
-          closeMenu();
-        }}
-        sx={{ m: 0 }}
-      >
-        <ListItemIcon>
-          <CarRepair />
-        </ListItemIcon>
-        Разходи
-      </MenuItem>,
-      <MenuItem
-        key={3}
-        onClick={() => {
-          setAction({
-            show: true,
-            type: "history",
-            vehicle: { ...row.original },
-          });
-          closeMenu();
-        }}
-        sx={{ m: 0 }}
-      >
-        <ListItemIcon>
-          <History />
-        </ListItemIcon>
-        История
-      </MenuItem>,
-    ],
+        <IconButton>
+          <MenuIcon
+            onClick={(event) =>
+              setAnchorEl([event.currentTarget, row.original])
+            }
+          />
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl[0]}
+          open={openActionMenu}
+          onClose={() => setAnchorEl([null, {}])}
+          MenuListProps={{
+            "aria-labelledby": "basic-button",
+          }}
+        >
+          {anchorEl[1].reg}
+          <MenuItem
+            key={0}
+            onClick={() => {
+              setAction({
+                show: true,
+                type: "records",
+                vehicle: { ...anchorEl[1] },
+              });
+              setAnchorEl([null, {}]);
+            }}
+            sx={{ m: 0 }}
+          >
+            <ListItemIcon>
+              <Timeline />
+            </ListItemIcon>
+            Движение
+          </MenuItem>
+
+          <MenuItem
+            key={1}
+            onClick={() => {
+              setAction({
+                show: true,
+                type: "issues",
+                vehicle: { ...anchorEl[1] },
+              });
+              setAnchorEl([null, {}]);
+            }}
+            sx={{ m: 0 }}
+          >
+            <ListItemIcon>
+              <WarningAmber />
+            </ListItemIcon>
+            Забележки
+          </MenuItem>
+
+          <MenuItem
+            key={2}
+            onClick={() => {
+              setAction({
+                show: true,
+                type: "expenses",
+                vehicle: { ...anchorEl[1] },
+              });
+              setAnchorEl([null, {}]);
+            }}
+            sx={{ m: 0 }}
+          >
+            <ListItemIcon>
+              <CarRepair />
+            </ListItemIcon>
+            Разходи
+          </MenuItem>
+
+          <MenuItem
+            key={3}
+            onClick={() => {
+              setAction({
+                show: true,
+                type: "history",
+                vehicle: { ...anchorEl[1] },
+              });
+              setAnchorEl([null, {}]);
+            }}
+            sx={{ m: 0 }}
+          >
+            <ListItemIcon>
+              <History />
+            </ListItemIcon>
+            История
+          </MenuItem>
+        </Menu>
+      </Box>
+    ),
+    // renderRowActionMenuItems: ({ row, table, closeMenu }) => [
+    //   <MenuItem
+    //     key={0}
+    //     onClick={() => {
+    //       setAction({
+    //         show: true,
+    //         type: "records",
+    //         vehicle: { ...row.original },
+    //       });
+    //       closeMenu();
+    //     }}
+    //     sx={{ m: 0 }}
+    //   >
+    //     <ListItemIcon>
+    //       <Timeline />
+    //     </ListItemIcon>
+    //     Движение
+    //   </MenuItem>,
+
+    //   <MenuItem
+    //     key={1}
+    //     onClick={() => {
+    //       setAction({
+    //         show: true,
+    //         type: "issues",
+    //         vehicle: { ...row.original },
+    //       });
+    //       closeMenu();
+    //     }}
+    //     sx={{ m: 0 }}
+    //   >
+    //     <ListItemIcon>
+    //       <WarningAmber />
+    //     </ListItemIcon>
+    //     Забележки
+    //   </MenuItem>,
+    //   <MenuItem
+    //     key={2}
+    //     onClick={() => {
+    //       setAction({
+    //         show: true,
+    //         type: "expenses",
+    //         vehicle: { ...row.original },
+    //       });
+    //       closeMenu();
+    //     }}
+    //     sx={{ m: 0 }}
+    //   >
+    //     <ListItemIcon>
+    //       <CarRepair />
+    //     </ListItemIcon>
+    //     Разходи
+    //   </MenuItem>,
+    //   <MenuItem
+    //     key={3}
+    //     onClick={() => {
+    //       setAction({
+    //         show: true,
+    //         type: "history",
+    //         vehicle: { ...row.original },
+    //       });
+    //       closeMenu();
+    //     }}
+    //     sx={{ m: 0 }}
+    //   >
+    //     <ListItemIcon>
+    //       <History />
+    //     </ListItemIcon>
+    //     История
+    //   </MenuItem>,
+    // ],
 
     renderTopToolbar: ({ table }) => {
       const handleDeactivate = () => {

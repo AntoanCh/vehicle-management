@@ -241,7 +241,7 @@ const Issues = ({ vehicle, userRole, username }) => {
   });
 
   return (
-    <div>
+    <Box>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
         <ErrorDialog error={error} setError={setError} />
         {handleLoading()}
@@ -253,7 +253,7 @@ const Issues = ({ vehicle, userRole, username }) => {
           </Box>
         )}
       </LocalizationProvider>
-    </div>
+    </Box>
   );
 };
 

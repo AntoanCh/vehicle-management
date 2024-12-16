@@ -40,7 +40,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/sites", siteRoutes);
-app.use("/logs", logRoutes);
+app.use("/api/logs", logRoutes);
 app.use("/services", serviceRoutes);
 app.use("/problems", problemRoutes);
 app.use("/vehicle", vehicleRoutes);

@@ -37,7 +37,6 @@ const VehicleDetails = ({ id }) => {
         axios
           .get(`http://192.168.0.147:5555/services/${res.data._id}`)
           .then((res) => {
-            console.log(res.data);
             setServices(res.data);
             setLoading(false);
           })

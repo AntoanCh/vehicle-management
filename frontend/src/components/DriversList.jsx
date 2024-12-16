@@ -46,7 +46,6 @@ const DriversList = ({ drivers }) => {
     const { name, value } = e.target;
 
     setEdit([true, { ...edit[1], [name]: value }]);
-    console.log(edit);
   };
 
   const handleCloseEdit = () => {

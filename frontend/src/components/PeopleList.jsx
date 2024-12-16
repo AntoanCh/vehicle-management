@@ -71,7 +71,6 @@ const PeopleList = ({ sites, people, siteName, siteId }) => {
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
 
-  console.log(people);
   const theme = useTheme();
   const baseBackgroundColor =
     theme.palette.mode === "dark"

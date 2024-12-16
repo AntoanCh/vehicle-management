@@ -63,7 +63,7 @@ const AddExpense = ({
           axios.post(`http://192.168.0.147:5555/logs`, {
             date: dayjs(),
             user: username,
-            changed: { newServ: [newServ.invoice, newServ.desc] },
+            changed: { newServ: [newServ.cost, newServ.desc] },
             vehicleId: vehicle._id,
           });
         })
@@ -137,6 +137,7 @@ const AddExpense = ({
     .reduce((acc, exp) => acc + parseFloat(exp.cost), 0);
   const handleClose = () => {
     setAdd(false);
+    setDate(newServ.date);
   };
 
   const handleChange = (e) => {
@@ -182,7 +183,6 @@ const AddExpense = ({
             // fullWidth
             onKeyUp={(e) => {
               const ENTER = 13;
-              console.log(e.keyCode);
 
               if (e.keyCode === ENTER) {
                 handleSave();
@@ -225,6 +225,7 @@ const AddExpense = ({
                       value={newServ.date}
                       onChange={(newValue) => {
                         const newData = { ...newServ };
+                        setDate(newValue);
                         newData.date = newValue;
                         setNewServ({ ...newData });
                       }}
