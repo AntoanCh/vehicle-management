@@ -200,7 +200,7 @@ const ShowVehicle = () => {
             setIssuesLoading(false);
           });
         axios
-          .get(`http://192.168.0.147:5555/logs/${res.data._id}`)
+          .get(`http://192.168.0.147:5555/api/logs/${res.data._id}`)
           .then((res) => {
             setLog(res.data);
             setLogLoading(false);
@@ -273,7 +273,7 @@ const ShowVehicle = () => {
         ...updated,
       })
       .then(() => {
-        axios.post(`http://192.168.0.147:5555/logs`, {
+        axios.post(`http://192.168.0.147:5555/api/logs`, {
           date: dayjs(),
           user: username,
           changed: diff,
@@ -362,7 +362,7 @@ const ShowVehicle = () => {
     axios
       .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
       .then(() => {
-        axios.post(`http://192.168.0.147:5555/logs`, {
+        axios.post(`http://192.168.0.147:5555/api/logs`, {
           date: dayjs(),
           user: username,
           changed: { checked: [0, dayjs()] },

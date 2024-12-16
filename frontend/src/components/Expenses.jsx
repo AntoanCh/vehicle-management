@@ -97,7 +97,7 @@ const Expenses = ({
       axios
         .put(`http://192.168.0.147:5555/services/${edit[1]._id}`, edit[1])
         .then(() => {
-          axios.post(`http://192.168.0.147:5555/logs`, {
+          axios.post(`http://192.168.0.147:5555/api/logs`, {
             date: dayjs(),
             user: username,
             changed: { newServ: [edit[1].invoice, edit[1].desc] },
@@ -422,7 +422,7 @@ const Expenses = ({
                     `http://192.168.0.147:5555/services/${verifyDelete[1]._id}`
                   )
                   .then(() => {
-                    axios.post(`http://192.168.0.147:5555/logs`, {
+                    axios.post(`http://192.168.0.147:5555/api/logs`, {
                       date: dayjs(),
                       user: username,
                       changed: {

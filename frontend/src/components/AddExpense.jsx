@@ -60,7 +60,7 @@ const AddExpense = ({
       axios
         .post("http://192.168.0.147:5555/services", newServ)
         .then(() => {
-          axios.post(`http://192.168.0.147:5555/logs`, {
+          axios.post(`http://192.168.0.147:5555/api/logs`, {
             date: dayjs(),
             user: username,
             changed: { newServ: [newServ.cost, newServ.desc] },

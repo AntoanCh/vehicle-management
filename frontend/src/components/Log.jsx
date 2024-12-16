@@ -41,7 +41,7 @@ const Log = ({ vehicle, log }) => {
       }
 
       axios
-        .get(`http://192.168.0.147:5555/logs/${vehicle._id}`)
+        .get(`http://192.168.0.147:5555/api/logs/${vehicle._id}`)
         .then((res) => {
           setHistory(
             res.data.data.map((obj) => {
