@@ -19,6 +19,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
+import Tooltip from "@mui/material/Tooltip";
 import MailIcon from "@mui/icons-material/Mail";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -41,8 +42,9 @@ import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import CheckIcon from "@mui/icons-material/Check";
 import Collapse from "@mui/material/Collapse";
+import Slide from "@mui/material/Slide";
 import CloseIcon from "@mui/icons-material/Close";
-import CreateVehicle from "../pages/CreateVehicle";
+import CreateVehicle from "./vehicles/CreateVehicle";
 import Avatar from "@mui/material/Avatar";
 import Chip from "@mui/material/Chip";
 import LockResetIcon from "@mui/icons-material/LockReset";
@@ -297,29 +299,6 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
   };
   return username && userId ? (
     <Box>
-      <Collapse
-        in={alert}
-        sx={{ position: "absolute", top: "80px", left: "80px" }}
-      >
-        <Alert
-          variant="filled"
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setAlert(false);
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-          sx={{ mb: 2 }}
-        >
-          Паролата е сменена успешно!
-        </Alert>
-      </Collapse>
       <Dialog
         open={showProfile}
         onClose={handleClose}
@@ -329,14 +308,14 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
         <DialogTitle id="alert-dialog-title">СМЯНА НА ПАРОЛА</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
-          <div>
+          <Box>
             <header>{username}</header>
             <span>ID: </span>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               <span>{userId}</span>
               <span style={{ color: "red" }}> {caps ? "CAPSLOCK ON" : ""}</span>
             </Box>
-          </div>
+          </Box>
 
           <div className="my-2">
             <FormControl sx={{ minWidth: "400px" }} fullWidth variant="filled">
@@ -427,22 +406,57 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
       <AppBar position="fixed" open={open}>
         <Toolbar sx={{ margin: "-5px" }}>
           <Box display="flex" flexGrow={1} justifyContent={"space-between"}>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerOpen}
-              edge="start"
-              sx={[
-                {
-                  marginRight: 5,
+            <Tooltip title="Разшири менюто" disableInteractive>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                sx={[
+                  {
+                    marginRight: 5,
 
-                  ...(open && { display: "none" }),
-                },
-                username === "USER" && { display: "none" },
-              ]}
+                    ...(open && { display: "none" }),
+                  },
+                  username === "USER" && { display: "none" },
+                ]}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Tooltip>
+            <Slide
+              direction="down"
+              in={alert}
+              sx={{
+                width: "80%",
+                position: "absolute",
+                bottom: "0px",
+                left: "80px",
+              }}
             >
-              <MenuIcon />
-            </IconButton>
+              <Alert
+                variant="filled"
+                onClick={() => {
+                  setAlert(false);
+                }}
+                action={
+                  <IconButton
+                    aria-label="close"
+                    color="inherit"
+                    size="small"
+                    onClick={() => {
+                      setAlert(false);
+                    }}
+                  >
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+                }
+                sx={{ mb: "15px" }}
+              >
+                Паролата е сменена успешно!
+              </Alert>
+            </Slide>
+
             <Typography variant="h6" noWrap component="div">
               {/* Mini variant drawer */}
             </Typography>
@@ -460,25 +474,38 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
           </Box>
 
           <Box>
-            <IconButton
-              variant="outlined"
-              color="white"
-              onClick={() => {
-                setDarkTheme((darkTheme) => !darkTheme);
-                localStorage.setItem("darkTheme", !darkTheme);
-              }}
+            <Tooltip
+              title={
+                darkTheme
+                  ? "Превключи на светъл режим"
+                  : "Превключи на тъмен режим"
+              }
+              disableInteractive
             >
-              {darkTheme ? <NightlightRoundIcon /> : <LightModeIcon />}
-            </IconButton>
-            <Chip
-              size="large"
-              variant="contained"
-              color="primary"
-              style={{ cursor: "pointer" }}
-              onClick={handleClickProfile}
-              label={username}
-              icon={<PersonIcon />}
-            />
+              <IconButton
+                variant="outlined"
+                color="white"
+                onClick={() => {
+                  setDarkTheme((darkTheme) => !darkTheme);
+                  localStorage.setItem("darkTheme", !darkTheme);
+                }}
+              >
+                {darkTheme ? <NightlightRoundIcon /> : <LightModeIcon />}
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Меню потребител" disableInteractive>
+              <Chip
+                size="large"
+                variant="contained"
+                color="primary"
+                style={{ cursor: "pointer" }}
+                onClick={handleClickProfile}
+                label={username}
+                icon={<PersonIcon />}
+              />
+            </Tooltip>
+
             <Menu
               id="basic-menu"
               anchorEl={anchorEl}
@@ -510,13 +537,15 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
         // }
       >
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
+          <Tooltip title="Събери менюто" disableInteractive>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === "rtl" ? (
+                <ChevronRightIcon />
+              ) : (
+                <ChevronLeftIcon />
+              )}
+            </IconButton>
+          </Tooltip>
         </DrawerHeader>
         <Divider />
         <List>
@@ -545,80 +574,102 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
             )
           )} */}
           <ListItem key={1} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-              }}
-              component={Link}
-              to={"/"}
-            >
-              <ListItemIcon
+            <Tooltip title="Начало" placement="right" arrow disableInteractive>
+              <ListItemButton
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
                 }}
+                component={Link}
+                to={"/"}
               >
-                {<HomeIcon />}
-              </ListItemIcon>
-              <ListItemText primary={"Начало"} sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                  }}
+                >
+                  {<HomeIcon />}
+                </ListItemIcon>
+
+                <ListItemText
+                  primary={"Начало"}
+                  sx={{ opacity: open ? 1 : 0 }}
+                />
+              </ListItemButton>
+            </Tooltip>
           </ListItem>
           <Divider />
           <ListItem key={2} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-              }}
-              // component={Link}
-              // to={"/it"}
-              onClick={handleExpandVeh}
+            <Tooltip
+              title="Автомобили"
+              placement="right"
+              arrow
+              disableInteractive
             >
-              <ListItemIcon
+              <ListItemButton
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
                 }}
+                // component={Link}
+                // to={"/it"}
+                onClick={handleExpandVeh}
               >
-                {<TimeToLeaveIcon />}
-              </ListItemIcon>
-              <ListItemText
-                primary={"Автомобили"}
-                sx={{ opacity: open ? 1 : 0 }}
-              />
-              {expandVeh ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                  }}
+                >
+                  {<TimeToLeaveIcon />}
+                </ListItemIcon>
+
+                <ListItemText
+                  primary={"Автомобили"}
+                  sx={{ opacity: open ? 1 : 0 }}
+                />
+                {expandVeh ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+            </Tooltip>
             <Collapse in={expandVeh} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    pl: 4,
-                  }}
-                  component={Link}
-                  to={"/vehicles"}
+                <Tooltip
+                  title="Списък Автомобили"
+                  placement="right"
+                  arrow
+                  disableInteractive
                 >
-                  <ListItemIcon
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
+                      pl: 4,
                     }}
+                    component={Link}
+                    to={"/vehicles"}
                   >
-                    {<TimeToLeaveIcon />}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={"Списък Автомобили"}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {<TimeToLeaveIcon />}
+                    </ListItemIcon>
+
+                    <ListItemText
+                      primary={"Списък Автомобили"}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </Tooltip>
                 {/* <ListItemButton
                   sx={{
                     minHeight: 48,
@@ -643,91 +694,115 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
                     sx={{ opacity: open ? 1 : 0 }}
                   />
                 </ListItemButton> */}
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    pl: 4,
-                  }}
-                  component={Link}
-                  to={"/records"}
+                <Tooltip
+                  title="Движение Автомобили"
+                  placement="right"
+                  arrow
+                  disableInteractive
                 >
-                  <ListItemIcon
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
+                      pl: 4,
                     }}
+                    component={Link}
+                    to={"/records"}
                   >
-                    {<TimelineIcon />}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={"Движение"}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    pl: 4,
-                  }}
-                  // disabled={
-                  //   userRole === "admin" || userRole === "hr" ? false : true
-                  // }
-                  component={Link}
-                  to={"/scan"}
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {<TimelineIcon />}
+                    </ListItemIcon>
+
+                    <ListItemText
+                      primary={"Движение"}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </Tooltip>
+                <Tooltip
+                  title="Взимане"
+                  placement="right"
+                  arrow
+                  disableInteractive
                 >
-                  <ListItemIcon
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
+                      pl: 4,
                     }}
+                    // disabled={
+                    //   userRole === "admin" || userRole === "hr" ? false : true
+                    // }
+                    component={Link}
+                    to={"/scan"}
                   >
-                    {<CarRentalIcon />}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={"Взимане"}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    pl: 4,
-                  }}
-                  // disabled={
-                  //   userRole === "admin" || userRole === "hr" ? false : true
-                  // }
-                  component={Link}
-                  to={"/drivers"}
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {<CarRentalIcon />}
+                    </ListItemIcon>
+
+                    <ListItemText
+                      primary={"Взимане"}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </Tooltip>
+                <Tooltip
+                  title="Списък Водачи"
+                  placement="right"
+                  arrow
+                  disableInteractive
                 >
-                  <ListItemIcon
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
+                      pl: 4,
                     }}
+                    // disabled={
+                    //   userRole === "admin" || userRole === "hr" ? false : true
+                    // }
+                    component={Link}
+                    to={"/drivers"}
                   >
-                    {<PersonIcon />}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={"Водачи"}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {<PersonIcon />}
+                    </ListItemIcon>
+
+                    <ListItemText
+                      primary={"Водачи"}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </Tooltip>
               </List>
             </Collapse>
           </ListItem>
         </List>
-        <Divider />
-        <List>
-          <ListItem key={10} disablePadding sx={{ display: "block" }}>
+        {/* <Divider /> */}
+        {/* <List> */}
+        {/* <ListItem key={10} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
                 minHeight: 48,
@@ -754,8 +829,8 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
               {expandIT ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={expandIT} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {/* <ListItemButton sx={{ pl: 4 }}>
+              <List component="div" disablePadding> */}
+        {/* <ListItemButton sx={{ pl: 4 }}>
                   <ListItemIcon>
                     <ScaleIcon />
                   </ListItemIcon>
@@ -815,10 +890,10 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
                   </ListItemIcon>
                   <ListItemText primary="Каси" />
                 </ListItemButton> */}
-              </List>
+        {/* </List>
             </Collapse>
-          </ListItem>
-        </List>
+          </ListItem> */}
+        {/* </List> */}
         <Divider />
         <List>
           <ListItem key={10} disablePadding sx={{ display: "block" }}>
@@ -916,7 +991,7 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
             </Collapse>
           </ListItem>
 
-          <Divider />
+          {/* <Divider /> */}
           {/* {["All mail", "Trash", "Spam"].map((text, index) => (
             <ListItem key={text} disablePadding sx={{ display: "block" }}>
               <ListItemButton
@@ -941,7 +1016,7 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
           ))} */}
         </List>
 
-        <List>
+        {/* <List>
           <ListItem key={10} disablePadding sx={{ display: "block" }}>
             <ListItemButton
               sx={{
@@ -1033,89 +1108,111 @@ const HeaderMenu = ({ setDarkTheme, darkTheme }) => {
           </ListItem>
 
           <Divider />
-        </List>
-        <List
-        // style={{ position: "absolute", bottom: "0" }}
-        >
+        </List> */}
+        <List>
           <ListItem key={10} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-              }}
-              // component={Link}
-              // to={"/it"}
-              onClick={handleExpandSettings}
+            <Tooltip
+              title="Настройки"
+              placement="right"
+              arrow
+              disableInteractive
             >
-              <ListItemIcon
+              <ListItemButton
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
                 }}
+                // component={Link}
+                // to={"/it"}
+                onClick={handleExpandSettings}
               >
-                {<SettingsIcon />}
-              </ListItemIcon>
-              <ListItemText
-                primary={"Настройки"}
-                sx={{ opacity: open ? 1 : 0 }}
-              />
-              {expandSettings ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                  }}
+                >
+                  {<SettingsIcon />}
+                </ListItemIcon>
+
+                <ListItemText
+                  primary={"Настройки"}
+                  sx={{ opacity: open ? 1 : 0 }}
+                />
+                {expandSettings ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+            </Tooltip>
             <Collapse in={expandSettings} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    pl: 4,
-                  }}
-                  component={Link}
-                  to={"/users"}
-                  disabled={userRole.includes("admin") ? false : true}
+                <Tooltip
+                  title="Списък Потребители"
+                  placement="right"
+                  arrow
+                  disableInteractive
                 >
-                  <ListItemIcon
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
+                      pl: 4,
                     }}
+                    component={Link}
+                    to={"/users"}
+                    disabled={userRole.includes("admin") ? false : true}
                   >
-                    {<PersonIcon />}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={"Потребители"}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    pl: 4,
-                  }}
-                  component={Link}
-                  to={"/settings"}
-                  // disabled={userRole === "admin" ? false : true}
-                  disabled
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {<PersonIcon />}
+                    </ListItemIcon>
+
+                    <ListItemText
+                      primary={"Потребители"}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </Tooltip>
+
+                <Tooltip
+                  title="Списък настройки"
+                  placement="right"
+                  arrow
+                  disableInteractive
                 >
-                  <ListItemIcon
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
+                      pl: 4,
                     }}
+                    component={Link}
+                    to={"/settings"}
+                    disabled={userRole.includes("admin") ? false : true}
                   >
-                    {<SettingsIcon />}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={"Настройки"}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {<SettingsIcon />}
+                    </ListItemIcon>
+
+                    <ListItemText
+                      primary={"Настройки"}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </Tooltip>
               </List>
             </Collapse>
           </ListItem>

@@ -21,7 +21,7 @@ import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import ErrorDialog from "../components/ErrorDialog";
+import ErrorDialog from "../utils/ErrorDialog";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: "#ccc",

@@ -20,7 +20,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import Collapse from "@mui/material/Collapse";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
-import CreateVehicle from "../pages/CreateVehicle";
+import CreateVehicle from "./vehicles/CreateVehicle";
 import Avatar from "@mui/material/Avatar";
 import Chip from "@mui/material/Chip";
 import LockResetIcon from "@mui/icons-material/LockReset";
@@ -236,43 +236,6 @@ const Header = () => {
           </ButtonGroup>
         </div>
 
-        <div>
-          {" "}
-          {/* <ButtonGroup
-            className="mt-2"
-            variant="outlined"
-            aria-label="Basic button group"
-          >
-            <Button
-              variant={tab === "vehicles" ? "contained" : "outlined"}
-              id="vehicles"
-              onClick={handleClick}
-              component={Link}
-              to={"/vehicles"}
-            >
-              ВСИЧКИ
-            </Button>
-            <Button
-              variant={tab === "office" ? "contained" : "outlined"}
-              id="office"
-              onClick={handleClick}
-              component={Link}
-              to={"/office"}
-            >
-              ОФИС
-            </Button>
-            <Button
-              variant={tab === "warehouse" ? "contained" : "outlined"}
-              id="warehouse"
-              onClick={handleClick}
-              component={Link}
-              to={"/warehouse"}
-            >
-              СКЛАД
-            </Button>
-           
-          </ButtonGroup> */}
-        </div>
         <div className="px-2 py-2 flex">
           <Chip
             size="large"
@@ -304,7 +267,10 @@ const Header = () => {
           </Menu>
         </div>
       </div>
-      <Collapse in={alert}>
+      <Collapse
+        in={alert}
+        sx={{ position: "absolute", bottom: "20px", right: "50px" }}
+      >
         <Alert
           variant="filled"
           action={

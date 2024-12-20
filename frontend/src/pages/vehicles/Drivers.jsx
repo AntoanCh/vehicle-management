@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
-import DriversList from "../components/DriversList.jsx";
+import DriversList from "../../components/vehicles/DriversList.jsx";
 import { Box } from "@mui/material";
 
 const Drivers = () => {

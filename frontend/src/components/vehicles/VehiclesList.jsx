@@ -8,6 +8,10 @@ import Issues from "./Issues";
 import Expenses from "./Expenses";
 import Log from "./Log";
 import Tooltip from "@mui/material/Tooltip";
+import Slide from "@mui/material/Slide";
+import CloseIcon from "@mui/icons-material/Close";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 import {
   Button,
   TextField,
@@ -28,7 +32,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import CreateVehicle from "../pages/CreateVehicle";
+import CreateVehicle from "./CreateVehicle";
 import { keyframes } from "@mui/system";
 import { styled } from "@mui/material/styles";
 import AddExpense from "./AddExpense";
@@ -59,12 +63,15 @@ import {
   Edit,
   Delete,
   AccountCircle,
+  ArrowBackIosNew,
   Send,
+  FileDownload,
   Menu as MenuIcon,
   WarningAmber,
+  AltRouteTwoTone,
 } from "@mui/icons-material";
 import LinearProgress from "@mui/material/LinearProgress";
-import DraggablePaper from "../components/DraggablePaper";
+import DraggablePaper from "../DraggablePaper";
 import Chip from "@mui/material/Chip";
 
 //MRT Imports
@@ -86,8 +93,13 @@ const BlinkedBox = styled("div")({
   // backgroundColor: "pink",
   color: "#f6685e",
   display: "flex",
-
   animation: `${blink} 1s ease infinite`,
+});
+const BlinkedBoxOneTime = styled("div")({
+  // backgroundColor: "pink",
+  color: "#f6685e",
+  display: "flex",
+  animation: `${blink} 5s ease 1`,
 });
 
 export default function VehiclesList({
@@ -100,6 +112,8 @@ export default function VehiclesList({
   setFilter,
   customFilter,
   setCustomFilter,
+  showExpense,
+  setShowExpense,
 }) {
   const [expenseDate, setExpenseDate] = useState(dayjs());
   const [expenses, setExpenses] = useState({});
@@ -110,8 +124,13 @@ export default function VehiclesList({
   const [action, setAction] = useState({ show: false, type: "", vehicle: {} });
   const token = localStorage.getItem("token");
   const { id } = useParams();
-  const [addExpense, setAddExpense] = useState(false);
   const [expenseVehicle, setExpenseVehicle] = useState({});
+  const [addExpense, setAddExpense] = useState(false);
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    severity: "",
+  });
   const [columnVisibility, setColumnVisibility] = useState({
     price: false,
     own: false,
@@ -122,16 +141,33 @@ export default function VehiclesList({
     expensePerMonthFilter: false,
     issue: false,
   });
-  const [showExpense, setShowExpense] = useState(false);
+
   const navigate = useNavigate();
 
   const theme = useTheme();
   const baseBackgroundColor =
-    theme.palette.mode === "dark"
-      ? "#212121"
-      : // "rgba(3, 44, 43, 1)"
-        "#fff";
-  // "rgba(244, 255, 233, 1)"
+    theme.palette.mode === "dark" ? "#212121" : "#fff";
+
+  useEffect(() => {
+    if (showExpense) {
+      setColumnVisibility({
+        kaskoDate: false,
+        issue: false,
+      });
+    } else {
+      setColumnVisibility({
+        price: false,
+        own: false,
+        months: false,
+        totalExpense: false,
+        expensePerMonth: false,
+        totalsFilter: false,
+        expensePerMonthFilter: false,
+        issue: false,
+      });
+    }
+  }, []);
+
   useEffect(() => {
     const verifyUser = async () => {
       if (!token) {
@@ -218,47 +254,58 @@ export default function VehiclesList({
           return (
             <Box sx={{ display: "flex" }}>
               {userRole.includes("admin") && (
-                <IconButton
-                  sx={{ padding: "0", margin: "0", marginLeft: "5px" }}
-                  variant="contained"
-                  onClick={(e) => {
-                    e.stopPropagation();
+                <Tooltip title="Добави нов разход" disableInteractive>
+                  <IconButton
+                    sx={{ padding: "0", margin: "0", marginLeft: "5px" }}
+                    variant="contained"
+                    onClick={(e) => {
+                      e.stopPropagation();
 
-                    axios
-                      .get(
-                        `http://192.168.0.147:5555/services/${row.original._id}`
-                      )
-                      .then((res) => {
-                        setExpenses(res.data);
-                        setExpenseVehicle({ ...row.original });
-                        setAddExpense(true);
-                      })
-                      .catch((err) => {
-                        console.log(err);
-                      });
-                  }}
-                >
-                  <AttachMoneyIcon color="success" />
-                </IconButton>
+                      axios
+                        .get(
+                          `http://192.168.0.147:5555/services/${row.original._id}`
+                        )
+                        .then((res) => {
+                          setExpenses(res.data);
+                          setExpenseVehicle({ ...row.original });
+                          setAddExpense(true);
+                        })
+                        .catch((err) => {
+                          console.log(err);
+                        });
+                    }}
+                  >
+                    <AttachMoneyIcon color="success" />
+                  </IconButton>
+                </Tooltip>
               )}
-              <Link
-                href={`/vehicles/details/${row.original._id}`}
-                sx={{ display: "flex" }}
-              >
-                {cell
-                  .getValue()
-                  .split(/(\d{4})/)
-                  .join(" ")
-                  .trim()}
+              <Tooltip title="Детайли" disableInteractive>
+                <Link
+                  href={`/vehicles/details/${row.original._id}`}
+                  sx={{ display: "flex" }}
+                >
+                  {cell
+                    .getValue()
+                    .split(/(\d{4})/)
+                    .join(" ")
+                    .trim()}
 
-                {row.original.issue ? (
-                  <BlinkedBox>
-                    <WarningAmber />
-                  </BlinkedBox>
-                ) : (
-                  ""
-                )}
-              </Link>
+                  {row.original.issue ? (
+                    <BlinkedBox>
+                      <WarningAmber />
+                    </BlinkedBox>
+                  ) : (
+                    ""
+                  )}
+                  {/* {row.original.issue ? (
+                    <BlinkedBoxOneTime>
+                      <WarningAmber />
+                    </BlinkedBoxOneTime>
+                  ) : (
+                    ""
+                  )} */}
+                </Link>
+              </Tooltip>
             </Box>
           );
         },
@@ -313,6 +360,7 @@ export default function VehiclesList({
         Cell: ({ cell }) => {
           return (
             <Chip
+              size="small"
               sx={{ fontWeight: 800, fontSize: 12 }}
               label={cell.getValue()}
               color={
@@ -481,9 +529,9 @@ export default function VehiclesList({
       },
       {
         accessorFn: (row) =>
-          row.totalServiceCost
+          row.totalExpenseCost
             ? (
-                row.totalServiceCost / dayjs().diff(row.startDate, "month")
+                row.totalExpenseCost / dayjs().diff(row.startDate, "month")
               ).toFixed(2)
             : "0",
         id: "expensePerMonth",
@@ -1096,6 +1144,8 @@ export default function VehiclesList({
         muiTableBodyCellProps: {
           align: "center",
         },
+        Cell: ({ cell }) =>
+          parseInt(cell.getValue()).toLocaleString("bg-BG") + " км",
       },
       {
         accessorKey: "km",
@@ -1106,6 +1156,8 @@ export default function VehiclesList({
         muiTableBodyCellProps: {
           align: "center",
         },
+        Cell: ({ cell }) =>
+          parseInt(cell.getValue()).toLocaleString("bg-BG") + " км",
       },
 
       {
@@ -1163,7 +1215,7 @@ export default function VehiclesList({
         },
       ],
 
-      pagination: { pageSize: 30, pageIndex: 0 },
+      pagination: { pageSize: 50, pageIndex: 0 },
       showGlobalFilter: true,
       showColumnFilters: true,
       density: "compact",
@@ -1179,7 +1231,7 @@ export default function VehiclesList({
     },
     muiPaginationProps: {
       color: "secondary",
-      rowsPerPageOptions: [10, 20, 30, 50],
+      rowsPerPageOptions: [10, 30, 50, 100],
       shape: "rounded",
       variant: "outlined",
     },
@@ -1190,6 +1242,14 @@ export default function VehiclesList({
         borderRadius: "0",
       },
     },
+    muiTableBodyRowProps: ({ row }) => ({
+      sx: {
+        //stripe the rows, make odd rows a darker color
+        "& tr:nth-of-type(odd) > td": {
+          backgroundColor: "#fff",
+        },
+      },
+    }),
     renderDetailPanel: ({ row }) => (
       <Box
         sx={{
@@ -1210,19 +1270,24 @@ export default function VehiclesList({
         {userRole.includes("admin") && (
           <Box>
             {" "}
-            <IconButton onClick={() => table.setEditingRow(row)}>
-              <Edit />
-            </IconButton>
+            <Tooltip title="Редактиране" disableInteractive>
+              <IconButton onClick={() => table.setEditingRow(row)}>
+                <Edit />
+              </IconButton>
+            </Tooltip>
           </Box>
         )}
 
-        <IconButton>
-          <MenuIcon
-            onClick={(event) =>
-              setAnchorEl([event.currentTarget, row.original])
-            }
-          />
-        </IconButton>
+        <Tooltip title="Покажи допълнителни действия" disableInteractive>
+          <IconButton>
+            <MenuIcon
+              onClick={(event) =>
+                setAnchorEl([event.currentTarget, row.original])
+              }
+            />
+          </IconButton>
+        </Tooltip>
+
         <Menu
           anchorEl={anchorEl[0]}
           open={openActionMenu}
@@ -1378,25 +1443,62 @@ export default function VehiclesList({
     //   </MenuItem>,
     // ],
 
-    renderTopToolbar: ({ table }) => {
-      const handleDeactivate = () => {
-        table.getSelectedRowModel().flatRows.map((row) => {
-          alert("deactivating " + row.getValue("name"));
-        });
-      };
-
-      const handleActivate = () => {
-        table.getSelectedRowModel().flatRows.map((row) => {
-          alert("activating " + row.getValue("name"));
-        });
-      };
-
-      const handleContact = () => {
-        table.getSelectedRowModel().flatRows.map((row) => {
-          alert("contact " + row.getValue("name"));
-        });
-      };
-    },
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Box
+        sx={{
+          display: "flex",
+          gap: "16px",
+          padding: "8px",
+          flexWrap: "wrap",
+        }}
+      >
+        <Button
+          disabled={table.getPrePaginationRowModel().rows.length === 0}
+          //export all rows, including from the next page, (still respects filtering and sorting)
+          // onClick={() =>
+          //   handleExportRows(table.getPrePaginationRowModel().rows)
+          // }
+          startIcon={<FileDownload />}
+        >
+          ЕКСПОРТ
+        </Button>
+        <Slide
+          direction="up"
+          // in={alert.show}
+          // in={true}
+          sx={{
+            width: "90%",
+            position: "absolute",
+            bottom: "0px",
+            left: "80px",
+          }}
+        >
+          <Alert
+            severity={alert.severity}
+            variant="filled"
+            onClick={() => {
+              setAlert(false);
+            }}
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setAlert(false);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+            sx={{ mb: "15px" }}
+          >
+            <AlertTitle>Успех</AlertTitle>
+            {alert.message}
+          </Alert>
+        </Slide>
+      </Box>
+    ),
     muiTableBodyProps: {
       sx: (theme) => ({
         '& tr:nth-of-type(odd):not([data-selected="true"]):not([data-pinned="true"]) > td':
@@ -1441,6 +1543,8 @@ export default function VehiclesList({
             setRefresh={setRefresh}
             date={expenseDate}
             setDate={setExpenseDate}
+            alert={alert}
+            setAlert={setAlert}
           />
         )}
         <CreateVehicle add={add} setAdd={setAdd} />
@@ -1457,8 +1561,27 @@ export default function VehiclesList({
             style={{ cursor: "move", backgroundColor: "#42a5f5" }}
             id="draggable-dialog-title"
           >
+            <Button
+              size="large"
+              variant="contained"
+              fontSize="inherit"
+              sx={{
+                margin: 0,
+                marginRight: "15px",
+                padding: "2px",
+                paddingX: "15px",
+                float: "left",
+              }}
+              color="error"
+              onClick={() => setAction({ show: false, type: "", vehicle: {} })}
+            >
+              <ArrowBackIosNew />
+              {"НАЗАД"}
+            </Button>
             {`${action.vehicle.reg} ${action.vehicle.make} ${action.vehicle.model}`}
             <IconButton
+              size="large"
+              fontSize="inherit"
               sx={{
                 margin: 0,
                 padding: 0,
@@ -1490,6 +1613,8 @@ export default function VehiclesList({
                 username={username}
                 userRole={userRole}
                 vehicle={action.vehicle}
+                refresh={refresh}
+                setRefresh={setRefresh}
               />
             )}
             {action.type === "history" && (
@@ -1527,86 +1652,110 @@ export default function VehiclesList({
 
               <Box>
                 <ButtonGroup>
-                  <Button
-                    sx={{ width: "40%" }}
-                    color={filter === "all" ? "secondary" : "primary"}
-                    variant={"contained"}
-                    onClick={() => handleFilter("all")}
-                  >
-                    {"Всички"}
-                  </Button>
-                  <Button
-                    sx={{ width: "40%" }}
-                    color={filter === "ОФИС" ? "secondary" : "primary"}
-                    variant={"contained"}
-                    onClick={() => handleFilter("ОФИС")}
-                  >
-                    {"ОФИС"}
-                  </Button>
-                  <Button
-                    sx={{ width: "40%" }}
-                    color={filter === "ВИТАЛИНО" ? "secondary" : "primary"}
-                    variant={"contained"}
-                    onClick={() => handleFilter("ВИТАЛИНО")}
-                  >
-                    {"ВИТАЛИНО"}
-                  </Button>
-                  <Button
-                    sx={{ width: "40%" }}
-                    color={filter === "БОРСА" ? "secondary" : "primary"}
-                    variant={"contained"}
-                    onClick={() => handleFilter("БОРСА")}
-                  >
-                    {"БОРСА"}
-                  </Button>
-                  <Button
-                    sx={{ width: "40%" }}
-                    color={filter === "ДРУГИ" ? "secondary" : "primary"}
-                    variant={"contained"}
-                    onClick={() => handleFilter("ДРУГИ")}
-                  >
-                    {"ДРУГИ"}
-                  </Button>
-                  <Button
-                    sx={{ width: "40%" }}
-                    color={filter === "ПРОДАДЕНИ" ? "secondary" : "primary"}
-                    variant={"contained"}
-                    onClick={() => handleFilter("ПРОДАДЕНИ")}
-                  >
-                    {"ПРОДАДЕНИ"}
-                  </Button>
+                  <Tooltip title="Филтрирай всички" disableInteractive>
+                    <Button
+                      sx={{ width: "40%" }}
+                      color={filter === "all" ? "secondary" : "primary"}
+                      variant={"contained"}
+                      onClick={() => handleFilter("all")}
+                    >
+                      {"Всички"}
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Филтрирай офис" disableInteractive>
+                    <Button
+                      sx={{ width: "40%" }}
+                      color={filter === "ОФИС" ? "secondary" : "primary"}
+                      variant={"contained"}
+                      onClick={() => handleFilter("ОФИС")}
+                    >
+                      {"ОФИС"}
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Филтрирай виталино" disableInteractive>
+                    <Button
+                      sx={{ width: "40%" }}
+                      color={filter === "ВИТАЛИНО" ? "secondary" : "primary"}
+                      variant={"contained"}
+                      onClick={() => handleFilter("ВИТАЛИНО")}
+                    >
+                      {"ВИТАЛИНО"}
+                    </Button>
+                  </Tooltip>
+
+                  <Tooltip title="Филтрирай борса" disableInteractive>
+                    <Button
+                      sx={{ width: "40%" }}
+                      color={filter === "БОРСА" ? "secondary" : "primary"}
+                      variant={"contained"}
+                      onClick={() => handleFilter("БОРСА")}
+                    >
+                      {"БОРСА"}
+                    </Button>
+                  </Tooltip>
+
+                  <Tooltip title="Филтрирай други" disableInteractive>
+                    <Button
+                      sx={{ width: "40%" }}
+                      color={filter === "ДРУГИ" ? "secondary" : "primary"}
+                      variant={"contained"}
+                      onClick={() => handleFilter("ДРУГИ")}
+                    >
+                      {"ДРУГИ"}
+                    </Button>
+                  </Tooltip>
+
+                  <Tooltip title="Филтрирай продадени" disableInteractive>
+                    <Button
+                      sx={{ width: "40%" }}
+                      color={filter === "ПРОДАДЕНИ" ? "secondary" : "primary"}
+                      variant={"contained"}
+                      onClick={() => handleFilter("ПРОДАДЕНИ")}
+                    >
+                      {"ПРОДАДЕНИ"}
+                    </Button>
+                  </Tooltip>
                 </ButtonGroup>
               </Box>
               <MRT_GlobalFilterTextField table={table} />
             </Box>
 
             <Box>
-              <Button
-                color={showExpense ? "secondary" : "primary"}
-                onClick={() => {
-                  setShowExpense(!showExpense);
-                  if (!showExpense) {
-                    setColumnVisibility({
-                      kaskoDate: false,
-                      issue: false,
-                    });
-                  } else {
-                    setColumnVisibility({
-                      price: false,
-                      own: false,
-                      months: false,
-                      totalExpense: false,
-                      expensePerMonth: false,
-                      totalsFilter: false,
-                      expensePerMonthFilter: false,
-                      issue: false,
-                    });
-                  }
-                }}
-                variant="contained"
+              <Tooltip
+                title={
+                  !showExpense
+                    ? "Покажи колоните за разходите"
+                    : "Скрий колоните за разходите"
+                }
+                disableInteractive
               >
-                {showExpense ? "Скрий разходите" : "Покажи разходите"}
-              </Button>
+                <Button
+                  color={showExpense ? "secondary" : "primary"}
+                  onClick={() => {
+                    setShowExpense(!showExpense);
+                    if (!showExpense) {
+                      setColumnVisibility({
+                        kaskoDate: false,
+                        issue: false,
+                      });
+                    } else {
+                      setColumnVisibility({
+                        price: false,
+                        own: false,
+                        months: false,
+                        totalExpense: false,
+                        expensePerMonth: false,
+                        totalsFilter: false,
+                        expensePerMonthFilter: false,
+                        issue: false,
+                      });
+                    }
+                  }}
+                  variant="contained"
+                >
+                  {showExpense ? "Скрий разходите" : "Покажи разходите"}
+                </Button>
+              </Tooltip>
             </Box>
             <Box>
               <Box sx={{ display: "flex", gap: "0.5rem" }}>
@@ -1628,14 +1777,16 @@ export default function VehiclesList({
                   ПРОДАДЕНА
                 </Button>
 
-                <Button
-                  disabled={userRole.length === 0 || !userRole ? true : false}
-                  variant={"contained"}
-                  onClick={() => setAdd(true)}
-                >
-                  {"ДОБАВИ"}
-                  <AddCircleOutlineIcon />
-                </Button>
+                <Tooltip title="Добави нов автомобил" disableInteractive>
+                  <Button
+                    disabled={userRole.length === 0 || !userRole ? true : false}
+                    variant={"contained"}
+                    onClick={() => setAdd(true)}
+                  >
+                    {"ДОБАВИ"}
+                    <AddCircleOutlineIcon />
+                  </Button>
+                </Tooltip>
               </Box>
             </Box>
           </Box>

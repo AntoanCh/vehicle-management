@@ -13,7 +13,7 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Alert from "@mui/material/Alert";
-import ErrorDialog from "../components/ErrorDialog";
+import ErrorDialog from "../../components/utils/ErrorDialog";
 
 const DropOff = () => {
   const [loading, setLoading] = useState(false);
@@ -496,10 +496,10 @@ const DropOff = () => {
           variant="contained"
           fullWidth
           onClick={() => {
-            if (!destination || !km) {
+            if (!destination || !km || kmError) {
               setError([
                 true,
-                "Моля, попълнете маршрут и километри на връщане",
+                "Моля, попълнете правилни маршрут и километри на връщане",
               ]);
             } else {
               handleDropOff(false);

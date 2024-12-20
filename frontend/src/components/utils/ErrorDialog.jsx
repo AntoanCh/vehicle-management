@@ -6,7 +6,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import { Button, IconButton, Box } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import DraggablePaper from "./DraggablePaper";
+import DraggablePaper from "../DraggablePaper";
 
 const ErrorDialog = ({ error, setError }) => {
   const handleError = () => {

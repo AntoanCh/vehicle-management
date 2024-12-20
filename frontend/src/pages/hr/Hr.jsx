@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
-import HrSite from "../components/HrSite";
+import HrSite from "../../components/hr/HrSite";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;

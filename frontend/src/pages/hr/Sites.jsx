@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
-import SitesList from "../components/SitesList.jsx";
+import SitesList from "../../components/hr/SitesList.jsx";
 
 const Users = () => {
   const [sites, setSites] = useState([]);

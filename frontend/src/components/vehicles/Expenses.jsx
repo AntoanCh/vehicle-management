@@ -20,11 +20,11 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 import AddExpense from "./AddExpense";
-import ErrorDialog from "./ErrorDialog";
+import ErrorDialog from "../utils/ErrorDialog";
 import { useMemo } from "react";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import { darken, lighten, useTheme } from "@mui/material";
-import { Edit, Delete, DoneOutline } from "@mui/icons-material";
+import { Edit, Delete, DoneOutline, Add } from "@mui/icons-material";
 
 //MRT Imports
 import {
@@ -139,7 +139,7 @@ const Expenses = ({
 
       setTimeout(() => {
         // window.location.reload();
-        // setRefresh(!refresh);
+        setRefresh(!refresh);
         setEdit([false, {}]);
       }, 100);
     }
@@ -201,7 +201,7 @@ const Expenses = ({
       {
         accessorKey: "date",
         header: "Дата",
-        size: 180,
+        size: 120,
         enableGlobalFilter: false,
         filterVariant: "date",
         filterFn: "stringDateFn",
@@ -209,7 +209,7 @@ const Expenses = ({
           align: "center",
         },
         Cell: ({ cell }) => {
-          return dayjs(cell.getValue()).format("DD.MM.YYYY - HH:ss");
+          return dayjs(cell.getValue()).format("DD.MM.YYYY");
         },
       },
       {
@@ -225,10 +225,9 @@ const Expenses = ({
       {
         accessorKey: "desc",
         header: "Описание",
-        size: 900,
+        size: 950,
         editable: false,
         enableColumnFilter: false,
-        filterVariant: "multi-select",
       },
       {
         accessorKey: "invoice",
@@ -262,6 +261,26 @@ const Expenses = ({
             style: "currency",
             currency: "BGN",
           }),
+        Footer: ({ table }) => {
+          const total = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (total, row) =>
+                total + (row.getValue("cost") ? row.getValue("cost") : 0),
+              0
+            );
+          return (
+            <Box sx={{ margin: "auto" }}>
+              {"Тотал:"}
+              <Box color="warning.main">
+                {total.toLocaleString("bg-BG", {
+                  style: "currency",
+                  currency: "BGN",
+                })}
+              </Box>
+            </Box>
+          );
+        },
       },
     ],
     []
@@ -281,6 +300,9 @@ const Expenses = ({
     },
     enableFullScreenToggle: false,
     enableStickyHeader: true,
+    enableColumnActions: false,
+    enableStickyFooter: true,
+    enableDensityToggle: false,
     enableFacetedValues: true,
     enableHiding: false,
     enableColumnResizing: true,
@@ -557,7 +579,7 @@ const Expenses = ({
           </DialogActions>
         </Dialog>
         <ErrorDialog error={error} setError={setError} />
-        {/* {Object.keys(expenses).length !== 0 && (
+        {Object.keys(expenses).length !== 0 && (
           <AddExpense
             vehicle={vehicle}
             refresh={refresh}
@@ -571,26 +593,47 @@ const Expenses = ({
             date={expenseDate}
             setDate={setExpenseDate}
           />
-        )} */}
+        )}
 
         {handleLoading()}
         {loading ? (
           <CircularProgress />
         ) : (
           <Box sx={{ marginY: "15px" }}>
-            {(userRole.includes("admin") || userRole.includes(vehicle.site)) &&
-            !vehicle.sold ? (
-              <Button
-                fullWidth
-                variant="contained"
-                color="secondary"
-                onClick={handleClick}
-              >
-                ДОБАВИ
-              </Button>
-            ) : (
-              ""
-            )}
+            <Box
+              sx={(theme) => ({
+                backgroundColor: lighten(
+                  theme.palette.mode === "dark" ? "#212121" : "#fff",
+                  0.05
+                ),
+                display: "flex",
+                gap: "0.5rem",
+                p: "8px",
+                justifyContent: "space-between",
+              })}
+            >
+              <Box
+                sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}
+              ></Box>
+              <Box>
+                {(userRole.includes("admin") ||
+                  userRole.includes(vehicle.site)) &&
+                !vehicle.sold ? (
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    onClick={handleClick}
+                    startIcon={<Add />}
+                  >
+                    ДОБАВИ
+                  </Button>
+                ) : (
+                  ""
+                )}
+              </Box>
+            </Box>
+
             <MaterialReactTable table={table} />
             {/* <MUIDataTable
               title={"РАЗХОДИ"}

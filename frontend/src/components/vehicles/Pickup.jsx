@@ -20,7 +20,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import Alert from "@mui/material/Alert";
-import DraggablePaper from "./DraggablePaper";
+import DraggablePaper from "../DraggablePaper";
 import CloseIcon from "@mui/icons-material/Close";
 
 const Pickup = ({

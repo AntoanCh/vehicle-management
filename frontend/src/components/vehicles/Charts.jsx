@@ -5,7 +5,7 @@ import Slider from "@mui/material/Slider";
 import { BarChart } from "@mui/x-charts/BarChart";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
-import VehiclesList from "../components/VehiclesList.jsx";
+import VehiclesList from "./VehiclesList.jsx";
 import { Button, ButtonGroup } from "@mui/material";
 import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import dayjs from "dayjs";

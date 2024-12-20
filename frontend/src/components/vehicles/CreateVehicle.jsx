@@ -21,10 +21,10 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
-import DraggablePaper from "../components/DraggablePaper";
+import DraggablePaper from "../DraggablePaper";
 import Alert from "@mui/material/Alert";
 import CloseIcon from "@mui/icons-material/Close";
-import ErrorDialog from "../components/ErrorDialog";
+import ErrorDialog from "../utils/ErrorDialog";
 
 const CreateVehicle = ({ add, setAdd }) => {
   const [data, setData] = useState({

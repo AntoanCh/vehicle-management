@@ -19,17 +19,17 @@ import {
   DoneAll,
   AttachMoney,
 } from "@mui/icons-material";
-import Expenses from "../components/Expenses";
-import Ref from "../components/Ref";
-import VehicleRecords from "../components/VehicleRecords";
-import Issues from "../components/Issues";
+import Expenses from "../../components/vehicles/Expenses";
+import Ref from "../../components/vehicles/Ref";
+import VehicleRecords from "../../components/vehicles/VehicleRecords";
+import Issues from "../../components/vehicles/Issues";
 import dayjs from "dayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useNavigate } from "react-router-dom";
-import Log from "../components/Log";
+import Log from "../../components/vehicles/Log";
 import Checkbox from "@mui/material/Checkbox";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -131,18 +131,8 @@ const ShowVehicle = () => {
   const [tab, setTab] = useState("");
   const [refresh, setRefresh] = useState(false);
   const [edit, setEdit] = useState(false);
-  const [services, setServices] = useState();
-  const [fuels, setFuels] = useState();
-  const [issues, setIssues] = useState();
-  const [records, setRecords] = useState();
   const [verDelete, setVerDelete] = useState(false);
   const [sell, setSell] = useState([false, 0, dayjs()]);
-  const [log, setLog] = useState();
-  const [servLoading, setServLoading] = useState(true);
-  const [fuelLoading, setFuelLoading] = useState(true);
-  const [logLoading, setLogLoading] = useState(true);
-  const [recordLoading, setRecordLoading] = useState(true);
-  const [issuesLoading, setIssuesLoading] = useState(true);
   const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
   const token = localStorage.getItem("token");
@@ -169,56 +159,6 @@ const ShowVehicle = () => {
       .then((res) => {
         setVehicle(res.data);
         setLoading(false);
-        axios
-          .get(`http://192.168.0.147:5555/services/${res.data._id}`)
-          .then((res) => {
-            setServices(res.data);
-            setServLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setServLoading(false);
-          });
-        axios
-          .get(`http://192.168.0.147:5555/fuels/${res.data._id}`)
-          .then((res) => {
-            setFuels(res.data);
-            setFuelLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setFuelLoading(false);
-          });
-        axios
-          .get(`http://192.168.0.147:5555/problems/${res.data._id}`)
-          .then((res) => {
-            setIssues(res.data);
-            setIssuesLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setIssuesLoading(false);
-          });
-        axios
-          .get(`http://192.168.0.147:5555/api/logs/${res.data._id}`)
-          .then((res) => {
-            setLog(res.data);
-            setLogLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLogLoading(false);
-          });
-        axios
-          .get(`http://192.168.0.147:5555/api/records/vehicle/${res.data._id}`)
-          .then((res) => {
-            setRecords(res.data);
-            setRecordLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setRecordLoading(false);
-          });
       })
       .catch((err) => {
         console.log(err);
@@ -496,6 +436,7 @@ const ShowVehicle = () => {
                       sold: true,
                       soldPrice: sell[1],
                       soldDate: sell[2],
+                      state: "ПРОДАДЕН",
                       site: "ПРОДАДЕНИ",
                     }
                   )
@@ -1702,47 +1643,31 @@ const ShowVehicle = () => {
 
             <div>
               {tab === "record" ? (
-                recordLoading ? (
-                  <CircularProgress />
-                ) : (
-                  <VehicleRecords
-                    username={username}
-                    userRole={userRole}
-                    vehicle={vehicle}
-                    records={records}
-                  />
-                )
+                <VehicleRecords
+                  username={username}
+                  userRole={userRole}
+                  vehicle={vehicle}
+                />
               ) : (
                 ""
               )}
               {tab === "issues" ? (
-                issuesLoading ? (
-                  <CircularProgress />
-                ) : (
-                  <Issues
-                    username={username}
-                    userRole={userRole}
-                    vehicle={vehicle}
-                    issues={issues}
-                  />
-                )
+                <Issues
+                  username={username}
+                  userRole={userRole}
+                  vehicle={vehicle}
+                />
               ) : (
                 ""
               )}
               {tab === "serv" ? (
-                servLoading ? (
-                  <CircularProgress />
-                ) : (
-                  <Expenses
-                    username={username}
-                    userRole={userRole}
-                    vehicle={vehicle}
-                    fuels={fuels}
-                    services={services}
-                    refresh={refresh}
-                    setRefresh={setRefresh}
-                  />
-                )
+                <Expenses
+                  username={username}
+                  userRole={userRole}
+                  vehicle={vehicle}
+                  refresh={refresh}
+                  setRefresh={setRefresh}
+                />
               ) : (
                 ""
               )}
@@ -1752,22 +1677,12 @@ const ShowVehicle = () => {
                   username={username}
                   userRole={userRole}
                   vehicle={vehicle}
-                  fuels={fuels}
-                  services={services}
                 />
               ) : (
                 ""
               )}
 
-              {tab === "log" ? (
-                logLoading ? (
-                  <CircularProgress />
-                ) : (
-                  <Log log={log} vehicle={vehicle} />
-                )
-              ) : (
-                ""
-              )}
+              {tab === "log" ? <Log vehicle={vehicle} /> : ""}
             </div>
 
             <div className="my-2">

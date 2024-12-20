@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useMemo } from "react";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import { darken, lighten, useTheme } from "@mui/material";
+import Chip from "@mui/material/Chip";
 //MRT Imports
 import {
   MaterialReactTable,
@@ -68,20 +69,30 @@ const Records = () => {
           align: "center",
         },
         Cell: ({ cell }) => {
-          return dayjs(cell.getValue()).format("DD.MM.YYYY - HH:ss");
+          return dayjs(cell.getValue()).format("DD.MM.YYYY - HH:mm");
         },
       },
       {
         accessorKey: "dropoffTime",
         header: "Връщане",
-        filterVariant: "datetime",
+        filterVariant: "date",
         filterFn: "stringDateFn",
         size: 180,
         enableGlobalFilter: false,
         Cell: ({ cell }) => {
-          return cell.getValue()
-            ? dayjs(cell.getValue()).format("DD.MM.YYYY - HH:ss")
-            : "в движение";
+          return cell.getValue() ? (
+            dayjs(cell.getValue()).format("DD.MM.YYYY - HH:mm")
+          ) : (
+            <Chip
+              size="small"
+              sx={{
+                fontWeight: 800,
+                fontSize: 10,
+              }}
+              label={"В ДВИЖЕНИЕ"}
+              color="success"
+            />
+          );
         },
         muiTableBodyCellProps: {
           align: "center",
@@ -129,9 +140,19 @@ const Records = () => {
         enableGlobalFilter: false,
         enableColumnFilter: false,
         Cell: ({ cell }) =>
-          cell.getValue()
-            ? cell.getValue().toLocaleString() + " км"
-            : "в движение",
+          cell.getValue() ? (
+            cell.getValue().toLocaleString() + " км"
+          ) : (
+            <Chip
+              size="small"
+              sx={{
+                fontWeight: 800,
+                fontSize: 10,
+              }}
+              label={"В ДВИЖЕНИЕ"}
+              color="success"
+            />
+          ),
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -142,7 +163,20 @@ const Records = () => {
         header: "Маршрут",
         size: 350,
         enableColumnFilter: false,
-        Cell: ({ cell }) => (cell.getValue() ? cell.getValue() : "в движение"),
+        Cell: ({ cell }) =>
+          cell.getValue() ? (
+            cell.getValue()
+          ) : (
+            <Chip
+              size="small"
+              sx={{
+                fontWeight: 800,
+                fontSize: 10,
+              }}
+              label={"В ДВИЖЕНИЕ"}
+              color="success"
+            />
+          ),
       },
       {
         accessorKey: "problem",
@@ -167,11 +201,26 @@ const Records = () => {
     },
     enableFullScreenToggle: false,
     enableStickyHeader: true,
+    enableColumnActions: false,
+    enableDensityToggle: false,
     enableFacetedValues: true,
     enableHiding: false,
     enableColumnResizing: true,
     enableRowPinning: true,
     muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    paginationDisplayMode: "pages",
+    positionToolbarAlertBanner: "bottom",
+    muiSearchTextFieldProps: {
+      size: "small",
+      variant: "outlined",
+    },
+    muiPaginationProps: {
+      color: "secondary",
+      rowsPerPageOptions: [50, 100, 200, 300],
+      shape: "rounded",
+      variant: "outlined",
+    },
+    enableColumnResizing: true,
     initialState: {
       sorting: [
         {
@@ -187,19 +236,6 @@ const Records = () => {
       showGlobalFilter: true,
       showColumnFilters: true,
       density: "compact",
-      paginationDisplayMode: "pages",
-      positionToolbarAlertBanner: "bottom",
-      muiSearchTextFieldProps: {
-        size: "small",
-        variant: "outlined",
-      },
-      muiPaginationProps: {
-        color: "secondary",
-        rowsPerPageOptions: [30, 50, 100, 200],
-        shape: "rounded",
-        variant: "outlined",
-      },
-      enableColumnResizing: true,
     },
     muiTablePaperProps: {
       elevation: 0,

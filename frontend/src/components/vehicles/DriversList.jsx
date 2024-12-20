@@ -1,10 +1,9 @@
 import React from "react";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Button } from "@mui/material";
 import Box from "@mui/material/Box";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import Dialog from "@mui/material/Dialog";
 import dayjs from "dayjs";
 import DialogActions from "@mui/material/DialogActions";
@@ -12,15 +11,30 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import EditIcon from "@mui/icons-material/Edit";
+import { Edit, DeleteForever, Timeline } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
-import TimelineIcon from "@mui/icons-material/Timeline";
+import { darken, lighten, useTheme } from "@mui/material";
+import { MRT_Localization_BG } from "material-react-table/locales/bg";
+import Tooltip from "@mui/material/Tooltip";
 
-const DriversList = ({ drivers }) => {
+//MRT Imports
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  MRT_ColumnDef,
+  MRT_GlobalFilterTextField,
+  MRT_ToggleFiltersButton,
+} from "material-react-table";
+
+const DriversList = () => {
   const [loading, setLoading] = useState(false);
+  const [drivers, setDrivers] = useState({});
+  const [error, setError] = useState([false, ""]);
+  const [refetching, setRefetching] = useState(false);
+  const [rowCount, setRowCount] = useState(0);
   const [edit, setEdit] = useState([false, {}]);
   const [add, setAdd] = useState(false);
   const [hist, setHist] = useState([false, {}, []]);
@@ -32,6 +46,77 @@ const DriversList = ({ drivers }) => {
     barcode: "",
     barcode2: "",
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!drivers.length) {
+        setLoading(true);
+      } else {
+        setRefetching(true);
+      }
+
+      axios
+        .get(`http://192.168.0.147:5555/api/drivers/`)
+        .then((res) => {
+          setDrivers(res.data.data);
+          setRowCount(res.data.count);
+        })
+        .catch((err) => {
+          setError([true, err]);
+          console.error(err);
+          return;
+        });
+      setError([false, ""]);
+      setLoading(false);
+      setRefetching(false);
+    };
+    fetchData();
+  }, []);
+
+  const theme = useTheme();
+  const baseBackgroundColor =
+    theme.palette.mode === "dark"
+      ? "#212121"
+      : // "rgba(3, 44, 43, 1)"
+        "#fff";
+
+  const columns = useMemo(
+    () => [
+      {
+        accessorFn: (row) => `${row.firstName} ${row.lastName}`,
+        id: "name",
+        header: "Име",
+        size: 200,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "left",
+        },
+      },
+
+      {
+        accessorKey: "barcode",
+        header: "Карта 1",
+        size: 250,
+        editable: false,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
+      {
+        accessorKey: "barcode2",
+        header: "Карта 2",
+        size: 250,
+        editable: false,
+        enableClickToCopy: true,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
+    ],
+    []
+  );
   const { firstName, lastName, barcode, barcode2 } = input;
 
   const handleChangeAdd = (e) => {
@@ -131,81 +216,6 @@ const DriversList = ({ drivers }) => {
     }, 1000);
   };
 
-  const data = drivers.data
-    ? drivers.data
-        .map((obj) => {
-          return [
-            `${obj.firstName} ${obj.lastName}`,
-            <Box>
-              <IconButton
-                onClick={() => {
-                  axios
-                    .get(
-                      `http://192.168.0.147:5555/api/records/driver/${obj._id}`
-                    )
-                    .then((res) => {
-                      setHist([true, obj, res.data]);
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                }}
-                color="success"
-                variant="contained"
-              >
-                <TimelineIcon />
-              </IconButton>
-            </Box>,
-            obj.barcode,
-            obj.barcode2,
-            <Box>
-              <IconButton
-                onClick={() => {
-                  setEdit([true, obj]);
-                }}
-                color="warning"
-                variant="contained"
-              >
-                <EditIcon />
-              </IconButton>
-
-              <IconButton
-                onClick={() => {
-                  setVerifyDelete([true, obj]);
-                }}
-                color="error"
-                variant="contained"
-              >
-                <DeleteForeverIcon />
-              </IconButton>
-            </Box>,
-          ];
-        })
-        .sort()
-    : [];
-
-  const columns = [
-    {
-      name: "Име",
-      options: {},
-    },
-    {
-      name: "История",
-      options: {
-        filter: false,
-        sort: false,
-      },
-    },
-    { name: "Карта 1" },
-    { name: "Карта 2" },
-    {
-      name: "Действия",
-      options: {
-        filter: false,
-        sort: false,
-      },
-    },
-  ];
   const columns2 = [
     {
       name: "Кола",
@@ -261,45 +271,135 @@ const DriversList = ({ drivers }) => {
       options: {},
     },
   ];
-  const options = {
-    filterType: "dropdown",
-    selectableRows: false,
-    download: false,
-    print: false,
-    rowsPerPage: 30,
-    rowsPerPageOptions: [30, 50, 100],
-    // expandableRowsOnClick: true,
-    // expandableRows: true,
-    textLabels: {
-      body: {
-        noMatch: "Нищо не е намерено",
-      },
-      pagination: {
-        next: "Следваща страница",
-        previous: "Предишна страница",
-        rowsPerPage: "Покажи по:",
-        displayRows: "от", // 1-10 of 30
-      },
-      toolbar: {
-        search: "Търсене",
-        downloadCsv: "Изтегли CSV",
-        print: "Принтирай",
-        viewColumns: "Показване на колони",
-        filterTable: "Филтри",
-      },
-      filter: {
-        title: "ФИЛТРИ",
-        reset: "изчисти",
-      },
-      viewColumns: {
-        title: "Покажи колони",
-      },
-      selectedRows: {
-        text: "rows(s) deleted",
-        delete: "Delete",
+  const table = useMaterialReactTable({
+    columns,
+    localization: { ...MRT_Localization_BG },
+    data: drivers,
+    rowCount,
+    enableFullScreenToggle: false,
+    enableStickyHeader: true,
+    enableColumnActions: false,
+    enableDensityToggle: false,
+    enableFacetedValues: true,
+    enableHiding: false,
+    enableRowNumbers: true,
+    enableRowActions: true,
+    enableColumnResizing: true,
+    enableRowPinning: false,
+    muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    paginationDisplayMode: "pages",
+    positionToolbarAlertBanner: "bottom",
+    displayColumnDefOptions: {
+      "mrt-row-actions": {
+        size: 150,
       },
     },
-  };
+    muiSearchTextFieldProps: {
+      size: "small",
+      variant: "outlined",
+    },
+    muiPaginationProps: {
+      color: "secondary",
+      rowsPerPageOptions: [30, 50, 100, 200],
+      shape: "rounded",
+      variant: "outlined",
+    },
+    enableColumnResizing: true,
+    initialState: {
+      sorting: [
+        {
+          id: "name",
+          desc: false,
+        },
+      ],
+      pagination: { pageSize: 50, pageIndex: 0 },
+      showGlobalFilter: true,
+      showColumnFilters: true,
+      density: "compact",
+      columnPinning: {
+        right: ["mrt-row-actions"],
+      },
+    },
+    muiTablePaperProps: {
+      elevation: 0,
+      sx: {
+        borderRadius: "0",
+      },
+    },
+    renderRowActions: ({ row, table }) => (
+      <Box sx={{ display: "flex", flexWrap: "nowrap", gap: "8px" }}>
+        <Box>
+          <Tooltip title="Редактиране" disableInteractive>
+            <IconButton
+              onClick={() => {
+                setEdit([true, row.original]);
+              }}
+              color="warning"
+              variant="contained"
+            >
+              <Edit />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Изтриване" disableInteractive>
+            <IconButton
+              onClick={() => {
+                setVerifyDelete([true, row.original]);
+              }}
+              color="error"
+              variant="contained"
+            >
+              <DeleteForever />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Редактиране" disableInteractive>
+            <IconButton
+              onClick={() => {
+                axios
+                  .get(
+                    `http://192.168.0.147:5555/api/records/driver/${row.original._id}`
+                  )
+                  .then((res) => {
+                    setHist([true, row.original, res.data]);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
+              }}
+              color="success"
+              variant="contained"
+            >
+              <Timeline />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Box>
+    ),
+    muiTableBodyProps: {
+      sx: (theme) => ({
+        '& tr:nth-of-type(odd):not([data-selected="true"]):not([data-pinned="true"]) > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.1),
+          },
+        '& tr:nth-of-type(odd):not([data-selected="true"]):not([data-pinned="true"]):hover > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.2),
+          },
+        '& tr:nth-of-type(even):not([data-selected="true"]):not([data-pinned="true"]) > td':
+          {
+            backgroundColor: lighten(baseBackgroundColor, 0.1),
+          },
+        '& tr:nth-of-type(even):not([data-selected="true"]):not([data-pinned="true"]):hover > td':
+          {
+            backgroundColor: darken(baseBackgroundColor, 0.2),
+          },
+      }),
+    },
+    mrtTheme: (theme) => ({
+      baseBackgroundColor: baseBackgroundColor,
+      draggingBorderColor: theme.palette.secondary.main,
+    }),
+  });
+
   return (
     <Box>
       <Dialog
@@ -435,7 +535,7 @@ const DriversList = ({ drivers }) => {
           <DialogContentText id="alert-dialog-description"></DialogContentText>
 
           <Box>
-            {hist[0] && (
+            {/* {hist[0] && (
               <MUIDataTable
                 title={"ИСТОРИЯ"}
                 data={hist[2].data.map((obj) => {
@@ -453,7 +553,7 @@ const DriversList = ({ drivers }) => {
                 columns={columns2}
                 options={options}
               />
-            )}
+            )} */}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -548,13 +648,8 @@ const DriversList = ({ drivers }) => {
         <CircularProgress />
       ) : (
         <Box className="my-4 flex flex-col items-center">
-          <Box sx={{ width: "80%", margin: "5px" }}>
-            <MUIDataTable
-              title={"ШОФЬОРИ"}
-              data={data}
-              columns={columns}
-              options={options}
-            />
+          <Box sx={{ width: "90%", margin: "5px" }}>
+            <MaterialReactTable table={table} />
             <Button fullWidth variant="contained" onClick={handleAddModal}>
               Добави Шофьор
               <PersonAddAlt1Icon />

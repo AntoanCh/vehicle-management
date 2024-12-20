@@ -28,6 +28,26 @@ router.post("/", async (req, res) => {
       vehicleId: req.body.vehicleId,
     };
     const service = await Service.create(newService);
+    const expenses = await Service.find({ vehicleId: req.body.vehicleId });
+    const totalExpenseCost = expenses.reduce(
+      (acc, exp) => acc + parseFloat(exp.cost),
+      0
+    );
+    const totalServiceCost = expenses
+      .filter((exp) => exp.type === "ОБСЛУЖВАНЕ")
+      .reduce((acc, exp) => acc + parseFloat(exp.cost), 0);
+    const totalTireCost = expenses
+      .filter((exp) => exp.type === "ГУМИ")
+      .reduce((acc, exp) => acc + parseFloat(exp.cost), 0);
+    const totalRepairCost = expenses
+      .filter((exp) => exp.type === "РЕМОНТ")
+      .reduce((acc, exp) => acc + parseFloat(exp.cost), 0);
+    const vehUpdate = await Vehicle.findByIdAndUpdate(req.body.vehicleId, {
+      totalServiceCost: totalServiceCost,
+      totalExpenseCost: totalExpenseCost,
+      totalTireCost: totalTireCost,
+      totalRepairCost: totalRepairCost,
+    });
     return res.status(201).send(service);
   } catch (err) {
     console.log(err.message);

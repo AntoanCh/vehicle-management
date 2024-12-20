@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
-import VehiclesList from "../components/VehiclesList.jsx";
+import VehiclesList from "../../components/vehicles/VehiclesList.jsx";
 import Box from "@mui/material/Box";
 import { useNavigate } from "react-router-dom";
+import Skeleton from "@mui/material/Skeleton";
 
-const VehiclesMain = ({ filter, setFilter, customFilter, setCustomFilter }) => {
+const VehiclesMain = ({
+  filter,
+  setFilter,
+  customFilter,
+  setCustomFilter,
+  showExpense,
+  setShowExpense,
+}) => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState([]);
@@ -44,7 +52,7 @@ const VehiclesMain = ({ filter, setFilter, customFilter, setCustomFilter }) => {
   return (
     <Box>
       {loading ? (
-        <CircularProgress />
+        <Skeleton variant="rectangular" width={1600} height={660} />
       ) : (
         <VehiclesList
           username={username}
@@ -56,6 +64,8 @@ const VehiclesMain = ({ filter, setFilter, customFilter, setCustomFilter }) => {
           setFilter={setFilter}
           customFilter={customFilter}
           setCustomFilter={setCustomFilter}
+          showExpense={showExpense}
+          setShowExpense={setShowExpense}
         />
       )}
     </Box>

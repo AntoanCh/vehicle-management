@@ -38,7 +38,7 @@ import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
 import InputAdornment from "@mui/material/InputAdornment";
 import { Link } from "react-router-dom";
-import CreatePerson from "../pages/CreatePerson";
+import CreatePerson from "./CreatePerson";
 import { styled } from "@mui/system";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import {

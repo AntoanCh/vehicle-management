@@ -7,12 +7,13 @@ import "dayjs/locale/bg";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Box from "@mui/material/Box";
-import ErrorDialog from "./ErrorDialog";
+import ErrorDialog from "../utils/ErrorDialog";
 import { useMemo } from "react";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import { darken, lighten, useTheme } from "@mui/material";
 import { IconButton, Tooltip } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import Chip from "@mui/material/Chip";
 
 //MRT Imports
 import {
@@ -114,7 +115,7 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
           align: "center",
         },
         Cell: ({ cell }) => {
-          return dayjs(cell.getValue()).format("DD.MM.YYYY - HH:ss");
+          return dayjs(cell.getValue()).format("DD.MM.YYYY - HH:mm");
         },
       },
       {
@@ -128,9 +129,19 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
           align: "center",
         },
         Cell: ({ cell }) => {
-          return cell.getValue()
-            ? dayjs(cell.getValue()).format("DD.MM.YYYY - HH:ss")
-            : "в движение";
+          return cell.getValue() ? (
+            dayjs(cell.getValue()).format("DD.MM.YYYY - HH:mm")
+          ) : (
+            <Chip
+              size="small"
+              sx={{
+                fontWeight: 800,
+                fontSize: 10,
+              }}
+              label={"В ДВИЖЕНИЕ"}
+              color="success"
+            />
+          );
         },
       },
       {
@@ -143,6 +154,19 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
         muiTableBodyCellProps: {
           align: "center",
         },
+        Footer: ({ table }) => {
+          const kmArray = table
+            .getFilteredRowModel()
+            .rows.map((row) => row.getValue("pickupKm"));
+          const max = Math.max(...kmArray);
+          const min = Math.min(...kmArray);
+          return (
+            <Box sx={{ margin: "auto" }}>
+              {"Изминати км:"}
+              <Box color="warning.main">{`${max - min} км.`}</Box>
+            </Box>
+          );
+        },
       },
       {
         accessorKey: "dropoffKm",
@@ -151,9 +175,19 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
         enableGlobalFilter: false,
         enableColumnFilter: false,
         Cell: ({ cell }) =>
-          cell.getValue()
-            ? cell.getValue().toLocaleString() + " км"
-            : "в движение",
+          cell.getValue() ? (
+            cell.getValue().toLocaleString() + " км"
+          ) : (
+            <Chip
+              size="small"
+              sx={{
+                fontWeight: 800,
+                fontSize: 10,
+              }}
+              label={"В ДВИЖЕНИЕ"}
+              color="success"
+            />
+          ),
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -164,7 +198,20 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
         header: "Маршрут",
         size: 350,
         enableColumnFilter: false,
-        Cell: ({ cell }) => (cell.getValue() ? cell.getValue() : "в движение"),
+        Cell: ({ cell }) =>
+          cell.getValue() ? (
+            cell.getValue()
+          ) : (
+            <Chip
+              size="small"
+              sx={{
+                fontWeight: 800,
+                fontSize: 10,
+              }}
+              label={"В ДВИЖЕНИЕ"}
+              color="success"
+            />
+          ),
       },
       {
         accessorKey: "problem",
@@ -189,6 +236,9 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
     },
     enableFullScreenToggle: false,
     enableStickyHeader: true,
+    enableStickyFooter: true,
+    enableDensityToggle: false,
+    enableColumnActions: false,
     enableFacetedValues: true,
     enableHiding: false,
     enableColumnResizing: true,

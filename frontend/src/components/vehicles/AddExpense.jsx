@@ -18,7 +18,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import DraggablePaper from "../components/DraggablePaper";
+import DraggablePaper from "../DraggablePaper";
 
 const AddExpense = ({
   vehicle,
@@ -32,6 +32,8 @@ const AddExpense = ({
   setAdd,
   date,
   setDate,
+  alert,
+  setAlert,
 }) => {
   const [newServ, setNewServ] = useState({
     date: date,
@@ -48,15 +50,7 @@ const AddExpense = ({
       setError([true, "Дата, описание, вид и стойност са задължителни полета"]);
     } else {
       setAdd(false);
-      if (newServ.type === "РЕМОНТ") {
-        totalRepairCost = totalRepairCost + parseFloat(newServ.cost);
-      }
-      if (newServ.type === "ОБСЛУЖВАНЕ") {
-        totalRepairCost = totalServiceCost + parseFloat(newServ.cost);
-      }
-      if (newServ.type === "ГУМИ") {
-        totalRepairCost = totalTireCost + parseFloat(newServ.cost);
-      }
+
       axios
         .post("http://192.168.0.147:5555/services", newServ)
         .then(() => {
@@ -65,6 +59,11 @@ const AddExpense = ({
             user: username,
             changed: { newServ: [newServ.cost, newServ.desc] },
             vehicleId: vehicle._id,
+          });
+          setAlert({
+            show: true,
+            message: `Разходът на стойност ${newServ.cost} лв, за ${vehicle.reg} записан успешно!`,
+            severity: "success",
           });
         })
         .catch((err) => {
@@ -99,21 +98,7 @@ const AddExpense = ({
             console.log(err);
           });
       }
-      axios
-        .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
-          ...vehicle,
-          totalExpenseCost: (
-            totalExpenseCost + parseFloat(newServ.cost)
-          ).toFixed(2),
-          totalRepairCost: totalRepairCost.toFixed(2),
-          totalServiceCost: totalServiceCost.toFixed(2),
-          totalTireCost: totalTireCost.toFixed(2),
-        })
-        .then(() => {})
-        .catch((err) => {
-          alert("Грешка, проверете конзолата 3");
-          console.log(err);
-        });
+
       setDate(newServ.date);
       setTimeout(() => {
         // window.location.reload();
@@ -122,19 +107,6 @@ const AddExpense = ({
     }
   };
 
-  const totalExpenseCost = services.data.reduce(
-    (acc, exp) => acc + parseFloat(exp.cost),
-    0
-  );
-  const totalServiceCost = services.data
-    .filter((exp) => exp.type === "ОБСЛУЖВАНЕ")
-    .reduce((acc, exp) => acc + parseFloat(exp.cost), 0);
-  const totalTireCost = services.data
-    .filter((exp) => exp.type === "ГУМИ")
-    .reduce((acc, exp) => acc + parseFloat(exp.cost), 0);
-  const totalRepairCost = services.data
-    .filter((exp) => exp.type === "РЕМОНТ")
-    .reduce((acc, exp) => acc + parseFloat(exp.cost), 0);
   const handleClose = () => {
     setAdd(false);
     setDate(newServ.date);

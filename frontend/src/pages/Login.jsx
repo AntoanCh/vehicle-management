@@ -12,7 +12,7 @@ import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import ErrorDialog from "../components/ErrorDialog";
+import ErrorDialog from "../components/utils/ErrorDialog";
 
 const Login = () => {
   const [users, setUsers] = useState();

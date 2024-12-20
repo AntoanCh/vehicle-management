@@ -13,10 +13,10 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import CancelIcon from "@mui/icons-material/Cancel";
 import TableRow from "@mui/material/TableRow";
-import CountdownTimer from "../components/CountdownTimer";
-import Pickup from "../components/Pickup";
-import Clock from "../components/Clock";
-import ErrorDialog from "../components/ErrorDialog";
+import CountdownTimer from "../../components/utils/CountdownTimer";
+import Pickup from "../../components/vehicles/Pickup";
+import Clock from "../../components/utils/Clock";
+import ErrorDialog from "../../components/utils/ErrorDialog";
 
 const Scan = () => {
   const [barcode, setBarcode] = useState("");
