@@ -5,13 +5,13 @@ import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import VehicleRecords from "./VehicleRecords";
 import Issues from "./Issues";
-import Expenses from "./Expenses";
+import Expenses from "./expenses/Expenses";
 import Log from "./Log";
 import Tooltip from "@mui/material/Tooltip";
 import Slide from "@mui/material/Slide";
 import CloseIcon from "@mui/icons-material/Close";
 import Alert from "@mui/material/Alert";
-import AlertTitle from "@mui/material/AlertTitle";
+import ErrorDialog from "../utils/ErrorDialog";
 import {
   Button,
   TextField,
@@ -35,7 +35,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import CreateVehicle from "./CreateVehicle";
 import { keyframes } from "@mui/system";
 import { styled } from "@mui/material/styles";
-import AddExpense from "./AddExpense";
+import AddExpense from "./expenses/AddExpense";
 import Stack from "@mui/material/Stack";
 import { useMemo } from "react";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
@@ -62,6 +62,7 @@ import {
   Save,
   Edit,
   Delete,
+  Refresh,
   AccountCircle,
   ArrowBackIosNew,
   Send,
@@ -114,23 +115,26 @@ export default function VehiclesList({
   setCustomFilter,
   showExpense,
   setShowExpense,
+  expenseWithTax,
+  setExpenseWithTax,
+  refresh,
+  setRefresh,
+  alert,
+  setAlert,
+  expenseDate,
+  setExpenseDate,
 }) {
-  const [expenseDate, setExpenseDate] = useState(dayjs());
   const [expenses, setExpenses] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState([null, {}]);
   const openActionMenu = Boolean(anchorEl[0]);
-  const [refresh, setRefresh] = useState(false);
   const [add, setAdd] = useState(false);
   const [action, setAction] = useState({ show: false, type: "", vehicle: {} });
   const token = localStorage.getItem("token");
   const { id } = useParams();
   const [expenseVehicle, setExpenseVehicle] = useState({});
   const [addExpense, setAddExpense] = useState(false);
-  const [alert, setAlert] = useState({
-    show: false,
-    message: "",
-    severity: "",
-  });
+  const [groupedColumnMode, setGroupedColumnMode] = useState("reorder");
   const [columnVisibility, setColumnVisibility] = useState({
     price: false,
     own: false,
@@ -140,6 +144,7 @@ export default function VehiclesList({
     totalsFilter: false,
     expensePerMonthFilter: false,
     issue: false,
+    soldPrice: filter === "ПРОДАДЕНИ" ? true : false,
   });
 
   const navigate = useNavigate();
@@ -153,6 +158,7 @@ export default function VehiclesList({
       setColumnVisibility({
         kaskoDate: false,
         issue: false,
+        soldPrice: filter === "ПРОДАДЕНИ" ? true : false,
       });
     } else {
       setColumnVisibility({
@@ -164,6 +170,7 @@ export default function VehiclesList({
         totalsFilter: false,
         expensePerMonthFilter: false,
         issue: false,
+        soldPrice: filter === "ПРОДАДЕНИ" ? true : false,
       });
     }
   }, []);
@@ -291,9 +298,14 @@ export default function VehiclesList({
                     .trim()}
 
                   {row.original.issue ? (
-                    <BlinkedBox>
-                      <WarningAmber />
-                    </BlinkedBox>
+                    <Tooltip
+                      title="Автомобилът има неразрешени забележки"
+                      disableInteractive
+                    >
+                      <BlinkedBox>
+                        <WarningAmber />
+                      </BlinkedBox>
+                    </Tooltip>
                   ) : (
                     ""
                   )}
@@ -420,6 +432,56 @@ export default function VehiclesList({
         },
       },
       {
+        accessorKey: "soldPrice",
+        header: "Прод. Цена",
+        size: 130,
+        filterVariant: "range-slider",
+        filterFn: "betweenInclusive",
+        muiFilterSliderProps: {
+          //no need to specify min/max/step if using faceted values
+          marks: true,
+          step: 5_000,
+          valueLabelFormat: (value) =>
+            value.toLocaleString("bg-BG", {
+              style: "currency",
+              currency: "BGN",
+            }),
+        },
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+        Cell: ({ cell }) =>
+          cell.getValue()
+            ? parseFloat(cell.getValue()).toLocaleString("bg-BG", {
+                style: "currency",
+                currency: "BGN",
+              })
+            : 0,
+        Footer: ({ table }) => {
+          const total = table
+            .getFilteredRowModel()
+            .rows.reduce(
+              (total, row) =>
+                total + row.getValue("soldPrice")
+                  ? parseFloat(row.getValue("soldPrice"))
+                  : 0,
+              0
+            );
+          return (
+            <Box sx={{ margin: "auto" }}>
+              {"Тотал:"}
+              <Box color="warning.main">
+                {total.toLocaleString("bg-BG", {
+                  style: "currency",
+                  currency: "BGN",
+                })}
+              </Box>
+            </Box>
+          );
+        },
+      },
+      {
         accessorFn: (row) => dayjs().diff(row.purchaseDate, "month"),
         id: "own",
         header: "Притежание",
@@ -480,7 +542,7 @@ export default function VehiclesList({
             : 0,
         id: "totalExpense",
         header: "Разходи",
-        size: 130,
+        size: 120,
         filterVariant: "range-slider",
         filterFn: "betweenInclusive",
         muiFilterSliderProps: {
@@ -1168,7 +1230,7 @@ export default function VehiclesList({
         enableColumnFilter: false,
       },
     ],
-    [refresh, customFilter]
+    [customFilter, refresh]
   );
 
   const table = useMaterialReactTable({
@@ -1180,6 +1242,8 @@ export default function VehiclesList({
     enableStickyHeader: true,
     editDisplayMode: "row",
     enableEditing: true,
+    // enableGrouping: true,
+    // groupedColumnMode,
     enableStickyFooter: true,
     enableFacetedValues: true,
     enableColumnActions: false,
@@ -1190,7 +1254,7 @@ export default function VehiclesList({
     enableMultiRowSelection: false,
     enableRowNumbers: true,
     enableRowActions: true,
-    muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    muiTableContainerProps: { sx: { maxHeight: "60vh" } },
     displayColumnDefOptions: {
       "mrt-row-actions": {
         size: 100,
@@ -1204,6 +1268,8 @@ export default function VehiclesList({
     },
     onColumnVisibilityChange: setColumnVisibility,
     initialState: {
+      // expanded: false,
+      // grouping: ["site"],
       sorting: [
         {
           id: "reg",
@@ -1279,12 +1345,12 @@ export default function VehiclesList({
         )}
 
         <Tooltip title="Покажи допълнителни действия" disableInteractive>
-          <IconButton>
-            <MenuIcon
-              onClick={(event) =>
-                setAnchorEl([event.currentTarget, row.original])
-              }
-            />
+          <IconButton
+            onClick={(event) =>
+              setAnchorEl([event.currentTarget, row.original])
+            }
+          >
+            <MenuIcon />
           </IconButton>
         </Tooltip>
 
@@ -1452,30 +1518,20 @@ export default function VehiclesList({
           flexWrap: "wrap",
         }}
       >
-        <Button
-          disabled={table.getPrePaginationRowModel().rows.length === 0}
-          //export all rows, including from the next page, (still respects filtering and sorting)
-          // onClick={() =>
-          //   handleExportRows(table.getPrePaginationRowModel().rows)
-          // }
-          startIcon={<FileDownload />}
-        >
-          ЕКСПОРТ
-        </Button>
         <Slide
-          direction="up"
-          // in={alert.show}
-          // in={true}
+          direction="down"
+          in={alert.show}
           sx={{
-            width: "90%",
             position: "absolute",
-            bottom: "0px",
-            left: "80px",
+            left: "40%",
+            zIndex: 2,
+            width: "30%",
           }}
         >
           <Alert
             severity={alert.severity}
             variant="filled"
+            sx={{ margin: 0 }}
             onClick={() => {
               setAlert(false);
             }}
@@ -1491,12 +1547,75 @@ export default function VehiclesList({
                 <CloseIcon fontSize="inherit" />
               </IconButton>
             }
-            sx={{ mb: "15px" }}
           >
-            <AlertTitle>Успех</AlertTitle>
             {alert.message}
           </Alert>
         </Slide>
+        <Tooltip
+          placement="bottom"
+          title="Презареди таблицата"
+          disableInteractive
+        >
+          <IconButton color="primary" onClick={() => setRefresh(!refresh)}>
+            <Refresh />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip
+          placement="bottom"
+          title={
+            !showExpense
+              ? "Покажи колоните за разходите"
+              : "Скрий колоните за разходите"
+          }
+          disableInteractive
+        >
+          <Button
+            // color={showExpense ? "secondary" : "primary"}
+            color="primary"
+            onClick={() => {
+              setShowExpense(!showExpense);
+              if (!showExpense) {
+                setColumnVisibility({
+                  kaskoDate: false,
+                  issue: false,
+                  soldPrice: filter === "ПРОДАДЕНИ" ? true : false,
+                });
+              } else {
+                setColumnVisibility({
+                  price: false,
+                  own: false,
+                  months: false,
+                  totalExpense: false,
+                  expensePerMonth: false,
+                  totalsFilter: false,
+                  expensePerMonthFilter: false,
+                  issue: false,
+                  soldPrice: filter === "ПРОДАДЕНИ" ? true : false,
+                });
+              }
+            }}
+            variant={showExpense ? "contained" : "outlined"}
+          >
+            {showExpense ? "Скрий разходите" : "Покажи разходите"}
+          </Button>
+        </Tooltip>
+        <Tooltip
+          placement="bottom"
+          title={!expenseWithTax ? "без ДДС" : "с ДДС"}
+          disableInteractive
+        >
+          <Button
+            disabled={showExpense ? false : true}
+            color="primary"
+            onClick={() => {
+              setExpenseWithTax(!expenseWithTax);
+            }}
+            variant={expenseWithTax ? "contained" : "outlined"}
+          >
+            {expenseWithTax ? "с ДДС" : "без ДДС"}
+          </Button>
+        </Tooltip>
       </Box>
     ),
     muiTableBodyProps: {
@@ -1549,7 +1668,7 @@ export default function VehiclesList({
         )}
         <CreateVehicle add={add} setAdd={setAdd} />
         <Dialog
-          PaperComponent={DraggablePaper}
+          // PaperComponent={DraggablePaper}
           // maxWidth={"xl"}
           fullScreen
           open={action.show}
@@ -1558,7 +1677,10 @@ export default function VehiclesList({
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle
-            style={{ cursor: "move", backgroundColor: "#42a5f5" }}
+            style={{
+              // cursor: "move",
+              backgroundColor: "#42a5f5",
+            }}
             id="draggable-dialog-title"
           >
             <Button
@@ -1655,8 +1777,8 @@ export default function VehiclesList({
                   <Tooltip title="Филтрирай всички" disableInteractive>
                     <Button
                       sx={{ width: "40%" }}
-                      color={filter === "all" ? "secondary" : "primary"}
-                      variant={"contained"}
+                      color="primary"
+                      variant={filter === "all" ? "contained" : "outlined"}
                       onClick={() => handleFilter("all")}
                     >
                       {"Всички"}
@@ -1665,8 +1787,8 @@ export default function VehiclesList({
                   <Tooltip title="Филтрирай офис" disableInteractive>
                     <Button
                       sx={{ width: "40%" }}
-                      color={filter === "ОФИС" ? "secondary" : "primary"}
-                      variant={"contained"}
+                      color="primary"
+                      variant={filter === "ОФИС" ? "contained" : "outlined"}
                       onClick={() => handleFilter("ОФИС")}
                     >
                       {"ОФИС"}
@@ -1675,8 +1797,8 @@ export default function VehiclesList({
                   <Tooltip title="Филтрирай виталино" disableInteractive>
                     <Button
                       sx={{ width: "40%" }}
-                      color={filter === "ВИТАЛИНО" ? "secondary" : "primary"}
-                      variant={"contained"}
+                      color="primary"
+                      variant={filter === "ВИТАЛИНО" ? "contained" : "outlined"}
                       onClick={() => handleFilter("ВИТАЛИНО")}
                     >
                       {"ВИТАЛИНО"}
@@ -1686,8 +1808,8 @@ export default function VehiclesList({
                   <Tooltip title="Филтрирай борса" disableInteractive>
                     <Button
                       sx={{ width: "40%" }}
-                      color={filter === "БОРСА" ? "secondary" : "primary"}
-                      variant={"contained"}
+                      color="primary"
+                      variant={filter === "БОРСА" ? "contained" : "outlined"}
                       onClick={() => handleFilter("БОРСА")}
                     >
                       {"БОРСА"}
@@ -1697,8 +1819,8 @@ export default function VehiclesList({
                   <Tooltip title="Филтрирай други" disableInteractive>
                     <Button
                       sx={{ width: "40%" }}
-                      color={filter === "ДРУГИ" ? "secondary" : "primary"}
-                      variant={"contained"}
+                      color="primary"
+                      variant={filter === "ДРУГИ" ? "contained" : "outlined"}
                       onClick={() => handleFilter("ДРУГИ")}
                     >
                       {"ДРУГИ"}
@@ -1708,20 +1830,30 @@ export default function VehiclesList({
                   <Tooltip title="Филтрирай продадени" disableInteractive>
                     <Button
                       sx={{ width: "40%" }}
-                      color={filter === "ПРОДАДЕНИ" ? "secondary" : "primary"}
-                      variant={"contained"}
-                      onClick={() => handleFilter("ПРОДАДЕНИ")}
+                      color="primary"
+                      variant={
+                        filter === "ПРОДАДЕНИ" ? "contained" : "outlined"
+                      }
+                      onClick={() => {
+                        setShowExpense(true);
+                        setColumnVisibility({
+                          kaskoDate: false,
+                          issue: false,
+                          soldPrice: filter === "ПРОДАДЕНИ" ? true : false,
+                        });
+                        handleFilter("ПРОДАДЕНИ");
+                      }}
                     >
                       {"ПРОДАДЕНИ"}
                     </Button>
                   </Tooltip>
                 </ButtonGroup>
               </Box>
-              <MRT_GlobalFilterTextField table={table} />
+              {/* <MRT_GlobalFilterTextField table={table} /> */}
             </Box>
 
             <Box>
-              <Tooltip
+              {/* <Tooltip
                 title={
                   !showExpense
                     ? "Покажи колоните за разходите"
@@ -1737,6 +1869,7 @@ export default function VehiclesList({
                       setColumnVisibility({
                         kaskoDate: false,
                         issue: false,
+                        soldPrice: filter === "ПРОДАДЕНИ" ? true : false,
                       });
                     } else {
                       setColumnVisibility({
@@ -1748,6 +1881,7 @@ export default function VehiclesList({
                         totalsFilter: false,
                         expensePerMonthFilter: false,
                         issue: false,
+                        soldPrice: filter === "ПРОДАДЕНИ" ? true : false,
                       });
                     }
                   }}
@@ -1755,7 +1889,7 @@ export default function VehiclesList({
                 >
                   {showExpense ? "Скрий разходите" : "Покажи разходите"}
                 </Button>
-              </Tooltip>
+              </Tooltip> */}
             </Box>
             <Box>
               <Box sx={{ display: "flex", gap: "0.5rem" }}>

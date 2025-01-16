@@ -64,7 +64,7 @@ const CreateVehicle = ({ add, setAdd }) => {
   const [regError, setRegError] = useState(false);
   const [makeError, setMakeError] = useState(false);
   const [modelError, setModelError] = useState(false);
-  const [error, setError] = useState([false, ""]);
+  const [error, setError] = useState({ show: false, message: "" });
   const navigate = useNavigate();
 
   const handleCloseAdd = () => {
@@ -86,10 +86,11 @@ const CreateVehicle = ({ add, setAdd }) => {
         progress: undefined,
         theme: "dark",
       });
-      setError([
-        true,
-        "Има неправилно въведени данни. Проверете за червени полета и поправете грешките",
-      ]);
+      setError({
+        show: true,
+        message:
+          "Има неправилно въведени данни. Проверете за червени полета и поправете грешките",
+      });
     } else if (
       !data.type ||
       !data.site ||
@@ -106,10 +107,11 @@ const CreateVehicle = ({ add, setAdd }) => {
       !data.oilChange
     ) {
       setLoading(false);
-      setError([
-        true,
-        "Има невъведени данни. Въведете всички задължителни данни, обелязани със ' * '",
-      ]);
+      setError({
+        show: true,
+        message:
+          "Има невъведени данни. Въведете всички задължителни данни, обелязани със ' * '",
+      });
     } else {
       axios
         .post("http://192.168.0.147:5555/vehicle", data)
@@ -120,10 +122,10 @@ const CreateVehicle = ({ add, setAdd }) => {
         .catch((err) => {
           setLoading(false);
           if (err.response.data.message) {
-            setError([true, err.response.data.message]);
+            setError({ show: true, message: err.response.data.message });
           } else {
             alert("Грешка, проверете конзолата");
-            setError([true, "Грешка, проверете конзолата"]);
+            setError({ show: true, message: "Грешка, проверете конзолата" });
             console.log(err);
           }
         });
@@ -132,11 +134,10 @@ const CreateVehicle = ({ add, setAdd }) => {
 
   const handleChange = (e) => {
     if (!e.target.value) {
-      setError(true);
+      setError({ show: true, message: "Грешка" });
     } else {
-      setError(false);
+      setError({ show: false, message: "Грешка" });
     }
-    console.log(error);
     if (e.target.id === "tires") {
       if (e.target.value.match(/^[0-9]{3}$/)) {
         e.target.value = e.target.value + "/";

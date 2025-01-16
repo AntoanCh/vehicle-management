@@ -15,7 +15,7 @@ router.post("/", async (req, res) => {
       !req.body.vehicleId
     ) {
       return res.status(400).send({
-        message: "Send all required fields",
+        message: "Попълнете всички необходими полета",
       });
     }
     const newService = {
@@ -65,7 +65,7 @@ router.put("/:id", async (req, res) => {
       !req.body.vehicleId
     ) {
       return res.status(400).send({
-        message: "Send all required fields",
+        message: "Попълнете всички необходими полета",
       });
     }
 
@@ -73,7 +73,7 @@ router.put("/:id", async (req, res) => {
 
     const result = await Service.findByIdAndUpdate(id, req.body);
     if (!result) {
-      return res.status(404).json({ message: "Service not found" });
+      return res.status(404).json({ message: "Разходът не е намерен!" });
     }
     const expenses = await Service.find({ vehicleId: req.body.vehicleId });
     const totalExpenseCost = expenses.reduce(
@@ -95,7 +95,7 @@ router.put("/:id", async (req, res) => {
       totalTireCost: totalTireCost,
       totalRepairCost: totalRepairCost,
     });
-    return res.status(200).send({ message: "Service Updated" });
+    return res.status(200).send({ message: "Разходът е редактиран" });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });
@@ -150,10 +150,29 @@ router.delete("/:id", async (req, res) => {
     const { id } = req.params;
     const result = await Service.findByIdAndDelete(id);
     if (!result) {
-      return res.status(404).json({ messga: "Service not found" });
+      return res.status(404).json({ messga: "Разходът не е намерен!" });
     }
-
-    return res.status(200).send({ message: "Service Deleted" });
+    const expenses = await Service.find({ vehicleId: req.body.vehicleId });
+    const totalExpenseCost = expenses.reduce(
+      (acc, exp) => acc + parseFloat(exp.cost),
+      0
+    );
+    const totalServiceCost = expenses
+      .filter((exp) => exp.type === "ОБСЛУЖВАНЕ")
+      .reduce((acc, exp) => acc + parseFloat(exp.cost), 0);
+    const totalTireCost = expenses
+      .filter((exp) => exp.type === "ГУМИ")
+      .reduce((acc, exp) => acc + parseFloat(exp.cost), 0);
+    const totalRepairCost = expenses
+      .filter((exp) => exp.type === "РЕМОНТ")
+      .reduce((acc, exp) => acc + parseFloat(exp.cost), 0);
+    const vehUpdate = await Vehicle.findByIdAndUpdate(req.body.vehicleId, {
+      totalServiceCost: totalServiceCost,
+      totalExpenseCost: totalExpenseCost,
+      totalTireCost: totalTireCost,
+      totalRepairCost: totalRepairCost,
+    });
+    return res.status(200).send({ message: "Разходът е изтрит" });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });

@@ -19,7 +19,7 @@ import {
   DoneAll,
   AttachMoney,
 } from "@mui/icons-material";
-import Expenses from "../../components/vehicles/Expenses";
+import Expenses from "../../components/vehicles/expenses/Expenses";
 import Ref from "../../components/vehicles/Ref";
 import VehicleRecords from "../../components/vehicles/VehicleRecords";
 import Issues from "../../components/vehicles/Issues";
@@ -1153,19 +1153,22 @@ const ShowVehicle = () => {
                           onChange={handleChange}
                           variant="standard"
                         >
-                          <MenuItem key={1} value={1}>
+                          <MenuItem key={1} value={0}>
+                            0
+                          </MenuItem>
+                          <MenuItem key={2} value={1}>
                             1
                           </MenuItem>
-                          <MenuItem key={2} value={2}>
+                          <MenuItem key={3} value={2}>
                             2
                           </MenuItem>
-                          <MenuItem key={3} value={3}>
+                          <MenuItem key={4} value={3}>
                             3
                           </MenuItem>
-                          <MenuItem key={3} value={4}>
+                          <MenuItem key={5} value={4}>
                             4
                           </MenuItem>
-                          <MenuItem key={3} value={5}>
+                          <MenuItem key={6} value={5}>
                             5
                           </MenuItem>
                         </StyledTextField>

@@ -20,7 +20,7 @@ import ErrorDialog from "../../components/utils/ErrorDialog";
 
 const Scan = () => {
   const [barcode, setBarcode] = useState("");
-  const [error, setError] = useState([false, ""]);
+  const [error, setError] = useState({ show: false, message: "" });
   const [driver, setDriver] = useState({});
   const [blur, setBlur] = useState(false);
   const [select, setSelect] = useState([false, {}]);
@@ -130,7 +130,7 @@ const Scan = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!barcode) {
-      setError([true, "Не е сканирана карта"]);
+      setError({ show: true, message: "Не е сканирана карта" });
     } else {
       try {
         const { data } = await axios.get(
@@ -149,7 +149,10 @@ const Scan = () => {
             setDriver(data[0]);
           }
         } else {
-          setError([true, "Шофьор с такъв номер не съществува"]);
+          setError({
+            show: true,
+            message: "Шофьор с такъв номер не съществува",
+          });
         }
       } catch (error) {
         console.log(error);

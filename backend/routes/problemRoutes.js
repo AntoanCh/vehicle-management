@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
       !req.body.driverName
     ) {
       return res.status(400).send({
-        message: "Send all required fields",
+        message: "Изпратете всички невобходими полета",
       });
     }
     const newProblem = {
@@ -79,7 +79,7 @@ router.put("/:id", async (req, res) => {
   try {
     if (!req.body.date || !req.body.desc || !req.body.vehicleId) {
       return res.status(400).send({
-        message: "Send all required fields",
+        message: "Изпратете всички невобходими полета",
       });
     }
 
@@ -87,9 +87,19 @@ router.put("/:id", async (req, res) => {
 
     const result = await Problem.findByIdAndUpdate(id, req.body);
     if (!result) {
-      return res.status(404).json({ message: "Problem not found" });
+      return res.status(404).json({ message: "Забележката не е намерена" });
     }
-    return res.status(200).send({ message: "Problem Updated" });
+    //The code below sets vehicle issue property to false if all issues of that vehicle have property of done equal to TRUE
+
+    // if (req.body.done) {
+    //   const allProblemsForThisVehicle = await Problem.find({
+    //     vehicleId: req.body.vehicleId,
+    //   });
+    //   if (allProblemsForThisVehicle.filter((item) => !item.done).length === 0) {
+    //     const vehicle = await Vehicle.findById(req.body.vehicleId);
+    //   }
+    // }
+    return res.status(200).send({ message: "Забележката е променена" });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });
@@ -101,10 +111,10 @@ router.delete("/:id", async (req, res) => {
     const { id } = req.params;
     const result = await Problem.findByIdAndDelete(id);
     if (!result) {
-      return res.status(404).json({ messga: "Problem not found" });
+      return res.status(404).json({ messga: "Забележката не е намерена" });
     }
 
-    return res.status(200).send({ message: "Problem Deleted" });
+    return res.status(200).send({ message: "Забележката е изтрита" });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ message: err.message });

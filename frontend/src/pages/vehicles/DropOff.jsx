@@ -25,7 +25,7 @@ const DropOff = () => {
   const [problems, setProblems] = useState("");
   const [km, setKm] = useState("");
   const [kmError, setKmError] = useState(false);
-  const [error, setError] = useState([false, ""]);
+  const [error, setError] = useState({ show: false, message: "" });
   const [destination, setDestination] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();

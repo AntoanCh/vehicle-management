@@ -1,13 +1,20 @@
-import React, { useEffect } from "react";
-import MUIDataTable from "mui-datatables";
-import axios from "axios";
-import Box from "@mui/material/Box";
+import { useEffect, useState } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
+import { Button } from "@mui/material";
 import dayjs from "dayjs";
-import { useState } from "react";
+import axios from "axios";
+import "dayjs/locale/bg";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import Box from "@mui/material/Box";
+import ErrorDialog from "../../utils/ErrorDialog";
 import { useMemo } from "react";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import { darken, lighten, useTheme } from "@mui/material";
+import { IconButton, Tooltip } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import Chip from "@mui/material/Chip";
+
 //MRT Imports
 import {
   MaterialReactTable,
@@ -17,12 +24,13 @@ import {
   MRT_ToggleFiltersButton,
 } from "material-react-table";
 
-const Records = () => {
+const DriverRecords = ({ vehicle, userRole, username }) => {
   const [loading, setLoading] = useState(false);
-  const [records, setRecords] = useState({});
-  const [error, setError] = useState([false, ""]);
+  const [error, setError] = useState({ show: false, message: "" });
+  const [records, setRecords] = useState([]);
   const [refetching, setRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
+
   useEffect(() => {
     const fetchData = async () => {
       if (!records.length) {
@@ -32,32 +40,70 @@ const Records = () => {
       }
 
       axios
-        .get(`http://192.168.0.147:5555/api/records/`)
+        .get(`http://192.168.0.147:5555/api/records/vehicle/${vehicle._id}`)
         .then((res) => {
           setRecords(res.data.data);
           setRowCount(res.data.count);
         })
         .catch((err) => {
-          setError([true, err]);
-          console.error(err);
+          setError({ show: true, message: err });
+
           return;
         });
-      setError([false, ""]);
+      setError({ show: false, message: "" });
       setLoading(false);
       setRefetching(false);
     };
     fetchData();
   }, []);
 
+  const handleLoading = () => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  };
+
+  const handleCloseError = () => {
+    setError({ show: false, message: "" });
+  };
   const theme = useTheme();
   const baseBackgroundColor =
     theme.palette.mode === "dark"
       ? "#212121"
       : // "rgba(3, 44, 43, 1)"
         "#fff";
+  // "rgba(244, 255, 233, 1)"
+  // const tableData = useMemo(() => {
+  //   return records.map((obj, index) => {
+  //     return {
+  //       driver: obj.driverName,
+  //       pickupTime: obj.pickupTime,
+  //       dropoffTime: obj.dropoffTime,
+  //       pickupKm:
+  //         obj.pickupKm.toString().slice(0, -3) +
+  //         " " +
+  //         obj.pickupKm.toString().slice(-3),
+  //       dropoffKm: obj.dropoffKm
+  //         ? obj.dropoffKm.toString().slice(0, -3) +
+  //           " " +
+  //           obj.dropoffKm.toString().slice(-3)
+  //         : "в движение",
+  //       destination: obj.destination ? obj.destination : "в движение",
+  //       problem: obj.problem,
+  //     };
+  //   });
+  // }, [records]);
 
+  //
   const columns = useMemo(
     () => [
+      {
+        accessorKey: "driverName",
+        header: "Водач",
+        size: 200,
+        editable: false,
+        filterVariant: "multi-select",
+      },
       {
         accessorKey: "pickupTime",
         header: "Тръгване",
@@ -75,10 +121,13 @@ const Records = () => {
       {
         accessorKey: "dropoffTime",
         header: "Връщане",
-        filterVariant: "date",
+        filterVariant: "datetime",
         filterFn: "stringDateFn",
         size: 180,
         enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
         Cell: ({ cell }) => {
           return cell.getValue() ? (
             dayjs(cell.getValue()).format("DD.MM.YYYY - HH:mm")
@@ -94,34 +143,7 @@ const Records = () => {
             />
           );
         },
-        muiTableBodyCellProps: {
-          align: "center",
-        },
       },
-      {
-        accessorKey: "driverName",
-        header: "Водач",
-        size: 200,
-        editable: false,
-        enableGlobalFilter: false,
-        filterVariant: "multi-select",
-      },
-      {
-        accessorKey: "vehicleModel",
-        header: "Автомобил",
-        size: 200,
-        editable: false,
-        enableGlobalFilter: false,
-        filterVariant: "select",
-      },
-      {
-        accessorKey: "vehicleReg",
-        header: "Номер",
-        size: 200,
-        editable: false,
-        filterVariant: "select",
-      },
-
       {
         accessorKey: "pickupKm",
         header: "Тръгване(км)",
@@ -131,6 +153,19 @@ const Records = () => {
         Cell: ({ cell }) => cell.getValue().toLocaleString() + " км",
         muiTableBodyCellProps: {
           align: "center",
+        },
+        Footer: ({ table }) => {
+          const kmArray = table
+            .getFilteredRowModel()
+            .rows.map((row) => row.getValue("pickupKm"));
+          const max = Math.max(...kmArray);
+          const min = Math.min(...kmArray);
+          return (
+            <Box sx={{ margin: "auto" }}>
+              {"Изминати км:"}
+              <Box color="warning.main">{`${max - min} км.`}</Box>
+            </Box>
+          );
         },
       },
       {
@@ -201,26 +236,14 @@ const Records = () => {
     },
     enableFullScreenToggle: false,
     enableStickyHeader: true,
-    enableColumnActions: false,
+    enableStickyFooter: true,
     enableDensityToggle: false,
+    enableColumnActions: false,
     enableFacetedValues: true,
     enableHiding: false,
     enableColumnResizing: true,
     enableRowPinning: true,
-    muiTableContainerProps: { sx: { maxHeight: "70vh" } },
-    paginationDisplayMode: "pages",
-    positionToolbarAlertBanner: "bottom",
-    muiSearchTextFieldProps: {
-      size: "small",
-      variant: "outlined",
-    },
-    muiPaginationProps: {
-      color: "secondary",
-      rowsPerPageOptions: [50, 100, 200, 300],
-      shape: "rounded",
-      variant: "outlined",
-    },
-    enableColumnResizing: true,
+    muiTableContainerProps: { sx: { maxHeight: "600px" } },
     initialState: {
       sorting: [
         {
@@ -237,6 +260,19 @@ const Records = () => {
       showColumnFilters: true,
       density: "compact",
     },
+    positionToolbarAlertBanner: "bottom",
+    muiSearchTextFieldProps: {
+      size: "small",
+      variant: "outlined",
+    },
+    muiPaginationProps: {
+      color: "secondary",
+      rowsPerPageOptions: [30, 50, 100, 200],
+      shape: "rounded",
+      variant: "outlined",
+    },
+    enableColumnResizing: true,
+    paginationDisplayMode: "pages",
     muiTablePaperProps: {
       elevation: 0,
       sx: {
@@ -268,12 +304,21 @@ const Records = () => {
       draggingBorderColor: theme.palette.secondary.main,
     }),
   });
-
   return (
-    <Box sx={{ margin: "5px", maxHeight: "100px", maxWidth: "95%" }}>
-      <MaterialReactTable table={table} />
+    <Box sx={{ maxHeight: "100px" }}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
+        <ErrorDialog error={error} setError={setError} />
+        {handleLoading()}
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <Box sx={{ backgroundColor: "white" }}>
+            <MaterialReactTable table={table} />
+          </Box>
+        )}
+      </LocalizationProvider>
     </Box>
   );
 };
 
-export default Records;
+export default DriverRecords;

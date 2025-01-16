@@ -41,6 +41,7 @@ function App() {
   const [customFilter, setCustomFilter] = useState("РЕМОНТ");
   const [showExpense, setShowExpense] = useState(false);
   const [darkTheme, setDarkTheme] = useState(false);
+  const [expenseWithTax, setExpenseWithTax] = useState(true);
 
   useEffect(() => {
     if (localStorage.getItem("darkTheme") === "true") {
@@ -126,6 +127,8 @@ function App() {
                       setFilter={setFilter}
                       showExpense={showExpense}
                       setShowExpense={setShowExpense}
+                      expenseWithTax={expenseWithTax}
+                      setExpenseWithTax={setExpenseWithTax}
                     />
                   }
                 />

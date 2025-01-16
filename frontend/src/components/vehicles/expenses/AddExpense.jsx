@@ -11,14 +11,13 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Box from "@mui/material/Box";
 import { DeleteForever, Close, Edit } from "@mui/icons-material/";
-import MUIDataTable from "mui-datatables";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import DraggablePaper from "../DraggablePaper";
+import DraggablePaper from "../../DraggablePaper";
 
 const AddExpense = ({
   vehicle,
@@ -47,69 +46,102 @@ const AddExpense = ({
 
   const handleSave = () => {
     if (!newServ.date || !newServ.type || !newServ.desc || !newServ.cost) {
-      setError([true, "Дата, описание, вид и стойност са задължителни полета"]);
+      setError({
+        show: true,
+        message: "Дата, описание, вид и стойност са задължителни полета",
+      });
     } else {
       setAdd(false);
+      setNewServ({
+        ...newServ,
+        invoice: newServ.invoice.padStart(10, "0"),
+      });
 
       axios
         .post("http://192.168.0.147:5555/services", newServ)
         .then(() => {
-          axios.post(`http://192.168.0.147:5555/api/logs`, {
-            date: dayjs(),
-            user: username,
-            changed: { newServ: [newServ.cost, newServ.desc] },
-            vehicleId: vehicle._id,
-          });
-          setAlert({
-            show: true,
-            message: `Разходът на стойност ${newServ.cost} лв, за ${vehicle.reg} записан успешно!`,
-            severity: "success",
-          });
+          axios
+            .post(`http://192.168.0.147:5555/api/logs`, {
+              date: dayjs(),
+              user: username,
+              changed: { newServ: [newServ.cost, newServ.desc] },
+              vehicleId: vehicle._id,
+            })
+            .then(() => {
+              setAlert({
+                show: true,
+                message: `Разходът на стойност ${newServ.cost} лв, Ф-ра № '${newServ.invoice}' за ${vehicle.reg} записан успешно!`,
+                severity: "success",
+              });
+            })
+            .catch(() => {
+              setAlert({
+                show: true,
+                message: `Разходът на стойност ${newServ.cost} лв, Ф-ра № '${newServ.invoice}' за ${vehicle.reg} записан успешно!`,
+                severity: "warning",
+              });
+            });
+
+          setTimeout(() => {
+            setRefresh(!refresh);
+          }, 100);
         })
         .catch((err) => {
           setLoading(false);
-          alert("Грешка, проверете конзолата 1");
-          console.log(err);
+          setError([true, `Грешка при комуникация: ${err}`]);
         });
-      if (
-        !vehicle.startKm ||
-        vehicle.startKm === 0 ||
-        parseInt(vehicle.startKm) > parseInt(newServ.km)
-      ) {
-        vehicle.startKm = newServ.km.toString();
-        axios
-          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-          .then(() => {})
-          .catch((err) => {
-            alert("Грешка, проверете конзолата 2");
-            console.log(err);
-          });
-      }
-      if (
-        !vehicle.startDate ||
-        dayjs(vehicle.startDate).diff(dayjs(newServ.date)) > 1
-      ) {
-        vehicle.startDate = newServ.date;
-        axios
-          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-          .then(() => {})
-          .catch((err) => {
-            alert("Грешка, проверете конзолата 3");
-            console.log(err);
-          });
-      }
-
+      // if (
+      //   !vehicle.startKm ||
+      //   vehicle.startKm === 0 ||
+      //   parseInt(vehicle.startKm) > parseInt(newServ.km)
+      // ) {
+      //   vehicle.startKm = newServ.km.toString();
+      //   axios
+      //     .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
+      //     .then(() => {})
+      //     .catch((err) => {
+      //       alert("Грешка, проверете конзолата 2");
+      //       console.log(err);
+      //     });
+      // }
+      // if (
+      //   !vehicle.startDate ||
+      //   dayjs(vehicle.startDate).diff(dayjs(newServ.date)) > 1
+      // ) {
+      //   vehicle.startDate = newServ.date;
+      //   axios
+      //     .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
+      //     .then(() => {})
+      //     .catch((err) => {
+      //       alert("Грешка, проверете конзолата 3");
+      //       console.log(err);
+      //     });
+      // }
       setDate(newServ.date);
-      setTimeout(() => {
-        // window.location.reload();
-        setRefresh(!refresh);
-      }, 1000);
+      setNewServ({
+        date: date,
+        type: "",
+        desc: "",
+        invoice: "",
+        km: 0,
+        cost: "",
+        vehicleId: vehicle._id,
+      });
     }
   };
 
   const handleClose = () => {
     setAdd(false);
     setDate(newServ.date);
+    setNewServ({
+      date: date,
+      type: "",
+      desc: "",
+      invoice: "",
+      km: 0,
+      cost: "",
+      vehicleId: vehicle._id,
+    });
   };
 
   const handleChange = (e) => {
@@ -122,6 +154,8 @@ const AddExpense = ({
     } else if (e.target.id === "cost") {
       if (e.target.value.endsWith(",")) {
         e.target.value = parseFloat(e.target.value).toString() + ".";
+      } else if (e.target.value === ".") {
+        e.target.value = "0.";
       } else if (e.target.value.endsWith(".")) {
         e.target.value = parseFloat(e.target.value).toString() + ".";
       } else if (e.target.value.endsWith(".0")) {
@@ -238,16 +272,6 @@ const AddExpense = ({
                   <TextField
                     fullWidth
                     onChange={handleChange}
-                    value={newServ.desc}
-                    name="desc"
-                    id="desc"
-                    label="Описание:"
-                  />
-                </Box>
-                <Box sx={{ marginY: "15px" }}>
-                  <TextField
-                    fullWidth
-                    onChange={handleChange}
                     value={newServ.cost}
                     name="cost"
                     id="cost"
@@ -258,10 +282,38 @@ const AddExpense = ({
                   <TextField
                     fullWidth
                     onChange={handleChange}
+                    value={newServ.desc}
+                    name="desc"
+                    id="desc"
+                    label="Описание:"
+                  />
+                </Box>
+
+                <Box sx={{ marginY: "15px" }}>
+                  <TextField
+                    fullWidth
+                    onChange={handleChange}
                     value={newServ.invoice}
                     name="invoice"
                     id="invoice"
                     label="Фактура №:"
+                    inputProps={{ maxLength: 10 }}
+                    onBlur={() =>
+                      setNewServ({
+                        ...newServ,
+                        invoice: newServ.invoice.padStart(10, "0"),
+                      })
+                    }
+                  />
+                </Box>
+                <Box sx={{ marginY: "15px" }}>
+                  <TextField
+                    fullWidth
+                    onChange={handleChange}
+                    value={newServ.compName}
+                    name="compName"
+                    id="compName"
+                    label="Ан. Наименование"
                   />
                 </Box>
                 <Box sx={{ marginY: "15px" }}>

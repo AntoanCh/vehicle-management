@@ -22,7 +22,7 @@ import {
 const Log = ({ vehicle, log }) => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState([false, ""]);
+  const [error, setError] = useState({ show: false, message: "" });
   const [refetching, setRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
 
@@ -55,11 +55,11 @@ const Log = ({ vehicle, log }) => {
           setRowCount(res.data.count);
         })
         .catch((err) => {
-          setError([true, err]);
-          console.error(err);
+          setError({ show: true, message: err });
+
           return;
         });
-      setError([false, ""]);
+      setError({ show: false, message: "" });
       setLoading(false);
       setRefetching(false);
     };

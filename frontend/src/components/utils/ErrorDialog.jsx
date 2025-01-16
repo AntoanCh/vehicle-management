@@ -15,7 +15,7 @@ const ErrorDialog = ({ error, setError }) => {
   return (
     <Dialog
       PaperComponent={DraggablePaper}
-      open={error[0]}
+      open={error.show}
       onClose={handleError}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
@@ -39,7 +39,7 @@ const ErrorDialog = ({ error, setError }) => {
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          <Box sx={{ fontWeight: 800, marginTop: "20px" }}>{error[1]}</Box>
+          <Box sx={{ fontWeight: 800, marginTop: "20px" }}>{error.message}</Box>
         </DialogContentText>
       </DialogContent>
       <DialogActions>

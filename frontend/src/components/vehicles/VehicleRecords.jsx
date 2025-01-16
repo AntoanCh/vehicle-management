@@ -26,7 +26,7 @@ import {
 
 const VehicleRecords = ({ vehicle, userRole, username }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState([false, ""]);
+  const [error, setError] = useState({ show: false, message: "" });
   const [records, setRecords] = useState([]);
   const [refetching, setRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
@@ -46,11 +46,11 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
           setRowCount(res.data.count);
         })
         .catch((err) => {
-          setError([true, err]);
-          console.error(err);
+          setError({ show: true, message: err });
+
           return;
         });
-      setError([false, ""]);
+      setError({ show: false, message: "" });
       setLoading(false);
       setRefetching(false);
     };
@@ -64,7 +64,7 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
   };
 
   const handleCloseError = () => {
-    setError([false, ""]);
+    setError({ show: false, message: "" });
   };
   const theme = useTheme();
   const baseBackgroundColor =
@@ -243,7 +243,7 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
     enableHiding: false,
     enableColumnResizing: true,
     enableRowPinning: true,
-    muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    muiTableContainerProps: { sx: { maxHeight: "75vh" } },
     initialState: {
       sorting: [
         {
@@ -305,7 +305,7 @@ const VehicleRecords = ({ vehicle, userRole, username }) => {
     }),
   });
   return (
-    <Box sx={{ maxHeight: "100px" }}>
+    <Box>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
         <ErrorDialog error={error} setError={setError} />
         {handleLoading()}

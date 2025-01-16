@@ -25,6 +25,11 @@ export const serviceSchema = mongoose.Schema(
       required: false,
       default: 0,
     },
+    compName: {
+      type: String,
+      required: false,
+      default: "",
+    },
     cost: {
       type: Number,
       required: true,

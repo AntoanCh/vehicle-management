@@ -14,11 +14,17 @@ import TextField from "@mui/material/TextField";
 import { Edit, DeleteForever, Timeline } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
-import MUIDataTable from "mui-datatables";
 import { useNavigate } from "react-router-dom";
 import { darken, lighten, useTheme } from "@mui/material";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import Tooltip from "@mui/material/Tooltip";
+import AddDriver from "./AddDriver";
+import EditDriver from "./EditDriver";
+import ErrorDialog from "../../utils/ErrorDialog";
+import Alert from "@mui/material/Alert";
+import Slide from "@mui/material/Slide";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteDriver from "./DeleteDriver";
 
 //MRT Imports
 import {
@@ -30,15 +36,26 @@ import {
 } from "material-react-table";
 
 const DriversList = () => {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(true);
+  const [errorBanner, setErrorBanner] = useState({
+    show: false,
+    message: "",
+    color: "",
+  });
   const [drivers, setDrivers] = useState({});
-  const [error, setError] = useState([false, ""]);
-  const [refetching, setRefetching] = useState(false);
+  const [error, setError] = useState({ show: false, message: "" });
   const [rowCount, setRowCount] = useState(0);
-  const [edit, setEdit] = useState([false, {}]);
+  const [refresh, setRefresh] = useState(false);
+  const [edit, setEdit] = useState({ show: false, driver: {} });
   const [add, setAdd] = useState(false);
-  const [hist, setHist] = useState([false, {}, []]);
-  const [verifyDelete, setVerifyDelete] = useState([false, {}]);
+  const [hist, setHist] = useState({ show: false, driver: {}, data: [] });
+  const [verifyDelete, setVerifyDelete] = useState({ show: false, driver: {} });
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    severity: "",
+  });
 
   const [input, setInput] = useState({
     firstName: "",
@@ -50,35 +67,47 @@ const DriversList = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!drivers.length) {
-        setLoading(true);
+        setIsLoading(true);
       } else {
-        setRefetching(true);
+        setIsRefetching(true);
       }
 
-      axios
-        .get(`http://192.168.0.147:5555/api/drivers/`)
-        .then((res) => {
-          setDrivers(res.data.data);
-          setRowCount(res.data.count);
-        })
-        .catch((err) => {
-          setError([true, err]);
-          console.error(err);
-          return;
+      // axios
+      //   .get(`http://192.168.0.147:5555/api/drivers/`)
+      //   .then((res) => {
+      //     setDrivers(res.data.data);
+      //     setRowCount(res.data.count);
+      //   })
+      //   .catch((err) => {
+      //     setError({
+      //       show: true,
+      //       message: "Дата, описание, вид и стойност са задължителни полета",
+      //     });
+
+      //     return;
+      //   });
+      try {
+        const res = await axios.get(`http://192.168.0.147:5555/api/drivers/`);
+        setDrivers(res.data.data);
+        setRowCount(res.data.count);
+      } catch {
+        setError({
+          show: true,
+          message: "Дата, описание, вид и стойност са задължителни полета",
         });
-      setError([false, ""]);
-      setLoading(false);
-      setRefetching(false);
+
+        return;
+      }
+      setError({ show: false, message: "" });
+      setIsLoading(false);
+      setIsRefetching(false);
     };
     fetchData();
-  }, []);
+  }, [refresh]);
 
   const theme = useTheme();
   const baseBackgroundColor =
-    theme.palette.mode === "dark"
-      ? "#212121"
-      : // "rgba(3, 44, 43, 1)"
-        "#fff";
+    theme.palette.mode === "dark" ? "#212121" : "#fff";
 
   const columns = useMemo(
     () => [
@@ -98,6 +127,7 @@ const DriversList = () => {
         header: "Карта 1",
         size: 250,
         editable: false,
+        enableClickToCopy: true,
         enableGlobalFilter: false,
         muiTableBodyCellProps: {
           align: "center",
@@ -115,58 +145,14 @@ const DriversList = () => {
         },
       },
     ],
-    []
+    [refresh]
   );
   const { firstName, lastName, barcode, barcode2 } = input;
 
-  const handleChangeAdd = (e) => {
-    const { name, value } = e.target;
-    setInput({
-      ...input,
-      [name]: value,
-    });
-  };
-
-  const handleChangeEdit = (e) => {
-    const { name, value } = e.target;
-
-    setEdit([true, { ...edit[1], [name]: value }]);
-  };
-
-  const handleCloseEdit = () => {
-    setEdit([false, {}]);
-  };
-  const handleAddSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const { data } = await axios.post(
-        "http://192.168.0.147:5555/api/drivers",
-        {
-          ...input,
-        }
-      );
-      const { status, message } = data;
-
-      if (status) {
-        window.location.reload();
-      } else {
-        window.location.reload();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-    setInput({
-      ...input,
-      firstName: "",
-      lastName: "",
-      barcode: "",
-      barcode2: "",
-    });
-  };
   //
   const handleLoading = () => {
     setTimeout(() => {
-      setLoading(false);
+      setIsLoading(false);
     }, 2000);
   };
   const handleAddModal = () => {
@@ -176,44 +162,9 @@ const DriversList = () => {
   const handleDelete = () => {
     // axios.delete(`http://192.168.0.147/sites/${e}`)
   };
-  const handleCloseAdd = () => {
-    setAdd(false);
-  };
+
   const handleCloseHist = () => {
     setHist([false, {}, []]);
-  };
-
-  const handleCloseDelete = () => {
-    setVerifyDelete([false, {}]);
-  };
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-
-    try {
-      const { data } = await axios.put(
-        `http://192.168.0.147:5555/api/drivers/${edit[1]._id}`,
-        {
-          ...edit[1],
-        }
-      );
-      const { status, message } = data;
-
-      // if (status) {
-      //   handleSuccess(message);
-      //   window.location.reload();
-      // } else {
-      //   handleError(message);
-      // }
-      setEdit([false, {}]);
-    } catch (error) {
-      console.log(error);
-    }
-    setEdit([false, {}]);
-
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
   };
 
   const columns2 = [
@@ -289,6 +240,12 @@ const DriversList = () => {
     muiTableContainerProps: { sx: { maxHeight: "600px" } },
     paginationDisplayMode: "pages",
     positionToolbarAlertBanner: "bottom",
+    muiToolbarAlertBannerProps: errorBanner.show
+      ? {
+          color: errorBanner.color,
+          children: errorBanner.message,
+        }
+      : undefined,
     displayColumnDefOptions: {
       "mrt-row-actions": {
         size: 150,
@@ -305,6 +262,11 @@ const DriversList = () => {
       variant: "outlined",
     },
     enableColumnResizing: true,
+    state: {
+      isLoading,
+      showProgressBars: isRefetching,
+      showAlertBanner: errorBanner.show,
+    },
     initialState: {
       sorting: [
         {
@@ -332,7 +294,7 @@ const DriversList = () => {
           <Tooltip title="Редактиране" disableInteractive>
             <IconButton
               onClick={() => {
-                setEdit([true, row.original]);
+                setEdit({ show: true, driver: row.original });
               }}
               color="warning"
               variant="contained"
@@ -351,7 +313,7 @@ const DriversList = () => {
               <DeleteForever />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Редактиране" disableInteractive>
+          <Tooltip title="Движение" disableInteractive>
             <IconButton
               onClick={() => {
                 axios
@@ -359,7 +321,11 @@ const DriversList = () => {
                     `http://192.168.0.147:5555/api/records/driver/${row.original._id}`
                   )
                   .then((res) => {
-                    setHist([true, row.original, res.data]);
+                    setHist({
+                      show: true,
+                      driver: row.original,
+                      data: res.data,
+                    });
                   })
                   .catch((err) => {
                     console.log(err);
@@ -372,6 +338,21 @@ const DriversList = () => {
             </IconButton>
           </Tooltip>
         </Box>
+      </Box>
+    ),
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Box
+        sx={{
+          display: "flex",
+          gap: "16px",
+          padding: "8px",
+          flexWrap: "wrap",
+        }}
+      >
+        <Button fullWidth variant="contained" onClick={handleAddModal}>
+          Добави Шофьор
+          <PersonAddAlt1Icon />
+        </Button>
       </Box>
     ),
     muiTableBodyProps: {
@@ -402,7 +383,7 @@ const DriversList = () => {
 
   return (
     <Box>
-      <Dialog
+      {/* <Dialog
         open={verifyDelete[0]}
         onClose={handleCloseDelete}
         aria-labelledby="alert-dialog-title"
@@ -442,86 +423,51 @@ const DriversList = () => {
             ИЗТРИЙ
           </Button>
         </DialogActions>
-      </Dialog>
-      <Dialog
-        open={edit[0]}
-        onClose={handleCloseEdit}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+      </Dialog> */}
+      <DeleteDriver
+        verifyDelete={verifyDelete}
+        setVerifyDelete={setVerifyDelete}
+        error={error}
+        setError={setError}
+      />
+      <EditDriver edit={edit} setEdit={setEdit} />
+      <Slide
+        direction="down"
+        in={alert.show}
+        // in={true}
+        sx={{
+          position: "absolute",
+          // left: "50%",
+          zIndex: 2,
+          width: "40%",
+        }}
       >
-        <DialogTitle id="alert-dialog-title">
-          {`РЕДАКТИРАНЕ ${edit[1].firstName} ${edit[1].lastName}`}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description"></DialogContentText>
-          <div>
-            <span>ID: </span>
-            <span>{edit ? edit[1]._id : ""}</span>
-          </div>
-
-          <div className="">
-            <div className="bg-gray-300 flex flex-col border-2 border-blue-400 rounded-xl w-[400px] p-4 mx-auto">
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="firstName"
-                  label="Име:"
-                  value={edit[1].firstName}
-                  onChange={handleChangeEdit}
-                  variant="filled"
-                ></TextField>
-              </div>
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="lastName"
-                  label="Фамилия:"
-                  value={edit[1].lastName}
-                  onChange={handleChangeEdit}
-                  variant="filled"
-                ></TextField>
-              </div>
-
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="barcode"
-                  label="Номер карта:"
-                  value={edit[1].barcode}
-                  onChange={handleChangeEdit}
-                  variant="filled"
-                />
-              </div>
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="barcode2"
-                  label="Номер карта 2:"
-                  value={edit[1].barcode2}
-                  onChange={handleChangeEdit}
-                  variant="filled"
-                />
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleCloseEdit}
-            autoFocus
-          >
-            Отказ
-          </Button>
-          <Button variant="contained" onClick={handleUpdate} autoFocus>
-            Обнови
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <Alert
+          severity={alert.severity}
+          variant="filled"
+          sx={{ margin: 0 }}
+          onClick={() => {
+            setAlert(false);
+          }}
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setAlert(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+        >
+          {alert.message}
+        </Alert>
+      </Slide>
       <Dialog
         maxWidth={"lg"}
-        open={hist[0]}
+        open={hist.show}
         onClose={handleCloseHist}
         fullWidth
         // maxWidth={"xl"}
@@ -529,32 +475,12 @@ const DriversList = () => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {`ИСТОРИЯ ${hist[1].firstName} ${hist[1].lastName}`}
+          {`ИСТОРИЯ ${hist.driver.firstName} ${hist.driver.lastName}`}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
 
-          <Box>
-            {/* {hist[0] && (
-              <MUIDataTable
-                title={"ИСТОРИЯ"}
-                data={hist[2].data.map((obj) => {
-                  return [
-                    obj.vehicleModel,
-                    obj.vehicleReg,
-                    obj.pickupTime,
-                    obj.dropoffTime,
-                    obj.pickupKm,
-                    obj.dropoffKm ? obj.dropoffKm : "в движение",
-                    obj.destination ? obj.destination : "в движение",
-                    obj.problem,
-                  ];
-                })}
-                columns={columns2}
-                options={options}
-              />
-            )} */}
-          </Box>
+          <Box></Box>
         </DialogContent>
         <DialogActions>
           <Button
@@ -567,96 +493,23 @@ const DriversList = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog
-        open={add}
-        onClose={handleCloseAdd}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Добавяне на шофьор"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description"></DialogContentText>
-          <div className="">
-            <div className="bg-gray-300 flex flex-col border-2 border-blue-400 rounded-xl w-[400px] p-4 mx-auto">
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="firstName"
-                  label="Име:"
-                  value={firstName}
-                  onChange={handleChangeAdd}
-                  variant="filled"
-                ></TextField>
-              </div>
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="lastName"
-                  label="Фамилия:"
-                  value={lastName}
-                  onChange={handleChangeAdd}
-                  variant="filled"
-                ></TextField>
-              </div>
+      <ErrorDialog error={error} setError={setError} />
+      <AddDriver
+        add={add}
+        setAdd={setAdd}
+        drivers={drivers}
+        setRefresh={setRefresh}
+        refresh={refresh}
+        setAlert={setAlert}
+        setError={setError}
+        setErrorBanner={setErrorBanner}
+      />
 
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="barcode"
-                  label="Номер карта:"
-                  value={barcode}
-                  onChange={handleChangeAdd}
-                  variant="filled"
-                />
-              </div>
-              <div className="my-4">
-                <TextField
-                  fullWidth
-                  name="barcode2"
-                  label="Номер карта 2:"
-                  value={barcode2}
-                  onChange={handleChangeAdd}
-                  variant="filled"
-                />
-              </div>
-              {/* <div className="my-4">
-                <Button onClick={handleSubmit} fullWidth variant="outlined">
-                  ЗАПИШИ
-                </Button>
-              </div> */}
-            </div>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={() => setAdd(false)}
-            autoFocus
-          >
-            Отказ
-          </Button>
-          <Button variant="contained" onClick={handleAddSubmit} autoFocus>
-            Добави
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {handleLoading()}
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        <Box className="my-4 flex flex-col items-center">
-          <Box sx={{ width: "90%", margin: "5px" }}>
-            <MaterialReactTable table={table} />
-            <Button fullWidth variant="contained" onClick={handleAddModal}>
-              Добави Шофьор
-              <PersonAddAlt1Icon />
-            </Button>
-          </Box>
+      <Box>
+        <Box sx={{ width: "99%", margin: "5px" }}>
+          <MaterialReactTable table={table} />
         </Box>
-      )}
+      </Box>
     </Box>
   );
 };

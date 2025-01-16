@@ -75,13 +75,13 @@ const CreatePerson = ({ siteId, siteName }) => {
   const [jobError, setJobError] = useState(false);
   const [employmentDateError, setEmploymentDateError] = useState(false);
   const [EGNError, setEGNError] = useState(false);
-  const [error, setError] = useState([false, ""]);
+  const [error, setError] = useState({ show: false, message: "" });
   const [imageFeedback, setImageFeedback] = useState(false);
 
   const navigate = useNavigate();
 
   const handleClose = () => {
-    setError([false, ""]);
+    setError({ show: false, message: "" });
   };
   const handleSavePerson = (e) => {
     setLoading(true);
@@ -90,10 +90,11 @@ const CreatePerson = ({ siteId, siteName }) => {
       e.preventDefault();
       setLoading(false);
 
-      setError([
-        true,
-        "Има неправилно въведени данни. Проверете за червени полета и поправете грешките",
-      ]);
+      setError({
+        show: true,
+        message:
+          "Има неправилно въведени данни. Проверете за червени полета и поправете грешките",
+      });
     } else if (
       !data.firstName ||
       !data.middleName ||
@@ -123,10 +124,11 @@ const CreatePerson = ({ siteId, siteName }) => {
       if (!data.EGN) {
         setEGNError(true);
       }
-      setError([
-        true,
-        "Има невъведени данни. Въведете всички задължителни данни, отбелязани със ' * '",
-      ]);
+      setError({
+        show: true,
+        message:
+          "Има невъведени данни. Въведете всички задължителни данни, отбелязани със ' * '",
+      });
     } else {
       e.preventDefault();
       const formData = new FormData();
@@ -159,11 +161,9 @@ const CreatePerson = ({ siteId, siteName }) => {
         .catch((err) => {
           setLoading(false);
           if (err.response.data.message) {
-            setError([true, err.response.data.message]);
+            setError({ show: true, message: err.response.data.message });
           } else {
-            alert("Грешка, проверете конзолата");
-            setError([true, "Грешка, проверете конзолата"]);
-            console.log(err);
+            setError({ show: true, message: err });
           }
         });
     }
@@ -174,9 +174,9 @@ const CreatePerson = ({ siteId, siteName }) => {
   };
   const handleChange = (e) => {
     if (!e.target.value) {
-      setError(true);
+      setError({ show: true, message: "грешка" });
     } else {
-      setError(false);
+      setError({ show: false, message: "" });
     }
 
     if (e.target.name === "firstName") {

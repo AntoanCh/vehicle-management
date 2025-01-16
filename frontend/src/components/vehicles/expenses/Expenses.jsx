@@ -11,7 +11,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Box from "@mui/material/Box";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import MUIDataTable from "mui-datatables";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -20,11 +19,16 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 import AddExpense from "./AddExpense";
-import ErrorDialog from "../utils/ErrorDialog";
+import EditExpense from "./EditExpense";
+import DeleteExpense from "./DeleteExpense";
+import ErrorDialog from "../../utils/ErrorDialog";
 import { useMemo } from "react";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import { darken, lighten, useTheme } from "@mui/material";
 import { Edit, Delete, DoneOutline, Add } from "@mui/icons-material";
+import Slide from "@mui/material/Slide";
+import CloseIcon from "@mui/icons-material/Close";
+import Alert from "@mui/material/Alert";
 
 //MRT Imports
 import {
@@ -34,22 +38,24 @@ import {
   MRT_GlobalFilterTextField,
   MRT_ToggleFiltersButton,
 } from "material-react-table";
-const Expenses = ({
-  vehicle,
-  services,
-  fuels,
-  userRole,
-  username,
-  refresh,
-  setRefresh,
-}) => {
+
+const Expenses = ({ vehicle, services, fuels, userRole, username }) => {
   const [expenseDate, setExpenseDate] = useState(dayjs());
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState([false, ""]);
-  const [verifyDelete, setVerifyDelete] = useState([false, {}]);
-  const [edit, setEdit] = useState([false, {}]);
+  const [error, setError] = useState({ show: false, message: "" });
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    severity: "",
+  });
+  const [verifyDelete, setVerifyDelete] = useState({
+    show: false,
+    expense: {},
+  });
+  const [edit, setEdit] = useState({ show: false, expense: {} });
   const [add, setAdd] = useState(false);
   const [refetching, setRefetching] = useState(false);
+  const [refresh, setRefresh] = useState(false);
   const [rowCount, setRowCount] = useState(0);
   const [expenses, setExpenses] = useState({});
 
@@ -77,117 +83,16 @@ const Expenses = ({
           setRowCount(res.data.count);
         })
         .catch((err) => {
-          setError([true, err]);
-          console.error(err);
+          setError({ show: true, message: err });
+
           return;
         });
-      setError([false, ""]);
+      setError({ show: false, message: "" });
       setLoading(false);
       setRefetching(false);
     };
     fetchData();
-  }, []);
-
-  const handleSaveEdit = () => {
-    if (!edit[1].date || !edit[1].type || !edit[1].desc || !edit[1].cost) {
-      setError([true, "Дата, описание, вид и стойност са задължителни полета"]);
-    } else {
-      setAdd(false);
-
-      axios
-        .put(`http://192.168.0.147:5555/services/${edit[1]._id}`, edit[1])
-        .then(() => {
-          axios.post(`http://192.168.0.147:5555/api/logs`, {
-            date: dayjs(),
-            user: username,
-            changed: { newServ: [edit[1].invoice, edit[1].desc] },
-            vehicleId: vehicle._id,
-          });
-        })
-        .catch((err) => {
-          setLoading(false);
-          alert("Грешка, проверете конзолата 1");
-          console.log(err);
-        });
-      if (
-        !vehicle.startKm ||
-        vehicle.startKm === "0" ||
-        parseInt(vehicle.startKm) > parseInt(edit[1].km)
-      ) {
-        vehicle.startKm = edit[1].km.toString();
-        axios
-          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-          .then(() => {})
-          .catch((err) => {
-            alert("Грешка, проверете конзолата 2");
-            console.log(err);
-          });
-      }
-      if (
-        !vehicle.startDate ||
-        dayjs(vehicle.startDate).diff(dayjs(edit[1].date)) > 1
-      ) {
-        vehicle.startDate = edit[1].date;
-        axios
-          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-          .then(() => {})
-          .catch((err) => {
-            alert("Грешка, проверете конзолата 3");
-            console.log(err);
-          });
-      }
-
-      setTimeout(() => {
-        // window.location.reload();
-        setRefresh(!refresh);
-        setEdit([false, {}]);
-      }, 100);
-    }
-  };
-
-  const handleClose = () => {
-    setAdd(false);
-  };
-  const handleChangeEdit = (e) => {
-    const newData = { ...edit[1] };
-    if (e.target.id === "km") {
-      e.target.value = parseInt(e.target.value);
-      if (e.target.value === "NaN") {
-        e.target.value = "";
-      }
-    } else if (e.target.id === "cost") {
-      if (e.target.value.endsWith(",")) {
-        e.target.value = parseFloat(e.target.value).toString() + ".";
-      } else if (e.target.value.endsWith(".")) {
-        e.target.value = parseFloat(e.target.value).toString() + ".";
-      } else if (e.target.value.endsWith(".0")) {
-        e.target.value = parseFloat(e.target.value).toString() + ".0";
-      } else if (/^[0-9]*\.[0-9]{2,3}$/.test(e.target.value)) {
-        e.target.value = Number(parseFloat(e.target.value).toFixed(2));
-      } else if (e.nativeEvent.inputType === "insertFromPaste") {
-        e.target.value = Number(parseFloat(e.target.value).toFixed(2));
-      } else {
-        e.target.value = parseFloat(e.target.value);
-        if (e.target.value === "NaN") {
-          e.target.value = "";
-        } //.toString();
-      }
-    }
-    if (e.target.name === "type") {
-      newData[e.target.name] = e.target.value;
-    } else {
-      newData[e.target.id] = e.target.value;
-    }
-
-    setEdit([true, { ...newData }]);
-  };
-
-  const handleCloseDelete = () => {
-    setVerifyDelete([false, {}]);
-  };
-  const handleCloseEdit = () => {
-    setEdit([false, {}]);
-  };
+  }, [refresh]);
 
   const theme = useTheme();
   const baseBackgroundColor =
@@ -202,6 +107,7 @@ const Expenses = ({
         accessorKey: "date",
         header: "Дата",
         size: 120,
+        grow: false,
         enableGlobalFilter: false,
         filterVariant: "date",
         filterFn: "stringDateFn",
@@ -216,34 +122,9 @@ const Expenses = ({
         accessorKey: "type",
         header: "Вид",
         size: 100,
+        grow: false,
         enableGlobalFilter: false,
         filterVariant: "select",
-        muiTableBodyCellProps: {
-          align: "center",
-        },
-      },
-      {
-        accessorKey: "desc",
-        header: "Описание",
-        size: 950,
-        editable: false,
-        enableColumnFilter: false,
-      },
-      {
-        accessorKey: "invoice",
-        header: "Фактура",
-        size: 150,
-        enableColumnFilter: false,
-        muiTableBodyCellProps: {
-          align: "center",
-        },
-      },
-      {
-        accessorKey: "km",
-        header: "Километри",
-        size: 150,
-        enableColumnFilter: false,
-        enableGlobalFilter: false,
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -252,6 +133,7 @@ const Expenses = ({
         accessorKey: "cost",
         header: "Стойност",
         size: 150,
+        grow: false,
         enableColumnFilter: false,
         muiTableBodyCellProps: {
           align: "center",
@@ -282,8 +164,47 @@ const Expenses = ({
           );
         },
       },
+      {
+        accessorKey: "desc",
+        header: "Описание",
+        size: 750,
+        grow: true,
+        editable: false,
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "invoice",
+        header: "Фактура",
+        size: 150,
+        grow: false,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
+      {
+        accessorKey: "compName",
+        header: "Ан. Наименование",
+        size: 150,
+        grow: false,
+        enableColumnFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
+      {
+        accessorKey: "km",
+        header: "Километри",
+        size: 150,
+        grow: false,
+        enableColumnFilter: false,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "center",
+        },
+      },
     ],
-    []
+    [refresh]
   );
 
   const table = useMaterialReactTable({
@@ -302,6 +223,7 @@ const Expenses = ({
     enableStickyHeader: true,
     enableColumnActions: false,
     enableStickyFooter: true,
+    // layoutMode: "grid",
     enableDensityToggle: false,
     enableFacetedValues: true,
     enableHiding: false,
@@ -313,7 +235,10 @@ const Expenses = ({
       <Box>
         <IconButton
           onClick={() => {
-            setEdit([true, row.original]);
+            setEdit({
+              show: true,
+              expense: { ...row.original, cost: row.original.cost.toString() },
+            });
           }}
           color="warning"
           variant="contained"
@@ -322,7 +247,7 @@ const Expenses = ({
         </IconButton>
         <IconButton
           onClick={() => {
-            setVerifyDelete([true, row.original]);
+            setVerifyDelete({ show: true, expense: row.original });
           }}
           color="error"
           variant="contained"
@@ -331,10 +256,15 @@ const Expenses = ({
         </IconButton>
       </Box>
     ),
-    muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    muiTableContainerProps: { sx: { maxHeight: "70vh" } },
     displayColumnDefOptions: {
       "mrt-row-actions": {
         size: 120,
+      },
+    },
+    state: {
+      columnVisibility: {
+        km: false,
       },
     },
     initialState: {
@@ -343,10 +273,6 @@ const Expenses = ({
           id: "date",
           desc: true,
         },
-        // {
-        //   id: "dropoffTime",
-        //   desc: true,
-        // },
       ],
 
       pagination: { pageSize: 50, pageIndex: 0 },
@@ -406,8 +332,8 @@ const Expenses = ({
   return (
     <Box>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
-        <Dialog
-          open={verifyDelete[0]}
+        {/* <Dialog
+          open={verifyDelete.show}
           onClose={handleCloseDelete}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -416,13 +342,13 @@ const Expenses = ({
           <DialogContent>
             <DialogContentText id="alert-dialog-description"></DialogContentText>
             {`Сигурен ли сте, че искате да изтриете записът ${
-              verifyDelete[1].type +
+              verifyDelete.expense.type +
               " " +
-              verifyDelete[1].desc +
+              verifyDelete.expense.desc +
               " \n с № на фактура: " +
-              verifyDelete[1].invoice +
+              verifyDelete.expense.invoice +
               " на стойност: " +
-              verifyDelete[1].cost +
+              verifyDelete.expense.cost +
               " лв."
             } Тази операция е необратима`}
           </DialogContent>
@@ -441,7 +367,7 @@ const Expenses = ({
               onClick={() => {
                 axios
                   .delete(
-                    `http://192.168.0.147:5555/services/${verifyDelete[1]._id}`
+                    `http://192.168.0.147:5555/services/${verifyDelete.expense._id}`
                   )
                   .then(() => {
                     axios.post(`http://192.168.0.147:5555/api/logs`, {
@@ -449,8 +375,8 @@ const Expenses = ({
                       user: username,
                       changed: {
                         delServ: [
-                          verifyDelete[1].invoice,
-                          verifyDelete[1].desc,
+                          verifyDelete.expense.invoice,
+                          verifyDelete.expense.desc,
                         ],
                       },
                       vehicleId: vehicle._id,
@@ -469,116 +395,68 @@ const Expenses = ({
               ИЗТРИЙ
             </Button>
           </DialogActions>
-        </Dialog>
-        <Dialog
-          open={edit[0]}
-          onClose={handleCloseEdit}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">РЕДАКТИРАНЕ</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description"></DialogContentText>
+        </Dialog> */}
 
-            <Box className="my-4">
-              <DemoContainer components={["DatePicker, DatePicker"]}>
-                <DatePicker
-                  fullWidth
-                  id="date"
-                  label="Дата:"
-                  value={
-                    dayjs(edit[1].date)
-                    // .add(3, "hour")
-                  }
-                  onChange={(newValue) => {
-                    // const newData = { ...newServ };
-                    // newData.date = newValue;
-                    // setNewServ({ ...newData });
-                    setEdit([true, { ...edit[1], date: newValue }]);
-                  }}
-                />
-              </DemoContainer>
-            </Box>
-            <Box className="my-4">
-              <TextField
-                fullWidth
-                onChange={handleChangeEdit}
-                value={edit[1].type}
-                name="type"
-                id="type"
-                select
-                label="Вид:"
-              >
-                <MenuItem key={1} value="РЕМОНТ">
-                  РЕМОНТ
-                </MenuItem>
-                <MenuItem key={2} value="КОНСУМАТИВ">
-                  КОНСУМАТИВ
-                </MenuItem>
-                <MenuItem key={3} value="ГУМИ">
-                  ГУМИ
-                </MenuItem>
-                <MenuItem key={4} value="ДРУГИ">
-                  ДРУГИ
-                </MenuItem>
-              </TextField>
-            </Box>
-            <Box className="my-4">
-              <TextField
-                fullWidth
-                onChange={handleChangeEdit}
-                value={edit[1].desc}
-                name="desc"
-                id="desc"
-                label="Описание:"
-              />
-            </Box>
-            <Box className="my-4">
-              <TextField
-                fullWidth
-                onChange={handleChangeEdit}
-                value={edit[1].invoice}
-                name="invoice"
-                id="invoice"
-                label="Фактура №:"
-              />
-            </Box>
-            <Box className="my-4">
-              <TextField
-                fullWidth
-                onChange={handleChangeEdit}
-                value={edit[1].km}
-                name="km"
-                id="km"
-                label="Километри:"
-              />
-            </Box>
-            <Box className="my-4">
-              <TextField
-                fullWidth
-                onChange={handleChangeEdit}
-                value={edit[1].cost}
-                name="cost"
-                id="cost"
-                label="Стойност:"
-              />
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              color="error"
-              variant="contained"
-              onClick={handleCloseEdit}
-              autoFocus
-            >
-              Отказ
-            </Button>
-            <Button variant="contained" onClick={handleSaveEdit} autoFocus>
-              Запази
-            </Button>
-          </DialogActions>
-        </Dialog>
         <ErrorDialog error={error} setError={setError} />
+        <Slide
+          direction="down"
+          in={alert.show}
+          // in={true}
+          sx={{
+            position: "absolute",
+            // left: "50%",
+            zIndex: 2,
+            width: "40%",
+          }}
+        >
+          <Alert
+            severity={alert.severity}
+            variant="filled"
+            sx={{ margin: 0 }}
+            onClick={() => {
+              setAlert(false);
+            }}
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setAlert(false);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            {alert.message}
+          </Alert>
+        </Slide>
+        <DeleteExpense
+          verifyDelete={verifyDelete}
+          setVerifyDelete={setVerifyDelete}
+          username={username}
+          refresh={refresh}
+          setRefresh={setRefresh}
+          vehicle={vehicle}
+          setError={setError}
+          setAlert={setAlert}
+        />
+        <EditExpense
+          vehicle={vehicle}
+          refresh={refresh}
+          setRefresh={setRefresh}
+          username={username}
+          services={expenses}
+          setError={setError}
+          setLoading={setLoading}
+          edit={edit}
+          setEdit={setEdit}
+          date={expenseDate}
+          setDate={setExpenseDate}
+          alert={alert}
+          setAlert={setAlert}
+        />
         {Object.keys(expenses).length !== 0 && (
           <AddExpense
             vehicle={vehicle}
@@ -592,6 +470,8 @@ const Expenses = ({
             setAdd={setAdd}
             date={expenseDate}
             setDate={setExpenseDate}
+            alert={alert}
+            setAlert={setAlert}
           />
         )}
 
@@ -633,14 +513,7 @@ const Expenses = ({
                 )}
               </Box>
             </Box>
-
             <MaterialReactTable table={table} />
-            {/* <MUIDataTable
-              title={"РАЗХОДИ"}
-              data={data}
-              columns={columns}
-              options={options}
-            /> */}
           </Box>
         )}
       </LocalizationProvider>

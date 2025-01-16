@@ -16,7 +16,7 @@ import ErrorDialog from "../components/utils/ErrorDialog";
 
 const Login = () => {
   const [users, setUsers] = useState();
-  const [error, setError] = useState([false, ""]);
+  const [error, setError] = useState({ show: false, message: "" });
   const [showPassword, setShowPassword] = React.useState(false);
   const [caps, setCaps] = useState(false);
   useEffect(() => {
@@ -52,7 +52,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.username || !input.password) {
-      setError([true, "Въведете Потребител и Парола"]);
+      setError({ show: true, message: "Въведете Потребител и Парола" });
     } else {
       try {
         const { data } = await axios.post(
@@ -70,7 +70,10 @@ const Login = () => {
             navigate("/");
           }, 400);
         } else {
-          setError([true, "Неправилна парола или потребителско име"]);
+          setError({
+            show: true,
+            message: "Неправилна парола или потребителско име",
+          });
         }
       } catch (error) {
         console.log(error);

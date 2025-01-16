@@ -26,6 +26,12 @@ export const problemSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    doneByUser: {
+      type: String,
+    },
+    doneDate: {
+      type: Date,
+    },
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Driver",
