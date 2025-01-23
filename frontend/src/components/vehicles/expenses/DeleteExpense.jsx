@@ -78,7 +78,7 @@ const DeleteExpense = ({
           onClick={() => {
             axios
               .delete(
-                `http://192.168.0.147:5555/services/${verifyDelete.expense._id}`
+                `http://192.168.0.147:5555/api/services/${verifyDelete.expense._id}`
               )
               .then(() => {
                 axios

@@ -59,7 +59,7 @@ const Issues = ({ vehicle, userRole, username }) => {
       }
 
       axios
-        .get(`http://192.168.0.147:5555/problems/${vehicle._id}`)
+        .get(`http://192.168.0.147:5555/api/problems/${vehicle._id}`)
         .then((res) => {
           setissues(res.data.data);
           setRowCount(res.data.count);
@@ -178,7 +178,7 @@ const Issues = ({ vehicle, userRole, username }) => {
               onClick={() => {
                 axios
                   .put(
-                    `http://192.168.0.147:5555/problems/${row.original._id}`,
+                    `http://192.168.0.147:5555/api/problems/${row.original._id}`,
                     {
                       ...row.original,
                       done: true,
@@ -190,7 +190,7 @@ const Issues = ({ vehicle, userRole, username }) => {
                     if (issues.filter((item) => !item.done).length === 1) {
                       axios
                         .put(
-                          `http://192.168.0.147:5555/vehicle/${vehicle._id}`,
+                          `http://192.168.0.147:5555/api/vehicle/${vehicle._id}`,
                           {
                             ...vehicle,
                             issue: false,

@@ -114,7 +114,7 @@ const CreateVehicle = ({ add, setAdd }) => {
       });
     } else {
       axios
-        .post("http://192.168.0.147:5555/vehicle", data)
+        .post("http://192.168.0.147:5555/api/vehicle", data)
         .then(() => {
           setLoading(false);
           window.location.reload();

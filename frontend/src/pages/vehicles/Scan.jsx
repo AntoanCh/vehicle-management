@@ -38,7 +38,7 @@ const Scan = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get("http://192.168.0.147:5555/vehicle")
+      .get("http://192.168.0.147:5555/api/vehicle")
       .then((res) => {
         setVehicles(res.data.data.filter((item) => item.site === "ОФИС"));
         console.log(
@@ -54,7 +54,7 @@ const Scan = () => {
           )
           .forEach((veh) =>
             axios
-              .put(`http://192.168.0.147:5555/vehicle/${veh._id}`, {
+              .put(`http://192.168.0.147:5555/api/vehicle/${veh._id}`, {
                 ...veh,
                 occupied: {
                   status: false,
@@ -76,7 +76,7 @@ const Scan = () => {
     const interval = setInterval(() => {
       setLoading(true);
       axios
-        .get("http://192.168.0.147:5555/vehicle")
+        .get("http://192.168.0.147:5555/api/vehicle")
         .then((res) => {
           setVehicles(res.data.data.filter((item) => item.site === "ОФИС"));
           vehicles
@@ -86,7 +86,7 @@ const Scan = () => {
             )
             .forEach((veh) =>
               axios
-                .put(`http://192.168.0.147:5555/vehicle/${veh._id}`, {
+                .put(`http://192.168.0.147:5555/api/vehicle/${veh._id}`, {
                   ...veh,
                   occupied: {
                     status: false,

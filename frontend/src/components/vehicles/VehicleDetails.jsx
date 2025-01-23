@@ -31,11 +31,11 @@ const VehicleDetails = ({ id }) => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`http://192.168.0.147:5555/vehicle/${id}`)
+      .get(`http://192.168.0.147:5555/api/vehicle/${id}`)
       .then((res) => {
         setVehicle(res.data);
         axios
-          .get(`http://192.168.0.147:5555/services/${res.data._id}`)
+          .get(`http://192.168.0.147:5555/api/services/${res.data._id}`)
           .then((res) => {
             setServices(res.data);
             setLoading(false);

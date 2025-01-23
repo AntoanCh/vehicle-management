@@ -77,7 +77,7 @@ const Expenses = ({ vehicle, services, fuels, userRole, username }) => {
       }
 
       axios
-        .get(`http://192.168.0.147:5555/services/${vehicle._id}`)
+        .get(`http://192.168.0.147:5555/api/services/${vehicle._id}`)
         .then((res) => {
           setExpenses(res.data.data);
           setRowCount(res.data.count);

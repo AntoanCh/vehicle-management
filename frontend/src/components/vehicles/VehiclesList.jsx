@@ -94,12 +94,6 @@ const BlinkedBox = styled("div")({
   display: "flex",
   animation: `${blink} 1s ease infinite`,
 });
-const BlinkedBoxOneTime = styled("div")({
-  // backgroundColor: "pink",
-  color: "#f6685e",
-  display: "flex",
-  animation: `${blink} 5s ease 1`,
-});
 
 export default function VehiclesList({
   username,
@@ -150,6 +144,33 @@ export default function VehiclesList({
   const theme = useTheme();
   const baseBackgroundColor =
     theme.palette.mode === "dark" ? "#212121" : "#fff";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!vehicles.length) {
+        setIsLoading(true);
+      } else {
+        setIsRefetching(true);
+      }
+
+      try {
+        const res = await axios.get(`http://192.168.0.147:5555/api/drivers/`);
+        setDrivers(res.data.data);
+        setRowCount(res.data.count);
+      } catch {
+        setError({
+          show: true,
+          message: "Грешка при комуникация",
+        });
+
+        return;
+      }
+      setError({ show: false, message: "" });
+      setIsLoading(false);
+      setIsRefetching(false);
+    };
+    fetchData();
+  }, [refresh]);
 
   useEffect(() => {
     if (showExpense) {
@@ -268,7 +289,7 @@ export default function VehiclesList({
 
                       axios
                         .get(
-                          `http://192.168.0.147:5555/services/${row.original._id}`
+                          `http://192.168.0.147:5555/api/services/${row.original._id}`
                         )
                         .then((res) => {
                           setExpenses(res.data);

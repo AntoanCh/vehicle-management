@@ -41,7 +41,9 @@ const DropOff = () => {
           .then((res) => {
             setRecord(res.data);
             axios
-              .get(`http://192.168.0.147:5555/vehicle/${res.data.vehicleId}`)
+              .get(
+                `http://192.168.0.147:5555/api/vehicle/${res.data.vehicleId}`
+              )
               .then((res) => {
                 setVehicle(res.data);
               })
@@ -94,7 +96,7 @@ const DropOff = () => {
 
         if (problems) {
           axios
-            .post(`http://192.168.0.147:5555/problems`, {
+            .post(`http://192.168.0.147:5555/api/problems`, {
               date: dayjs(),
               desc: problems,
               km: km,
@@ -106,7 +108,7 @@ const DropOff = () => {
               console.log(err);
             });
           axios
-            .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+            .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, {
               ...vehicle,
               occupied: {
                 status: false,
@@ -121,7 +123,7 @@ const DropOff = () => {
             });
         } else {
           axios
-            .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+            .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, {
               ...vehicle,
               occupied: {
                 status: false,

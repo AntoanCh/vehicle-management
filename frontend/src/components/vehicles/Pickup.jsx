@@ -36,7 +36,7 @@ const Pickup = ({
 
   useEffect(() => {
     axios
-      .get(`http://192.168.0.147:5555/problems/${vehicle._id}`)
+      .get(`http://192.168.0.147:5555/api/problems/${vehicle._id}`)
       .then((res) => {
         setIssues(res.data.data);
       })
@@ -68,7 +68,7 @@ const Pickup = ({
             console.log(err);
           });
         axios
-          .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+          .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, {
             ...vehicle,
             occupied: {
               status: true,
@@ -99,7 +99,7 @@ const Pickup = ({
   };
   const handleReserve = () => {
     axios
-      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+      .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, {
         ...vehicle,
         occupied: {
           status: true,

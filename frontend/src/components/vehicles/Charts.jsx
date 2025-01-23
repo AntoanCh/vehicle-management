@@ -24,7 +24,7 @@ const Charts = () => {
   React.useEffect(() => {
     setLoading(true);
     axios
-      .get("http://192.168.0.147:5555/vehicle")
+      .get("http://192.168.0.147:5555/api/vehicle")
       .then((res) => {
         setVehicles(
           res.data.data.sort((a, b) =>

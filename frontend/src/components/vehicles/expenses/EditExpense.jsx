@@ -67,7 +67,7 @@ const EditExpense = ({
       });
       axios
         .put(
-          `http://192.168.0.147:5555/services/${edit.expense._id}`,
+          `http://192.168.0.147:5555/api/services/${edit.expense._id}`,
           edit.expense
         )
         .then(() => {

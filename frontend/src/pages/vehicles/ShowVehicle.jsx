@@ -155,7 +155,7 @@ const ShowVehicle = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`http://192.168.0.147:5555/vehicle/${id}`)
+      .get(`http://192.168.0.147:5555/api/vehicle/${id}`)
       .then((res) => {
         setVehicle(res.data);
         setLoading(false);
@@ -183,7 +183,7 @@ const ShowVehicle = () => {
   };
   const handleDelete = () => {
     axios
-      .delete(`http://192.168.0.147:5555/vehicle/${vehicle._id}`)
+      .delete(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`)
       .then(() => {
         navigate("/vehicles");
       });
@@ -209,7 +209,7 @@ const ShowVehicle = () => {
     setEdit(false);
 
     axios
-      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, {
+      .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, {
         ...updated,
       })
       .then(() => {
@@ -300,7 +300,7 @@ const ShowVehicle = () => {
   const handleCheck = () => {
     vehicle.checked = dayjs();
     axios
-      .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
+      .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, vehicle)
       .then(() => {
         axios.post(`http://192.168.0.147:5555/api/logs`, {
           date: dayjs(),
@@ -430,7 +430,7 @@ const ShowVehicle = () => {
                 variant="contained"
                 onClick={() =>
                   axios.put(
-                    `http://192.168.0.147:5555/vehicle/${vehicle._id}`,
+                    `http://192.168.0.147:5555/api/vehicle/${vehicle._id}`,
                     {
                       ...vehicle,
                       sold: true,

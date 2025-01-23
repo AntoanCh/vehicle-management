@@ -47,7 +47,7 @@ const AddIssue = ({
       setAdd(false);
 
       axios
-        .post("http://192.168.0.147:5555/problems", newIssue)
+        .post("http://192.168.0.147:5555/api/problems", newIssue)
         .then(() => {
           setAlert({
             show: true,
