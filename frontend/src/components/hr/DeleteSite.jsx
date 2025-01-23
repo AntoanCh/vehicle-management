@@ -15,9 +15,9 @@ import { Edit, DeleteForever, Timeline } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import CloseIcon from "@mui/icons-material/Close";
-import DraggablePaper from "../../DraggablePaper";
+import DraggablePaper from "../DraggablePaper";
 
-const DeleteDriver = ({
+const DeleteSite = ({
   verifyDelete,
   setVerifyDelete,
   setError,
@@ -28,33 +28,19 @@ const DeleteDriver = ({
   setIsRefetching,
 }) => {
   const handleClose = () => {
-    setVerifyDelete({ show: false, driver: {} });
+    setVerifyDelete({ show: false, site: {} });
   };
   const handleDelete = async () => {
-    // axios
-    //   .delete(
-    //     `http://192.168.0.147:5555/api/drivers/${verifyDelete.driver._id}`
-    //   )
-    //   .then(() => {
-    //     window.location.reload();
-    //   })
-    //   .catch((err) => {
-    //     setError({
-    //       show: true,
-    //       message: `Грешка при комуникация: ${err}`,
-    //     });
-    //   });
-
     try {
       const { data } = await axios.delete(
-        `http://192.168.0.147:5555/api/drivers/${verifyDelete.driver._id}`
+        `http://192.168.0.147:5555/api/sites/${verifyDelete.site._id}`
       );
       const { status, message } = data;
 
       if (data) {
         setAlert({
           show: true,
-          message: `Успешно изтрихте водач! ${verifyDelete.driver.firstName} ${verifyDelete.driver.lastName}`,
+          message: `Успешно изтрихте обект ${verifyDelete.site.name} `,
           severity: "success",
         });
       } else {
@@ -71,7 +57,7 @@ const DeleteDriver = ({
       }
       setIsRefetching(true);
       setRefresh(!refresh);
-      setVerifyDelete({ show: false, driver: {} });
+      setVerifyDelete({ show: false, site: {} });
     } catch (error) {
       setErrorBanner({
         show: true,
@@ -80,7 +66,7 @@ const DeleteDriver = ({
       });
       setError({ show: true, message: `Грешка при комуникация: ${error}` });
     }
-    setVerifyDelete({ show: false, driver: {} });
+    setVerifyDelete({ show: false, site: {} });
   };
   return (
     <Dialog
@@ -109,7 +95,7 @@ const DeleteDriver = ({
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description"></DialogContentText>
-        {`Сигурен ли сте, че искате да изтриете шофьор ${verifyDelete.driver.firstName} ${verifyDelete.driver.lastName} Тази операция е необратима`}
+        {`Сигурен ли сте, че искате да изтриете шофьор ${verifyDelete.site.name} Тази операция е необратима`}
       </DialogContent>
       <DialogActions>
         <Button
@@ -133,4 +119,4 @@ const DeleteDriver = ({
   );
 };
 
-export default DeleteDriver;
+export default DeleteSite;

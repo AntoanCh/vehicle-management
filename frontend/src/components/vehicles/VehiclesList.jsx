@@ -1,7 +1,6 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import VehicleRecords from "./VehicleRecords";
 import Issues from "./Issues";
@@ -21,7 +20,6 @@ import {
   IconButton,
   setRef,
 } from "@mui/material";
-import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useEffect, useState } from "react";

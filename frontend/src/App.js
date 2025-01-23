@@ -3,18 +3,17 @@ import ShowVehicle from "./pages/vehicles/ShowVehicle.jsx";
 import PersonCard from "./pages/hr/PersonCard.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
-import Register from "./pages/Register.jsx";
 import Scan from "./pages/vehicles/Scan.jsx";
 import Charts from "./components/vehicles/Charts.jsx";
 import Records from "./components/vehicles/Records.jsx";
 import DropOff from "./pages/vehicles/DropOff.jsx";
-import Drivers from "./pages/vehicles/Drivers.jsx";
+import DriversList from "./components/vehicles/drivers/DriversList.jsx";
 import Settings from "./pages/Settings.jsx";
 import Hr from "./pages/hr/Hr.jsx";
 import CreatePerson from "./components/hr/CreatePerson.jsx";
 import VehiclesMain from "./pages/vehicles/VehiclesMain.jsx";
-import Users from "./pages/Users.jsx";
-import Sites from "./pages/hr/Sites.jsx";
+import UsersList from "./components/UsersList.jsx";
+import SitesList from "./components/hr/SitesList.jsx";
 import "./App.css";
 import * as React from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -106,15 +105,14 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/users" element={<Users />} />
-                <Route path="/sites" element={<Sites />} />
+                <Route path="/users" element={<UsersList />} />
+                <Route path="/sites" element={<SitesList />} />
                 <Route path="/hr" element={<Hr />} />
                 <Route path="/scan" element={<Scan />} />
                 <Route path="/charts" element={<Charts />} />
                 <Route path="/records" element={<Records />} />
                 <Route path="/drop-off/:id" element={<DropOff />} />
-                <Route path="/drivers" element={<Drivers />} />
+                <Route path="/drivers" element={<DriversList />} />
                 <Route path="/hr/create" element={<CreatePerson />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route

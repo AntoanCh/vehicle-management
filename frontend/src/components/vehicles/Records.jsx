@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import MUIDataTable from "mui-datatables";
 import axios from "axios";
 import Box from "@mui/material/Box";
 import dayjs from "dayjs";
@@ -12,9 +11,6 @@ import Chip from "@mui/material/Chip";
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  MRT_ColumnDef,
-  MRT_GlobalFilterTextField,
-  MRT_ToggleFiltersButton,
 } from "material-react-table";
 
 const Records = () => {
@@ -61,10 +57,10 @@ const Records = () => {
       {
         accessorKey: "pickupTime",
         header: "Тръгване",
-        size: 180,
+        size: 280,
         enableGlobalFilter: false,
-        filterVariant: "date",
-        filterFn: "stringDateFn",
+        filterVariant: "date-range",
+        filterFn: "stringDateRangeFn",
         muiTableBodyCellProps: {
           align: "center",
         },
@@ -192,11 +188,28 @@ const Records = () => {
     localization: { ...MRT_Localization_BG },
     data: records,
     rowCount,
+
     filterFns: {
       stringDateFn: (row, id, filterValue) => {
         return dayjs(row.original[id])
           .format("DD.MM.YYYY")
           .includes(dayjs(filterValue).format("DD.MM.YYYY"));
+      },
+      stringDateRangeFn: (row, columnId, value) => {
+        const date = row.getValue(columnId);
+        const [start, end] = value;
+        //If one filter defined and date is null filter it
+        if ((start || end) && !date) return false;
+        if (start && !end) {
+          return dayjs(date).isAfter(dayjs(start));
+        } else if (!start && end) {
+          return dayjs(date).isBefore(dayjs(end).add(1, "day"));
+        } else if (start && end) {
+          return (
+            dayjs(date).isAfter(dayjs(start)) &&
+            dayjs(date).isBefore(dayjs(end).add(1, "day"))
+          );
+        } else return true;
       },
     },
     enableFullScreenToggle: false,

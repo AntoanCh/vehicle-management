@@ -114,7 +114,7 @@ const Login = () => {
                 variant="filled"
               >
                 {users ? (
-                  users.map((e, index) => (
+                  users.sort().map((e, index) => (
                     <MenuItem key={index} value={e}>
                       {e}
                     </MenuItem>

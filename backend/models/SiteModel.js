@@ -18,7 +18,10 @@ export const siteSchema = mongoose.Schema(
       type: String,
     },
     phone: {
-      type: Number,
+      type: String,
+    },
+    hasVehicles: {
+      type: Boolean,
     },
   },
   {

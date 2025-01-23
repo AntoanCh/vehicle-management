@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import { useState } from "react";
-import CircularProgress from "@mui/material/CircularProgress";
 import { Button, IconButton, MenuItem } from "@mui/material";
 import dayjs from "dayjs";
 import "dayjs/locale/bg";
@@ -11,7 +10,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Box from "@mui/material/Box";
 import { DeleteForever, Close, Edit } from "@mui/icons-material/";
-import MUIDataTable from "mui-datatables";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";

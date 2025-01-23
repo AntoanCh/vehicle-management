@@ -13,12 +13,13 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import DraggablePaper from "../../DraggablePaper";
+import DraggablePaper from "../DraggablePaper";
+import InputAdornment from "@mui/material/InputAdornment";
 
-const AddDriver = ({
+const AddSite = ({
   add,
   setAdd,
-  drivers,
+  sites,
   setError,
   setRefresh,
   refresh,
@@ -27,58 +28,41 @@ const AddDriver = ({
   setIsRefetching,
 }) => {
   const [input, setInput] = useState({
-    firstName: "",
-    lastName: "",
-    barcode: "",
-    barcode2: "",
+    name: "",
+    company: "",
+    address: "",
+    email: "",
+    phone: "",
   });
-  const { firstName, lastName, barcode, barcode2 } = input;
+  const { name, company, address, email, phone } = input;
 
   const handleAddSubmit = async (e) => {
     e.preventDefault();
-    if (!input.firstName || !input.lastName) {
-      setError({ show: true, message: `Въведете име и фамилия!` });
-      return;
-    } else if (!input.barcode) {
-      setError({ show: true, message: `Въведете номер на карта1` });
-      return;
-    } else if (
-      drivers.filter(
-        (driver) =>
-          driver.firstName + driver.lastName ===
-          input.firstName.toUpperCase() + input.lastName.toUpperCase()
-      ).length
-    ) {
-      setError({ show: true, message: `Водач с тези имена вече съществува` });
-      return;
-    } else if (
-      drivers.filter(
-        (driver) =>
-          (driver.barcode === input.barcode && input.barcode !== "") ||
-          (driver.barcode === input.barcode2 && input.barcode2 !== "") ||
-          (driver.barcode2 === input.barcode && input.barcode !== "") ||
-          (driver.barcode2 === input.barcode2 && input.barcode2 !== "")
-      ).length
-    ) {
-      setError({
-        show: true,
-        message: `Водач с такъв номер на карта вече съществува `,
-      });
+    if (!input.name) {
+      setError({ show: true, message: `Въведете име на обекта!` });
       return;
     }
+    // else if (!input.company) {
+    //   setError({ show: true, message: `Въведете фирма!` });
+    //   return;
+    // }
+    else if (
+      sites.filter((site) => site.name === input.name.toUpperCase()).length
+    ) {
+      setError({ show: true, message: `Този обект вече съществува` });
+      return;
+    }
+
     try {
-      const { data } = await axios.post(
-        "http://192.168.0.147:5555/api/drivers",
-        {
-          ...input,
-        }
-      );
+      const { data } = await axios.post("http://192.168.0.147:5555/api/sites", {
+        ...input,
+      });
       const { status, message } = data;
 
       if (data) {
         setAlert({
           show: true,
-          message: "Успешно добавихте нов водач!",
+          message: "Успешно добавихте нов обект!",
           severity: "success",
         });
       } else {
@@ -106,10 +90,11 @@ const AddDriver = ({
     }
     setInput({
       ...input,
-      firstName: "",
-      lastName: "",
-      barcode: "",
-      barcode2: "",
+      name: "",
+      company: "",
+      address: "",
+      email: "",
+      phone: "",
     });
   };
 
@@ -137,7 +122,7 @@ const AddDriver = ({
           style={{ cursor: "move", backgroundColor: "#42a5f5" }}
           id="draggable-dialog-title"
         >
-          {"Добавяне на шофьор"}
+          {"Добавяне на обект"}
           <IconButton
             sx={{
               margin: 0,
@@ -157,9 +142,9 @@ const AddDriver = ({
               <Box sx={{ marginY: "15px" }}>
                 <TextField
                   fullWidth
-                  name="firstName"
+                  name="name"
                   label="Име:"
-                  value={firstName}
+                  value={name}
                   onChange={handleChangeAdd}
                   variant="filled"
                 ></TextField>
@@ -167,9 +152,19 @@ const AddDriver = ({
               <Box sx={{ marginY: "15px" }}>
                 <TextField
                   fullWidth
-                  name="lastName"
-                  label="Фамилия:"
-                  value={lastName}
+                  name="company"
+                  label="Фирма:"
+                  value={company}
+                  onChange={handleChangeAdd}
+                  variant="filled"
+                ></TextField>
+              </Box>
+              <Box sx={{ marginY: "15px" }}>
+                <TextField
+                  fullWidth
+                  name="address"
+                  label="Адрес:"
+                  value={address}
                   onChange={handleChangeAdd}
                   variant="filled"
                 ></TextField>
@@ -178,9 +173,9 @@ const AddDriver = ({
               <Box sx={{ marginY: "15px" }}>
                 <TextField
                   fullWidth
-                  name="barcode"
-                  label="Номер карта:"
-                  value={barcode}
+                  name="email"
+                  label="Email:"
+                  value={email}
                   onChange={handleChangeAdd}
                   variant="filled"
                 />
@@ -188,11 +183,16 @@ const AddDriver = ({
               <Box sx={{ marginY: "15px" }}>
                 <TextField
                   fullWidth
-                  name="barcode2"
-                  label="Номер карта 2:"
-                  value={barcode2}
+                  name="phone"
+                  label="Телефон:"
+                  value={phone}
                   onChange={handleChangeAdd}
                   variant="filled"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">+359</InputAdornment>
+                    ),
+                  }}
                 />
               </Box>
             </Box>
@@ -216,4 +216,4 @@ const AddDriver = ({
   );
 };
 
-export default AddDriver;
+export default AddSite;

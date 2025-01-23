@@ -1,4 +1,7 @@
 import React from "react";
+import Alert from "@mui/material/Alert";
+import Slide from "@mui/material/Slide";
+import CloseIcon from "@mui/icons-material/Close";
 
 const SlideAlert = ({ alert, setAlert }) => {
   return (

@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import axios from "axios";
-import { useState } from "react";
-import { Button, IconButton } from "@mui/material";
+import { Button, IconButton, MenuItem } from "@mui/material";
 import "dayjs/locale/bg";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -13,12 +12,12 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import DraggablePaper from "../../DraggablePaper";
+import DraggablePaper from "../DraggablePaper";
 
-const AddDriver = ({
-  add,
-  setAdd,
-  drivers,
+const EditSite = ({
+  edit,
+  setEdit,
+  sites,
   setError,
   setRefresh,
   refresh,
@@ -26,51 +25,29 @@ const AddDriver = ({
   setErrorBanner,
   setIsRefetching,
 }) => {
-  const [input, setInput] = useState({
-    firstName: "",
-    lastName: "",
-    barcode: "",
-    barcode2: "",
-  });
-  const { firstName, lastName, barcode, barcode2 } = input;
-
-  const handleAddSubmit = async (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
-    if (!input.firstName || !input.lastName) {
-      setError({ show: true, message: `Въведете име и фамилия!` });
+    if (!edit.site.name) {
+      setError({ show: true, message: `Въведете име на обекта!` });
       return;
-    } else if (!input.barcode) {
-      setError({ show: true, message: `Въведете номер на карта1` });
-      return;
-    } else if (
-      drivers.filter(
-        (driver) =>
-          driver.firstName + driver.lastName ===
-          input.firstName.toUpperCase() + input.lastName.toUpperCase()
-      ).length
+    }
+    // else if (!input.company) {
+    //   setError({ show: true, message: `Въведете фирма!` });
+    //   return;
+    // }
+    else if (
+      sites
+        .filter((site) => site._id !== edit.site._id)
+        .filter((site) => site.name === edit.site.name.toUpperCase()).length
     ) {
-      setError({ show: true, message: `Водач с тези имена вече съществува` });
-      return;
-    } else if (
-      drivers.filter(
-        (driver) =>
-          (driver.barcode === input.barcode && input.barcode !== "") ||
-          (driver.barcode === input.barcode2 && input.barcode2 !== "") ||
-          (driver.barcode2 === input.barcode && input.barcode !== "") ||
-          (driver.barcode2 === input.barcode2 && input.barcode2 !== "")
-      ).length
-    ) {
-      setError({
-        show: true,
-        message: `Водач с такъв номер на карта вече съществува `,
-      });
+      setError({ show: true, message: `Този обект вече съществува` });
       return;
     }
     try {
-      const { data } = await axios.post(
-        "http://192.168.0.147:5555/api/drivers",
+      const { data } = await axios.put(
+        `http://192.168.0.147:5555/api/sites/${edit.site._id}`,
         {
-          ...input,
+          ...edit.site,
         }
       );
       const { status, message } = data;
@@ -78,7 +55,7 @@ const AddDriver = ({
       if (data) {
         setAlert({
           show: true,
-          message: "Успешно добавихте нов водач!",
+          message: `Успешно редактирахте обект ${edit.site.name}!`,
           severity: "success",
         });
       } else {
@@ -95,7 +72,7 @@ const AddDriver = ({
       }
       setIsRefetching(true);
       setRefresh(!refresh);
-      setAdd(false);
+      setEdit({ show: false, site: {} });
     } catch (error) {
       setErrorBanner({
         show: true,
@@ -104,31 +81,24 @@ const AddDriver = ({
       });
       setError({ show: true, message: `Грешка при комуникация: ${error}` });
     }
-    setInput({
-      ...input,
-      firstName: "",
-      lastName: "",
-      barcode: "",
-      barcode2: "",
-    });
+    setEdit({ show: false, site: {} });
+  };
+
+  const handleChangeEdit = (e) => {
+    const { name, value } = e.target;
+
+    setEdit({ show: true, site: { ...edit.site, [name]: value } });
   };
 
   const handleClose = () => {
-    setAdd(false);
-  };
-  const handleChangeAdd = (e) => {
-    const { name, value } = e.target;
-    setInput({
-      ...input,
-      [name]: value,
-    });
+    setEdit({ show: false, site: {} });
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
       <Dialog
         PaperComponent={DraggablePaper}
-        open={add}
+        open={edit.show}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -137,7 +107,7 @@ const AddDriver = ({
           style={{ cursor: "move", backgroundColor: "#42a5f5" }}
           id="draggable-dialog-title"
         >
-          {"Добавяне на шофьор"}
+          {`РЕДАКТИРАНЕ ${edit.site.name} `}
           <IconButton
             sx={{
               margin: 0,
@@ -153,24 +123,29 @@ const AddDriver = ({
         <DialogContent>
           <DialogContentText id="alert-dialog-description"></DialogContentText>
           <Box>
+            <span>ID: </span>
+            <span>{edit ? edit.site._id : ""}</span>
+          </Box>
+
+          <Box>
             <Box>
-              <Box sx={{ marginY: "15px" }}>
+              <Box>
                 <TextField
                   fullWidth
-                  name="firstName"
+                  name="name"
                   label="Име:"
-                  value={firstName}
-                  onChange={handleChangeAdd}
+                  value={edit.site.name}
+                  onChange={handleChangeEdit}
                   variant="filled"
                 ></TextField>
               </Box>
               <Box sx={{ marginY: "15px" }}>
                 <TextField
                   fullWidth
-                  name="lastName"
-                  label="Фамилия:"
-                  value={lastName}
-                  onChange={handleChangeAdd}
+                  name="company"
+                  label="Фирма:"
+                  value={edit.site.company}
+                  onChange={handleChangeEdit}
                   variant="filled"
                 ></TextField>
               </Box>
@@ -178,20 +153,30 @@ const AddDriver = ({
               <Box sx={{ marginY: "15px" }}>
                 <TextField
                   fullWidth
-                  name="barcode"
-                  label="Номер карта:"
-                  value={barcode}
-                  onChange={handleChangeAdd}
+                  name="address"
+                  label="Адрес:"
+                  value={edit.site.address}
+                  onChange={handleChangeEdit}
                   variant="filled"
                 />
               </Box>
               <Box sx={{ marginY: "15px" }}>
                 <TextField
                   fullWidth
-                  name="barcode2"
-                  label="Номер карта 2:"
-                  value={barcode2}
-                  onChange={handleChangeAdd}
+                  name="email"
+                  label="Email:"
+                  value={edit.site.email}
+                  onChange={handleChangeEdit}
+                  variant="filled"
+                />
+              </Box>
+              <Box sx={{ marginY: "15px" }}>
+                <TextField
+                  fullWidth
+                  name="пхоне"
+                  label="Telefon:"
+                  value={edit.site.пхоне}
+                  onChange={handleChangeEdit}
                   variant="filled"
                 />
               </Box>
@@ -202,13 +187,13 @@ const AddDriver = ({
           <Button
             color="error"
             variant="contained"
-            onClick={() => setAdd(false)}
+            onClick={handleClose}
             autoFocus
           >
             Отказ
           </Button>
-          <Button variant="contained" onClick={handleAddSubmit} autoFocus>
-            Добави
+          <Button variant="contained" onClick={handleUpdate} autoFocus>
+            Обнови
           </Button>
         </DialogActions>
       </Dialog>
@@ -216,4 +201,4 @@ const AddDriver = ({
   );
 };
 
-export default AddDriver;
+export default EditSite;

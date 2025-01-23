@@ -1,20 +1,11 @@
 import React from "react";
 import axios from "axios";
 import { useState, useEffect, useMemo } from "react";
-import CircularProgress from "@mui/material/CircularProgress";
 import { Button } from "@mui/material";
 import Box from "@mui/material/Box";
-import Dialog from "@mui/material/Dialog";
-import dayjs from "dayjs";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
 import { Edit, DeleteForever, Timeline } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
-import { useNavigate } from "react-router-dom";
 import { darken, lighten, useTheme } from "@mui/material";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import Tooltip from "@mui/material/Tooltip";
@@ -30,10 +21,8 @@ import DeleteDriver from "./DeleteDriver";
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  MRT_ColumnDef,
-  MRT_GlobalFilterTextField,
-  MRT_ToggleFiltersButton,
 } from "material-react-table";
+import DriverRecords from "./DriverRecords";
 
 const DriversList = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -57,13 +46,6 @@ const DriversList = () => {
     severity: "",
   });
 
-  const [input, setInput] = useState({
-    firstName: "",
-    lastName: "",
-    barcode: "",
-    barcode2: "",
-  });
-
   useEffect(() => {
     const fetchData = async () => {
       if (!drivers.length) {
@@ -72,20 +54,6 @@ const DriversList = () => {
         setIsRefetching(true);
       }
 
-      // axios
-      //   .get(`http://192.168.0.147:5555/api/drivers/`)
-      //   .then((res) => {
-      //     setDrivers(res.data.data);
-      //     setRowCount(res.data.count);
-      //   })
-      //   .catch((err) => {
-      //     setError({
-      //       show: true,
-      //       message: "Дата, описание, вид и стойност са задължителни полета",
-      //     });
-
-      //     return;
-      //   });
       try {
         const res = await axios.get(`http://192.168.0.147:5555/api/drivers/`);
         setDrivers(res.data.data);
@@ -93,7 +61,7 @@ const DriversList = () => {
       } catch {
         setError({
           show: true,
-          message: "Дата, описание, вид и стойност са задължителни полета",
+          message: "Грешка при комуникация",
         });
 
         return;
@@ -147,81 +115,11 @@ const DriversList = () => {
     ],
     [refresh]
   );
-  const { firstName, lastName, barcode, barcode2 } = input;
 
-  //
-  const handleLoading = () => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-  };
   const handleAddModal = () => {
     setAdd(true);
   };
 
-  const handleDelete = () => {
-    // axios.delete(`http://192.168.0.147/sites/${e}`)
-  };
-
-  const handleCloseHist = () => {
-    setHist([false, {}, []]);
-  };
-
-  const columns2 = [
-    {
-      name: "Кола",
-      options: {
-        filter: false,
-      },
-    },
-    {
-      name: "Номер",
-    },
-    {
-      name: "Тръгване",
-      options: {
-        sortDirection: "desc",
-        customBodyRender: (value) => dayjs(value).format("DD/MM/YYYY - HH:mm"),
-      },
-    },
-    {
-      name: "Връщане",
-      options: {
-        customBodyRender: (value) =>
-          value ? dayjs(value).format("DD/MM/YYYY - HH:mm") : "в движение",
-      },
-    },
-    {
-      name: "Километри на тръгване",
-      options: {
-        filter: false,
-        setCellProps: () => {
-          return { align: "center" };
-        },
-      },
-    },
-    {
-      name: "Километри на връщане",
-      options: {
-        filter: false,
-        setCellProps: () => {
-          return { align: "center" };
-        },
-      },
-    },
-    {
-      name: "Маршрут",
-      options: {
-        setCellProps: () => {
-          return { align: "center" };
-        },
-      },
-    },
-    {
-      name: "Забележки",
-      options: {},
-    },
-  ];
   const table = useMaterialReactTable({
     columns,
     localization: { ...MRT_Localization_BG },
@@ -305,7 +203,7 @@ const DriversList = () => {
           <Tooltip title="Изтриване" disableInteractive>
             <IconButton
               onClick={() => {
-                setVerifyDelete([true, row.original]);
+                setVerifyDelete({ show: true, driver: row.original });
               }}
               color="error"
               variant="contained"
@@ -324,7 +222,7 @@ const DriversList = () => {
                     setHist({
                       show: true,
                       driver: row.original,
-                      data: res.data,
+                      data: res.data.data,
                     });
                   })
                   .catch((err) => {
@@ -350,7 +248,7 @@ const DriversList = () => {
         }}
       >
         <Button fullWidth variant="contained" onClick={handleAddModal}>
-          Добави Шофьор
+          Добави водач
           <PersonAddAlt1Icon />
         </Button>
       </Box>
@@ -383,54 +281,6 @@ const DriversList = () => {
 
   return (
     <Box>
-      {/* <Dialog
-        open={verifyDelete[0]}
-        onClose={handleCloseDelete}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">ИЗТРИВАНЕ</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description"></DialogContentText>
-          {`Сигурен ли сте, че искате да изтриете шофьор] ${verifyDelete[1].name} Тази операция е необратима`}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleCloseDelete}
-            autoFocus
-          >
-            ОТКАЗ
-          </Button>
-          <Button
-            color="success"
-            variant="contained"
-            onClick={() => {
-              axios
-                .delete(
-                  `http://192.168.0.147:5555/api/drivers/${verifyDelete[1]._id}`
-                )
-                .then(() => {
-                  window.location.reload();
-                })
-                .catch((err) => {
-                  console.log(err);
-                });
-            }}
-            autoFocus
-          >
-            ИЗТРИЙ
-          </Button>
-        </DialogActions>
-      </Dialog> */}
-      <DeleteDriver
-        verifyDelete={verifyDelete}
-        setVerifyDelete={setVerifyDelete}
-        error={error}
-        setError={setError}
-      />
-      <EditDriver edit={edit} setEdit={setEdit} />
       <Slide
         direction="down"
         in={alert.show}
@@ -465,35 +315,9 @@ const DriversList = () => {
           {alert.message}
         </Alert>
       </Slide>
-      <Dialog
-        maxWidth={"lg"}
-        open={hist.show}
-        onClose={handleCloseHist}
-        fullWidth
-        // maxWidth={"xl"}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {`ИСТОРИЯ ${hist.driver.firstName} ${hist.driver.lastName}`}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description"></DialogContentText>
 
-          <Box></Box>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleCloseHist}
-            autoFocus
-          >
-            Затвори
-          </Button>
-        </DialogActions>
-      </Dialog>
       <ErrorDialog error={error} setError={setError} />
+      <DriverRecords hist={hist} setHist={setHist} />
       <AddDriver
         add={add}
         setAdd={setAdd}
@@ -503,6 +327,28 @@ const DriversList = () => {
         setAlert={setAlert}
         setError={setError}
         setErrorBanner={setErrorBanner}
+        setIsRefetching={setIsRefetching}
+      />
+      <EditDriver
+        edit={edit}
+        setEdit={setEdit}
+        drivers={drivers}
+        setRefresh={setRefresh}
+        refresh={refresh}
+        setAlert={setAlert}
+        setError={setError}
+        setErrorBanner={setErrorBanner}
+        setIsRefetching={setIsRefetching}
+      />
+      <DeleteDriver
+        verifyDelete={verifyDelete}
+        setVerifyDelete={setVerifyDelete}
+        setRefresh={setRefresh}
+        refresh={refresh}
+        setAlert={setAlert}
+        setError={setError}
+        setErrorBanner={setErrorBanner}
+        setIsRefetching={setIsRefetching}
       />
 
       <Box>

@@ -1,60 +1,42 @@
 import React from "react";
-import axios from "axios";
-import { useState, useEffect, useMemo } from "react";
-import CircularProgress from "@mui/material/CircularProgress";
-import { Button } from "@mui/material";
-import Box from "@mui/material/Box";
 import Dialog from "@mui/material/Dialog";
-import dayjs from "dayjs";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
-import { Edit, DeleteForever, Timeline } from "@mui/icons-material";
+import DraggablePaper from "./DraggablePaper";
 import IconButton from "@mui/material/IconButton";
-import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import CloseIcon from "@mui/icons-material/Close";
-import DraggablePaper from "../../DraggablePaper";
+import axios from "axios";
+import { Button } from "@mui/material";
 
-const DeleteDriver = ({
+const UserDelete = ({
   verifyDelete,
   setVerifyDelete,
-  setError,
-  refresh,
+  alert,
   setAlert,
-  setRefresh,
+  error,
+  setError,
   setErrorBanner,
+  setRefresh,
   setIsRefetching,
+  refresh,
 }) => {
   const handleClose = () => {
-    setVerifyDelete({ show: false, driver: {} });
+    setVerifyDelete({ show: false, user: {} });
   };
-  const handleDelete = async () => {
-    // axios
-    //   .delete(
-    //     `http://192.168.0.147:5555/api/drivers/${verifyDelete.driver._id}`
-    //   )
-    //   .then(() => {
-    //     window.location.reload();
-    //   })
-    //   .catch((err) => {
-    //     setError({
-    //       show: true,
-    //       message: `Грешка при комуникация: ${err}`,
-    //     });
-    //   });
 
+  const handleDelete = async () => {
     try {
       const { data } = await axios.delete(
-        `http://192.168.0.147:5555/api/drivers/${verifyDelete.driver._id}`
+        `http://192.168.0.147:5555/api/users/${verifyDelete.user._id}`
       );
-      const { status, message } = data;
 
-      if (data) {
+      const { message } = data;
+      if (message === "User Deleted") {
         setAlert({
           show: true,
-          message: `Успешно изтрихте водач! ${verifyDelete.driver.firstName} ${verifyDelete.driver.lastName}`,
+          message: `Потребител ${verifyDelete.user.username} е изтрит успешно!`,
           severity: "success",
         });
       } else {
@@ -71,16 +53,11 @@ const DeleteDriver = ({
       }
       setIsRefetching(true);
       setRefresh(!refresh);
-      setVerifyDelete({ show: false, driver: {} });
+      handleClose();
     } catch (error) {
-      setErrorBanner({
-        show: true,
-        message: "Грешка при комуникация със сървъра!",
-        color: "error",
-      });
       setError({ show: true, message: `Грешка при комуникация: ${error}` });
     }
-    setVerifyDelete({ show: false, driver: {} });
+    handleClose();
   };
   return (
     <Dialog
@@ -109,7 +86,7 @@ const DeleteDriver = ({
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description"></DialogContentText>
-        {`Сигурен ли сте, че искате да изтриете шофьор ${verifyDelete.driver.firstName} ${verifyDelete.driver.lastName} Тази операция е необратима`}
+        {`Сигурен ли сте, че искате да изтриете потребител ${verifyDelete.user.username} Тази операция е необратима`}
       </DialogContent>
       <DialogActions>
         <Button
@@ -133,4 +110,4 @@ const DeleteDriver = ({
   );
 };
 
-export default DeleteDriver;
+export default UserDelete;

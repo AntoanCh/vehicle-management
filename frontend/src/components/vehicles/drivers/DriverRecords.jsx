@@ -11,51 +11,51 @@ import ErrorDialog from "../../utils/ErrorDialog";
 import { useMemo } from "react";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import { darken, lighten, useTheme } from "@mui/material";
-import { IconButton, Tooltip } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import Chip from "@mui/material/Chip";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Dialog from "@mui/material/Dialog";
 
 //MRT Imports
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  MRT_ColumnDef,
-  MRT_GlobalFilterTextField,
-  MRT_ToggleFiltersButton,
 } from "material-react-table";
 
-const DriverRecords = ({ vehicle, userRole, username }) => {
+const DriverRecords = ({ userRole, username, hist, setHist }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ show: false, message: "" });
   const [records, setRecords] = useState([]);
-  const [refetching, setRefetching] = useState(false);
+  const [isRefetching, setIsRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!records.length) {
-        setLoading(true);
-      } else {
-        setRefetching(true);
-      }
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (!records.length) {
+  //       setLoading(true);
+  //     } else {
+  //       setIsRefetching(true);
+  //     }
 
-      axios
-        .get(`http://192.168.0.147:5555/api/records/vehicle/${vehicle._id}`)
-        .then((res) => {
-          setRecords(res.data.data);
-          setRowCount(res.data.count);
-        })
-        .catch((err) => {
-          setError({ show: true, message: err });
+  //     try {
+  //       const res = await axios.get(
+  //         `http://192.168.0.147:5555/api/records/driver/${hist.driver._id}`
+  //       );
+  //       setRecords(res.data.data);
+  //       setRowCount(res.data.count);
+  //     } catch {
+  //       setError({ show: true, message: "Грешка при комуникация" });
+  //       return;
+  //     }
 
-          return;
-        });
-      setError({ show: false, message: "" });
-      setLoading(false);
-      setRefetching(false);
-    };
-    fetchData();
-  }, []);
+  //     setError({ show: false, message: "" });
+  //     setLoading(false);
+  //     setIsRefetching(false);
+  //   };
+  //   fetchData();
+  // }, [hist.show]);
 
   const handleLoading = () => {
     setTimeout(() => {
@@ -63,46 +63,31 @@ const DriverRecords = ({ vehicle, userRole, username }) => {
     }, 2000);
   };
 
-  const handleCloseError = () => {
-    setError({ show: false, message: "" });
+  const handleClose = () => {
+    setHist({ show: false, driver: {}, data: [] });
   };
+
   const theme = useTheme();
   const baseBackgroundColor =
-    theme.palette.mode === "dark"
-      ? "#212121"
-      : // "rgba(3, 44, 43, 1)"
-        "#fff";
-  // "rgba(244, 255, 233, 1)"
-  // const tableData = useMemo(() => {
-  //   return records.map((obj, index) => {
-  //     return {
-  //       driver: obj.driverName,
-  //       pickupTime: obj.pickupTime,
-  //       dropoffTime: obj.dropoffTime,
-  //       pickupKm:
-  //         obj.pickupKm.toString().slice(0, -3) +
-  //         " " +
-  //         obj.pickupKm.toString().slice(-3),
-  //       dropoffKm: obj.dropoffKm
-  //         ? obj.dropoffKm.toString().slice(0, -3) +
-  //           " " +
-  //           obj.dropoffKm.toString().slice(-3)
-  //         : "в движение",
-  //       destination: obj.destination ? obj.destination : "в движение",
-  //       problem: obj.problem,
-  //     };
-  //   });
-  // }, [records]);
+    theme.palette.mode === "dark" ? "#212121" : "#fff";
 
   //
   const columns = useMemo(
     () => [
       {
-        accessorKey: "driverName",
-        header: "Водач",
+        accessorKey: "vehicleModel",
+        header: "Автомобил",
         size: 200,
         editable: false,
-        filterVariant: "multi-select",
+        enableGlobalFilter: false,
+        filterVariant: "select",
+      },
+      {
+        accessorKey: "vehicleReg",
+        header: "Номер",
+        size: 200,
+        editable: false,
+        filterVariant: "select",
       },
       {
         accessorKey: "pickupTime",
@@ -155,15 +140,17 @@ const DriverRecords = ({ vehicle, userRole, username }) => {
           align: "center",
         },
         Footer: ({ table }) => {
-          const kmArray = table
+          const trips = table
             .getFilteredRowModel()
-            .rows.map((row) => row.getValue("pickupKm"));
-          const max = Math.max(...kmArray);
-          const min = Math.min(...kmArray);
+            .rows.map(
+              (row) => row.getValue("dropoffKm") - row.getValue("pickupKm")
+            )
+            .reduce((trip, acc) => trip + acc, 0);
+          console.log(trips);
           return (
             <Box sx={{ margin: "auto" }}>
               {"Изминати км:"}
-              <Box color="warning.main">{`${max - min} км.`}</Box>
+              <Box color="warning.main">{`${trips} км.`}</Box>
             </Box>
           );
         },
@@ -220,12 +207,12 @@ const DriverRecords = ({ vehicle, userRole, username }) => {
         enableColumnFilter: false,
       },
     ],
-    []
+    [hist]
   );
   const table = useMaterialReactTable({
     columns,
     localization: { ...MRT_Localization_BG },
-    data: records,
+    data: hist.data,
     rowCount,
     filterFns: {
       stringDateFn: (row, id, filterValue) => {
@@ -305,19 +292,48 @@ const DriverRecords = ({ vehicle, userRole, username }) => {
     }),
   });
   return (
-    <Box sx={{ maxHeight: "100px" }}>
-      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
-        <ErrorDialog error={error} setError={setError} />
-        {handleLoading()}
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Box sx={{ backgroundColor: "white" }}>
-            <MaterialReactTable table={table} />
-          </Box>
-        )}
-      </LocalizationProvider>
-    </Box>
+    <Dialog
+      maxWidth={"xl"}
+      open={hist.show}
+      onClose={handleClose}
+      // fullWidth
+      // maxWidth={"xl"}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">
+        {`ИСТОРИЯ ${hist.driver.firstName} ${hist.driver.lastName}`}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description"></DialogContentText>
+
+        <Box
+        // sx={{ maxHeight: "80%" }}
+        >
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
+            <ErrorDialog error={error} setError={setError} />
+            {handleLoading()}
+            {loading ? (
+              <CircularProgress />
+            ) : (
+              <Box sx={{ backgroundColor: "white" }}>
+                <MaterialReactTable table={table} />
+              </Box>
+            )}
+          </LocalizationProvider>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          color="error"
+          variant="contained"
+          onClick={handleClose}
+          autoFocus
+        >
+          Затвори
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

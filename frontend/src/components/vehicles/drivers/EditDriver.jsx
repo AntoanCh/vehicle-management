@@ -19,10 +19,58 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import DraggablePaper from "../../DraggablePaper";
 
-const EditDriver = ({ edit, setEdit }) => {
+const EditDriver = ({
+  edit,
+  setEdit,
+  drivers,
+  setError,
+  setRefresh,
+  refresh,
+  setAlert,
+  setErrorBanner,
+  setIsRefetching,
+}) => {
   const handleUpdate = async (e) => {
     e.preventDefault();
-
+    if (!edit.driver.firstName || !edit.driver.lastName) {
+      setError({ show: true, message: `Въведете име и фамилия!` });
+      return;
+    } else if (!edit.driver.barcode) {
+      setError({ show: true, message: `Въведете номер на карта1` });
+      return;
+    } else if (
+      drivers
+        .filter((driver) => driver._id !== edit.driver._id)
+        .filter(
+          (driver) =>
+            driver.firstName + driver.lastName ===
+            edit.driver.firstName.toUpperCase() +
+              edit.driver.lastName.toUpperCase()
+        ).length
+    ) {
+      setError({ show: true, message: `Водач с тези имена вече съществува` });
+      return;
+    } else if (
+      drivers
+        .filter((driver) => driver._id !== edit.driver._id)
+        .filter(
+          (driver) =>
+            (driver.barcode === edit.driver.barcode &&
+              edit.driver.barcode !== "") ||
+            (driver.barcode === edit.driver.barcode2 &&
+              edit.driver.barcode2 !== "") ||
+            (driver.barcode2 === edit.driver.barcode &&
+              edit.driver.barcode !== "") ||
+            (driver.barcode2 === edit.driver.barcode2 &&
+              edit.driver.barcode2 !== "")
+        ).length
+    ) {
+      setError({
+        show: true,
+        message: `Водач с такъв номер на карта вече съществува `,
+      });
+      return;
+    }
     try {
       const { data } = await axios.put(
         `http://192.168.0.147:5555/api/drivers/${edit.driver._id}`,
@@ -32,21 +80,36 @@ const EditDriver = ({ edit, setEdit }) => {
       );
       const { status, message } = data;
 
-      // if (status) {
-      //   handleSuccess(message);
-      //   window.location.reload();
-      // } else {
-      //   handleError(message);
-      // }
-      setEdit({ show: false, message: {} });
+      if (data) {
+        setAlert({
+          show: true,
+          message: `Успешно редактирахте водач ${edit.driver.firstName} ${edit.driver.lastName}!`,
+          severity: "success",
+        });
+      } else {
+        setAlert({
+          show: true,
+          message: "Грешка при запис",
+          severity: "error",
+        });
+        setErrorBanner({
+          show: true,
+          message: "Грешка при запис",
+          color: "error",
+        });
+      }
+      setIsRefetching(true);
+      setRefresh(!refresh);
+      setEdit({ show: false, driver: {} });
     } catch (error) {
-      console.log(error);
+      setErrorBanner({
+        show: true,
+        message: "Грешка при комуникация със сървъра!",
+        color: "error",
+      });
+      setError({ show: true, message: `Грешка при комуникация: ${error}` });
     }
-    setEdit([false, {}]);
-
-    setTimeout(() => {
-      window.location.reload();
-    }, 200);
+    setEdit({ show: false, driver: {} });
   };
 
   const handleChangeEdit = (e) => {
@@ -56,7 +119,7 @@ const EditDriver = ({ edit, setEdit }) => {
   };
 
   const handleClose = () => {
-    setEdit({ show: false, message: {} });
+    setEdit({ show: false, driver: {} });
   };
 
   return (
