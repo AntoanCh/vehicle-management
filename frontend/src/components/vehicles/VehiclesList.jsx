@@ -69,8 +69,6 @@ import {
   WarningAmber,
   AltRouteTwoTone,
 } from "@mui/icons-material";
-import LinearProgress from "@mui/material/LinearProgress";
-import DraggablePaper from "../DraggablePaper";
 import Chip from "@mui/material/Chip";
 
 //MRT Imports
@@ -100,7 +98,6 @@ export default function VehiclesList({
   userRole,
   setUserRole,
   setUsername,
-  data,
   filter,
   setFilter,
   customFilter,
@@ -109,15 +106,26 @@ export default function VehiclesList({
   setShowExpense,
   expenseWithTax,
   setExpenseWithTax,
-  refresh,
-  setRefresh,
-  alert,
-  setAlert,
   expenseDate,
   setExpenseDate,
 }) {
   const [expenses, setExpenses] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(true);
+  const [errorBanner, setErrorBanner] = useState({
+    show: false,
+    message: "",
+    color: "",
+  });
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    severity: "",
+  });
+  const [error, setError] = useState({ show: false, message: "" });
+  const [vehicles, setVehicles] = useState([]);
+  const [rowCount, setRowCount] = useState(0);
   const [anchorEl, setAnchorEl] = useState([null, {}]);
   const openActionMenu = Boolean(anchorEl[0]);
   const [add, setAdd] = useState(false);
@@ -129,7 +137,7 @@ export default function VehiclesList({
   const [groupedColumnMode, setGroupedColumnMode] = useState("reorder");
   const [columnVisibility, setColumnVisibility] = useState({
     price: false,
-    own: false,
+    purchaseDate: false,
     months: false,
     totalExpense: false,
     expensePerMonth: false,
@@ -154,18 +162,17 @@ export default function VehiclesList({
       }
 
       try {
-        const res = await axios.get(`http://192.168.0.147:5555/api/drivers/`);
-        setDrivers(res.data.data);
+        const res = await axios.get(`http://192.168.0.147:5555/api/vehicle/`);
+        setVehicles(res.data.data);
         setRowCount(res.data.count);
-      } catch {
+      } catch (error) {
         setError({
           show: true,
-          message: "Грешка при комуникация",
+          message: `Грешка при комуникация: ${error}`,
         });
 
         return;
       }
-      setError({ show: false, message: "" });
       setIsLoading(false);
       setIsRefetching(false);
     };
@@ -182,7 +189,7 @@ export default function VehiclesList({
     } else {
       setColumnVisibility({
         price: false,
-        own: false,
+        purchaseDate: false,
         months: false,
         totalExpense: false,
         expensePerMonth: false,
@@ -220,8 +227,6 @@ export default function VehiclesList({
   // React.useEffect(() => {
   //   setCustomFilter(customFilter.slice());
   // }, [customFilter]);
-
-  setTimeout(() => setRefresh(false), 1500);
 
   const handleFilter = (val) => {
     setFilter(val);
@@ -263,10 +268,10 @@ export default function VehiclesList({
 
   //To rerender the table pass variables to dependencies arrayin this variable
   const tableData = useMemo(() => {
-    return data.filter((obj) =>
+    return vehicles.filter((obj) =>
       filter === "all" ? obj.site !== "ПРОДАДЕНИ" : obj.site === filter
     );
-  }, [filter, customFilter]);
+  }, [filter, customFilter, isLoading, isRefetching]);
 
   const columns = useMemo(
     () => [
@@ -501,8 +506,9 @@ export default function VehiclesList({
         },
       },
       {
-        accessorFn: (row) => dayjs().diff(row.purchaseDate, "month"),
-        id: "own",
+        // accessorFn: (row) => dayjs().diff(row.purchaseDate, "month"),
+        accessorKey: "purchaseDate",
+        // id: "purchaseDate",
         header: "Притежание",
         size: 110,
         enableGlobalFilter: false,
@@ -512,48 +518,48 @@ export default function VehiclesList({
           align: "center",
         },
         Cell: ({ cell }) =>
-          `${
-            Math.floor(cell.getValue() / 12)
-              ? Math.floor(cell.getValue() / 12) + "г. "
+          `${dayjs(cell.getValue()).format("MM.YY")} (${
+            Math.floor(dayjs().diff(cell.getValue(), "month") / 12)
+              ? Math.floor(dayjs().diff(cell.getValue(), "month") / 12) + "г. "
               : ""
-          } ${cell.getValue() % 12}м.`,
-        Footer: ({ table }) => {
-          const total = table
-            .getFilteredRowModel()
-            .rows.reduce(
-              (total, row) =>
-                total + (row.getValue("own") ? row.getValue("own") : 0),
-              0
-            );
-          const length = table.getFilteredRowModel().rows.length;
-          return (
-            <Box sx={{ margin: "auto" }}>
-              {"Средно:"}
-              <Box color="warning.main">
-                {Math.floor(total / length / 12) + "г. " + (total % 12) + "м."}
-              </Box>
-            </Box>
-          );
-        },
+          } ${dayjs().diff(cell.getValue(), "month") % 12}м.)`,
+        // Footer: ({ table }) => {
+        //   const total = table
+        //     .getFilteredRowModel()
+        //     .rows.reduce(
+        //       (total, row) =>
+        //         total + (row.getValue("own") ? row.getValue("own") : 0),
+        //       0
+        //     );
+        //   const length = table.getFilteredRowModel().rows.length;
+        //   return (
+        //     <Box sx={{ margin: "auto" }}>
+        //       {"Средно:"}
+        //       <Box color="warning.main">
+        //         {Math.floor(total / length / 12) + "г. " + (total % 12) + "м."}
+        //       </Box>
+        //     </Box>
+        //   );
+        // },
       },
-      {
-        accessorFn: (row) => dayjs().diff(row.startDate, "month"),
-        id: "months",
-        header: "1ви р-т време",
-        size: 110,
-        enableGlobalFilter: false,
-        enableColumnFilter: false,
-        enableEditing: false,
-        muiTableBodyCellProps: {
-          align: "center",
-        },
-        Cell: ({ cell }) =>
-          `${
-            Math.floor(cell.getValue() / 12)
-              ? Math.floor(cell.getValue() / 12) + "г. "
-              : ""
-          } ${cell.getValue() % 12}м.`,
-      },
+      // {
+      //   accessorFn: (row) => dayjs().diff(row.startDate, "month"),
+      //   id: "months",
+      //   header: "1ви р-т време",
+      //   size: 110,
+      //   enableGlobalFilter: false,
+      //   enableColumnFilter: false,
+      //   enableEditing: false,
+      //   muiTableBodyCellProps: {
+      //     align: "center",
+      //   },
+      //   Cell: ({ cell }) =>
+      //     `${
+      //       Math.floor(cell.getValue() / 12)
+      //         ? Math.floor(cell.getValue() / 12) + "г. "
+      //         : ""
+      //     } ${cell.getValue() % 12}м.`,
+      // },
       {
         accessorFn: (row) =>
           row.totalExpenseCost
@@ -1185,36 +1191,38 @@ export default function VehiclesList({
             </Box>
           );
         },
-        Footer: ({ table }) => {
-          const warning = table
-            .getFilteredRowModel()
-            .rows.reduce(
-              (count, row) =>
-                count +
-                (isDue(row.getValue("checked"), "checked") === "warning"
-                  ? 1
-                  : 0),
-              0
-            );
-          const caution = table
-            .getFilteredRowModel()
-            .rows.reduce(
-              (count, row) =>
-                count +
-                (isDue(row.getValue("checked"), "checked") === "caution"
-                  ? 1
-                  : 0),
-              0
-            );
-          return (
-            <Box sx={{ margin: "auto" }}>
-              <Badge color="error" variant="dot" />: {warning}
-              <Box>
-                <Badge color="warning" variant="dot" />: {caution}
-              </Box>
-            </Box>
-          );
-        },
+        // THIS FOOTER BREAKS THE LOADING MECHANISM WITH ERROR: INVALID DATE
+
+        // Footer: ({ table }) => {
+        //   const warning = table
+        //     .getFilteredRowModel()
+        //     .rows.reduce(
+        //       (count, row) =>
+        //         count +
+        //         (isDue(row.getValue("checked"), "checked") === "warning"
+        //           ? 1
+        //           : 0),
+        //       0
+        //     );
+        //   const caution = table
+        //     .getFilteredRowModel()
+        //     .rows.reduce(
+        //       (count, row) =>
+        //         count +
+        //         (isDue(row.getValue("checked"), "checked") === "caution"
+        //           ? 1
+        //           : 0),
+        //       0
+        //     );
+        //   return (
+        //     <Box sx={{ margin: "auto" }}>
+        //       <Badge color="error" variant="dot" />: {warning}
+        //       <Box>
+        //         <Badge color="warning" variant="dot" />: {caution}
+        //       </Box>
+        //     </Box>
+        //   );
+        // },
       },
       {
         accessorKey: "oilChange",
@@ -1249,7 +1257,7 @@ export default function VehiclesList({
         enableColumnFilter: false,
       },
     ],
-    [customFilter, refresh]
+    [customFilter, refresh, userRole]
   );
 
   const table = useMaterialReactTable({
@@ -1280,6 +1288,9 @@ export default function VehiclesList({
       },
     },
     state: {
+      isLoading,
+      showProgressBars: isRefetching,
+      showAlertBanner: errorBanner.show,
       columnVisibility: {
         ...columnVisibility,
         edit: userRole.includes("admin") ? true : false,
@@ -1603,7 +1614,7 @@ export default function VehiclesList({
               } else {
                 setColumnVisibility({
                   price: false,
-                  own: false,
+                  purchaseDate: false,
                   months: false,
                   totalExpense: false,
                   expensePerMonth: false,
@@ -1672,17 +1683,21 @@ export default function VehiclesList({
       >
         {addExpense && (
           <AddExpense
-            add={addExpense}
-            setAdd={setAddExpense}
             vehicle={expenseVehicle}
-            services={expenses}
-            username={username}
             refresh={refresh}
             setRefresh={setRefresh}
+            username={username}
+            services={expenses}
+            setError={setError}
+            setIsLoading={setIsLoading}
+            add={addExpense}
+            setAdd={setAddExpense}
             date={expenseDate}
             setDate={setExpenseDate}
             alert={alert}
             setAlert={setAlert}
+            setIsRefetching={setIsRefetching}
+            setErrorBanner={setErrorBanner}
           />
         )}
         <CreateVehicle add={add} setAdd={setAdd} />
@@ -1767,13 +1782,6 @@ export default function VehiclesList({
             )}
           </DialogContent>
         </Dialog>
-        {refresh ? (
-          <Box sx={{ width: "100%" }}>
-            <LinearProgress />
-          </Box>
-        ) : (
-          ""
-        )}
 
         <Box sx={{ minWidth: "100%" }}>
           <Box

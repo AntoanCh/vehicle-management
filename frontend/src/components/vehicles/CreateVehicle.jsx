@@ -255,8 +255,7 @@ const CreateVehicle = ({ add, setAdd }) => {
       <DialogContent>
         <DialogContentText id="alert-dialog-description"></DialogContentText>
         <Box sx={{ padding: 4 }}>
-          <ErrorDialog error={error} setError={setError} />;
-          {loading ? <CircularProgress /> : ""}
+          <ErrorDialog error={error} setError={setError} />
           {/* <div className="flex flex-col "> */}
           <Box
             component="form"
@@ -267,11 +266,11 @@ const CreateVehicle = ({ add, setAdd }) => {
             autoComplete="off"
           >
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
-              <Alert variant="filled" severity="info">
+              {/* <Alert variant="filled" severity="info">
                 Програмата НЕ различава главни от малки букви (не е case
                 sensitive).Няма нужда данните да се изписват с главни букви,
                 това се случва автоматизирано
-              </Alert>
+              </Alert> */}
 
               <Box className="flex justify-between">
                 <Box className="mr-20">
@@ -665,11 +664,11 @@ const CreateVehicle = ({ add, setAdd }) => {
               </Box>
               <Box>
                 <h1 className="text-center text-xl">Данни за покупка</h1>
-                <Alert variant="filled" severity="info">
+                {/* <Alert variant="filled" severity="info">
                   При непопълнени данни за дата на първи ремонт и килемтраж, по
                   подразбиране ще се вземат датата и километрите от най-ранният
                   въведен ремонт на автомобила, след въвеждането му.
-                </Alert>
+                </Alert> */}
 
                 <Box className="flex justify-center">
                   <Box className="my-4 text flex justify-center">
@@ -737,7 +736,7 @@ const CreateVehicle = ({ add, setAdd }) => {
         >
           Отказ
         </Button>
-        <Button onClick={handleSaveVehicle} variant="contained" fullWidth>
+        <Button onClick={handleSaveVehicle} variant="contained">
           ЗАПИШИ
         </Button>
       </DialogActions>

@@ -20,48 +20,54 @@ import {
 } from "material-react-table";
 
 const Log = ({ vehicle, log }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(true);
+  const [errorBanner, setErrorBanner] = useState({
+    show: false,
+    message: "",
+    color: "",
+  });
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    severity: "",
+  });
   const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ show: false, message: "" });
-  const [refetching, setRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
-
-  const handleLoading = () => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  };
 
   useEffect(() => {
     const fetchData = async () => {
       if (!history.length) {
-        setLoading(true);
+        setIsLoading(true);
       } else {
-        setRefetching(true);
+        setIsRefetching(true);
       }
 
-      axios
-        .get(`http://192.168.0.147:5555/api/logs/${vehicle._id}`)
-        .then((res) => {
-          setHistory(
-            res.data.data.map((obj) => {
-              return {
-                date: obj.date,
-                user: obj.user,
-                changed: logChanges(obj.changed),
-              };
-            })
-          );
-          setRowCount(res.data.count);
-        })
-        .catch((err) => {
-          setError({ show: true, message: err });
-
-          return;
+      try {
+        const res = await axios.get(
+          `http://192.168.0.147:5555/api/logs/${vehicle._id}`
+        );
+        setHistory(
+          res.data.data.map((obj) => {
+            return {
+              date: obj.date,
+              user: obj.user,
+              changed: logChanges(obj.changed),
+            };
+          })
+        );
+        setRowCount(res.data.count);
+      } catch (error) {
+        setError({
+          show: true,
+          message: `Грешка при комуникация: ${error}`,
         });
-      setError({ show: false, message: "" });
-      setLoading(false);
-      setRefetching(false);
+
+        return;
+      }
+      setIsLoading(false);
+      setIsRefetching(false);
     };
     fetchData();
   }, []);
@@ -198,6 +204,11 @@ const Log = ({ vehicle, log }) => {
     enableRowPinning: true,
     enableRowActions: false,
     muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    state: {
+      isLoading,
+      showProgressBars: isRefetching,
+      showAlertBanner: errorBanner.show,
+    },
     initialState: {
       sorting: [
         {
@@ -259,14 +270,9 @@ const Log = ({ vehicle, log }) => {
     <Box>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
         <ErrorDialog error={error} setError={setError} />
-        {handleLoading()}
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Box sx={{ marginY: "15px" }}>
-            <MaterialReactTable table={table} />
-          </Box>
-        )}
+        <Box sx={{ marginY: "15px" }}>
+          <MaterialReactTable table={table} />
+        </Box>
       </LocalizationProvider>
     </Box>
   );

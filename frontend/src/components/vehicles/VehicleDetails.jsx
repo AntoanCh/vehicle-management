@@ -26,28 +26,51 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 
 const VehicleDetails = ({ id }) => {
   const [vehicle, setVehicle] = useState({});
-  const [services, setServices] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(true);
+  const [errorBanner, setErrorBanner] = useState({
+    show: false,
+    message: "",
+    color: "",
+  });
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    severity: "",
+  });
+  const [error, setError] = useState({ show: false, message: "" });
+
   useEffect(() => {
-    setLoading(true);
-    axios
-      .get(`http://192.168.0.147:5555/api/vehicle/${id}`)
-      .then((res) => {
+    const fetchData = async () => {
+      if (!vehicle.length) {
+        setIsLoading(true);
+      } else {
+        setIsRefetching(true);
+      }
+
+      try {
+        const res = await axios.get(
+          `http://192.168.0.147:5555/api/vehicle/${id}`
+        );
         setVehicle(res.data);
-        axios
-          .get(`http://192.168.0.147:5555/api/services/${res.data._id}`)
-          .then((res) => {
-            setServices(res.data);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-      });
+
+        const expenses = await axios.get(
+          `http://192.168.0.147:5555/api/services/${res.data._id}`
+        );
+        setServices(expenses.data.data);
+      } catch (error) {
+        setError({
+          show: true,
+          message: `Грешка при комуникация: ${error}`,
+        });
+
+        return;
+      }
+      setIsLoading(false);
+      setIsRefetching(false);
+    };
+    fetchData();
   }, []);
   return (
     <Box display={"flex"}>
@@ -117,11 +140,7 @@ const VehicleDetails = ({ id }) => {
         </Box>
       </Box>
       <Box sx={{ width: "1000px" }}>
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Ref vehicle={vehicle} services={services} />
-        )}
+        <Ref vehicle={vehicle} services={services} />
       </Box>
     </Box>
   );

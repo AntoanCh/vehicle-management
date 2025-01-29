@@ -14,33 +14,43 @@ import {
 } from "material-react-table";
 
 const Records = () => {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(true);
+  const [errorBanner, setErrorBanner] = useState({
+    show: false,
+    message: "",
+    color: "",
+  });
+  const [alert, setAlert] = useState({
+    show: false,
+    message: "",
+    severity: "",
+  });
+  const [error, setError] = useState({ show: false, message: "" });
   const [records, setRecords] = useState({});
-  const [error, setError] = useState([false, ""]);
-  const [refetching, setRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
   useEffect(() => {
     const fetchData = async () => {
       if (!records.length) {
-        setLoading(true);
+        setIsLoading(true);
       } else {
-        setRefetching(true);
+        setIsRefetching(true);
       }
 
-      axios
-        .get(`http://192.168.0.147:5555/api/records/`)
-        .then((res) => {
-          setRecords(res.data.data);
-          setRowCount(res.data.count);
-        })
-        .catch((err) => {
-          setError([true, err]);
-          console.error(err);
-          return;
+      try {
+        const res = await axios.get(`http://192.168.0.147:5555/api/records/`);
+        setRecords(res.data.data);
+        setRowCount(res.data.count);
+      } catch (error) {
+        setError({
+          show: true,
+          message: `Грешка при комуникация: ${error}`,
         });
-      setError([false, ""]);
-      setLoading(false);
-      setRefetching(false);
+
+        return;
+      }
+      setIsLoading(false);
+      setIsRefetching(false);
     };
     fetchData();
   }, []);
@@ -234,6 +244,11 @@ const Records = () => {
       variant: "outlined",
     },
     enableColumnResizing: true,
+    state: {
+      isLoading,
+      showProgressBars: isRefetching,
+      showAlertBanner: errorBanner.show,
+    },
     initialState: {
       sorting: [
         {
@@ -250,6 +265,7 @@ const Records = () => {
       showColumnFilters: true,
       density: "compact",
     },
+
     muiTablePaperProps: {
       elevation: 0,
       sx: {

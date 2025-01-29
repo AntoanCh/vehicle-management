@@ -57,10 +57,10 @@ const SitesList = () => {
         const res = await axios.get(`http://192.168.0.147:5555/api/sites/`);
         setSites(res.data.data);
         setRowCount(res.data.count);
-      } catch {
+      } catch (error) {
         setError({
           show: true,
-          message: "Грешка при комуникация",
+          message: `Грешка при комуникация: ${error}`,
         });
 
         return;

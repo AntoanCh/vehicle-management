@@ -44,10 +44,6 @@ const EditExpense = ({
   });
 
   const handleSaveEdit = () => {
-    console.log(edit.expense.date);
-    console.log(edit.expense.type);
-    console.log(edit.expense.desc);
-    console.log(edit.expense.cost);
     if (
       !edit.expense.date ||
       !edit.expense.type ||

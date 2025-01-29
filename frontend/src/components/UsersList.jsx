@@ -40,7 +40,7 @@ const Users = () => {
     severity: "",
   });
   const [error, setError] = useState({ show: false, message: "" });
-  const [users, setUsers] = useState({});
+  const [users, setUsers] = useState([]);
   const [rowCount, setRowCount] = useState(0);
   const [refresh, setRefresh] = useState(false);
   const [editPassword, setEditPassword] = useState({ show: false, user: {} });
@@ -62,15 +62,14 @@ const Users = () => {
         const res = await axios.get(`http://192.168.0.147:5555/api/users/`);
         setUsers(res.data.data);
         setRowCount(res.data.count);
-      } catch {
+      } catch (error) {
         setError({
           show: true,
-          message: "Грешка при комуникация",
+          message: `Грешка при комуникация: ${error}`,
         });
 
         return;
       }
-      setError({ show: false, message: "" });
       setIsLoading(false);
       setIsRefetching(false);
     };

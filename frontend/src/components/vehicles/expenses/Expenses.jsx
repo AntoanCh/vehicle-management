@@ -11,12 +11,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Box from "@mui/material/Box";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
 import EditIcon from "@mui/icons-material/Edit";
 import AddExpense from "./AddExpense";
 import EditExpense from "./EditExpense";
@@ -41,7 +35,6 @@ import {
 
 const Expenses = ({ vehicle, services, fuels, userRole, username }) => {
   const [expenseDate, setExpenseDate] = useState(dayjs());
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ show: false, message: "" });
   const [alert, setAlert] = useState({
     show: false,
@@ -54,16 +47,17 @@ const Expenses = ({ vehicle, services, fuels, userRole, username }) => {
   });
   const [edit, setEdit] = useState({ show: false, expense: {} });
   const [add, setAdd] = useState(false);
-  const [refetching, setRefetching] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [rowCount, setRowCount] = useState(0);
   const [expenses, setExpenses] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(true);
+  const [errorBanner, setErrorBanner] = useState({
+    show: false,
+    message: "",
+    color: "",
+  });
 
-  const handleLoading = () => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  };
   const handleClick = () => {
     setAdd(true);
   };
@@ -71,25 +65,27 @@ const Expenses = ({ vehicle, services, fuels, userRole, username }) => {
   useEffect(() => {
     const fetchData = async () => {
       if (!expenses.length) {
-        setLoading(true);
+        setIsLoading(true);
       } else {
-        setRefetching(true);
+        setIsRefetching(true);
       }
 
-      axios
-        .get(`http://192.168.0.147:5555/api/services/${vehicle._id}`)
-        .then((res) => {
-          setExpenses(res.data.data);
-          setRowCount(res.data.count);
-        })
-        .catch((err) => {
-          setError({ show: true, message: err });
-
-          return;
+      try {
+        const res = await axios.get(
+          `http://192.168.0.147:5555/api/services/${vehicle._id}`
+        );
+        setExpenses(res.data.data);
+        setRowCount(res.data.count);
+      } catch (error) {
+        setError({
+          show: true,
+          message: `Грешка при комуникация: ${error}`,
         });
-      setError({ show: false, message: "" });
-      setLoading(false);
-      setRefetching(false);
+
+        return;
+      }
+      setIsLoading(false);
+      setIsRefetching(false);
     };
     fetchData();
   }, [refresh]);
@@ -263,6 +259,9 @@ const Expenses = ({ vehicle, services, fuels, userRole, username }) => {
       },
     },
     state: {
+      isLoading,
+      showProgressBars: isRefetching,
+      showAlertBanner: errorBanner.show,
       columnVisibility: {
         km: false,
       },
@@ -332,71 +331,6 @@ const Expenses = ({ vehicle, services, fuels, userRole, username }) => {
   return (
     <Box>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
-        {/* <Dialog
-          open={verifyDelete.show}
-          onClose={handleCloseDelete}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">ИЗТРИВАНЕ</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description"></DialogContentText>
-            {`Сигурен ли сте, че искате да изтриете записът ${
-              verifyDelete.expense.type +
-              " " +
-              verifyDelete.expense.desc +
-              " \n с № на фактура: " +
-              verifyDelete.expense.invoice +
-              " на стойност: " +
-              verifyDelete.expense.cost +
-              " лв."
-            } Тази операция е необратима`}
-          </DialogContent>
-          <DialogActions>
-            <Button
-              color="error"
-              variant="contained"
-              onClick={handleCloseDelete}
-              autoFocus
-            >
-              ОТКАЗ
-            </Button>
-            <Button
-              color="success"
-              variant="contained"
-              onClick={() => {
-                axios
-                  .delete(
-                    `http://192.168.0.147:5555/services/${verifyDelete.expense._id}`
-                  )
-                  .then(() => {
-                    axios.post(`http://192.168.0.147:5555/api/logs`, {
-                      date: dayjs(),
-                      user: username,
-                      changed: {
-                        delServ: [
-                          verifyDelete.expense.invoice,
-                          verifyDelete.expense.desc,
-                        ],
-                      },
-                      vehicleId: vehicle._id,
-                    });
-                    setTimeout(() => {
-                      // window.location.reload();
-                      setRefresh(!refresh);
-                    }, 1000);
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                  });
-              }}
-              autoFocus
-            >
-              ИЗТРИЙ
-            </Button>
-          </DialogActions>
-        </Dialog> */}
-
         <ErrorDialog error={error} setError={setError} />
         <Slide
           direction="down"
@@ -449,7 +383,7 @@ const Expenses = ({ vehicle, services, fuels, userRole, username }) => {
           username={username}
           services={expenses}
           setError={setError}
-          setLoading={setLoading}
+          setIsLoading={setIsLoading}
           edit={edit}
           setEdit={setEdit}
           date={expenseDate}
@@ -465,57 +399,54 @@ const Expenses = ({ vehicle, services, fuels, userRole, username }) => {
             username={username}
             services={expenses}
             setError={setError}
-            setLoading={setLoading}
+            setIsLoading={setIsLoading}
             add={add}
             setAdd={setAdd}
             date={expenseDate}
             setDate={setExpenseDate}
             alert={alert}
             setAlert={setAlert}
+            setIsRefetching={setIsRefetching}
+            setErrorBanner={setErrorBanner}
           />
         )}
 
-        {handleLoading()}
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Box sx={{ marginY: "15px" }}>
+        <Box sx={{ marginY: "15px" }}>
+          <Box
+            sx={(theme) => ({
+              backgroundColor: lighten(
+                theme.palette.mode === "dark" ? "#212121" : "#fff",
+                0.05
+              ),
+              display: "flex",
+              gap: "0.5rem",
+              p: "8px",
+              justifyContent: "space-between",
+            })}
+          >
             <Box
-              sx={(theme) => ({
-                backgroundColor: lighten(
-                  theme.palette.mode === "dark" ? "#212121" : "#fff",
-                  0.05
-                ),
-                display: "flex",
-                gap: "0.5rem",
-                p: "8px",
-                justifyContent: "space-between",
-              })}
-            >
-              <Box
-                sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}
-              ></Box>
-              <Box>
-                {(userRole.includes("admin") ||
-                  userRole.includes(vehicle.site)) &&
-                !vehicle.sold ? (
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    onClick={handleClick}
-                    startIcon={<Add />}
-                  >
-                    ДОБАВИ
-                  </Button>
-                ) : (
-                  ""
-                )}
-              </Box>
+              sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}
+            ></Box>
+            <Box>
+              {(userRole.includes("admin") ||
+                userRole.includes(vehicle.site)) &&
+              !vehicle.sold ? (
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick={handleClick}
+                  startIcon={<Add />}
+                >
+                  ДОБАВИ
+                </Button>
+              ) : (
+                ""
+              )}
             </Box>
-            <MaterialReactTable table={table} />
           </Box>
-        )}
+          <MaterialReactTable table={table} />
+        </Box>
       </LocalizationProvider>
     </Box>
   );

@@ -58,15 +58,15 @@ const DriversList = () => {
         const res = await axios.get(`http://192.168.0.147:5555/api/drivers/`);
         setDrivers(res.data.data);
         setRowCount(res.data.count);
-      } catch {
+      } catch (error) {
         setError({
           show: true,
-          message: "Грешка при комуникация",
+          message: `Грешка при комуникация: ${error}`,
         });
 
         return;
       }
-      setError({ show: false, message: "" });
+
       setIsLoading(false);
       setIsRefetching(false);
     };
@@ -213,21 +213,22 @@ const DriversList = () => {
           </Tooltip>
           <Tooltip title="Движение" disableInteractive>
             <IconButton
-              onClick={() => {
-                axios
-                  .get(
-                    `http://192.168.0.147:5555/api/records/driver/${row.original._id}`
-                  )
-                  .then((res) => {
-                    setHist({
-                      show: true,
-                      driver: row.original,
-                      data: res.data.data,
-                    });
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                  });
+              onClick={async () => {
+                await setHist({
+                  show: true,
+                  driver: row.original,
+                  data: [],
+                });
+                // axios
+                //   .get(
+                //     `http://192.168.0.147:5555/api/records/driver/${row.original._id}`
+                //   )
+                //   .then((res) => {
+
+                //   })
+                //   .catch((err) => {
+                //     console.log(err);
+                //   });
               }}
               color="success"
               variant="contained"

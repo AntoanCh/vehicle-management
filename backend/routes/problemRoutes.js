@@ -25,6 +25,13 @@ router.post("/", async (req, res) => {
       driverId: req.body.driverId,
     };
     const problem = await Problem.create(newProblem);
+    //sets vehicles issue property to true
+    const vehicleProblems = await Vehicle.findByIdAndUpdate(
+      req.body.vehicleId,
+      {
+        issue: true,
+      }
+    );
     return res.status(201).send(problem);
   } catch (err) {
     console.log(err.message);
@@ -110,6 +117,13 @@ router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const result = await Problem.findByIdAndDelete(id);
+    //sets vehicle's issue property to false if it doesnt have other active issues
+    // const vehicleProblems = await Vehicle.findByIdAndUpdate(
+    //   req.body.vehicleId,
+    //   {
+    //     issue: true,
+    //   }
+    // );
     if (!result) {
       return res.status(404).json({ messga: "Забележката не е намерена" });
     }

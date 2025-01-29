@@ -26,11 +26,13 @@ const AddIssue = ({
   setRefresh,
   issues,
   setError,
-  setLoading,
+  setIsLoading,
   add,
   setAdd,
   alert,
   setAlert,
+  setErrorBanner,
+  setIsRefetching,
 }) => {
   const [newIssue, setNewIssue] = useState({
     date: dayjs(),
@@ -40,36 +42,55 @@ const AddIssue = ({
     vehicleId: vehicle._id,
   });
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!newIssue.date || !newIssue.desc || !newIssue.driverName) {
-      setError([true, "Дата, описание, водач са задължителни полета"]);
-    } else {
-      setAdd(false);
-
-      axios
-        .post("http://192.168.0.147:5555/api/problems", newIssue)
-        .then(() => {
-          setAlert({
-            show: true,
-            message: `Забележка  ${newIssue.desc}, за ${vehicle.reg} записана успешно!`,
-            severity: "success",
-          });
-        })
-        .catch((err) => {
-          setLoading(false);
-          setError([true, `Грешка при комуникация: ${err}`]);
-        });
-      setNewIssue({
-        date: dayjs(),
-        desc: "",
-        driverName: username,
-        km: 0,
-        vehicleId: vehicle._id,
+      setError({
+        show: true,
+        message: "Дата, описание, водач са задължителни полета",
       });
-      setTimeout(() => {
-        setRefresh(!refresh);
-      }, 500);
+      return;
     }
+    try {
+      const { data } = await axios.post(
+        "http://192.168.0.147:5555/api/problems",
+        newIssue
+      );
+      if (data) {
+        setAlert({
+          show: true,
+          message: `Забележка  ${newIssue.desc}, за ${vehicle.reg} записана успешно!`,
+          severity: "success",
+        });
+      } else {
+        setAlert({
+          show: true,
+          message: "Грешка при запис",
+          severity: "error",
+        });
+        setErrorBanner({
+          show: true,
+          message: "Грешка при запис",
+          color: "error",
+        });
+      }
+      setIsRefetching(true);
+      setRefresh(!refresh);
+      setAdd(false);
+    } catch (error) {
+      setErrorBanner({
+        show: true,
+        message: "Грешка при комуникация със сървъра!",
+        color: "error",
+      });
+      setError({ show: true, message: `Грешка при комуникация: ${error}` });
+    }
+    setNewIssue({
+      date: dayjs(),
+      desc: "",
+      driverName: username,
+      km: 0,
+      vehicleId: vehicle._id,
+    });
   };
 
   const handleClose = () => {

@@ -26,13 +26,13 @@ const AddExpense = ({
   setRefresh,
   services,
   setError,
-  setLoading,
   add,
   setAdd,
   date,
   setDate,
-  alert,
   setAlert,
+  setIsRefetching,
+  setErrorBanner,
 }) => {
   const [newServ, setNewServ] = useState({
     date: date,
@@ -43,91 +43,76 @@ const AddExpense = ({
     cost: "",
     vehicleId: vehicle._id,
   });
-
-  const handleSave = () => {
-    if (!newServ.date || !newServ.type || !newServ.desc || !newServ.cost) {
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!newServ.date) {
+      setError({ show: true, message: `Въведете дата!` });
+      return;
+    } else if (!newServ.type) {
+      setError({ show: true, message: `Въведете вид на разхода!` });
+      return;
+    } else if (!newServ.desc) {
+      setError({ show: true, message: `Въведете описание на разхода!` });
+      return;
+    } else if (!newServ.cost) {
       setError({
         show: true,
-        message: "Дата, описание, вид и стойност са задължителни полета",
+        message: `Въведете цена на разхода!`,
       });
-    } else {
-      setAdd(false);
-      setNewServ({
-        ...newServ,
-        invoice: newServ.invoice.padStart(10, "0"),
-      });
-
-      axios
-        .post("http://192.168.0.147:5555/api/services", newServ)
-        .then(() => {
-          axios
-            .post(`http://192.168.0.147:5555/api/logs`, {
-              date: dayjs(),
-              user: username,
-              changed: { newServ: [newServ.cost, newServ.desc] },
-              vehicleId: vehicle._id,
-            })
-            .then(() => {
-              setAlert({
-                show: true,
-                message: `Разходът на стойност ${newServ.cost} лв, Ф-ра № '${newServ.invoice}' за ${vehicle.reg} записан успешно!`,
-                severity: "success",
-              });
-            })
-            .catch(() => {
-              setAlert({
-                show: true,
-                message: `Разходът на стойност ${newServ.cost} лв, Ф-ра № '${newServ.invoice}' за ${vehicle.reg} записан успешно!`,
-                severity: "warning",
-              });
-            });
-
-          setTimeout(() => {
-            setRefresh(!refresh);
-          }, 100);
-        })
-        .catch((err) => {
-          setLoading(false);
-          setError([true, `Грешка при комуникация: ${err}`]);
-        });
-      // if (
-      //   !vehicle.startKm ||
-      //   vehicle.startKm === 0 ||
-      //   parseInt(vehicle.startKm) > parseInt(newServ.km)
-      // ) {
-      //   vehicle.startKm = newServ.km.toString();
-      //   axios
-      //     .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-      //     .then(() => {})
-      //     .catch((err) => {
-      //       alert("Грешка, проверете конзолата 2");
-      //       console.log(err);
-      //     });
-      // }
-      // if (
-      //   !vehicle.startDate ||
-      //   dayjs(vehicle.startDate).diff(dayjs(newServ.date)) > 1
-      // ) {
-      //   vehicle.startDate = newServ.date;
-      //   axios
-      //     .put(`http://192.168.0.147:5555/vehicle/${vehicle._id}`, vehicle)
-      //     .then(() => {})
-      //     .catch((err) => {
-      //       alert("Грешка, проверете конзолата 3");
-      //       console.log(err);
-      //     });
-      // }
-      setDate(newServ.date);
-      setNewServ({
-        date: date,
-        type: "",
-        desc: "",
-        invoice: "",
-        km: 0,
-        cost: "",
+      return;
+    }
+    try {
+      const { data } = await axios.post(
+        "http://192.168.0.147:5555/api/services",
+        newServ
+      );
+      const log = await axios.post(`http://192.168.0.147:5555/api/logs`, {
+        date: dayjs(),
+        user: username,
+        changed: { newServ: [newServ.cost, newServ.desc] },
         vehicleId: vehicle._id,
       });
+      const { status, message } = data;
+
+      if (data) {
+        setAlert({
+          show: true,
+          message: `Разходът на стойност ${newServ.cost} лв, Ф-ра № '${newServ.invoice}' за ${vehicle.reg} записан успешно!`,
+          severity: "success",
+        });
+      } else {
+        setAlert({
+          show: true,
+          message: "Грешка при запис",
+          severity: "error",
+        });
+        setErrorBanner({
+          show: true,
+          message: "Грешка при запис",
+          color: "error",
+        });
+      }
+      setIsRefetching(true);
+      setRefresh(!refresh);
+      setAdd(false);
+    } catch (error) {
+      setErrorBanner({
+        show: true,
+        message: "Грешка при комуникация със сървъра!",
+        color: "error",
+      });
+      setError({ show: true, message: `Грешка при комуникация: ${error}` });
     }
+    setDate(newServ.date);
+    setNewServ({
+      date: date,
+      type: "",
+      desc: "",
+      invoice: "",
+      km: 0,
+      cost: "",
+      vehicleId: vehicle._id,
+    });
   };
 
   const handleClose = () => {

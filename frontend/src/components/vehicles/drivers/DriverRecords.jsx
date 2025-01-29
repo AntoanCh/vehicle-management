@@ -25,43 +25,37 @@ import {
 } from "material-react-table";
 
 const DriverRecords = ({ userRole, username, hist, setHist }) => {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState({ show: false, message: "" });
   const [records, setRecords] = useState([]);
   const [isRefetching, setIsRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     if (!records.length) {
-  //       setLoading(true);
-  //     } else {
-  //       setIsRefetching(true);
-  //     }
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!records.length) {
+        setIsLoading(true);
+      } else {
+        setIsRefetching(true);
+      }
+      if (hist.driver._id !== undefined) {
+        try {
+          const res = await axios.get(
+            `http://192.168.0.147:5555/api/records/driver/${hist.driver._id}`
+          );
+          setRecords(res.data.data);
+          setRowCount(res.data.count);
+        } catch (error) {
+          setError({ show: true, message: `Грешка при комуникация: ${error}` });
+          return;
+        }
+      }
 
-  //     try {
-  //       const res = await axios.get(
-  //         `http://192.168.0.147:5555/api/records/driver/${hist.driver._id}`
-  //       );
-  //       setRecords(res.data.data);
-  //       setRowCount(res.data.count);
-  //     } catch {
-  //       setError({ show: true, message: "Грешка при комуникация" });
-  //       return;
-  //     }
-
-  //     setError({ show: false, message: "" });
-  //     setLoading(false);
-  //     setIsRefetching(false);
-  //   };
-  //   fetchData();
-  // }, [hist.show]);
-
-  const handleLoading = () => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  };
+      setIsLoading(false);
+      setIsRefetching(false);
+    };
+    fetchData();
+  }, [hist.show]);
 
   const handleClose = () => {
     setHist({ show: false, driver: {}, data: [] });
@@ -146,7 +140,7 @@ const DriverRecords = ({ userRole, username, hist, setHist }) => {
               (row) => row.getValue("dropoffKm") - row.getValue("pickupKm")
             )
             .reduce((trip, acc) => trip + acc, 0);
-          console.log(trips);
+
           return (
             <Box sx={{ margin: "auto" }}>
               {"Изминати км:"}
@@ -207,12 +201,12 @@ const DriverRecords = ({ userRole, username, hist, setHist }) => {
         enableColumnFilter: false,
       },
     ],
-    [hist]
+    [hist, records]
   );
   const table = useMaterialReactTable({
     columns,
     localization: { ...MRT_Localization_BG },
-    data: hist.data,
+    data: records,
     rowCount,
     filterFns: {
       stringDateFn: (row, id, filterValue) => {
@@ -231,6 +225,10 @@ const DriverRecords = ({ userRole, username, hist, setHist }) => {
     enableColumnResizing: true,
     enableRowPinning: true,
     muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    state: {
+      isLoading,
+      showProgressBars: isRefetching,
+    },
     initialState: {
       sorting: [
         {
@@ -312,14 +310,9 @@ const DriverRecords = ({ userRole, username, hist, setHist }) => {
         >
           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
             <ErrorDialog error={error} setError={setError} />
-            {handleLoading()}
-            {loading ? (
-              <CircularProgress />
-            ) : (
-              <Box sx={{ backgroundColor: "white" }}>
-                <MaterialReactTable table={table} />
-              </Box>
-            )}
+            <Box sx={{ backgroundColor: "white" }}>
+              <MaterialReactTable table={table} />
+            </Box>
           </LocalizationProvider>
         </Box>
       </DialogContent>

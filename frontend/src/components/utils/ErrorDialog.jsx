@@ -10,7 +10,7 @@ import DraggablePaper from "../DraggablePaper";
 
 const ErrorDialog = ({ error, setError }) => {
   const handleError = () => {
-    setError(false, "");
+    setError({ show: false, message: "" });
   };
   return (
     <Dialog

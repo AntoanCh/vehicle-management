@@ -27,7 +27,13 @@ import {
 } from "material-react-table";
 
 const Issues = ({ vehicle, userRole, username }) => {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(true);
+  const [errorBanner, setErrorBanner] = useState({
+    show: false,
+    message: "",
+    color: "",
+  });
   const [error, setError] = useState({ show: false, message: "" });
   const [alert, setAlert] = useState({
     show: false,
@@ -36,15 +42,8 @@ const Issues = ({ vehicle, userRole, username }) => {
   });
   const [issues, setissues] = useState([]);
   const [add, setAdd] = useState(false);
-  const [refetching, setRefetching] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [rowCount, setRowCount] = useState(0);
-  console.log(issues.filter((item) => !item.done).length);
-  const handleLoading = () => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  };
 
   const handleClick = () => {
     setAdd(true);
@@ -53,25 +52,29 @@ const Issues = ({ vehicle, userRole, username }) => {
   useEffect(() => {
     const fetchData = async () => {
       if (!issues.length) {
-        setLoading(true);
+        setIsLoading(true);
       } else {
-        setRefetching(true);
+        setIsRefetching(true);
       }
 
-      axios
-        .get(`http://192.168.0.147:5555/api/problems/${vehicle._id}`)
-        .then((res) => {
-          setissues(res.data.data);
-          setRowCount(res.data.count);
-        })
-        .catch((err) => {
-          setError({ show: true, message: err });
-          return;
+      try {
+        const res = await axios.get(
+          `http://192.168.0.147:5555/api/problems/${vehicle._id}`
+        );
+        setissues(res.data.data);
+        setRowCount(res.data.count);
+      } catch (error) {
+        setError({
+          show: true,
+          message: `Грешка при комуникация: ${error}`,
         });
-      setError({ show: false, message: "" });
-      setLoading(false);
-      setRefetching(false);
+
+        return;
+      }
+      setIsLoading(false);
+      setIsRefetching(false);
     };
+
     fetchData();
   }, [refresh]);
 
@@ -239,6 +242,11 @@ const Issues = ({ vehicle, userRole, username }) => {
         };
       }
     },
+    state: {
+      isLoading,
+      showProgressBars: isRefetching,
+      showAlertBanner: errorBanner.show,
+    },
     initialState: {
       sorting: [
         {
@@ -345,53 +353,51 @@ const Issues = ({ vehicle, userRole, username }) => {
           username={username}
           issues={issues}
           setError={setError}
-          setLoading={setLoading}
+          setIsLoading={setIsLoading}
           add={add}
           setAdd={setAdd}
           alert={alert}
           setAlert={setAlert}
+          setErrorBanner={setErrorBanner}
+          setIsRefetching={setIsRefetching}
         />
-        {handleLoading()}
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Box sx={{ marginY: "15px" }}>
+
+        <Box sx={{ marginY: "15px" }}>
+          <Box
+            sx={(theme) => ({
+              backgroundColor: lighten(
+                theme.palette.mode === "dark" ? "#212121" : "#fff",
+                0.05
+              ),
+              display: "flex",
+              gap: "0.5rem",
+              p: "8px",
+              justifyContent: "space-between",
+            })}
+          >
             <Box
-              sx={(theme) => ({
-                backgroundColor: lighten(
-                  theme.palette.mode === "dark" ? "#212121" : "#fff",
-                  0.05
-                ),
-                display: "flex",
-                gap: "0.5rem",
-                p: "8px",
-                justifyContent: "space-between",
-              })}
-            >
-              <Box
-                sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}
-              ></Box>
-              <Box>
-                {(userRole.includes("admin") ||
-                  userRole.includes(vehicle.site)) &&
-                !vehicle.sold ? (
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    onClick={handleClick}
-                    startIcon={<Add />}
-                  >
-                    ДОБАВИ
-                  </Button>
-                ) : (
-                  ""
-                )}
-              </Box>
+              sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}
+            ></Box>
+            <Box>
+              {(userRole.includes("admin") ||
+                userRole.includes(vehicle.site)) &&
+              !vehicle.sold ? (
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick={handleClick}
+                  startIcon={<Add />}
+                >
+                  ДОБАВИ
+                </Button>
+              ) : (
+                ""
+              )}
             </Box>
-            <MaterialReactTable table={table} />
           </Box>
-        )}
+          <MaterialReactTable table={table} />
+        </Box>
       </LocalizationProvider>
     </Box>
   );
