@@ -154,10 +154,6 @@ export const vehicleSchema = mongoose.Schema(
       time: {
         type: Date,
       },
-      reserved: {
-        type: Boolean,
-        default: false,
-      },
     },
     sold: {
       type: Boolean,

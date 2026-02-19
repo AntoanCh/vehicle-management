@@ -48,7 +48,7 @@ const UserEditRole = ({
         "http://192.168.0.147:5555/auth/updaterole",
         {
           ...editRole.user,
-        }
+        },
       );
       const { status, message } = data;
 
@@ -79,16 +79,7 @@ const UserEditRole = ({
     setEditRole({ show: false, user: {} });
   };
 
-  const roles = [
-    "admin",
-    "hr",
-    "ОФИС",
-    "ВИТАЛИНО",
-    "БОРСА",
-    "ДРУГИ",
-    "IT",
-    "FREEZER",
-  ];
+  const roles = ["admin", "hr", "ОФИС", "ВИТАЛИНО", "БОРСА", "345", "ДРУГИ"];
 
   return (
     <Dialog

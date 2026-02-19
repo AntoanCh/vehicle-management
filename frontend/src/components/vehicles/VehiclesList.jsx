@@ -68,6 +68,7 @@ import {
   Menu as MenuIcon,
   WarningAmber,
   AltRouteTwoTone,
+  ConstructionOutlined,
 } from "@mui/icons-material";
 import Chip from "@mui/material/Chip";
 
@@ -152,6 +153,12 @@ export default function VehiclesList({
   const theme = useTheme();
   const baseBackgroundColor =
     theme.palette.mode === "dark" ? "#212121" : "#fff";
+
+  useEffect(() => {
+    window.onpopstate = () => {
+      setRefresh(!refresh);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -269,7 +276,7 @@ export default function VehiclesList({
   //To rerender the table pass variables to dependencies arrayin this variable
   const tableData = useMemo(() => {
     return vehicles.filter((obj) =>
-      filter === "all" ? obj.site !== "ПРОДАДЕНИ" : obj.site === filter
+      filter === "all" ? obj.site !== "ПРОДАДЕНИ" : obj.site === filter,
     );
   }, [filter, customFilter, isLoading, isRefetching]);
 
@@ -294,7 +301,7 @@ export default function VehiclesList({
 
                       axios
                         .get(
-                          `http://192.168.0.147:5555/api/services/${row.original._id}`
+                          `http://192.168.0.147:5555/api/services/${row.original._id}`,
                         )
                         .then((res) => {
                           setExpenses(res.data);
@@ -403,8 +410,8 @@ export default function VehiclesList({
                 cell.getValue() === "АКТИВЕН"
                   ? "success"
                   : cell.getValue() === "НЕАКТИВЕН"
-                  ? "error"
-                  : "warning"
+                    ? "error"
+                    : "warning"
               }
             />
           );
@@ -440,7 +447,7 @@ export default function VehiclesList({
             .getFilteredRowModel()
             .rows.reduce(
               (total, row) => total + parseFloat(row.getValue("price")),
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -490,7 +497,7 @@ export default function VehiclesList({
                 total + row.getValue("soldPrice")
                   ? parseFloat(row.getValue("soldPrice"))
                   : 0,
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -599,7 +606,7 @@ export default function VehiclesList({
                 (row.getValue("totalExpense")
                   ? row.getValue("totalExpense")
                   : 0),
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -656,7 +663,7 @@ export default function VehiclesList({
                   ? row.getValue("totalExpense") /
                     dayjs().diff(row.original.startDate, "month")
                   : 0),
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -739,7 +746,7 @@ export default function VehiclesList({
                 (row.getValue("totalsFilter")
                   ? row.getValue("totalsFilter")
                   : 0),
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -804,7 +811,7 @@ export default function VehiclesList({
                   ? row.getValue("totalsFilter") /
                     dayjs().diff(row.original.startDate, "month")
                   : 0),
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -835,8 +842,8 @@ export default function VehiclesList({
                 isDue(cell.getValue(), "date") === "warning"
                   ? { color: "red" }
                   : isDue(cell.getValue(), "date") === "caution"
-                  ? { color: "orange" }
-                  : {}
+                    ? { color: "orange" }
+                    : {}
               }
             >
               {dayjs(cell.getValue()).format("DD/MM/YYYY")}
@@ -851,7 +858,7 @@ export default function VehiclesList({
               (count, row) =>
                 count +
                 (isDue(row.getValue("insDate"), "date") === "warning" ? 1 : 0),
-              0
+              0,
             );
           const caution = table
             .getFilteredRowModel()
@@ -859,7 +866,7 @@ export default function VehiclesList({
               (count, row) =>
                 count +
                 (isDue(row.getValue("insDate"), "date") === "caution" ? 1 : 0),
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -887,8 +894,8 @@ export default function VehiclesList({
                 isDue(cell.getValue(), "date") === "warning"
                   ? { color: "red" }
                   : isDue(cell.getValue(), "date") === "caution"
-                  ? { color: "orange" }
-                  : {}
+                    ? { color: "orange" }
+                    : {}
               }
             >
               {cell.getValue() === null ||
@@ -908,7 +915,7 @@ export default function VehiclesList({
                 (isDue(row.getValue("kaskoDate"), "date") === "warning"
                   ? 1
                   : 0),
-              0
+              0,
             );
           const caution = table
             .getFilteredRowModel()
@@ -918,7 +925,7 @@ export default function VehiclesList({
                 (isDue(row.getValue("kaskoDate"), "date") === "caution"
                   ? 1
                   : 0),
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -946,8 +953,8 @@ export default function VehiclesList({
                 isDue(cell.getValue(), "date") === "warning"
                   ? { color: "red" }
                   : isDue(cell.getValue(), "date") === "caution"
-                  ? { color: "orange" }
-                  : {}
+                    ? { color: "orange" }
+                    : {}
               }
             >
               {dayjs(cell.getValue()).format("DD/MM/YYYY")}
@@ -962,7 +969,7 @@ export default function VehiclesList({
               (count, row) =>
                 count +
                 (isDue(row.getValue("gtp"), "date") === "warning" ? 1 : 0),
-              0
+              0,
             );
           const caution = table
             .getFilteredRowModel()
@@ -970,7 +977,7 @@ export default function VehiclesList({
               (count, row) =>
                 count +
                 (isDue(row.getValue("gtp"), "date") === "caution" ? 1 : 0),
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -998,10 +1005,10 @@ export default function VehiclesList({
                 cell.getValue() === "1" || cell.getValue() === "2"
                   ? { fontWeight: 800, color: "red" }
                   : cell.getValue() === "3"
-                  ? { fontWeight: 800, color: "orange" }
-                  : theme.palette.mode === "dark"
-                  ? { fontWeight: 800, color: theme.palette.success.light }
-                  : { fontWeight: 800, color: theme.palette.success.dark }
+                    ? { fontWeight: 800, color: "orange" }
+                    : theme.palette.mode === "dark"
+                      ? { fontWeight: 800, color: theme.palette.success.light }
+                      : { fontWeight: 800, color: theme.palette.success.dark }
               }
             >
               {cell.getValue()}
@@ -1017,13 +1024,13 @@ export default function VehiclesList({
                 (row.getValue("cat") === "1" || row.getValue("cat") === "2"
                   ? 1
                   : 0),
-              0
+              0,
             );
           const caution = table
             .getFilteredRowModel()
             .rows.reduce(
               (count, row) => count + (row.getValue("cat") === "3" ? 1 : 0),
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -1072,7 +1079,7 @@ export default function VehiclesList({
                 parseInt(row.getValue("tax")) < dayjs().$y
                   ? 1
                   : 0),
-              0
+              0,
             );
 
           return (
@@ -1100,16 +1107,16 @@ export default function VehiclesList({
                 isDue(
                   row.original.km - row.original.oil,
                   "oil",
-                  row.original.oilChange
+                  row.original.oilChange,
                 ) === "warning"
                   ? { color: "red" }
                   : isDue(
-                      row.original.km - row.original.oil,
-                      "oil",
-                      row.original.oilChange
-                    ) === "caution"
-                  ? { color: "orange" }
-                  : {}
+                        row.original.km - row.original.oil,
+                        "oil",
+                        row.original.oilChange,
+                      ) === "caution"
+                    ? { color: "orange" }
+                    : {}
               }
             >
               {row.original.oilChange -
@@ -1118,7 +1125,7 @@ export default function VehiclesList({
               {isDue(
                 row.original.km - row.original.oil,
                 "oil",
-                row.original.oilChange
+                row.original.oilChange,
               ) ? (
                 <WarningAmber />
               ) : (
@@ -1136,11 +1143,11 @@ export default function VehiclesList({
                 (isDue(
                   row.getValue("km") - row.original.oil,
                   "oil",
-                  row.getValue("oilChange")
+                  row.getValue("oilChange"),
                 ) === "warning"
                   ? 1
                   : 0),
-              0
+              0,
             );
           const caution = table
             .getFilteredRowModel()
@@ -1150,11 +1157,11 @@ export default function VehiclesList({
                 (isDue(
                   row.getValue("km") - row.original.oil,
                   "oil",
-                  row.getValue("oilChange")
+                  row.getValue("oilChange"),
                 ) === "caution"
                   ? 1
                   : 0),
-              0
+              0,
             );
           return (
             <Box sx={{ margin: "auto" }}>
@@ -1182,8 +1189,8 @@ export default function VehiclesList({
                 isDue(cell.getValue(), "checked") === "warning"
                   ? { color: "red" }
                   : isDue(cell.getValue(), "checked") === "caution"
-                  ? { color: "orange" }
-                  : {}
+                    ? { color: "orange" }
+                    : {}
               }
             >
               {dayjs(cell.getValue()).format("DD/MM/YYYY")}
@@ -1257,7 +1264,7 @@ export default function VehiclesList({
         enableColumnFilter: false,
       },
     ],
-    [customFilter, refresh, userRole]
+    [customFilter, refresh, userRole],
   );
 
   const table = useMaterialReactTable({
@@ -1700,7 +1707,18 @@ export default function VehiclesList({
             setErrorBanner={setErrorBanner}
           />
         )}
-        <CreateVehicle add={add} setAdd={setAdd} />
+        <CreateVehicle
+          add={add}
+          setAdd={setAdd}
+          refresh={refresh}
+          setRefresh={setRefresh}
+          setError={setError}
+          setIsLoading={setIsLoading}
+          alert={alert}
+          setAlert={setAlert}
+          setIsRefetching={setIsRefetching}
+          setErrorBanner={setErrorBanner}
+        />
         <Dialog
           // PaperComponent={DraggablePaper}
           // maxWidth={"xl"}
@@ -1788,7 +1806,7 @@ export default function VehiclesList({
             sx={(theme) => ({
               backgroundColor: lighten(
                 theme.palette.mode === "dark" ? "#212121" : "#fff",
-                0.05
+                0.05,
               ),
               display: "flex",
               gap: "0.5rem",
@@ -1840,6 +1858,16 @@ export default function VehiclesList({
                       onClick={() => handleFilter("БОРСА")}
                     >
                       {"БОРСА"}
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Филтрирай борса" disableInteractive>
+                    <Button
+                      sx={{ width: "40%" }}
+                      color="primary"
+                      variant={filter === "345" ? "contained" : "outlined"}
+                      onClick={() => handleFilter("345")}
+                    >
+                      {"345"}
                     </Button>
                   </Tooltip>
 

@@ -15,6 +15,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import DraggablePaper from "../DraggablePaper";
 import InputAdornment from "@mui/material/InputAdornment";
+import Checkbox from "@mui/material/Checkbox";
 
 const AddSite = ({
   add,
@@ -33,8 +34,10 @@ const AddSite = ({
     address: "",
     email: "",
     phone: "",
+    hasVehicles: false,
+    password: "",
   });
-  const { name, company, address, email, phone } = input;
+  const { name, company, address, email, phone, hasVehicles, password } = input;
 
   const handleAddSubmit = async (e) => {
     e.preventDefault();
@@ -95,6 +98,7 @@ const AddSite = ({
       address: "",
       email: "",
       phone: "",
+      hasVehicles: false,
     });
   };
 
@@ -106,6 +110,12 @@ const AddSite = ({
     setInput({
       ...input,
       [name]: value,
+    });
+  };
+  const handleHasVehicles = (event) => {
+    setInput({
+      ...input,
+      hasVehicles: event.target.checked,
     });
   };
 
@@ -149,6 +159,23 @@ const AddSite = ({
                   variant="filled"
                 ></TextField>
               </Box>
+              <Box sx={{ marginY: "15px" }}>
+                <Checkbox checked={hasVehicles} onChange={handleHasVehicles} />
+                <span>Автопарк</span>
+              </Box>
+              {hasVehicles && (
+                <Box sx={{ marginY: "15px" }}>
+                  <TextField
+                    fullWidth
+                    name="password"
+                    label="Парола:"
+                    value={password}
+                    onChange={handleChangeAdd}
+                    variant="filled"
+                  ></TextField>
+                </Box>
+              )}
+
               <Box sx={{ marginY: "15px" }}>
                 <TextField
                   fullWidth

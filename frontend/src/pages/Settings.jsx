@@ -126,11 +126,31 @@ const ShowVehicle = () => {
   const [edit, setEdit] = useState(false);
   const [verDelete, setVerDelete] = useState(false);
   const [userRole, setUserRole] = useState([]);
+  const [sites, setSites] = useState([]);
   const [username, setUsername] = useState();
   const token = localStorage.getItem("token");
   const { id } = useParams();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchSites = async () => {
+      try {
+        const res = await axios.get(`http://192.168.0.147:5555/api/sites/`);
+        const mapped = res.data.data.map((i) => i.name);
+        setSites(mapped);
+        console.log(mapped);
+      } catch (error) {
+        // setError({
+        //   show: true,
+        //   message: `Грешка при комуникация: ${error}`,
+        // });
+
+        return;
+      }
+      // setError({ show: false, message: "" });
+    };
+    fetchSites();
+  }, []);
   useEffect(() => {
     const verifyUser = async () => {
       if (!token) {
@@ -381,6 +401,24 @@ const ShowVehicle = () => {
                         onChange={handleChange}
                         variant="standard"
                       />
+                    </Box>
+                  </ItemStacked>
+                </Grid>
+                <Grid item lg={12} sm={6} xs={12}>
+                  <ItemStacked>
+                    <Box sx={{ color: "white" }}>
+                      Локации/Отговорници: {`${sites}`}
+                    </Box>
+
+                    <Box>
+                      {" "}
+                      {/* <StyledTextField
+                        value={"asd"}
+                        disabled
+                        name="fuel"
+                        onChange={handleChange}
+                        variant="standard"
+                      /> */}
                     </Box>
                   </ItemStacked>
                 </Grid>

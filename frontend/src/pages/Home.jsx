@@ -90,7 +90,7 @@ const Home = () => {
                 </BigButton>
               </Box>
             </Grid>
-            <Grid item xs={6}>
+            {/* <Grid item xs={6}>
               <Box sx={{}}>
                 <BigButton
                   disabled={
@@ -110,8 +110,8 @@ const Home = () => {
                   ИТ ТЕХНИКА
                 </BigButton>
               </Box>
-            </Grid>
-            <Grid item xs={6}>
+            </Grid> */}
+            {/* <Grid item xs={6}>
               <Box sx={{}}>
                 <BigButton
                   disabled={
@@ -131,7 +131,7 @@ const Home = () => {
                   ХЛАДИЛНА ТЕХНИКА
                 </BigButton>
               </Box>
-            </Grid>
+            </Grid> */}
             <Grid item xs={6}>
               <Box sx={{}}>
                 <BigButton

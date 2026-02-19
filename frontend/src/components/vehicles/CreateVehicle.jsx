@@ -26,7 +26,18 @@ import Alert from "@mui/material/Alert";
 import CloseIcon from "@mui/icons-material/Close";
 import ErrorDialog from "../utils/ErrorDialog";
 
-const CreateVehicle = ({ add, setAdd }) => {
+const CreateVehicle = ({
+  add,
+  setAdd,
+  refresh,
+  setRefresh,
+  // setError,
+  setIsLoading,
+  alert,
+  setAlert,
+  setIsRefetching,
+  setErrorBanner,
+}) => {
   const [data, setData] = useState({
     type: "",
     site: "",
@@ -53,29 +64,32 @@ const CreateVehicle = ({ add, setAdd }) => {
     oil: "",
     oilChange: "",
     occupied: { status: false, user: "" },
-    sold: { bool: false, price: "", date: dayjs("01-01-2001") },
+    // sold: { bool: false, price: "", date: dayjs("01-01-2001") },
+    sold: false,
+    soldPrice: 0,
+    soldDate: dayjs("01-01-2001"),
     tires: "",
     purchaseDate: dayjs(),
     startDate: dayjs(),
     startKm: "",
     price: "",
+    status: "АКТИВЕН",
   });
-  const [loading, setLoading] = useState(false);
+
   const [regError, setRegError] = useState(false);
   const [makeError, setMakeError] = useState(false);
   const [modelError, setModelError] = useState(false);
   const [error, setError] = useState({ show: false, message: "" });
-  const navigate = useNavigate();
 
   const handleCloseAdd = () => {
     setAdd(false);
   };
 
-  const handleSaveVehicle = () => {
-    setLoading(true);
+  const handleSaveVehicle = async () => {
+    setIsLoading(true);
 
     if (regError || makeError || modelError) {
-      setLoading(false);
+      setIsLoading(false);
       toast.error("Има непоправени грешки", {
         position: "top-right",
         autoClose: 5000,
@@ -106,29 +120,22 @@ const CreateVehicle = ({ add, setAdd }) => {
       !data.owner ||
       !data.oilChange
     ) {
-      setLoading(false);
+      setIsLoading(false);
       setError({
         show: true,
         message:
           "Има невъведени данни. Въведете всички задължителни данни, обелязани със ' * '",
       });
     } else {
-      axios
-        .post("http://192.168.0.147:5555/api/vehicle", data)
-        .then(() => {
-          setLoading(false);
-          window.location.reload();
-        })
-        .catch((err) => {
-          setLoading(false);
-          if (err.response.data.message) {
-            setError({ show: true, message: err.response.data.message });
-          } else {
-            alert("Грешка, проверете конзолата");
-            setError({ show: true, message: "Грешка, проверете конзолата" });
-            console.log(err);
-          }
-        });
+      try {
+        const res = await axios.post(
+          "http://192.168.0.147:5555/api/vehicle",
+          data,
+        );
+      } catch (error) {
+        setError({ show: true, message: `Грешка при комуникация: ${error}` });
+      }
+      setIsLoading(false);
     }
   };
 
@@ -207,7 +214,7 @@ const CreateVehicle = ({ add, setAdd }) => {
     years.push(
       <MenuItem key={i} value={dayjs().year() - i}>
         {dayjs().year() - i}
-      </MenuItem>
+      </MenuItem>,
     );
   }
 
@@ -292,6 +299,9 @@ const CreateVehicle = ({ add, setAdd }) => {
                       </MenuItem>
                       <MenuItem key={3} value="БОРСА">
                         Борса
+                      </MenuItem>
+                      <MenuItem key={3} value="345">
+                        345
                       </MenuItem>
                       <MenuItem key={4} value="ДРУГИ">
                         Други
@@ -591,6 +601,9 @@ const CreateVehicle = ({ add, setAdd }) => {
                       </MenuItem>
                       <MenuItem key={2} value="ЕКСПРЕС-ГАРАНТ">
                         ЕКСПРЕС-ГАРАНТ
+                      </MenuItem>
+                      <MenuItem key={2} value="345 ЕООД">
+                        345 ЕООД
                       </MenuItem>
                       <MenuItem key={3} value="Николай Кънчев">
                         Николай Кънчев

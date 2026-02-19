@@ -13,6 +13,7 @@ import personRoutes from "./routes/personRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import logRoutes from "./routes/logRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import settingsRoutes from "./routes/settingsRoutes.js";
 import cookieParser from "cookie-parser";
 import multer from "multer";
 import path from "path";
@@ -47,6 +48,14 @@ app.use("/api/vehicle", vehicleRoutes);
 app.use("/api/drivers", driverRoutes);
 app.use("/api/records", recordRoutes);
 app.use("/api/person", personRoutes);
+app.use("/api/settings", settingsRoutes);
+
+app.get("/client-ip", (req, res) => {
+  const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+
+  res.json({ ip });
+});
 
 //set static folder
 app.use(express.static("build"));

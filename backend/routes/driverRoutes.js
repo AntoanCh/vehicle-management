@@ -18,6 +18,8 @@ router.post("/", async (req, res) => {
       barcode2: req.body.barcode2,
       occupied: req.body.occupied,
       vehicleId: req.body.vehicleId,
+      licenseNum: req.body.licenseNum,
+      licenseExp: req.body.licenseExp,
     };
     const driver = await Driver.create(newDriver);
     return res.status(201).send(driver);

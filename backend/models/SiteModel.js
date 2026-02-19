@@ -20,13 +20,17 @@ export const siteSchema = mongoose.Schema(
     phone: {
       type: String,
     },
+    password: {
+      type: String,
+      default: "",
+    },
     hasVehicles: {
       type: Boolean,
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 //Creating models for sites using siteSchema

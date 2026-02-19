@@ -1,5 +1,6 @@
 import express from "express";
 import { Problem } from "../models/ProblemModel.js";
+import { Vehicle } from "../models/VehicleModel.js";
 
 const router = express.Router();
 
@@ -96,16 +97,18 @@ router.put("/:id", async (req, res) => {
     if (!result) {
       return res.status(404).json({ message: "Забележката не е намерена" });
     }
-    //The code below sets vehicle issue property to false if all issues of that vehicle have property of done equal to TRUE
 
-    // if (req.body.done) {
-    //   const allProblemsForThisVehicle = await Problem.find({
-    //     vehicleId: req.body.vehicleId,
-    //   });
-    //   if (allProblemsForThisVehicle.filter((item) => !item.done).length === 0) {
-    //     const vehicle = await Vehicle.findById(req.body.vehicleId);
-    //   }
-    // }
+    //The code below sets vehicle issue property to false if all issues of that vehicle have property of done equal to TRUE
+    if (req.body.done) {
+      const allProblemsForThisVehicle = await Problem.find({
+        vehicleId: req.body.vehicleId,
+      });
+      if (allProblemsForThisVehicle.filter((item) => !item.done).length === 0) {
+        const vehicle = await Vehicle.findByIdAndUpdate(req.body.vehicleId, {
+          issue: false,
+        });
+      }
+    }
     return res.status(200).send({ message: "Забележката е променена" });
   } catch (err) {
     console.log(err.message);
@@ -117,17 +120,9 @@ router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const result = await Problem.findByIdAndDelete(id);
-    //sets vehicle's issue property to false if it doesnt have other active issues
-    // const vehicleProblems = await Vehicle.findByIdAndUpdate(
-    //   req.body.vehicleId,
-    //   {
-    //     issue: true,
-    //   }
-    // );
     if (!result) {
       return res.status(404).json({ messga: "Забележката не е намерена" });
     }
-
     return res.status(200).send({ message: "Забележката е изтрита" });
   } catch (err) {
     console.log(err.message);

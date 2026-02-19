@@ -22,7 +22,7 @@ const CountdownTimer = ({
     if (seconds <= 0) {
       setSecondDriver(false);
       setDriver({});
-      setSelect([false, {}]);
+      setSelect({ show: false, vehicle: {} });
       return;
     }
 

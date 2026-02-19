@@ -9,14 +9,14 @@ import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import { darken, lighten, useTheme } from "@mui/material";
 import { MRT_Localization_BG } from "material-react-table/locales/bg";
 import Tooltip from "@mui/material/Tooltip";
-import AddDriver from "./AddDriver";
-import EditDriver from "./EditDriver";
-import ErrorDialog from "../../utils/ErrorDialog";
-import DriverStats from "./DriverStats";
 import Alert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
 import CloseIcon from "@mui/icons-material/Close";
-import DeleteDriver from "./DeleteDriver";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Dialog from "@mui/material/Dialog";
 
 //MRT Imports
 import {
@@ -25,7 +25,7 @@ import {
 } from "material-react-table";
 import DriverRecords from "./DriverRecords";
 
-const DriversList = () => {
+const DriverStats = ({ stat, setStat }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefetching, setIsRefetching] = useState(true);
   const [errorBanner, setErrorBanner] = useState({
@@ -34,7 +34,6 @@ const DriversList = () => {
     color: "",
   });
   const [drivers, setDrivers] = useState({});
-  const [stat, setStat] = useState(false);
   const [error, setError] = useState({ show: false, message: "" });
   const [rowCount, setRowCount] = useState(0);
   const [refresh, setRefresh] = useState(false);
@@ -55,26 +54,35 @@ const DriversList = () => {
       } else {
         setIsRefetching(true);
       }
-
       try {
         const res = await axios.get(`http://192.168.0.147:5555/api/drivers/`);
         setDrivers(res.data.data);
         setRowCount(res.data.count);
+
+        // drivers.forEach((driver) => {
+        //   const records = {...records, driver.firstName:  axios.get(
+        //     `http://192.168.0.147:5555/api/records/driver/${driver._id}`
+        //   );}
+        // });
+        // const trips = await axios.get(
+        //   `http://192.168.0.147:5555/api/records/driver/${hist.driver._id}`
+        // );
       } catch (error) {
         setError({
           show: true,
           message: `Грешка при комуникация: ${error}`,
         });
-
         return;
       }
-
       setIsLoading(false);
       setIsRefetching(false);
     };
     fetchData();
   }, [refresh]);
 
+  const handleClose = () => {
+    setStat(false);
+  };
   const theme = useTheme();
   const baseBackgroundColor =
     theme.palette.mode === "dark" ? "#212121" : "#fff";
@@ -91,40 +99,9 @@ const DriversList = () => {
           align: "left",
         },
       },
-
-      {
-        accessorKey: "barcode",
-        header: "Карта 1",
-        size: 250,
-        editable: false,
-        enableClickToCopy: true,
-        enableGlobalFilter: false,
-        muiTableBodyCellProps: {
-          align: "center",
-        },
-      },
-      {
-        accessorKey: "barcode2",
-        header: "Карта 2",
-        size: 250,
-        editable: false,
-        enableClickToCopy: true,
-        enableGlobalFilter: false,
-        muiTableBodyCellProps: {
-          align: "center",
-        },
-      },
     ],
     [refresh]
   );
-
-  const handleAddModal = () => {
-    setAdd(true);
-  };
-
-  const handleStatModal = () => {
-    setStat(true);
-  };
 
   const table = useMaterialReactTable({
     columns,
@@ -192,78 +169,7 @@ const DriversList = () => {
         borderRadius: "0",
       },
     },
-    renderRowActions: ({ row, table }) => (
-      <Box sx={{ display: "flex", flexWrap: "nowrap", gap: "8px" }}>
-        <Box>
-          <Tooltip title="Редактиране" disableInteractive>
-            <IconButton
-              onClick={() => {
-                setEdit({ show: true, driver: row.original });
-              }}
-              color="warning"
-              variant="contained"
-            >
-              <Edit />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Изтриване" disableInteractive>
-            <IconButton
-              onClick={() => {
-                setVerifyDelete({ show: true, driver: row.original });
-              }}
-              color="error"
-              variant="contained"
-            >
-              <DeleteForever />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Движение" disableInteractive>
-            <IconButton
-              onClick={async () => {
-                await setHist({
-                  show: true,
-                  driver: row.original,
-                  data: [],
-                });
-                // axios
-                //   .get(
-                //     `http://192.168.0.147:5555/api/records/driver/${row.original._id}`
-                //   )
-                //   .then((res) => {
 
-                //   })
-                //   .catch((err) => {
-                //     console.log(err);
-                //   });
-              }}
-              color="success"
-              variant="contained"
-            >
-              <Timeline />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Box>
-    ),
-    renderTopToolbarCustomActions: ({ table }) => (
-      <Box
-        sx={{
-          display: "flex",
-          gap: "16px",
-          padding: "8px",
-          flexWrap: "wrap",
-        }}
-      >
-        <Button variant="contained" onClick={handleAddModal}>
-          Добави водач
-          <PersonAddAlt1Icon />
-        </Button>
-        <Button variant="contained" onClick={handleStatModal}>
-          Статистика
-          <PersonAddAlt1Icon />
-        </Button>
-      </Box>
-    ),
     muiTableBodyProps: {
       sx: (theme) => ({
         '& tr:nth-of-type(odd):not([data-selected="true"]):not([data-pinned="true"]) > td':
@@ -291,90 +197,76 @@ const DriversList = () => {
   });
 
   return (
-    <Box>
-      <Slide
-        direction="down"
-        in={alert.show}
-        // in={true}
-        sx={{
-          position: "absolute",
-          // left: "50%",
-          zIndex: 2,
-          width: "40%",
-        }}
-      >
-        <Alert
-          severity={alert.severity}
-          variant="filled"
-          sx={{ margin: 0 }}
-          onClick={() => {
-            setAlert(false);
-          }}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
+    <Dialog
+      maxWidth={"xl"}
+      open={stat}
+      onClose={handleClose}
+      // fullWidth
+      // maxWidth={"xl"}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">
+        {`СТАТИСТИКА ПО ВОДАЧИ`}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description"></DialogContentText>
+
+        <Box>
+          <Slide
+            direction="down"
+            in={alert.show}
+            // in={true}
+            sx={{
+              position: "absolute",
+              // left: "50%",
+              zIndex: 2,
+              width: "40%",
+            }}
+          >
+            <Alert
+              severity={alert.severity}
+              variant="filled"
+              sx={{ margin: 0 }}
               onClick={() => {
                 setAlert(false);
               }}
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setAlert(false);
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
             >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-        >
-          {alert.message}
-        </Alert>
-      </Slide>
-      (
-      <DriverStats
-        stat={stat}
-        setStat={setStat}
-        hist={hist}
-        setHist={setHist}
-      />
-      )
-      <ErrorDialog error={error} setError={setError} />
-      <DriverRecords hist={hist} setHist={setHist} />
-      <AddDriver
-        add={add}
-        setAdd={setAdd}
-        drivers={drivers}
-        setRefresh={setRefresh}
-        refresh={refresh}
-        setAlert={setAlert}
-        setError={setError}
-        setErrorBanner={setErrorBanner}
-        setIsRefetching={setIsRefetching}
-      />
-      <EditDriver
-        edit={edit}
-        setEdit={setEdit}
-        drivers={drivers}
-        setRefresh={setRefresh}
-        refresh={refresh}
-        setAlert={setAlert}
-        setError={setError}
-        setErrorBanner={setErrorBanner}
-        setIsRefetching={setIsRefetching}
-      />
-      <DeleteDriver
-        verifyDelete={verifyDelete}
-        setVerifyDelete={setVerifyDelete}
-        setRefresh={setRefresh}
-        refresh={refresh}
-        setAlert={setAlert}
-        setError={setError}
-        setErrorBanner={setErrorBanner}
-        setIsRefetching={setIsRefetching}
-      />
-      <Box>
-        <Box sx={{ width: "99%", margin: "5px" }}>
-          <MaterialReactTable table={table} />
+              {alert.message}
+            </Alert>
+          </Slide>
+
+          <Box>
+            <Box sx={{ width: "99%", margin: "5px" }}>
+              <MaterialReactTable table={table} />
+            </Box>
+          </Box>
         </Box>
-      </Box>
-    </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          color="error"
+          variant="contained"
+          onClick={handleClose}
+          autoFocus
+        >
+          Затвори
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 
-export default DriversList;
+export default DriverStats;

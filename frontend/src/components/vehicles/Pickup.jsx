@@ -22,6 +22,7 @@ import IconButton from "@mui/material/IconButton";
 import Alert from "@mui/material/Alert";
 import DraggablePaper from "../DraggablePaper";
 import CloseIcon from "@mui/icons-material/Close";
+import { darken, lighten, useTheme } from "@mui/material";
 
 const Pickup = ({
   open,
@@ -30,24 +31,37 @@ const Pickup = ({
   setDriver,
   setLoading,
   setSelect,
+  setError,
 }) => {
   const [agree, setAgree] = useState(false);
   const [issues, setIssues] = useState([]);
+  const theme = useTheme();
 
   useEffect(() => {
-    axios
-      .get(`http://192.168.0.147:5555/api/problems/${vehicle._id}`)
-      .then((res) => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          `http://192.168.0.147:5555/api/problems/${vehicle._id}`,
+        );
         setIssues(res.data.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      } catch (error) {
+        setError({ show: true, message: `Грешка при комуникация: ${error}` });
+      }
+    };
+    fetchData();
+    // const res = await axios
+    //   .get(`http://192.168.0.147:5555/api/problems/${vehicle._id}`)
+    //   .then((res) => {
+    //     setIssues(res.data.data);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
   }, []);
 
-  const handlePickUp = (vehicle) => {
-    axios
-      .post("http://192.168.0.147:5555/api/records", {
+  const handlePickUp = async (vehicle) => {
+    try {
+      const res = await axios.post("http://192.168.0.147:5555/api/records", {
         driverId: driver._id,
         vehicleId: vehicle._id,
         vehicleModel: `${vehicle.make} ${vehicle.model}`,
@@ -55,77 +69,82 @@ const Pickup = ({
         driverName: driver.firstName,
         pickupTime: dayjs(),
         pickupKm: vehicle.km,
-      })
-      .then((res) => {
-        axios
-          .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
-            ...driver,
-            occupied: true,
-            recordId: res.data._id,
-          })
-          .then((res) => {})
-          .catch((err) => {
-            console.log(err);
-          });
-        axios
-          .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, {
-            ...vehicle,
-            occupied: {
-              status: true,
-              user: driver.firstName,
-              time: dayjs(),
-              userId: driver._id,
-              reserved: false,
-            },
-          })
-          .then((res) => {})
-          .catch((err) => {
-            console.log(err);
-          });
-        setLoading(false);
-        setSelect([false, {}]);
-        setDriver({});
-      })
-      .catch((err) => {
-        console.log(err);
       });
+      await axios.put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
+        ...driver,
+        occupied: true,
+        recordId: res.data._id,
+      });
+      const veh = await axios.put(
+        `http://192.168.0.147:5555/api/vehicle/${vehicle._id}`,
+        {
+          ...vehicle,
+          occupied: {
+            status: true,
+            user: driver.firstName,
+            time: dayjs(),
+            userId: driver._id,
+            reserved: false,
+          },
+        },
+      );
+      setSelect({ show: false, vehicle: {} });
+      setDriver({});
+    } catch (error) {
+      setError({ show: true, message: `Грешка при комуникация: ${error}` });
+    }
+    // axios
+    //   .post("http://192.168.0.147:5555/api/records", {
+    //     driverId: driver._id,
+    //     vehicleId: vehicle._id,
+    //     vehicleModel: `${vehicle.make} ${vehicle.model}`,
+    //     vehicleReg: vehicle.reg,
+    //     driverName: driver.firstName,
+    //     pickupTime: dayjs(),
+    //     pickupKm: vehicle.km,
+    //   })
+    //   .then((res) => {
+    //     axios
+    //       .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
+    //         ...driver,
+    //         occupied: true,
+    //         recordId: res.data._id,
+    //       })
+    //       .then((res) => {})
+    //       .catch((err) => {
+    //         console.log(err);
+    //       });
+    //     axios
+    //       .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, {
+    //         ...vehicle,
+    //         occupied: {
+    //           status: true,
+    //           user: driver.firstName,
+    //           time: dayjs(),
+    //           userId: driver._id,
+    //           reserved: false,
+    //         },
+    //       })
+    //       .then((res) => {})
+    //       .catch((err) => {
+    //         console.log(err);
+    //       });
+    //     setLoading(false);
+    //     setSelect({ show: false, vehicle: {} });
+    //     setDriver({});
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
   };
   const handleAgree = () => {
     setAgree(!agree);
   };
   const handleClose = () => {
-    setSelect([false, {}]);
+    setSelect({ show: false, vehicle: {} });
     setAgree(false);
   };
-  const handleReserve = () => {
-    axios
-      .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, {
-        ...vehicle,
-        occupied: {
-          status: true,
-          user: driver.firstName,
-          time: dayjs().add(1, "hour"),
-          userId: driver._id,
-          reserved: true,
-        },
-      })
-      .then((res) => {})
-      .catch((err) => {
-        console.log(err);
-      });
-    axios
-      .put(`http://192.168.0.147:5555/api/drivers/${driver._id}`, {
-        ...driver,
-        occupied: true,
-      })
-      .then((res) => {})
-      .catch((err) => {
-        console.log(err);
-      });
-    setLoading(false);
-    setSelect([false, {}]);
-    setDriver({});
-  };
+
   return (
     <Dialog
       PaperComponent={DraggablePaper}
@@ -144,7 +163,7 @@ const Pickup = ({
             : ""
         }
       >
-        {"ВЗИМАНЕ НА КОЛА"}
+        {"ВЗИМАНЕ НА АВТОМОБИЛ"}
         <IconButton
           sx={{
             margin: 0,
@@ -185,7 +204,10 @@ const Pickup = ({
               <TextField
                 disabled
                 fullWidth
-                value={vehicle.reg}
+                value={vehicle.reg
+                  .split(/(\d{4})/)
+                  .join(" ")
+                  .trim()}
                 variant="standard"
                 sx={{
                   "& .MuiInputBase-input": {
@@ -197,7 +219,8 @@ const Pickup = ({
                     color: "black",
                   },
                   "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "black", //Adjust text color here
+                    WebkitTextFillColor:
+                      theme.palette.mode === "dark" ? "white" : "black", //Adjust text color here
                   },
                 }}
               />
@@ -215,7 +238,8 @@ const Pickup = ({
                     color: "black",
                   },
                   "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "black", //Adjust text color here
+                    WebkitTextFillColor:
+                      theme.palette.mode === "dark" ? "white" : "black", //Adjust text color here
                   },
                 }}
               />
@@ -233,7 +257,8 @@ const Pickup = ({
                     color: "black",
                   },
                   "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "black", //Adjust text color here
+                    WebkitTextFillColor:
+                      theme.palette.mode === "dark" ? "white" : "black", //Adjust text color here
                   },
                 }}
               />
@@ -258,7 +283,8 @@ const Pickup = ({
                     color: "black",
                   },
                   "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "black", //Adjust text color here
+                    WebkitTextFillColor:
+                      theme.palette.mode === "dark" ? "white" : "black", //Adjust text color here
                   },
                 }}
               />
@@ -276,7 +302,8 @@ const Pickup = ({
                     color: "black",
                   },
                   "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "black", //Adjust text color here
+                    WebkitTextFillColor:
+                      theme.palette.mode === "dark" ? "white" : "black", //Adjust text color here
                   },
                 }}
               />
@@ -294,7 +321,13 @@ const Pickup = ({
                     color: "black",
                   },
                   "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: "black", //Adjust text color here
+                    WebkitTextFillColor: dayjs(vehicle.insDate).isBefore(
+                      dayjs(),
+                    )
+                      ? "red"
+                      : theme.palette.mode === "dark"
+                        ? "white"
+                        : "black", //Adjust text color here
                   },
                 }}
               />
@@ -312,7 +345,12 @@ const Pickup = ({
                     color: vehicle.cat === "1" ? "red" : "black",
                   },
                   "& .MuiInputBase-input.Mui-disabled": {
-                    WebkitTextFillColor: vehicle.cat === "1" ? "red" : "black", //Adjust text color here
+                    WebkitTextFillColor:
+                      vehicle.cat === "1"
+                        ? "red"
+                        : theme.palette.mode === "dark"
+                          ? "white"
+                          : "black", //Adjust text color here
                   },
                 }}
                 error
@@ -320,8 +358,8 @@ const Pickup = ({
                   vehicle.cat === "2"
                     ? "Този автомобил няма право да се движи в МАЛКИЯ РИНГ на нискоемисионните зони в София"
                     : vehicle.cat === "1"
-                    ? "Този автомобил няма право да се движи в ГОЛЕМИЯ РИНГ на нискоемисионните зони в София"
-                    : ""
+                      ? "Този автомобил няма право да се движи в ГОЛЕМИЯ РИНГ на нискоемисионните зони в София"
+                      : ""
                 }
               />
             </Box>
@@ -356,6 +394,52 @@ const Pickup = ({
                 </Table>
               </TableContainer>
             </Box>
+          </Box>
+          <Box flex>
+            <TextField
+              disabled
+              value={`Материали за:`}
+              variant="standard"
+              sx={{
+                "& .MuiInputBase-input": {
+                  fontSize: 18,
+                  padding: 1,
+                  fontWeight: 800,
+                  textAlign: "center",
+                  color: vehicle.cat === "1" ? "red" : "black",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor:
+                    vehicle.cat === "1"
+                      ? "red"
+                      : theme.palette.mode === "dark"
+                        ? "white"
+                        : "black", //Adjust text color here
+                },
+              }}
+            />
+            <TextField
+              select
+              value={`Материали за:`}
+              variant="standard"
+              sx={{
+                "& .MuiInputBase-input": {
+                  fontSize: 18,
+                  padding: 1,
+                  fontWeight: 800,
+                  textAlign: "center",
+                  color: vehicle.cat === "1" ? "red" : "black",
+                },
+                "& .MuiInputBase-input.Mui-disabled": {
+                  WebkitTextFillColor:
+                    vehicle.cat === "1"
+                      ? "red"
+                      : theme.palette.mode === "dark"
+                        ? "white"
+                        : "black", //Adjust text color here
+                },
+              }}
+            />
           </Box>
           <FormGroup>
             <FormControlLabel

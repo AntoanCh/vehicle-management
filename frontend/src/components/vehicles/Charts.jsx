@@ -9,12 +9,13 @@ import VehiclesList from "./VehiclesList.jsx";
 import { Button, ButtonGroup } from "@mui/material";
 import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import dayjs from "dayjs";
-
+import ErrorDialog from "../../components/utils/ErrorDialog";
 import relativeTime from "dayjs/plugin/relativeTime";
 
 const Charts = () => {
   const [filter, setFilter] = React.useState("all");
   const [vehicles, setVehicles] = React.useState([]);
+  const [error, setError] = React.useState({ show: false, message: "" });
   const [loading, setLoading] = React.useState(false);
 
   const handleFilter = (val) => {
@@ -22,21 +23,24 @@ const Charts = () => {
   };
 
   React.useEffect(() => {
-    setLoading(true);
-    axios
-      .get("http://192.168.0.147:5555/api/vehicle")
-      .then((res) => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get("http://192.168.0.147:5555/api/vehicle");
         setVehicles(
           res.data.data.sort((a, b) =>
             b.price.localeCompare(a.price, undefined, { numeric: true })
           )
         );
         setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-      });
+      } catch (error) {
+        setError({
+          show: true,
+          message: `Грешка при комуникация: ${error}`,
+        });
+      }
+    };
+    fetchData();
   }, []);
   const xAxis = vehicles
     .filter((obj) =>
@@ -54,6 +58,7 @@ const Charts = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
+      <ErrorDialog error={error} setError={setError} />
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         {" "}
         <Button

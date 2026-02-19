@@ -17,6 +17,8 @@ router.post("/", async (req, res) => {
       address: req.body.address,
       email: req.body.email,
       phone: req.body.phone,
+      hasVehicles: req.body.hasVehicles,
+      password: req.body.password,
     };
     const site = await Site.create(newSite);
     return res.status(201).send(site);

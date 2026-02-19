@@ -18,7 +18,6 @@ import "./App.css";
 import * as React from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "./components/Header.jsx";
-import Footer from "./components/Footer.jsx";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import "dayjs/locale/bg";
@@ -41,6 +40,36 @@ function App() {
   const [showExpense, setShowExpense] = useState(false);
   const [darkTheme, setDarkTheme] = useState(false);
   const [expenseWithTax, setExpenseWithTax] = useState(true);
+  //Get clients local IP address
+  // const [localIp, setLocalIp] = useState("");
+
+  // useEffect(() => {
+  //   const getLocalIP = async () => {
+  //     const ipRegex = /([0-9]{1,3}\.){3}[0-9]{1,3}/;
+
+  //     const pc = new RTCPeerConnection({
+  //       iceServers: [{ urls: "192.168.0.147:5555" }],
+  //     });
+
+  //     pc.createDataChannel("");
+
+  //     pc.createOffer().then((offer) => pc.setLocalDescription(offer));
+
+  //     pc.onicecandidate = (ice) => {
+  //       console.log(ice);
+  //       if (ice && ice.candidate && ice.candidate.candidate) {
+  //         const ipMatch = ipRegex.exec(ice.candidate.candidate);
+  //         if (ipMatch) {
+  //           setLocalIp(ipMatch[0]);
+  //           pc.onicecandidate = null;
+  //         }
+  //       }
+  //     };
+  //   };
+
+  //   getLocalIP();
+  //   console.log("🚀 ~ App ~ localIp:", localIp);
+  // }, []);
 
   useEffect(() => {
     if (localStorage.getItem("darkTheme") === "true") {
@@ -134,8 +163,6 @@ function App() {
                 <Route path="/people/details/:id" element={<PersonCard />} />
               </Routes>
             </Box>
-
-            <Footer />
           </BrowserRouter>
         </LocalizationProvider>
       </Box>

@@ -88,6 +88,23 @@ const SitesList = () => {
           sx: { fontWeight: 800 },
         },
       },
+      {
+        accessorKey: "hasVehicles",
+        header: "Автопарк",
+        size: 100,
+        enableGlobalFilter: false,
+        muiTableBodyCellProps: {
+          align: "left",
+          sx: { fontWeight: 800 },
+        },
+        Cell: ({ cell }) => {
+          if (cell.getValue()) {
+            return "ИМА";
+          } else {
+            return "НЯМА";
+          }
+        },
+      },
 
       {
         accessorKey: "company",
@@ -134,7 +151,7 @@ const SitesList = () => {
         },
       },
     ],
-    [refresh]
+    [refresh],
   );
 
   const handleAddModal = () => {

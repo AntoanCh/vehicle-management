@@ -19,15 +19,20 @@ const Login = () => {
   const [error, setError] = useState({ show: false, message: "" });
   const [showPassword, setShowPassword] = React.useState(false);
   const [caps, setCaps] = useState(false);
+
   useEffect(() => {
-    axios
-      .get("http://192.168.0.147:5555/api/users")
-      .then((res) => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get("http://192.168.0.147:5555/api/users");
         setUsers(res.data.data.map((entrie) => entrie.username));
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      } catch (error) {
+        setError({
+          show: true,
+          message: `Грешка при комуникация: ${error}`,
+        });
+      }
+    };
+    fetchData();
   }, []);
 
   const navigate = useNavigate();

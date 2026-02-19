@@ -25,9 +25,20 @@ export const driverSchema = mongoose.Schema(
       default: false,
       required: true,
     },
-    cooldown: {
-      type: Date,
+    itemTransport: {
+     status: {
+        type: Boolean,
+        default: false,
+      },
+       locations: {
+        type: [String],     //  Array of strings
+        default: [],         // Optional: start as an empty array
+      },
     },
+    licenseNum: {
+      type: String,
+    },
+    licenseExp: { type: Date },
     recordId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Record",

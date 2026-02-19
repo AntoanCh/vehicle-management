@@ -44,6 +44,7 @@ import Grid from "@mui/material/Grid";
 import InputAdornment from "@mui/material/InputAdornment";
 import Alert from "@mui/material/Alert";
 import { keyframes } from "@mui/system";
+import ErrorDialog from "../../components/utils/ErrorDialog";
 
 const ItemInline = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#ccc",
@@ -127,17 +128,19 @@ const ShowVehicle = () => {
   const [vehicle, setVehicle] = useState({});
   const [oldVehicle, setOldVehicle] = useState({});
   const [showLog, setShowLog] = useState(false);
+  const [error, setError] = useState({ show: false, message: "" });
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState("");
   const [refresh, setRefresh] = useState(false);
   const [edit, setEdit] = useState(false);
   const [verDelete, setVerDelete] = useState(false);
-  const [sell, setSell] = useState([false, 0, dayjs()]);
+  const [sell, setSell] = useState({ show: false, price: 0, date: dayjs() });
   const [userRole, setUserRole] = useState([]);
   const [username, setUsername] = useState();
   const token = localStorage.getItem("token");
   const { id } = useParams();
   const navigate = useNavigate();
+
   useEffect(() => {
     const verifyUser = async () => {
       if (!token) {
@@ -152,18 +155,25 @@ const ShowVehicle = () => {
     };
     verifyUser();
   }, [token, navigate]);
+
   useEffect(() => {
-    setLoading(true);
-    axios
-      .get(`http://192.168.0.147:5555/api/vehicle/${id}`)
-      .then((res) => {
+    const fetchData = async () => {
+      setLoading(true);
+
+      try {
+        const res = await axios.get(
+          `http://192.168.0.147:5555/api/vehicle/${id}`
+        );
         setVehicle(res.data);
         setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-      });
+      } catch (error) {
+        setError({
+          show: true,
+          message: `Грешка при комуникация: ${error}`,
+        });
+      }
+    };
+    fetchData();
   }, [refresh]);
 
   const handleShowLog = () => {
@@ -173,27 +183,33 @@ const ShowVehicle = () => {
     setVerDelete(false);
   };
   const handleCloseSell = () => {
-    setSell([false, 0, dayjs()]);
+    setSell({ show: false, price: 0, date: dayjs() });
   };
   const verifyDelete = () => {
     setVerDelete(true);
   };
   const verifySell = () => {
-    setSell([true, 0, dayjs()]);
+    setSell({ show: true, price: 0, date: dayjs() });
   };
-  const handleDelete = () => {
-    axios
-      .delete(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`)
-      .then(() => {
-        navigate("/vehicles");
+  const handleDelete = async () => {
+    try {
+      const del = await axios.delete(
+        `http://192.168.0.147:5555/api/vehicle/${vehicle._id}`
+      );
+      navigate("/vehicles");
+    } catch (error) {
+      setError({
+        show: true,
+        message: `Грешка при комуникация: ${error}`,
       });
+    }
   };
   const handleEdit = () => {
     setOldVehicle({ ...vehicle });
     setEdit(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     let updated;
     if (vehicle.km < oldVehicle.km) {
       updated = { ...vehicle, km: oldVehicle.km };
@@ -208,28 +224,26 @@ const ShowVehicle = () => {
     }
     setEdit(false);
 
-    axios
-      .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, {
-        ...updated,
-      })
-      .then(() => {
-        axios.post(`http://192.168.0.147:5555/api/logs`, {
-          date: dayjs(),
-          user: username,
-          changed: diff,
-          vehicleId: vehicle._id,
-        });
-        setTimeout(() => {
-          // window.location.reload();
-          setRefresh(!refresh);
-        }, 1000);
-      })
-      .catch((err) => {
-        alert("Грешка, проверете конзолата");
-        console.log(err);
-        // window.location.reload();
-        setRefresh(!refresh);
+    try {
+      const veh = await axios.put(
+        `http://192.168.0.147:5555/api/vehicle/${vehicle._id}`,
+        {
+          ...updated,
+        }
+      );
+      const log = await axios.post(`http://192.168.0.147:5555/api/logs`, {
+        date: dayjs(),
+        user: username,
+        changed: diff,
+        vehicleId: vehicle._id,
       });
+      setRefresh(!refresh);
+    } catch (error) {
+      setError({
+        show: true,
+        message: `Грешка при комуникация: ${error}`,
+      });
+    }
   };
   const handleCancelEdit = () => {
     setEdit(false);
@@ -297,31 +311,31 @@ const ShowVehicle = () => {
       }
     }
   };
-  const handleCheck = () => {
+  const handleCheck = async () => {
     vehicle.checked = dayjs();
-    axios
-      .put(`http://192.168.0.147:5555/api/vehicle/${vehicle._id}`, vehicle)
-      .then(() => {
-        axios.post(`http://192.168.0.147:5555/api/logs`, {
-          date: dayjs(),
-          user: username,
-          changed: { checked: [0, dayjs()] },
-          vehicleId: vehicle._id,
-        });
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-        // window.location.reload();
-      })
-      .catch((err) => {
-        alert("Грешка, проверете конзолата");
-        console.log(err);
-        window.location.reload();
+    try {
+      await axios.put(
+        `http://192.168.0.147:5555/api/vehicle/${vehicle._id}`,
+        vehicle
+      );
+      await axios.post(`http://192.168.0.147:5555/api/logs`, {
+        date: dayjs(),
+        user: username,
+        changed: { checked: [0, dayjs()] },
+        vehicleId: vehicle._id,
       });
+      setRefresh(!refresh);
+    } catch (error) {
+      setError({
+        show: true,
+        message: `Грешка при комуникация: ${error}`,
+      });
+    }
   };
 
   return (
     <Box className="p-4">
+      <ErrorDialog error={error} setError={setError} />
       {loading ? (
         <CircularProgress />
       ) : (
@@ -357,7 +371,7 @@ const ShowVehicle = () => {
             </DialogActions>
           </Dialog>
           <Dialog
-            open={sell[0]}
+            open={sell.show}
             onClose={handleCloseSell}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
@@ -376,12 +390,12 @@ const ShowVehicle = () => {
                 <ItemStacked>
                   <Box sx={{ color: "gray" }}>Цена:</Box>
                   <StyledTextField
-                    value={sell[1]}
+                    value={sell.price}
                     name="sold.price"
                     onChange={(e) => {
-                      const newArr = [...sell];
-                      newArr[1] = e.target.value;
-                      setSell([...newArr]);
+                      const newObj = { ...sell };
+                      newObj.price = e.target.value;
+                      setSell({ ...newObj });
                     }}
                     variant="standard"
                   />
@@ -405,12 +419,12 @@ const ShowVehicle = () => {
                       }}
                       format="DD/MM/YYYY"
                       id="sold.date"
-                      value={sell[2]}
+                      value={sell.date}
                       name="sold.date"
                       onChange={(newValue) => {
-                        const newArr = [...sell];
-                        newArr[2] = newValue;
-                        setSell([...newArr]);
+                        const newObj = { ...sell };
+                        newObj.date = newValue;
+                        setSell({ ...newObj });
                       }}
                     />
                   </DemoContainer>
@@ -428,19 +442,26 @@ const ShowVehicle = () => {
               </Button>
               <Button
                 variant="contained"
-                onClick={() =>
-                  axios.put(
-                    `http://192.168.0.147:5555/api/vehicle/${vehicle._id}`,
-                    {
-                      ...vehicle,
-                      sold: true,
-                      soldPrice: sell[1],
-                      soldDate: sell[2],
-                      state: "ПРОДАДЕН",
-                      site: "ПРОДАДЕНИ",
-                    }
-                  )
-                }
+                onClick={async () => {
+                  try {
+                    const res = await axios.put(
+                      `http://192.168.0.147:5555/api/vehicle/${vehicle._id}`,
+                      {
+                        ...vehicle,
+                        sold: true,
+                        soldPrice: sell.price,
+                        soldDate: sell.date,
+                        state: "ПРОДАДЕН",
+                        site: "ПРОДАДЕНИ",
+                      }
+                    );
+                  } catch (error) {
+                    setError({
+                      show: true,
+                      message: `Грешка при комуникация: ${error}`,
+                    });
+                  }
+                }}
                 autoFocus
               >
                 Готово
@@ -1614,7 +1635,7 @@ const ShowVehicle = () => {
                 <CarRepair />
               </Button>
 
-              <Button
+              {/* <Button
                 variant="contained"
                 color={tab === "ref" ? "secondary" : "primary"}
                 onClick={() => {
@@ -1627,7 +1648,7 @@ const ShowVehicle = () => {
               >
                 Справки
                 <QueryStats />
-              </Button>
+              </Button> */}
               <Button
                 variant="contained"
                 color={tab === "log" ? "secondary" : "primary"}
@@ -1656,6 +1677,8 @@ const ShowVehicle = () => {
               )}
               {tab === "issues" ? (
                 <Issues
+                  setRefreshUpper={setRefresh}
+                  refreshUpper={refresh}
                   username={username}
                   userRole={userRole}
                   vehicle={vehicle}
@@ -1668,8 +1691,6 @@ const ShowVehicle = () => {
                   username={username}
                   userRole={userRole}
                   vehicle={vehicle}
-                  refresh={refresh}
-                  setRefresh={setRefresh}
                 />
               ) : (
                 ""
@@ -1688,25 +1709,25 @@ const ShowVehicle = () => {
               {tab === "log" ? <Log vehicle={vehicle} /> : ""}
             </div>
 
-            <div className="my-2">
+            <Box className="my-2">
               <span className="text-xl mr-4 text-gray-500">
                 Последна Промяна:
               </span>
               <span>
                 {dayjs(vehicle.updatedAt).format("DD/MM/YYYY ddd HH:mm:ss")}
               </span>
-            </div>
-            <div className="my-2">
+            </Box>
+            <Box className="my-2">
               <span className="text-xl mr-4 text-gray-500">Добавен:</span>
               <span>
                 {dayjs(vehicle.createdAt).format("DD/MM/YYYY ddd HH:mm:ss")}
               </span>
-            </div>
+            </Box>
 
-            <div className="my-2">
+            <Box className="my-2">
               <span className="text-xl mr-4 text-gray-500">ID:</span>
               <span>{vehicle._id}</span>
-            </div>
+            </Box>
             <Box>
               <ButtonGroup>
                 {userRole.includes("admin") ? (

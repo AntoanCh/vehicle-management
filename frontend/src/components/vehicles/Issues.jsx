@@ -26,7 +26,13 @@ import {
   useMaterialReactTable,
 } from "material-react-table";
 
-const Issues = ({ vehicle, userRole, username }) => {
+const Issues = ({
+  vehicle,
+  userRole,
+  username,
+  refreshUpper,
+  setRefreshUpper,
+}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefetching, setIsRefetching] = useState(true);
   const [errorBanner, setErrorBanner] = useState({
@@ -34,13 +40,14 @@ const Issues = ({ vehicle, userRole, username }) => {
     message: "",
     color: "",
   });
+
   const [error, setError] = useState({ show: false, message: "" });
   const [alert, setAlert] = useState({
     show: false,
     message: "",
     severity: "",
   });
-  const [issues, setissues] = useState([]);
+  const [issues, setIssues] = useState([]);
   const [add, setAdd] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [rowCount, setRowCount] = useState(0);
@@ -49,6 +56,7 @@ const Issues = ({ vehicle, userRole, username }) => {
     setAdd(true);
   };
 
+  console.log(refreshUpper);
   useEffect(() => {
     const fetchData = async () => {
       if (!issues.length) {
@@ -61,7 +69,7 @@ const Issues = ({ vehicle, userRole, username }) => {
         const res = await axios.get(
           `http://192.168.0.147:5555/api/problems/${vehicle._id}`
         );
-        setissues(res.data.data);
+        setIssues(res.data.data);
         setRowCount(res.data.count);
       } catch (error) {
         setError({
@@ -76,6 +84,11 @@ const Issues = ({ vehicle, userRole, username }) => {
     };
 
     fetchData();
+
+    //this refreshes the upper component (ShowVehicle)
+    if (refreshUpper !== undefined) {
+      setRefreshUpper(!refreshUpper);
+    }
   }, [refresh]);
 
   const theme = useTheme();

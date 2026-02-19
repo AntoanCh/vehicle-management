@@ -13,6 +13,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import DraggablePaper from "../DraggablePaper";
+import Checkbox from "@mui/material/Checkbox";
 
 const EditSite = ({
   edit,
@@ -48,7 +49,7 @@ const EditSite = ({
         `http://192.168.0.147:5555/api/sites/${edit.site._id}`,
         {
           ...edit.site,
-        }
+        },
       );
       const { status, message } = data;
 
@@ -88,6 +89,12 @@ const EditSite = ({
     const { name, value } = e.target;
 
     setEdit({ show: true, site: { ...edit.site, [name]: value } });
+  };
+  const handleHasVehicles = (event) => {
+    setEdit({
+      show: true,
+      site: { ...edit.site, hasVehicles: event.target.checked },
+    });
   };
 
   const handleClose = () => {
@@ -139,6 +146,26 @@ const EditSite = ({
                   variant="filled"
                 ></TextField>
               </Box>
+              <Box>
+                <Checkbox
+                  checked={edit.site.hasVehicles}
+                  onChange={handleHasVehicles}
+                />
+                <span>Автопарк</span>
+              </Box>
+              {edit.site.hasVehicles && (
+                <Box sx={{ marginY: "15px" }}>
+                  <TextField
+                    fullWidth
+                    name="password"
+                    label="Парола:"
+                    value={edit.site.password}
+                    onChange={handleChangeEdit}
+                    variant="filled"
+                  ></TextField>
+                </Box>
+              )}
+
               <Box sx={{ marginY: "15px" }}>
                 <TextField
                   fullWidth

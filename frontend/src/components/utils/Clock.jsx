@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { TextField } from "@mui/material";
+import { darken, lighten, useTheme } from "@mui/material";
 
 const Clock = () => {
+  const [time, setTime] = useState(dayjs());
+  useEffect(() => {
+    setTime(dayjs());
+  }, [dayjs()]);
+  const theme = useTheme();
   return (
     <TextField
       label=""
@@ -15,7 +21,8 @@ const Clock = () => {
           fontWeight: 800,
         },
         "& .MuiInputBase-input.Mui-disabled": {
-          WebkitTextFillColor: "black", //Adjust text color here
+          WebkitTextFillColor:
+            theme.palette.mode === "dark" ? "white" : "black", //Adjust text color here
         },
       }}
       variant="standard"
