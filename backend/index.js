@@ -50,13 +50,6 @@ app.use("/api/records", recordRoutes);
 app.use("/api/person", personRoutes);
 app.use("/api/settings", settingsRoutes);
 
-app.get("/client-ip", (req, res) => {
-  const ip =
-    req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
-
-  res.json({ ip });
-});
-
 //set static folder
 app.use(express.static("build"));
 app.get("*", (req, res) => {

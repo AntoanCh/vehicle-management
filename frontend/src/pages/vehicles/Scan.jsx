@@ -62,18 +62,13 @@ const Scan = () => {
   const [stopTimer, setStopTimer] = useState(true);
   const [loadingSites, setLoadingSites] = useState(true);
   const [sites, setSites] = useState({});
-  const [selectedSite, setSelectedSite] = useState("");
+  const [selectedSite, setSelectedSite] = useState("ОФИС");
+  const [clientIP, setClientIP] = useState("");
 
   const handleChange = (e) => {
     setBarcode(e.target.value);
   };
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch("/client-ip")
-      .then((res) => res.json())
-      .then((data) => console.log(data.ip));
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -112,7 +107,7 @@ const Scan = () => {
         const res = await axios.get("http://192.168.0.147:5555/api/vehicle");
         setVehicles(
           res.data.data
-            .filter((item) => item.site === "БОРСА")
+            .filter((item) => item.site === selectedSite)
             .sort((a, b) => {
               if (a.occupied.status && !b.occupied.status) {
                 return 1;
@@ -160,7 +155,7 @@ const Scan = () => {
           const res = await axios.get("http://192.168.0.147:5555/api/vehicle");
           setVehicles(
             res.data.data
-              .filter((item) => item.site === "ОФИС")
+              .filter((item) => item.site === selectedSite)
               .sort((a, b) => {
                 if (a.occupied.status && !b.occupied.status) {
                   return 1;
@@ -202,7 +197,7 @@ const Scan = () => {
       refetchData();
     }, 5000);
     return () => clearInterval(interval);
-  }, [driver, dropoff]);
+  }, [driver, dropoff, selectedSite]);
 
   //This rerenders the whole component every second (this helps with barcode autofocus)
   // useEffect(() => {
@@ -605,16 +600,11 @@ const Scan = () => {
         variant="scrollable"
         value={selectedSite}
         onChange={handleChangeTab}
-        aria-label="Vertical tabs example"
+        aria-label=""
         sx={{ borderRight: 1, borderColor: "divider" }}
       >
         {sites.length &&
           sites.map((item) => <Tab label={item.name} value={item.name} />)}
-
-        {/* <Tab label="ОФИС" />
-        <Tab label="СКЛАД" />
-        <Tab label="345" />
-        <Tab label="СЕРВИЗ" /> */}
       </Tabs>
 
       <Box
